@@ -1,7 +1,7 @@
-import { Heading } from "../components/ui/heading";
+import { Heading } from '../components/ui/heading';
 
 export default {
-  title: "UI/Heading",
+  title: 'COMPONENTS/Heading',
   component: Heading,
 };
 

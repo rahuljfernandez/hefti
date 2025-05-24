@@ -1,4 +1,4 @@
-import { Avatar } from "../components/ui/avatar";
+import { Avatar } from '../components/ui/avatar';
 import {
   Dropdown,
   DropdownButton,
@@ -6,7 +6,7 @@ import {
   DropdownItem,
   DropdownLabel,
   DropdownMenu,
-} from "../components/ui/dropdown";
+} from '../components/ui/dropdown';
 import {
   Navbar,
   NavbarDivider,
@@ -14,7 +14,7 @@ import {
   NavbarLabel,
   NavbarSection,
   NavbarSpacer,
-} from "../components/ui/navbar";
+} from '../components/ui/navbar';
 import {
   ArrowRightStartOnRectangleIcon,
   ChevronDownIcon,
@@ -23,11 +23,11 @@ import {
   PlusIcon,
   ShieldCheckIcon,
   UserIcon,
-} from "@heroicons/react/16/solid";
-import { InboxIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+} from '@heroicons/react/16/solid';
+import { InboxIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
 export default {
-  title: "UI/Navbar",
+  title: 'COMPONENTS/Navbar',
   component: Navbar,
 };
 

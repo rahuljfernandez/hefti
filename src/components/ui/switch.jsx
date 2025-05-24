@@ -1,5 +1,5 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
 
 export function SwitchGroup({ className, ...props }) {
   return (
@@ -11,10 +11,10 @@ export function SwitchGroup({ className, ...props }) {
         // Basic groups
         'space-y-3 **:data-[slot=label]:font-normal',
         // With descriptions
-        'has-data-[slot=description]:space-y-6 has-data-[slot=description]:**:data-[slot=label]:font-medium'
+        'has-data-[slot=description]:space-y-6 has-data-[slot=description]:**:data-[slot=label]:font-medium',
       )}
     />
-  )
+  );
 }
 
 export function SwitchField({ className, ...props }) {
@@ -33,10 +33,10 @@ export function SwitchField({ className, ...props }) {
         // Description layout
         '*:data-[slot=description]:col-start-1 *:data-[slot=description]:row-start-2',
         // With description
-        'has-data-[slot=description]:**:data-[slot=label]:font-medium'
+        'has-data-[slot=description]:**:data-[slot=label]:font-medium',
       )}
     />
-  )
+  );
 }
 
 const colors = {
@@ -128,7 +128,7 @@ const colors = {
     '[--switch-bg-ring:var(--color-rose-600)]/90 [--switch-bg:var(--color-rose-500)] dark:[--switch-bg-ring:transparent]',
     '[--switch:white] [--switch-ring:var(--color-rose-600)]/90 [--switch-shadow:var(--color-rose-900)]/20',
   ],
-}
+};
 
 export function Switch({ color = 'dark/zinc', className, ...props }) {
   return (
@@ -156,7 +156,7 @@ export function Switch({ color = 'dark/zinc', className, ...props }) {
         'data-disabled:bg-zinc-200 data-disabled:opacity-50 data-disabled:data-checked:bg-zinc-200 data-disabled:data-checked:ring-black/5',
         'dark:data-disabled:bg-white/15 dark:data-disabled:data-checked:bg-white/15 dark:data-disabled:data-checked:ring-white/15',
         // Color specific styles
-        colors[color]
+        colors[color],
       )}
     >
       <span
@@ -174,9 +174,9 @@ export function Switch({ color = 'dark/zinc', className, ...props }) {
           'group-data-checked:bg-(--switch) group-data-checked:shadow-(--switch-shadow) group-data-checked:ring-(--switch-ring)',
           'group-data-checked:translate-x-4 sm:group-data-checked:translate-x-3',
           // Disabled
-          'group-data-checked:group-data-disabled:bg-white group-data-checked:group-data-disabled:shadow-sm group-data-checked:group-data-disabled:ring-black/5'
+          'group-data-checked:group-data-disabled:bg-white group-data-checked:group-data-disabled:shadow-sm group-data-checked:group-data-disabled:ring-black/5',
         )}
       />
     </Headless.Switch>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { Textarea } from "../components/ui/textarea";
+import { Textarea } from '../components/ui/textarea';
 
 export default {
-  title: "UI/TextArea",
+  title: 'COMPONENTS/TextArea',
   component: Textarea,
 };
 

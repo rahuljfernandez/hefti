@@ -1,7 +1,7 @@
-import { Checkbox } from "../components/ui/checkbox";
+import { Checkbox } from '../components/ui/checkbox';
 
 export default {
-  title: "UI/Checkbox",
+  title: 'COMPONENTS/Checkbox',
   component: Checkbox,
 };
 

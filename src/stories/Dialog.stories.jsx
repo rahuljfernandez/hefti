@@ -1,17 +1,17 @@
-import { Button } from "../components/ui/button";
+import { Button } from '../components/ui/button';
 import {
   Dialog,
   DialogActions,
   DialogBody,
   DialogDescription,
   DialogTitle,
-} from "../components/ui/dialog";
-import { Field, Label } from "../components/ui/fieldset";
-import { Input } from "../components/ui/input";
-import { useState } from "react";
+} from '../components/ui/dialog';
+import { Field, Label } from '../components/ui/fieldset';
+import { Input } from '../components/ui/input';
+import { useState } from 'react';
 
 export default {
-  title: "UI/Dialog",
+  title: 'COMPONENTS/Dialog',
   component: Dialog,
 };
 

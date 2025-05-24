@@ -1,5 +1,5 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
 
 export function CheckboxGroup({ className, ...props }) {
   return (
@@ -11,10 +11,10 @@ export function CheckboxGroup({ className, ...props }) {
         // Basic groups
         'space-y-3',
         // With descriptions
-        'has-data-[slot=description]:space-y-6 has-data-[slot=description]:**:data-[slot=label]:font-medium'
+        'has-data-[slot=description]:space-y-6 has-data-[slot=description]:**:data-[slot=label]:font-medium',
       )}
     />
-  )
+  );
 }
 
 export function CheckboxField({ className, ...props }) {
@@ -33,10 +33,10 @@ export function CheckboxField({ className, ...props }) {
         // Description layout
         '*:data-[slot=description]:col-start-2 *:data-[slot=description]:row-start-2',
         // With description
-        'has-data-[slot=description]:**:data-[slot=label]:font-medium'
+        'has-data-[slot=description]:**:data-[slot=label]:font-medium',
       )}
     />
-  )
+  );
 }
 
 const base = [
@@ -65,7 +65,7 @@ const base = [
   // Forced colors mode
   'forced-colors:[--checkbox-check:HighlightText] forced-colors:[--checkbox-checked-bg:Highlight] forced-colors:group-data-disabled:[--checkbox-check:Highlight]',
   'dark:forced-colors:[--checkbox-check:HighlightText] dark:forced-colors:[--checkbox-checked-bg:Highlight] dark:forced-colors:group-data-disabled:[--checkbox-check:Highlight]',
-]
+];
 
 const colors = {
   'dark/zinc': [
@@ -106,7 +106,7 @@ const colors = {
     '[--checkbox-check:var(--color-white)] [--checkbox-checked-bg:var(--color-fuchsia-500)] [--checkbox-checked-border:var(--color-fuchsia-600)]/90',
   pink: '[--checkbox-check:var(--color-white)] [--checkbox-checked-bg:var(--color-pink-500)] [--checkbox-checked-border:var(--color-pink-600)]/90',
   rose: '[--checkbox-check:var(--color-white)] [--checkbox-checked-bg:var(--color-rose-500)] [--checkbox-checked-border:var(--color-rose-600)]/90',
-}
+};
 
 export function Checkbox({ color = 'dark/zinc', className, ...props }) {
   return (
@@ -140,5 +140,5 @@ export function Checkbox({ color = 'dark/zinc', className, ...props }) {
         </svg>
       </span>
     </Headless.Checkbox>
-  )
+  );
 }

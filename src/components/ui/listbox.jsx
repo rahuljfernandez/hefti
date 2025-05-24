@@ -1,10 +1,17 @@
-'use client'
+'use client';
 
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
-import { Fragment } from 'react'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import { Fragment } from 'react';
 
-export function Listbox({ className, placeholder, autoFocus, 'aria-label': ariaLabel, children: options, ...props }) {
+export function Listbox({
+  className,
+  placeholder,
+  autoFocus,
+  'aria-label': ariaLabel,
+  children: options,
+  ...props
+}) {
   return (
     <Headless.Listbox {...props} multiple={false}>
       <Headless.ListboxButton
@@ -30,7 +37,13 @@ export function Listbox({ className, placeholder, autoFocus, 'aria-label': ariaL
         <Headless.ListboxSelectedOption
           as="span"
           options={options}
-          placeholder={placeholder && <span className="block truncate text-zinc-500">{placeholder}</span>}
+          placeholder={
+            placeholder && (
+              <span className="block truncate text-zinc-500">
+                {placeholder}
+              </span>
+            )
+          }
           className={clsx([
             // Basic layout
             'relative block w-full appearance-none rounded-lg py-[calc(--spacing(2.5)-1px)] sm:py-[calc(--spacing(1.5)-1px)]',
@@ -57,8 +70,18 @@ export function Listbox({ className, placeholder, autoFocus, 'aria-label': ariaL
             aria-hidden="true"
             fill="none"
           >
-            <path d="M5.75 10.75L8 13L10.25 10.75" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M10.25 5.25L8 3L5.75 5.25" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M5.75 10.75L8 13L10.25 10.75"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M10.25 5.25L8 3L5.75 5.25"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </Headless.ListboxButton>
@@ -79,13 +102,13 @@ export function Listbox({ className, placeholder, autoFocus, 'aria-label': ariaL
           // Shadows
           'shadow-lg ring-1 ring-zinc-950/10 dark:ring-white/10 dark:ring-inset',
           // Transitions
-          'transition-opacity duration-100 ease-in data-closed:data-leave:opacity-0 data-transition:pointer-events-none'
+          'transition-opacity duration-100 ease-in data-closed:data-leave:opacity-0 data-transition:pointer-events-none',
         )}
       >
         {options}
       </Headless.ListboxOptions>
     </Headless.Listbox>
-  )
+  );
 }
 
 export function ListboxOption({ children, className, ...props }) {
@@ -97,14 +120,16 @@ export function ListboxOption({ children, className, ...props }) {
     '*:data-[slot=icon]:text-zinc-500 group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-zinc-400',
     'forced-colors:*:data-[slot=icon]:text-[CanvasText] forced-colors:group-data-focus/option:*:data-[slot=icon]:text-[Canvas]',
     // Avatars
-    '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5'
-  )
+    '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5',
+  );
 
   return (
     <Headless.ListboxOption as={Fragment} {...props}>
       {({ selectedOption }) => {
         if (selectedOption) {
-          return <div className={clsx(className, sharedClasses)}>{children}</div>
+          return (
+            <div className={clsx(className, sharedClasses)}>{children}</div>
+          );
         }
 
         return (
@@ -119,7 +144,7 @@ export function ListboxOption({ children, className, ...props }) {
               // Forced colors mode
               'forced-color-adjust-none forced-colors:data-focus:bg-[Highlight] forced-colors:data-focus:text-[HighlightText]',
               // Disabled
-              'data-disabled:opacity-50'
+              'data-disabled:opacity-50',
             )}
           >
             <svg
@@ -128,18 +153,33 @@ export function ListboxOption({ children, className, ...props }) {
               fill="none"
               aria-hidden="true"
             >
-              <path d="M4 8.5l3 3L12 4" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M4 8.5l3 3L12 4"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
-            <span className={clsx(className, sharedClasses, 'col-start-2')}>{children}</span>
+            <span className={clsx(className, sharedClasses, 'col-start-2')}>
+              {children}
+            </span>
           </div>
-        )
+        );
       }}
     </Headless.ListboxOption>
-  )
+  );
 }
 
 export function ListboxLabel({ className, ...props }) {
-  return <span {...props} className={clsx(className, 'ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0')} />
+  return (
+    <span
+      {...props}
+      className={clsx(
+        className,
+        'ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0',
+      )}
+    />
+  );
 }
 
 export function ListboxDescription({ className, children, ...props }) {
@@ -148,10 +188,10 @@ export function ListboxDescription({ className, children, ...props }) {
       {...props}
       className={clsx(
         className,
-        'flex flex-1 overflow-hidden text-zinc-500 group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-zinc-400'
+        'flex flex-1 overflow-hidden text-zinc-500 group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-zinc-400',
       )}
     >
       <span className="flex-1 truncate">{children}</span>
     </span>
-  )
+  );
 }

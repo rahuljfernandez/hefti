@@ -3,17 +3,17 @@ import {
   DropdownButton,
   DropdownItem,
   DropdownMenu,
-} from "../components/ui/dropdown";
-import { ChevronDownIcon } from "@heroicons/react/16/solid";
+} from '../components/ui/dropdown';
+import { ChevronDownIcon } from '@heroicons/react/16/solid';
 
 export default {
-  title: "UI/Dropdown",
+  title: 'COMPONENTS/Dropdown',
   component: Dropdown,
 };
 
 export const Basic = () => {
   function deleteUser() {
-    if (confirm("Are you sure you want to delete this user?")) {
+    if (confirm('Are you sure you want to delete this user?')) {
       // ...
     }
   }

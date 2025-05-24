@@ -2,10 +2,10 @@ import {
   DescriptionDetails,
   DescriptionList,
   DescriptionTerm,
-} from "../components/ui/description-list";
+} from '../components/ui/description-list';
 
 export default {
-  title: "UI/Description-List",
+  title: 'COMPONENTS/Description-List',
   component: DescriptionList,
 };
 

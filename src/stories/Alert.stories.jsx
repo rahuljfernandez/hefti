@@ -4,10 +4,10 @@ import {
   AlertDescription,
   AlertBody,
   AlertActions,
-} from "../components/ui/alert";
+} from '../components/ui/alert';
 
 export default {
-  title: "UI/Alert",
+  title: 'COMPONENTS/Alert',
   component: Alert,
 };
 

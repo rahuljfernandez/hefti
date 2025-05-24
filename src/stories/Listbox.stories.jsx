@@ -1,7 +1,7 @@
-import { Listbox, ListboxLabel, ListboxOption } from "../components/ui/listbox";
+import { Listbox, ListboxLabel, ListboxOption } from '../components/ui/listbox';
 
 export default {
-  title: "UI/Listbox",
+  title: 'COMPONENTS/Listbox',
   component: Listbox,
 };
 export const Basic = () => {

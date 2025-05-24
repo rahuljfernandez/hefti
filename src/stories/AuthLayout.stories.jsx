@@ -1,4 +1,4 @@
-import { AuthLayout } from "../components/ui/auth-layout";
+import { AuthLayout } from '../components/ui/auth-layout';
 // import { Button } from "@/components/button";
 // import { Checkbox, CheckboxField } from "@/components/checkbox";
 // import { Field, Label } from "@/components/fieldset";
@@ -8,7 +8,7 @@ import { AuthLayout } from "../components/ui/auth-layout";
 // import { Logo } from "./logo";
 
 export default {
-  title: "Layouts/AuthLayout",
+  title: 'COMPONENTS/AuthLayout',
   component: AuthLayout,
 };
 

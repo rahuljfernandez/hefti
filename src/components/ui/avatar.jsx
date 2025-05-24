@@ -1,14 +1,14 @@
-import * as Headless from "@headlessui/react";
-import clsx from "clsx";
-import { forwardRef } from "react";
-import { TouchTarget } from "./button";
-import { Link } from "./link";
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import { forwardRef } from 'react';
+import { TouchTarget } from './button';
+import { Link } from './link';
 
 export function Avatar({
   src = null,
   square = false,
   initials,
-  alt = "",
+  alt = '',
   className,
   ...props
 }) {
@@ -19,19 +19,19 @@ export function Avatar({
       className={clsx(
         className,
         // Basic layout
-        "inline-grid shrink-0 align-middle [--avatar-radius:20%] *:col-start-1 *:row-start-1",
-        "outline -outline-offset-1 outline-black/10 dark:outline-white/10",
+        'inline-grid shrink-0 align-middle [--avatar-radius:20%] *:col-start-1 *:row-start-1',
+        'outline -outline-offset-1 outline-black/10 dark:outline-white/10',
         // Border radius
         square
-          ? "rounded-(--avatar-radius) *:rounded-(--avatar-radius)"
-          : "rounded-full *:rounded-full"
+          ? 'rounded-(--avatar-radius) *:rounded-(--avatar-radius)'
+          : 'rounded-full *:rounded-full',
       )}
     >
       {initials && (
         <svg
           className="size-full fill-current p-[5%] text-[48px] font-medium uppercase select-none"
           viewBox="0 0 100 100"
-          aria-hidden={alt ? undefined : "true"}
+          aria-hidden={alt ? undefined : 'true'}
         >
           {alt && <title>{alt}</title>}
           <text
@@ -53,15 +53,15 @@ export function Avatar({
 
 export const AvatarButton = forwardRef(function AvatarButton(
   { src, square = false, initials, alt, className, ...props },
-  ref
+  ref,
 ) {
   let classes = clsx(
     className,
-    square ? "rounded-[20%]" : "rounded-full",
-    "relative inline-grid focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500"
+    square ? 'rounded-[20%]' : 'rounded-full',
+    'relative inline-grid focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500',
   );
 
-  return "href" in props ? (
+  return 'href' in props ? (
     <Link {...props} className={classes} ref={ref}>
       <TouchTarget>
         <Avatar src={src} square={square} initials={initials} alt={alt} />

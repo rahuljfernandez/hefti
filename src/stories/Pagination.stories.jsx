@@ -5,10 +5,10 @@ import {
   PaginationNext,
   PaginationPage,
   PaginationPrevious,
-} from "../components/ui/pagination";
+} from '../components/ui/pagination';
 
 export default {
-  title: "UI/Pagination",
+  title: 'COMPONENTS/Pagination',
   component: Pagination,
 };
 

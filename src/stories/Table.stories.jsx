@@ -5,31 +5,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table";
+} from '../components/ui/table';
 
 export default {
-  title: "UI/Table",
+  title: 'COMPONENTS/Table',
   component: Table,
 };
 
 const users = [
   {
-    handle: "jdoe",
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    access: "Admin",
+    handle: 'jdoe',
+    name: 'Jane Doe',
+    email: 'jane.doe@example.com',
+    access: 'Admin',
   },
   {
-    handle: "jsmith",
-    name: "John Smith",
-    email: "john.smith@example.com",
-    access: "Editor",
+    handle: 'jsmith',
+    name: 'John Smith',
+    email: 'john.smith@example.com',
+    access: 'Editor',
   },
   {
-    handle: "alee",
-    name: "Alex Lee",
-    email: "alex.lee@example.com",
-    access: "Viewer",
+    handle: 'alee',
+    name: 'Alex Lee',
+    email: 'alex.lee@example.com',
+    access: 'Viewer',
   },
 ];
 

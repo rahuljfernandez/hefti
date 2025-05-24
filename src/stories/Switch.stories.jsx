@@ -1,7 +1,7 @@
-import { Switch } from "../components/ui/switch";
+import { Switch } from '../components/ui/switch';
 
 export default {
-  title: "UI/Switch",
+  title: 'COMPONENTS/Switch',
   component: Switch,
 };
 

@@ -1,13 +1,13 @@
-import { Avatar } from "../components/ui/avatar";
+import { Avatar } from '../components/ui/avatar';
 
 export default {
-  title: "UI/Avatar",
+  title: 'COMPONENTS/Avatar',
   component: Avatar,
 };
 
 const user = {
-  name: "Jane Doe",
-  avatarUrl: "https://i.pravatar.cc/150?img=47",
+  name: 'Jane Doe',
+  avatarUrl: 'https://i.pravatar.cc/150?img=47',
 };
 
 export const Basic = () => {

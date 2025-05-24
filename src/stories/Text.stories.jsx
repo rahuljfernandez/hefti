@@ -1,7 +1,7 @@
-import { Text } from "../components/ui/text";
+import { Text } from '../components/ui/text';
 
 export default {
-  title: "UI/Text",
+  title: 'COMPONENTS/Text',
   component: Text,
 };
 

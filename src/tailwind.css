@@ -1,10 +1,35 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../tailwind.config.js";
-
-@tailwind base;
-@tailwind components;
 @tailwind utilities;
 
-@theme {
-  --color-primary: green;
+@layer base {
+  :root {
+    --core-white: theme(colors.white);
+    --core-black: theme(colors.black);
+
+    --content-primary: theme(colors.zinc.950);
+    --content-secondary: theme(colors.zinc.500);
+    --content-tertiary: theme(colors.zinc.400);
+    --content-inverse-primary: theme(colors.white);
+    --content-inverse-secondary: theme(colors.zinc.400);
+    --content-inverse-tertiary: theme(colors.zinc.400);
+
+    --background-primary: theme(colors.zinc.200);
+    --background-secondary: theme(colors.zinc.50);
+    --background-tertiary: theme(colors.zinc.50);
+    --background-inverse-primary: theme(colors.zinc.700);
+    --background-inverse-secondary: theme(colors.zinc.800);
+    --background-hover: theme(colors.zinc.500);
+    --background-hover-overlay: rgba(0, 0, 0, 0.025);
+    --background-inverse-hover-overlay: rgba(255, 255, 255, 0.05);
+
+    --border-primary: theme(colors.zinc.200);
+    --border-secondary: theme(colors.zinc.100);
+    --border-tertiary: theme(colors.zinc.50);
+    --border-inverse-primary: theme(colors.zinc.700);
+    --border-inverse-secondary: theme(colors.zinc.800);
+    --border-inverse-tertiary: theme(colors.zinc.950);
+    --border-hover-overlay: rgba(0, 0, 0, 0.2);
+    --border-inverse-hover-overlay: rgba(255, 255, 255, 0.1);
+  }
 }

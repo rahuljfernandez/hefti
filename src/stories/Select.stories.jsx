@@ -1,7 +1,7 @@
-import { Select } from "../components/ui/select";
+import { Select } from '../components/ui/select';
 
 export default {
-  title: "UI/Select",
+  title: 'COMPONENTS/Select',
   component: Select,
 };
 

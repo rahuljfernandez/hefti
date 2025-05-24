@@ -2,31 +2,31 @@ import {
   Combobox,
   ComboboxLabel,
   ComboboxOption,
-} from "../components/ui/combobox";
+} from '../components/ui/combobox';
 
 export default {
-  title: "UI/combobox",
+  title: 'COMPONENTS/combobox',
   component: Combobox,
 };
 
 const users = [
   {
     id: 1,
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    avatarUrl: "https://i.pravatar.cc/150?img=47",
+    name: 'Jane Doe',
+    email: 'jane.doe@example.com',
+    avatarUrl: 'https://i.pravatar.cc/150?img=47',
   },
   {
     id: 2,
-    name: "John Smith",
-    email: "john.smith@example.com",
-    avatarUrl: "https://i.pravatar.cc/150?img=12",
+    name: 'John Smith',
+    email: 'john.smith@example.com',
+    avatarUrl: 'https://i.pravatar.cc/150?img=12',
   },
   {
     id: 3,
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    avatarUrl: "https://i.pravatar.cc/150?img=32",
+    name: 'Alex Johnson',
+    email: 'alex.johnson@example.com',
+    avatarUrl: 'https://i.pravatar.cc/150?img=32',
   },
 ];
 

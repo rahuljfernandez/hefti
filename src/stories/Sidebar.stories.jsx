@@ -3,10 +3,10 @@ import {
   SidebarBody,
   SidebarItem,
   SidebarSection,
-} from "../components/ui/sidebar";
+} from '../components/ui/sidebar';
 
 export default {
-  title: "UI/Sidebar",
+  title: 'COMPONENTS/Sidebar',
   component: Sidebar,
 };
 

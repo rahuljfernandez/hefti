@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import clsx from 'clsx';
 
 export function Divider({ soft = false, className, ...props }) {
   return (
@@ -9,8 +9,8 @@ export function Divider({ soft = false, className, ...props }) {
         className,
         'w-full border-t',
         soft && 'border-zinc-950/5 dark:border-white/5',
-        !soft && 'border-zinc-950/10 dark:border-white/10'
+        !soft && 'border-zinc-950/10 dark:border-white/10',
       )}
     />
-  )
+  );
 }

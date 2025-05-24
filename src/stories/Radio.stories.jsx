@@ -1,8 +1,8 @@
-import { Label } from "../components/ui/fieldset";
-import { Radio, RadioField, RadioGroup } from "../components/ui/radio";
+import { Label } from '../components/ui/fieldset';
+import { Radio, RadioField, RadioGroup } from '../components/ui/radio';
 
 export default {
-  title: "UI/Radio",
+  title: 'COMPONENTS/Radio',
   component: Radio,
 };
 

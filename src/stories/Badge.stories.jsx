@@ -1,7 +1,7 @@
-import { Badge, BadgeButton } from "../components/ui/badge";
+import { Badge, BadgeButton } from '../components/ui/badge';
 
 export default {
-  title: "UI/Badge",
+  title: 'COMPONENTS/Badge',
   component: Badge,
 };
 

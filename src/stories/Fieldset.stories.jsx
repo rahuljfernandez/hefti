@@ -5,14 +5,14 @@ import {
   Fieldset,
   Label,
   Legend,
-} from "../components/ui/fieldset";
-import { Input } from "../components/ui/input";
-import { Select } from "../components/ui/select";
-import { Text } from "../components/ui/text";
-import { Textarea } from "../components/ui/textarea";
+} from '../components/ui/fieldset';
+import { Input } from '../components/ui/input';
+import { Select } from '../components/ui/select';
+import { Text } from '../components/ui/text';
+import { Textarea } from '../components/ui/textarea';
 
 export default {
-  title: "UI/Fieldset",
+  title: 'COMPONENTS/Fieldset',
   component: Fieldset,
 };
 
