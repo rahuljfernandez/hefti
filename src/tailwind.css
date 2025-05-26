@@ -1,9 +1,12 @@
+@import '@fontsource-variable/inter';
 @import 'tailwindcss';
 @config "../tailwind.config.js";
 @tailwind utilities;
 
 @layer base {
   :root {
+    font-family: 'Inter', sans-serif;
+
     --core-white: theme(colors.white);
     --core-black: theme(colors.black);
 
