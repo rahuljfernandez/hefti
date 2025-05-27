@@ -1,5 +1,11 @@
 <summary><strong>📦 Dev Scripts</strong></summary>
 
+Start app on local
+
+```bash
+npm run dev
+```
+
 Start a storybook on local
 
 ```bash
