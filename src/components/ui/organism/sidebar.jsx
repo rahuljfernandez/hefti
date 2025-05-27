@@ -1,8 +1,7 @@
-'use client';
-
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
-import { LayoutGroup } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { LayoutGroup, motion } from 'framer-motion';
 import React, { forwardRef, useId } from 'react';
 import { TouchTarget } from '../atom/button';
 import { Link } from '../atom/link';

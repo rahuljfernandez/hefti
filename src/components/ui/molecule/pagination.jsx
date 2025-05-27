@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-import { Button } from './button';
+import { Button } from '../atom/button';
 
 export function Pagination({
   'aria-label': ariaLabel = 'Page navigation',

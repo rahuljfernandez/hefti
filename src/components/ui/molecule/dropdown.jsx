@@ -4,7 +4,7 @@ import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 
 import { Button } from '../atom/button';
-import { Link } from '../link';
+import { Link } from '../atom/link';
 
 export function Dropdown(props) {
   return <Headless.Menu {...props} />;

@@ -1,8 +1,7 @@
-'use client';
-
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
-import { LayoutGroup } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { LayoutGroup, motion } from 'framer-motion';
 import React, { forwardRef, useId } from 'react';
 import { TouchTarget } from '../atom/button';
 import { Link } from '../atom/link';
@@ -11,7 +10,7 @@ export function Navbar({ className, ...props }) {
   return (
     <nav
       {...props}
-      className={clsx(className, 'flex flex-1 items-center gap-4 py-2.5')}
+      className={clsx(className, 'flex flex-1 items-center gap-4')}
     />
   );
 }
@@ -21,7 +20,7 @@ export function NavbarDivider({ className, ...props }) {
     <div
       aria-hidden="true"
       {...props}
-      className={clsx(className, 'h-6 w-px bg-zinc-950/10 dark:bg-white/10')}
+      className={clsx(className, 'bg-core-white h-6 w-px')}
     />
   );
 }
@@ -53,7 +52,7 @@ export const NavbarItem = forwardRef(function NavbarItem(
 ) {
   let classes = clsx(
     // Base
-    'relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium text-zinc-950 sm:text-sm/5',
+    'relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium sm:text-sm/5',
     // Leading icon/icon-only
     '*:data-[slot=icon]:size-6 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:fill-zinc-500 sm:*:data-[slot=icon]:size-5',
     // Trailing icon (down chevron or similar)
@@ -68,6 +67,7 @@ export const NavbarItem = forwardRef(function NavbarItem(
     'dark:text-white dark:*:data-[slot=icon]:fill-zinc-400',
     'dark:data-hover:bg-white/5 dark:data-hover:*:data-[slot=icon]:fill-white',
     'dark:data-active:bg-white/5 dark:data-active:*:data-[slot=icon]:fill-white',
+    className,
   );
 
   return (

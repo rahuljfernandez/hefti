@@ -1,5 +1,5 @@
-import { StackedLayout } from './StackedLayout';
-import { NavbarItem } from '../navbar';
+import { StackedLayout } from '../../components/ui/organism/stacked-layout';
+import { NavbarItem } from '../../components/ui/molecule/navbar';
 
 export default {
   title: 'COMPONENTS/Organism/StackedLayout',
