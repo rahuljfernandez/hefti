@@ -1,67 +1,98 @@
 import { Badge } from '../atom/badge';
 import { getBadgeColor } from '../../../lib/getBadgeColor';
+import { statTemplates } from '../../../lib/startTemplates';
+
+const variants = {
+  card: {
+    wrapper: 'mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2',
+    item: 'border-border-primary text-label-lg overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-16 shadow-sm',
+  },
+  panel: {
+    wrapper:
+      'mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden bg-white md:grid-cols-3 md:divide-x md:divide-y-0',
+    item: 'px-4 py-5 sm:p-6',
+  },
+};
 
 const fallbackStats = [
   {
-    id: 1,
-    name: 'Total Penalties',
+    key: 'Total Deficiencies',
     stat: '17',
     rating: 'Above Average',
-    nationalAveragePenalties: '3',
   },
   {
-    id: 2,
-    name: 'Total Fines',
-    stat: '753,581',
+    key: 'Staffing Score',
+    stat: '1',
     rating: 'Below Average',
-    nationalAverageFines: '48,371',
+  },
+  {
+    key: 'Health Inspection',
+    stat: '1',
+    rating: 'Below Average',
   },
 ];
 
-{
-  /*TODO: adjust pading for responsive, awaiting design details */
+function formatValue(value, isCurrency = false) {
+  if (!value) return 'N/A';
+  return isCurrency ? `$${value}` : value;
 }
 
-export default function StatsCard({ stats = fallbackStats }) {
+function normalizeKey(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .replace(/\s+(.)/g, (_, chr) => chr.toUpperCase());
+}
+
+function StatCardItem({ stats = fallbackStats, variant = 'panel' }) {
+  const styles = variants[variant];
   return (
-    <div className="">
-      {/* <h3 className="text-base font-semibold text-gray-900">Last 30 days</h3> */}
-      <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {stats.map((item) => (
-          <div
-            key={item.name}
-            className="border-border-primary text-label-lg overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-16 shadow-sm"
-          >
-            <dt className="text-label-lg text-core-black flex items-center truncate">
-              {item.name}
-            </dt>
-            <div className="flex flex-row gap-3 py-4">
-              <dd className="text-heading-lg text-core-black leading-none">
-                {item.id === 1 ? item.stat : `$${item.stat}`}
-              </dd>
-              <div className="flex items-center">
-                <Badge
-                  color={getBadgeColor(item.rating)}
-                  className={'text-label-xs leading-none'}
-                >
-                  {item.rating}
-                </Badge>
+    <div>
+      <dl className={styles.wrapper}>
+        {stats.map((item, i) => {
+          const template = statTemplates[normalizeKey(item.key)];
+
+          if (!template) return null;
+
+          const {
+            name,
+            nationalAverage,
+            description,
+            isCurrency = false,
+          } = template;
+
+          return (
+            <div key={template.name + i} className={styles.item}>
+              <dt className="text-label-lg text-core-black flex items-center truncate">
+                {name}
+              </dt>
+              <div className="flex flex-row gap-3 py-4">
+                <dd className="text-heading-lg text-core-black leading-none">
+                  {formatValue(item.stat, isCurrency)}
+                </dd>
+                <div className="flex items-center">
+                  <Badge
+                    color={getBadgeColor(item.rating)}
+                    className="text-label-xs leading-none"
+                  >
+                    {item.rating}
+                  </Badge>
+                </div>
+              </div>
+              <div className="text-paragraph-base text-content-secondary">
+                {description}
+              </div>
+              <div className="text-paragraph-base text-content-secondary py-1">
+                National average: {formatValue(nationalAverage, isCurrency)}
               </div>
             </div>
-            <div className="text-paragraph-base text-content-secondary">
-              {item.id === 1
-                ? 'Total penalties over three years'
-                : 'Total amount of fines incurred over the last three years'}
-            </div>
-            <div className="text-paragraph-base text-content-secondary py-1">
-              National average:{' '}
-              {item.nationalAverageFines
-                ? `$${item.nationalAverageFines}`
-                : item.nationalAveragePenalties}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </dl>
     </div>
   );
+}
+
+export default function StatsCard({ stats = fallbackStats, variant = 'card' }) {
+  return <StatCardItem stats={stats} variant={variant} />;
 }
