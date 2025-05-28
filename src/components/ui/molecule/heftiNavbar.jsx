@@ -6,10 +6,8 @@ import {
   NavbarSection,
   NavbarSpacer,
 } from '../molecule/navbar';
-// import Logo from '../../../assets/logo';
 import Logo from '../../../assets/logo';
 
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 import {
   Disclosure,
   DisclosureButton,
@@ -31,18 +29,18 @@ export default function HeftiNavbar() {
     <Disclosure>
       <Navbar className="bg-zinc-900">
         <Link to="/" aria-label="Home">
-          <div className="flex items-center p-6">
+          <div className="flex items-center px-6">
             <Logo className="block h-full" />
-            <span className="text-core-white ml-2 hidden text-xs leading-3.5 font-bold md:block">
+            <span className="text-core-white ml-2 hidden text-xs leading-3.5 font-semibold tracking-widest md:block">
               HEALTH ECONOMICS FINANCING & <br />
               TRANSPARENCY INITIATIVE
             </span>
           </div>
         </Link>
         <NavbarSpacer />
-        <NavbarSection className="p-6">
-          <NavbarItem className="md:hidden">
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
+        <NavbarSection className="p-5">
+          <NavbarItem className="leading-none md:hidden">
+            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
               <span className="sr-only">Open main menu</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -57,16 +55,27 @@ export default function HeftiNavbar() {
                   clipRule="evenodd"
                 />
               </svg>
-              <XMarkIcon
-                aria-hidden="true"
-                className="hidden size-6 group-data-open:block"
-              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 18"
+                fill="white"
+                preserveAspectRatio="none"
+                className="hidden h-6 w-8 group-data-open:block"
+              >
+                <g transform="scale(1.2) translate(-1.5, -3)">
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M6.225 4.811a.75.75 0 011.06 0L12 9.525l4.715-4.714a.75.75 0 111.06 1.06L13.06 10.586l4.714 4.715a.75.75 0 11-1.06 1.06L12 11.646l-4.715 4.715a.75.75 0 11-1.06-1.06l4.714-4.715-4.714-4.714a.75.75 0 010-1.06z"
+                  />
+                </g>
+              </svg>
             </DisclosureButton>
           </NavbarItem>
           <NavbarItem
             href="/about"
             aria-label="About"
-            className="text-core-white hidden md:block"
+            className="text-core-white hidden md:block md:p-0.75"
           >
             About
           </NavbarItem>
@@ -74,7 +83,7 @@ export default function HeftiNavbar() {
           <NavbarItem
             href="/contact-us"
             aria-label="Contact Us"
-            className="text-core-white hidden md:block"
+            className="text-core-white hidden md:block md:p-0.75"
           >
             Contact Us
           </NavbarItem>
