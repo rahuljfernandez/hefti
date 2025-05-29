@@ -44,7 +44,7 @@ function normalizeKey(str) {
     .replace(/\s+(.)/g, (_, chr) => chr.toUpperCase());
 }
 
-function StatCardItem({ stats = fallbackStats, variant = 'panel' }) {
+function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
   const styles = variants[variant];
   return (
     <div>
@@ -94,5 +94,5 @@ function StatCardItem({ stats = fallbackStats, variant = 'panel' }) {
 }
 
 export default function StatsCard({ stats = fallbackStats, variant = 'card' }) {
-  return <StatCardItem stats={stats} variant={variant} />;
+  return <StatCardLayout stats={stats} variant={variant} />;
 }

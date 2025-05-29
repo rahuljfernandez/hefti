@@ -1,19 +1,15 @@
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useState } from 'react';
-import TabTitle from '../atom/tabTitle';
+import HeadingSmall from '../atom/headingSmall';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Tabs() {
-  const [tabs, setTabs] = useState([
-    { name: 'Provider Highlights & Ownership', href: '#', current: true },
-    { name: 'Deficiencies & Penalties', href: '#', current: false },
-    { name: 'Clinical Quality Measures', href: '#', current: false },
-    { name: 'Staffing', href: '#', current: false },
-    { name: 'Financial Overview', href: '#', current: false },
-  ]);
+export default function TabsWithHeading({ tabsData = [] }) {
+  const [tabs, setTabs] = useState(
+    tabsData.map((tab, i) => ({ ...tab, current: i === 0 })),
+  );
 
   const handleClick = (tabName) => {
     setTabs((prevTabs) =>
@@ -71,7 +67,7 @@ export default function Tabs() {
         </div>
       </div>
 
-      {activeTab && <TabTitle tabName={activeTab.name} />}
+      {activeTab && <HeadingSmall title={activeTab.displayTitle} />}
     </div>
   );
 }
