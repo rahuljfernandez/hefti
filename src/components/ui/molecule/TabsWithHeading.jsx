@@ -2,6 +2,8 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useState } from 'react';
 import HeadingSmall from '../atom/headingSmall';
 
+import SectionHeader from '../atom/sectionHeader';
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
@@ -67,7 +69,9 @@ export default function TabsWithHeading({ tabsData = [] }) {
         </div>
       </div>
 
-      {activeTab && <HeadingSmall title={activeTab.displayTitle} />}
+      {activeTab && (
+        <SectionHeader title={activeTab.displayTitle} variant="primary" />
+      )}
     </div>
   );
 }

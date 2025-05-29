@@ -1,6 +1,5 @@
-import FacilityTabDescription from '../molecule/ProfileDescription';
-import StatsCard from '../molecule/statsCard';
 import CMSRating from '../molecule/CMSRating';
+import StatsCard from '../molecule/statsCard';
 
 const otherStats = [
   {
@@ -25,19 +24,14 @@ const otherStats = [
     nationalAverageFines: '2.3',
   },
 ];
-
-//will need to make star props dynamic
-export default function FacilityProviderHighlights() {
+//will need to make rating prop dynamic once we have access to data
+export default function OwnerHighlights() {
   return (
     <div>
       <div className="border-b border-gray-200 py-5">
-        <FacilityTabDescription />
-      </div>
-      <div className="border-b border-gray-200 py-5">
         <CMSRating
           stars={[
-            { title: 'Overall Star Rating', rating: 4 },
-            { title: 'Average Collective Owner Ranking', rating: 5 },
+            { title: 'Average Rating Across All Facilities', rating: 3.5 },
           ]}
         />
       </div>
