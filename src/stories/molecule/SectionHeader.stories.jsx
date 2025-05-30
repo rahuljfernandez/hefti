@@ -1,4 +1,4 @@
-import SectionHeader from '../../components/ui/atom/sectionHeader';
+import SectionHeader from '../../components/ui/molecule/sectionHeader';
 
 export default {
   title: 'COMPONENTS/Molecule/SectionHeader',

@@ -1,11 +1,11 @@
 const variants = {
   default: {
-    container: 'pb-5 bg-white',
+    container: 'pb-5 ',
     title: 'text-base font-semibold text-gray-900',
     description: 'mt-2 max-w-4xl text-sm text-gray-500',
   },
   primary: {
-    container: 'bg-background-secondary',
+    container: '',
     title: 'text-heading-sm',
     description: 'mt-2 max-w-4xl text-paragraph-sm',
   },

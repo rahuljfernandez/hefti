@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SectionHeader from '../atom/sectionHeader';
+import SectionHeader from '../molecule/sectionHeader';
 import Tabs from './Tabs';
 
 const TABS = [
@@ -34,7 +34,9 @@ export default function TabsWithHeader() {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   return (
     <div className="bg-background-secondary">
-      <Tabs tabsData={TABS} onTabChange={setActiveTab} />
+      <div className="pb-3">
+        <Tabs tabsData={TABS} onTabChange={setActiveTab} />
+      </div>
       <div className="py-6">
         <SectionHeader title={activeTab.displayTitle} variant="primary" />
       </div>

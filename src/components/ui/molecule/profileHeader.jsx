@@ -3,7 +3,7 @@ import { Heading } from '../atom/heading';
 
 export default function ProfileHeader({ title, badges = [] }) {
   return (
-    <div className="bg-background-secondary">
+    <div className="bg-background-secondary my-6">
       <Heading className="text-display-xs" level={1}>
         {title}
       </Heading>

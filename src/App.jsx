@@ -1,5 +1,11 @@
+import FacilityPage from './components/ui/organism/facilityPage';
+
 function App() {
-  return <div className="p-4">yo</div>;
+  return (
+    <div className="">
+      <FacilityPage />
+    </div>
+  );
 }
 
 export default App;
