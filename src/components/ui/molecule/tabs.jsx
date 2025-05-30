@@ -1,28 +1,27 @@
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useState } from 'react';
-import HeadingSmall from '../atom/headingSmall';
-
-import SectionHeader from '../atom/sectionHeader';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function TabsWithHeading({ tabsData = [] }) {
+export default function Tabs({ tabsData = [], onTabChange }) {
   const [tabs, setTabs] = useState(
     tabsData.map((tab, i) => ({ ...tab, current: i === 0 })),
   );
 
   const handleClick = (tabName) => {
-    setTabs((prevTabs) =>
-      prevTabs.map((tab) => ({
+    setTabs((prevTabs) => {
+      const updated = prevTabs.map((tab) => ({
         ...tab,
-        current: tab.name === tabName ? true : false,
-      })),
-    );
-  };
+        current: tab.name === tabName,
+      }));
 
-  const activeTab = tabs.find((tab) => tab.current === true);
+      const newActive = updated.find((tab) => tab.current);
+      onTabChange?.(newActive);
+      return updated;
+    });
+  };
 
   return (
     <div className="bg-background-secondary">
@@ -69,9 +68,9 @@ export default function TabsWithHeading({ tabsData = [] }) {
         </div>
       </div>
 
-      {activeTab && (
+      {/* {activeTab && (
         <SectionHeader title={activeTab.displayTitle} variant="primary" />
-      )}
+      )} */}
     </div>
   );
 }

@@ -1,11 +1,11 @@
-import TabsWithHeading from '../../components/ui/molecule/TabsWithHeading';
+import TabsWithHeader from '../../components/ui/molecule/tabsWithHeader';
 
 export default {
-  title: 'COMPONENTS/Molecule/TabsWithHeading',
-  components: TabsWithHeading,
+  title: 'COMPONENTS/Molecule/TabsWithHeader',
+  components: TabsWithHeader,
 };
 
-const Template = (args) => <TabsWithHeading {...args} />;
+const Template = (args) => <TabsWithHeader {...args} />;
 
 const tabsData = [
   {
@@ -35,7 +35,7 @@ const tabsData = [
   },
 ];
 
-export const Facility = Template.bind({});
-Facility.args = {
+export const Base = Template.bind({});
+Base.args = {
   tabsData: tabsData,
 };

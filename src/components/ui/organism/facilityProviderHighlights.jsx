@@ -1,6 +1,7 @@
 import FacilityTabDescription from '../molecule/ProfileDescription';
 import StatsCard from '../molecule/statsCard';
 import CMSRating from '../molecule/CMSRating';
+import LayoutCard from '../atom/layout-card';
 
 const otherStats = [
   {
@@ -29,8 +30,8 @@ const otherStats = [
 //will need to make star props dynamic
 export default function FacilityProviderHighlights() {
   return (
-    <div>
-      <div className="border-b border-gray-200 py-5">
+    <LayoutCard>
+      <div className="border-b border-gray-200 pb-5">
         <FacilityTabDescription />
       </div>
       <div className="border-b border-gray-200 py-5">
@@ -44,6 +45,6 @@ export default function FacilityProviderHighlights() {
       <div className="">
         <StatsCard variant="panel" stats={otherStats} />
       </div>
-    </div>
+    </LayoutCard>
   );
 }

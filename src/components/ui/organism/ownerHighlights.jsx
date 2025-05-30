@@ -1,5 +1,6 @@
 import CMSRating from '../molecule/CMSRating';
 import StatsCard from '../molecule/statsCard';
+import LayoutCard from '../atom/layout-card';
 
 const otherStats = [
   {
@@ -27,7 +28,7 @@ const otherStats = [
 //will need to make rating prop dynamic once we have access to data
 export default function OwnerHighlights() {
   return (
-    <div>
+    <LayoutCard>
       <div className="border-b border-gray-200 py-5">
         <CMSRating
           stars={[
@@ -38,6 +39,6 @@ export default function OwnerHighlights() {
       <div className="">
         <StatsCard variant="panel" stats={otherStats} />
       </div>
-    </div>
+    </LayoutCard>
   );
 }
