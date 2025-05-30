@@ -6,6 +6,9 @@
  * https://catalyst.tailwindui.com/docs#client-side-router-integration
  */
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 import * as Headless from '@headlessui/react';
 import React, { forwardRef } from 'react';
 

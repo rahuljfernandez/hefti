@@ -4,6 +4,10 @@ import clsx from 'clsx';
 import { createContext, useContext, useState } from 'react';
 import { Link } from '../atom/link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 const TableContext = createContext({
   bleed: false,
   dense: false,

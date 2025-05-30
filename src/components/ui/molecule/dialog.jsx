@@ -3,6 +3,10 @@ import clsx from 'clsx';
 
 import { Text } from '../atom/text';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 const sizes = {
   xs: 'sm:max-w-xs',
   sm: 'sm:max-w-sm',

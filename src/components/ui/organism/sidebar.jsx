@@ -6,6 +6,10 @@ import React, { forwardRef, useId } from 'react';
 import { TouchTarget } from '../atom/button';
 import { Link } from '../atom/link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export function Sidebar({ className, ...props }) {
   return (
     <nav

@@ -14,6 +14,12 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
+/**
+ * This component is based on Application UI Navbars Simple and customized for design.
+ */
+/**
+ *  Svg's are used to get control of fill property that is out of reach when using Heroicons
+ */
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
   { name: 'About', href: '#', current: false },

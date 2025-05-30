@@ -1,7 +1,7 @@
 import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
 
-/*Ask Nick about weight for paragraph tiny. Is it 400 or 500 as is showing up in figma for the badge here? */
+/*Custom component using Heading and Badge from TW Catalyst UI Kit  */
 export default function ProfileHeader() {
   return (
     <div className="bg-background-secondary">

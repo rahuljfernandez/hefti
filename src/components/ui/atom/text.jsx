@@ -1,6 +1,10 @@
 import clsx from 'clsx';
 import { Link } from './link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export function Text({ className, ...props }) {
   return (
     <p

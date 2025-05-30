@@ -1,5 +1,9 @@
 import clsx from 'clsx';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export function DescriptionList({ className, ...props }) {
   return (
     <dl

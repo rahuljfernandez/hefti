@@ -4,6 +4,9 @@ import * as Headless from '@headlessui/react';
 import React, { useState } from 'react';
 import { NavbarItem } from '../molecule/navbar';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 function OpenMenuIcon() {
   return (
     <svg data-slot="icon" viewBox="0 0 20 20" aria-hidden="true">

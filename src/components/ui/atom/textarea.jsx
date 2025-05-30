@@ -2,6 +2,10 @@ import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export const Textarea = forwardRef(function Textarea(
   { className, resizable = true, ...props },
   ref,
