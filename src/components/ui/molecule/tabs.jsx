@@ -1,30 +1,27 @@
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useState } from 'react';
-import TabTitle from '../atom/tabTitle';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Tabs() {
-  const [tabs, setTabs] = useState([
-    { name: 'Provider Highlights & Ownership', href: '#', current: true },
-    { name: 'Deficiencies & Penalties', href: '#', current: false },
-    { name: 'Clinical Quality Measures', href: '#', current: false },
-    { name: 'Staffing', href: '#', current: false },
-    { name: 'Financial Overview', href: '#', current: false },
-  ]);
+export default function Tabs({ tabsData = [], onTabChange }) {
+  const [tabs, setTabs] = useState(
+    tabsData.map((tab, i) => ({ ...tab, current: i === 0 })),
+  );
 
   const handleClick = (tabName) => {
-    setTabs((prevTabs) =>
-      prevTabs.map((tab) => ({
+    setTabs((prevTabs) => {
+      const updated = prevTabs.map((tab) => ({
         ...tab,
-        current: tab.name === tabName ? true : false,
-      })),
-    );
-  };
+        current: tab.name === tabName,
+      }));
 
-  const activeTab = tabs.find((tab) => tab.current === true);
+      const newActive = updated.find((tab) => tab.current);
+      onTabChange?.(newActive);
+      return updated;
+    });
+  };
 
   return (
     <div className="bg-background-secondary">
@@ -71,7 +68,9 @@ export default function Tabs() {
         </div>
       </div>
 
-      {activeTab && <TabTitle tabName={activeTab.name} />}
+      {/* {activeTab && (
+        <SectionHeader title={activeTab.displayTitle} variant="primary" />
+      )} */}
     </div>
   );
 }

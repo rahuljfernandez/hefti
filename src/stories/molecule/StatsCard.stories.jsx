@@ -10,44 +10,53 @@ export default {
   },
 };
 
-export const aboveAverageStats = (args) => <StatsCard {...args} />;
+export const cardVariant = (args) => <StatsCard {...args} />;
 
-aboveAverageStats.args = {
+cardVariant.args = {
+  variant: 'card',
   stats: [
     {
       id: 1,
-      name: 'Total Penalties',
+      key: 'Total Penalties',
       stat: '17',
       rating: 'Above Average',
       nationalAveragePenalties: '3',
     },
     {
       id: 2,
-      name: 'Total Fines',
+      key: 'Total Fines',
       stat: '753,581',
-      rating: 'Above Average',
+      rating: 'Below Average',
       nationalAverageFines: '48,371',
     },
   ],
 };
 
-export const belowAverageStats = (args) => <StatsCard {...args} />;
+export const panelVariant = (args) => <StatsCard {...args} />;
 
-belowAverageStats.args = {
+panelVariant.args = {
+  variant: 'panel',
   stats: [
     {
       id: 1,
-      name: 'Total Penalties',
-      stat: '2',
-      rating: 'Below Average',
+      key: 'Total Deficiencies',
+      stat: '17',
+      rating: 'Above Average',
       nationalAveragePenalties: '3',
     },
     {
       id: 2,
-      name: 'Total Fines',
-      stat: '2,000',
+      key: 'Staffing Score',
+      stat: '1',
       rating: 'Below Average',
-      nationalAverageFines: '48,371',
+      nationalAverageFines: '3.2',
+    },
+    {
+      id: 3,
+      key: 'Health Inspection',
+      stat: '1',
+      rating: 'Below Average',
+      nationalAverageFines: '2.3',
     },
   ],
 };

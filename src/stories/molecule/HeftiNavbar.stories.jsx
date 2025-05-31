@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom';
 import HeftiNavbar from '../../components/ui/molecule/heftiNavbar';
 
 export default {
-  title: 'COMPONENTS/Molecule/HeftiNavbar',
+  title: 'COMPONENTS/Molecule/Navbar',
   components: HeftiNavbar,
   decorators: [
     // eslint-disable-next-line no-unused-vars

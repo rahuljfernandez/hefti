@@ -1,12 +1,10 @@
-import HeftiNavbar from './components/ui/molecule/heftiNavbar';
+import FacilityPage from './components/ui/organism/facilityPage';
 
 function App() {
   return (
-    <>
-      <div className="min-h-screen w-full overflow-x-hidden">
-        <HeftiNavbar />
-      </div>
-    </>
+    <div className="">
+      <FacilityPage />
+    </div>
   );
 }
 
