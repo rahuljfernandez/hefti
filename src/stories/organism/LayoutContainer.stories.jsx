@@ -1,13 +1,16 @@
-import { ListContainerDivider } from './components/ui/organism/ListContainer';
-import { ListContainerSeperate } from './components/ui/organism/ListContainer';
-import ListContainer from './components/ui/organism/ListContainer';
-import { OwnershipAndStakeholders } from './components/ui/molecule/listContainerContent';
+import { OwnershipAndStakeholders } from '../../components/ui/molecule/listContainerContent';
+import ListContainer, {
+  ListContainerDivider,
+  ListContainerSeperate,
+} from '../../components/ui/organism/ListContainer';
 
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-} from '@headlessui/react';
+export default {
+  title: 'COMPONENTS/Organism/ListContainer',
+  components: ListContainer,
+};
+
+const Template = (args) => <ListContainer {...args} />;
+
 const ownershipData = [
   {
     id: 1,
@@ -92,69 +95,16 @@ const ownershipData = [
   },
 ];
 
-function App() {
-  return (
-    <div className="bg-background-primary p-8">
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerDivider}
-        ListContent={OwnershipAndStakeholders}
-      />
+export const OwnershipStakeholdersDivider = Template.bind({});
+OwnershipStakeholdersDivider.args = {
+  items: ownershipData,
+  LayoutSelector: ListContainerDivider,
+  ListContent: OwnershipAndStakeholders,
+};
 
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerSeperate}
-        ListContent={OwnershipAndStakeholders}
-      />
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerDivider}
-        ListContent={OwnershipAndStakeholders}
-        variant="expandable"
-        columns={4}
-      />
-
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerSeperate}
-        ListContent={OwnershipAndStakeholders}
-        variant="expandable"
-        columns={4}
-      />
-    </div>
-  );
-}
-
-export default App;
-{
-  /* <div>
-<ListContainerDivider
-  items={ownershipData}
-  renderItem={(item) => (
-    <>
-      <Disclosure
-        className="flex w-full justify-between text-left"
-        as="div"
-        defaultOpen={true}
-      >
-        <span className="text-blue-600 underline">
-          {item.organization}
-        </span>
-        <span className="text-sm">
-          {item.percentage || 'No percentage provided'}
-        </span>
-        <span
-          className={`rounded-md px-2 py-1 text-xs font-semibold ${
-            item.type === 'Direct'
-              ? 'bg-cyan-100 text-cyan-700'
-              : 'bg-indigo-100 text-indigo-700'
-          }`}
-        >
-          {item.type.toUpperCase()} OWNERSHIP
-        </span>
-      </Disclosure>
-    </>
-  )}
-/>
-</div> */
-}
+export const OwnershipStakeholdersSeperate = Template.bind({});
+OwnershipStakeholdersSeperate.args = {
+  items: ownershipData,
+  LayoutSelector: ListContainerSeperate,
+  ListContent: OwnershipAndStakeholders,
+};
