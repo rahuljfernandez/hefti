@@ -1,17 +1,18 @@
 import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
 
-/*Ask Nick about weight for paragraph tiny. Is it 400 or 500 as is showing up in figma for the badge here? */
-export default function ProfileHeader() {
+export default function ProfileHeader({ title, badges = [] }) {
   return (
-    <div className="bg-background-secondary">
+    <div className="bg-background-secondary my-6">
       <Heading className="text-display-xs" level={1}>
-        {' '}
-        Aspen Point Health and Rehabilitation{' '}
+        {title}
       </Heading>
       <div className="mt-4 flex flex-row gap-2">
-        <Badge color="cyan">FOR PROFIT</Badge>
-        <Badge color="orange">INDIVIDUAL</Badge>
+        {badges.map((badge, i) => (
+          <Badge key={badge.title + i} color={badge.color}>
+            {badge.title}
+          </Badge>
+        ))}
       </div>
     </div>
   );
