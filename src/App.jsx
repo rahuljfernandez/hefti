@@ -1,160 +1,39 @@
-import { ListContainerDivider } from './components/ui/organism/ListContainer';
-import { ListContainerSeperate } from './components/ui/organism/ListContainer';
-import ListContainer from './components/ui/organism/ListContainer';
-import { OwnershipAndStakeholders } from './components/ui/molecule/listContainerContent';
+import React from 'react';
+
+import ListContainer, {
+  ListContainerDivider,
+  ListContainerSeparate,
+} from './components/ui/organism/listContainer';
+import {
+  Deficiencies,
+  OwnershipAndStakeholders,
+  Penalties,
+  RelatedFacilities,
+} from './components/ui/molecule/listContainerContent';
 
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-const ownershipData = [
-  {
-    id: 1,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'ZAHLER, JACOB',
-    CMS_Ownership_Percentage: 'NOT APPLICABLE',
-    CMS_Ownership_Role: 'OPERATIONAL/MANAGERIAL CONTROL',
-    Address: '123 Placeholder Ave',
-    Contact: 'info@cmsholdings.com',
-  },
-  {
-    id: 2,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'ZAHLER, CHAIM',
-    CMS_Ownership_Percentage: 'NO PERCENTAGE PROVIDED',
-    CMS_Ownership_Role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
-    Address: '456 Sample Blvd',
-    Contact: 'chaim@cms.com',
-  },
-  {
-    id: 3,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'ZAHLER, JACOB',
-    CMS_Ownership_Percentage: 'NOT APPLICABLE',
-    CMS_Ownership_Role: 'CORPORATE OFFICER',
-    Address: '789 Health Rd',
-    Contact: 'jacob@cms.com',
-  },
-  {
-    id: 4,
-    CMS_Ownership_Type: 'Organization',
-    CMS_Ownership_Name: 'FDZ CONSULTING LLC',
-    CMS_Ownership_Percentage: 'NO PERCENTAGE PROVIDED',
-    CMS_Ownership_Role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
-    Address: '1010 Consult Ave',
-    Contact: 'info@fdzconsulting.com',
-  },
-  {
-    id: 5,
-    CMS_Ownership_Type: 'Organization',
-    CMS_Ownership_Name: 'LAKE EUSTIS OPERATING HOLI',
-    CMS_Ownership_Percentage: '100%',
-    CMS_Ownership_Role: '5% OR GREATER DIRECT OWNERSHIP INTEREST',
-    Address: '2020 Holdings Blvd',
-    Contact: 'contact@lakeeustis.com',
-  },
-  {
-    id: 6,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'ZANZIPER, NAFTALI',
-    CMS_Ownership_Percentage: '50%',
-    CMS_Ownership_Role: 'MANAGING EMPLOYEE',
-    Address: '3030 Manager Ln',
-    Contact: 'naftali@corp.com',
-  },
-  {
-    id: 7,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'GUTMAN, SAMUEL',
-    CMS_Ownership_Percentage: 'NOT APPLICABLE',
-    CMS_Ownership_Role: 'CORPORATE OFFICER',
-    Address: '4040 Executive St',
-    Contact: 'samuel@gutmanco.com',
-  },
-  {
-    id: 8,
-    CMS_Ownership_Type: 'Organization',
-    CMS_Ownership_Name: 'ARCH OPCO HOLDINGS, LLC',
-    CMS_Ownership_Percentage: '100%',
-    CMS_Ownership_Role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
-    Address: '5050 Archway Pkwy',
-    Contact: 'admin@archopco.com',
-  },
-  {
-    id: 9,
-    CMS_Ownership_Type: 'Individual',
-    CMS_Ownership_Name: 'THORNGREN, DANIEL',
-    CMS_Ownership_Percentage: 'NOT APPLICABLE',
-    CMS_Ownership_Role: 'MANAGING EMPLOYEE',
-    Address: '6060 Staff Ct',
-    Contact: 'daniel@employees.org',
-  },
-];
+import { relatedFacilitiesData } from './lib/mockData';
 
 function App() {
   return (
     <div className="bg-background-primary p-8">
       <ListContainer
-        items={ownershipData}
+        items={relatedFacilitiesData}
         LayoutSelector={ListContainerDivider}
-        ListContent={OwnershipAndStakeholders}
+        ListContent={RelatedFacilities}
       />
 
       <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerSeperate}
-        ListContent={OwnershipAndStakeholders}
-      />
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerDivider}
-        ListContent={OwnershipAndStakeholders}
-        variant="expandable"
-        columns={4}
-      />
-
-      <ListContainer
-        items={ownershipData}
-        LayoutSelector={ListContainerSeperate}
-        ListContent={OwnershipAndStakeholders}
-        variant="expandable"
-        columns={4}
+        items={relatedFacilitiesData}
+        LayoutSelector={ListContainerSeparate}
+        ListContent={RelatedFacilities}
       />
     </div>
   );
 }
 
 export default App;
-{
-  /* <div>
-<ListContainerDivider
-  items={ownershipData}
-  renderItem={(item) => (
-    <>
-      <Disclosure
-        className="flex w-full justify-between text-left"
-        as="div"
-        defaultOpen={true}
-      >
-        <span className="text-blue-600 underline">
-          {item.organization}
-        </span>
-        <span className="text-sm">
-          {item.percentage || 'No percentage provided'}
-        </span>
-        <span
-          className={`rounded-md px-2 py-1 text-xs font-semibold ${
-            item.type === 'Direct'
-              ? 'bg-cyan-100 text-cyan-700'
-              : 'bg-indigo-100 text-indigo-700'
-          }`}
-        >
-          {item.type.toUpperCase()} OWNERSHIP
-        </span>
-      </Disclosure>
-    </>
-  )}
-/>
-</div> */
-}

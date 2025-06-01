@@ -1,3 +1,6 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 
 import {
@@ -6,9 +9,9 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
-//ListContainerDivider and ListContainerSeperate set the styling of the ul/li's
 /**
  * Sourced from Application UI - list items have a divider line between them.  Added design color, border, corner radius
+ * ListContainerDivider and ListContainerSeperate set the styling of the ul/li's
  */
 //The renderItem prop is passed in from the parent
 export function ListContainerDivider({ items = [], renderItem }) {
@@ -25,10 +28,16 @@ export function ListContainerDivider({ items = [], renderItem }) {
   );
 }
 
+ListContainerDivider.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func.isRequired,
+};
+
 /**
  * Sourced from Application UI - list items have a gap between them. Added design color, border, corner radius
  */
-export function ListContainerSeperate({ items = [], renderItem }) {
+
+export function ListContainerSeparate({ items = [], renderItem }) {
   return (
     <ul role="list" className="space-y-3">
       {items.map((item, i) => (
@@ -43,26 +52,39 @@ export function ListContainerSeperate({ items = [], renderItem }) {
   );
 }
 
-//TW won't allow the grid-cols-[number] to render dynamically, this solves that.
-const gridVariant = {
-  3: 'grid grid-cols-1 sm:grid-cols-3',
-  4: 'grid grid-cols-1 sm:grid-cols-4',
-  5: 'grid grid-cols-1 sm:grid-cols-5',
+ListContainerSeparate.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func.isRequired,
 };
 
-//Component requires data passed in via the items prop, LayoutSelector prop is either the ListContainerSeperate or ListContainerDivider, variant is defaulted to static, but can be set to "expandable", columns prop sets the grid-col-[]
+/**
+ * ListContainer component
+ *
+ * This component renders a list using a layout selector (e.g., divider or separate).
+ * It supports static and expandable disclosure behavior.
+ * NOTE: The "expandable" variant is funtional, but not styled or properly in place.  Might be somthing Nick wants to include in Version 2.
+ *
+ * Props:
+ * - items (array): The data to render in the list
+ * - LayoutSelector (component): Wrapper component that defines list layout (e.g. divider or gap style)
+ * - ListContent (component): Renders the content inside each list item
+ * - variant (string): "static" (default) or "expandable" — determines if disclosure panel opens
+ *
+ * Example usage:
+ * <ListContainer
+ *   items={data}
+ *   LayoutSelector={ListContainerDivider}
+ *   ListContent={OwnershipAndStakeholders}
+ *   variant="expandable"
+ * />
+ */
+
 export default function ListContainer({
   items = [],
-  //TODO: figure out the linters issue with this
-  // eslint-disable-next-line no-unused-vars
   LayoutSelector,
-  // eslint-disable-next-line no-unused-vars
   ListContent,
   variant = 'static',
-  columns = 3,
 }) {
-  const gridClass = gridVariant[columns];
-
   return (
     <div>
       <LayoutSelector
@@ -72,17 +94,15 @@ export default function ListContainer({
             {(open) => (
               <>
                 <DisclosureButton className="w-full text-left">
-                  <div className={`${gridClass} items-center gap-4`}>
-                    <ListContent item={item} />
-                    {variant === 'expandable' && (
-                      <ChevronDownIcon
-                        className={`ml-2 h-5 w-5 transition-transform duration-200 ${
-                          open ? 'rotate-180' : ''
-                        }`}
-                        aria-hidden="true"
-                      />
-                    )}
-                  </div>
+                  <ListContent item={item} />
+                  {variant === 'expandable' && (
+                    <ChevronDownIcon
+                      className={`ml-2 h-5 w-5 transition-transform duration-200 ${
+                        open ? 'rotate-180' : ''
+                      }`}
+                      aria-hidden="true"
+                    />
+                  )}
                 </DisclosureButton>
 
                 {variant === 'expandable' && (
@@ -101,3 +121,10 @@ export default function ListContainer({
     </div>
   );
 }
+
+ListContainer.propTypes = {
+  items: PropTypes.array,
+  LayoutSelector: PropTypes.elementType.isRequired,
+  ListContent: PropTypes.elementType.isRequired,
+  variant: PropTypes.oneOf(['static', 'expandable']),
+};
