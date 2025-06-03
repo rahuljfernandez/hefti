@@ -25,6 +25,7 @@ function App() {
         items={relatedFacilitiesData}
         LayoutSelector={ListContainerDivider}
         ListContent={RelatedFacilities}
+        variant="expandable"
       />
 
       <ListContainer
