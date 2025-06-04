@@ -2,6 +2,11 @@ import CMSRating from '../molecule/CMSRating';
 import StatsCard from '../molecule/statsCard';
 import LayoutCard from '../atom/layout-card';
 
+/**
+ * Organism component that will be used to build OwnerPage-this is the top block(Owner Highlights)
+ *
+ */
+
 const otherStats = [
   {
     id: 1,

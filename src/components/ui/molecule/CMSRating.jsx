@@ -1,5 +1,8 @@
 import StarRating from './starRating';
-
+/**
+ * Molecule that helps build out organisms
+ * Has the CMS Ratings title that is frequently used with star rating
+ */
 export default function CMSRating({ stars = [] }) {
   return (
     <div>

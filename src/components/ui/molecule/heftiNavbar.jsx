@@ -20,6 +20,9 @@ import {
 /**
  *  Svg's are used to get control of fill property that is out of reach when using Heroicons
  */
+
+/*TODO setup links to pages from nav*/
+
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
   { name: 'About', href: '#', current: false },

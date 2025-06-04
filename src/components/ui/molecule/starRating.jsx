@@ -1,6 +1,13 @@
 import { StarIcon } from '@heroicons/react/20/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
+/**
+ * Custom StarRating component - supports half-stars
+ *
+ * Example:
+ *    <StarRating title="Super Star Rating Scale" rating={4.5} />
+ */
+
 export default function StarRating({ title = '', rating = 0, outOf = 5 }) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;

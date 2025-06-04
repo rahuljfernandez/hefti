@@ -6,6 +6,10 @@ const facilityData = [
   { title: 'LEGAL BUSINESS NAME', value: 'Clay Street Healthcare Llc' },
 ];
 
+/**
+ * Component for the facility profile
+ */
+
 export default function ProfileDescription() {
   return (
     <div>

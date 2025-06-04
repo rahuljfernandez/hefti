@@ -5,11 +5,20 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+/**
+ *
+ * This component is based on UI/Application Tabs/Tabs with underline
+ * It takes a tabsData Prop which represents the static values for the tab title
+ * When used with tabsWithHeader it needs the onTabChange prop to track the active tab
+ * example:  <Tabs tabsData={tabsData} onTabChange={setActiveTab}/>
+ */
+
 export default function Tabs({ tabsData = [], onTabChange }) {
   const [tabs, setTabs] = useState(
     tabsData.map((tab, i) => ({ ...tab, current: i === 0 })),
   );
 
+  //Updates the tabs state with the new current tab. Updates onTabChange with new current and shares that with parent component.
   const handleClick = (tabName) => {
     setTabs((prevTabs) => {
       const updated = prevTabs.map((tab) => ({

@@ -30,6 +30,10 @@ const TABS = [
   },
 ];
 
+/**
+ *We manage the activeTab state here witch sets the default to the first tab.  This is passed down to the Tabs component.
+ */
+
 export default function TabsWithHeader() {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   return (
