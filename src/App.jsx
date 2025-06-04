@@ -1,9 +1,11 @@
-import FacilityPage from './components/ui/organism/facilityPage';
+import Footer from './components/ui/molecule/footer';
+import HeftiNavbar from './components/ui/molecule/heftiNavbar';
 
 function App() {
   return (
     <div className="">
-      <FacilityPage />
+      <HeftiNavbar />
+      <Footer />
     </div>
   );
 }
