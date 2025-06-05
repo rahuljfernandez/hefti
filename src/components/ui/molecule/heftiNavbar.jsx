@@ -37,7 +37,7 @@ function classNames(...classes) {
 export default function HeftiNavbar() {
   return (
     <div className="bg-zinc-900">
-      <div className="mx-auto max-w-[1160px]">
+      <div className="mx-auto max-w-7xl">
         <Disclosure>
           <Navbar className="">
             <Link to="/" aria-label="Home">

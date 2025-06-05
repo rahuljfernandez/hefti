@@ -23,7 +23,7 @@ const navigation = {
 export default function Footer() {
   return (
     <footer className="bg-slate-900">
-      <div className="mx-auto max-w-[1160px] px-6 py-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-4 lg:grid-cols-5">
           <div className="md:col-span-2 md:grid">
             <Link to="/" aria-label="Home">
