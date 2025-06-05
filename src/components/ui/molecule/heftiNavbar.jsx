@@ -41,7 +41,7 @@ export default function HeftiNavbar() {
             </Link>
             <NavbarSpacer />
             <NavbarSection className="p-5">
-              <NavbarItem className="leading-none md:hidden">
+              <div className="p-1 leading-none md:hidden">
                 <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
                   <span className="sr-only">Open main menu</span>
                   <svg
@@ -73,7 +73,7 @@ export default function HeftiNavbar() {
                     </g>
                   </svg>
                 </DisclosureButton>
-              </NavbarItem>
+              </div>
               <NavbarItem
                 href="/about"
                 aria-label="About"

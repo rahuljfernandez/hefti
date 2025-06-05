@@ -28,7 +28,7 @@ export default function Footer() {
             <Link to="/" aria-label="Home">
               <div className="flex items-center">
                 <Logo className="block h-full" />
-                <span className="text-core-white ml-2 text-xs leading-3.5 font-semibold tracking-widest italic">
+                <span className="xs:inline text-core-white ml-2 hidden text-xs leading-3.5 font-semibold tracking-widest italic">
                   HEALTH ECONOMICS FINANCING & <br />
                   TRANSPARENCY INITIATIVE
                 </span>
