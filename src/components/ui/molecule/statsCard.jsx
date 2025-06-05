@@ -2,6 +2,14 @@ import { Badge } from '../atom/badge';
 import { getBadgeColor } from '../../../lib/getBadgeColor';
 import { statTemplates } from '../../../lib/startTemplates';
 
+/**
+ * This component is built with Application Ui Stats/Simple and Stats/With Shared Border.
+ * The styles are applied to the components styling via the variant prop
+ *
+ * Example:
+ *    StatsCard stats={data} variant="panel"
+ */
+
 const variants = {
   card: {
     wrapper: 'mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2',
@@ -44,12 +52,14 @@ function normalizeKey(str) {
     .replace(/\s+(.)/g, (_, chr) => chr.toUpperCase());
 }
 
+//StatCardLayout handles all the styling
 function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
   const styles = variants[variant];
   return (
     <div>
       <dl className={styles.wrapper}>
         {stats.map((item, i) => {
+          //statTemplates holds the static data each card would need while stats inserts the dynamic values
           const template = statTemplates[normalizeKey(item.key)];
 
           if (!template) return null;
@@ -93,6 +103,7 @@ function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
   );
 }
 
+//Wrapper for StatCardLayout which applies the syling.
 export default function StatsCard({ stats = fallbackStats, variant = 'card' }) {
   return <StatCardLayout stats={stats} variant={variant} />;
 }

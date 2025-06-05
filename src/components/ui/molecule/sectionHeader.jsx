@@ -11,18 +11,29 @@ const variants = {
   },
 };
 
-//To include the description, a desription prop must be passed in.
+/**
+ * Component provides heading styles that will be used multiple times in many pages.
+ * There are two prevalent layouts: 1) Just the title 2) Tilte plus description. 
+ * Two styling props are included in case customization is needed.
+ * 
+ * Example:
+ *   <SectionHeader
+        title="hello"
+        variant="primary"
+        description={'Welcome to the hefti project.'}
+      />
+ */
+
 export default function SectionHeader({
   title,
   description,
-  variant = '',
+  variant = 'primary',
   titleClassName = '',
   descriptionClassName = '',
   containerClassName = '',
 }) {
   const styles = variants[variant];
-  console.log(styles);
-  console.log(styles.container);
+
   return (
     <div className={`${styles.container} ${containerClassName}`}>
       <h3 className={`${styles.title} ${titleClassName}`}>{title}</h3>

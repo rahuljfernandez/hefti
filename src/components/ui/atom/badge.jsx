@@ -4,6 +4,9 @@ import React, { forwardRef } from 'react';
 import { TouchTarget } from './button';
 import { Link } from './link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 const colors = {
   red: 'bg-red-500/15 text-red-700 group-data-hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400 dark:group-data-hover:bg-red-500/20',
   orange:
@@ -34,6 +37,7 @@ const colors = {
   zinc: 'bg-zinc-600/10 text-zinc-700 group-data-hover:bg-zinc-600/20 dark:bg-white/5 dark:text-zinc-400 dark:group-data-hover:bg-white/10',
 };
 
+//text-paragraph token added
 export function Badge({ color = 'zinc', className, ...props }) {
   return (
     <span

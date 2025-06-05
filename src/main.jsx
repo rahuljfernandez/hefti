@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './tailwind.css';
 import App from './App.jsx';
 
+//App is wrapped in BroswerRouter to enable React-Router
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

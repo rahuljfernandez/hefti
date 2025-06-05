@@ -1,6 +1,10 @@
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 const Text = ({ children, ...props }) => <p {...props}>{children}</p>;
 
 const sizes = {

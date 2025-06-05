@@ -1,5 +1,8 @@
 import clsx from 'clsx';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 export function Divider({ soft = false, className, ...props }) {
   return (
     <hr

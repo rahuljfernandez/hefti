@@ -6,6 +6,10 @@ import clsx from 'clsx';
 import { Button } from '../atom/button';
 import { Link } from '../atom/link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export function Dropdown(props) {
   return <Headless.Menu {...props} />;
 }

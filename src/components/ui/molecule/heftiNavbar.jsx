@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Navbar,
@@ -13,6 +14,15 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
+
+/**
+ * This component is based on Application UI Navbars Simple and customized for design.
+ */
+/**
+ *  Svg's are used to get control of fill property that is out of reach when using Heroicons
+ */
+
+/*TODO setup links to pages from nav*/
 
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
