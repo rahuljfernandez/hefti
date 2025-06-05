@@ -2,6 +2,9 @@ import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 export function InputGroup({ children }) {
   return (
     <span

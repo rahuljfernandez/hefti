@@ -3,9 +3,13 @@ import PropTypes from 'prop-types';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
-StarRating.PropTypes = {
-  title: PropTypes.string.isRequired,
-};
+/**
+ * Custom StarRating component - supports half-stars
+ *
+ * Example:
+ *    <StarRating title="Super Star Rating Scale" rating={4.5} />
+ */
+
 export default function StarRating({
   title = '',
   rating = 0,

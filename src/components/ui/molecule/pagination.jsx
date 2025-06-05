@@ -2,6 +2,10 @@ import clsx from 'clsx';
 
 import { Button } from '../atom/button';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
+
 export function Pagination({
   'aria-label': ariaLabel = 'Page navigation',
   className,

@@ -3,6 +3,9 @@ import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Link } from './link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 const styles = {
   base: [
     // Base

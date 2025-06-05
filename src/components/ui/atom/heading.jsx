@@ -1,8 +1,11 @@
 import clsx from 'clsx';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 export function Heading({ className, level = 1, ...props }) {
   let Element = `h${level}`;
-
+  //added color tokens
   return (
     <Element
       {...props}

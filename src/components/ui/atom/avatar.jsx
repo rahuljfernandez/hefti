@@ -4,6 +4,9 @@ import { forwardRef } from 'react';
 import { TouchTarget } from './button';
 import { Link } from './link';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 export function Avatar({
   src = null,
   square = false,

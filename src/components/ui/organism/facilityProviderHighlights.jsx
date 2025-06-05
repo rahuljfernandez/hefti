@@ -2,6 +2,10 @@ import FacilityTabDescription from '../molecule/ProfileDescription';
 import StatsCard from '../molecule/statsCard';
 import CMSRating from '../molecule/CMSRating';
 import LayoutCard from '../atom/layout-card';
+/**
+ * Organism component that will be used to build FaciltyPage-this is the top block(Provider Highlights)
+ *
+ */
 
 const otherStats = [
   {

@@ -1,6 +1,9 @@
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 
+/**
+ * Default TW  Component sourced from Catalyst UI Kit
+ */
 export function CheckboxGroup({ className, ...props }) {
   return (
     <div
