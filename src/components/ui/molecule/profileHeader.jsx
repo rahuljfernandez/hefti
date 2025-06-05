@@ -1,5 +1,7 @@
+import React from 'react';
 import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
+import PropTypes from 'prop-types';
 
 export default function ProfileHeader({ title, badges = [] }) {
   return (
@@ -17,3 +19,13 @@ export default function ProfileHeader({ title, badges = [] }) {
     </div>
   );
 }
+
+ProfileHeader.propTypes = {
+  title: PropTypes.string.isRequired,
+  badges: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      color: PropTypes.string,
+    }),
+  ),
+};

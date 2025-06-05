@@ -1,7 +1,17 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
-export default function StarRating({ title = '', rating = 0, outOf = 5 }) {
+StarRating.PropTypes = {
+  title: PropTypes.string.isRequired,
+};
+export default function StarRating({
+  title = '',
+  rating = 0,
+  outOf = 5,
+  className = '',
+}) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
   const emptyStars = outOf - fullStars - (hasHalfStar ? 1 : 0);
@@ -10,16 +20,19 @@ export default function StarRating({ title = '', rating = 0, outOf = 5 }) {
 
   for (let i = 0; i < fullStars; i++) {
     stars.push(
-      <StarIcon key={`full-${i}`} className="h-10 w-10 text-orange-500" />,
+      <StarIcon
+        key={`full-${i}`}
+        className="h-8 w-8 text-orange-500 md:h-10 md:w-10"
+      />,
     );
   }
 
   if (hasHalfStar) {
     stars.push(
-      <span key="half" className="relative h-10 w-10">
-        <StarOutlineIcon className="absolute h-10 w-10 text-orange-500" />
+      <span key="half" className="relative h-8 w-8 md:h-10 md:w-10">
+        <StarOutlineIcon className="absolute h-8 w-8 text-orange-500 md:h-10 md:w-10" />
         <StarIcon
-          className="absolute h-10 w-10 text-orange-500"
+          className="absolute h-8 w-8 text-orange-500 md:h-10 md:w-10"
           style={{ clipPath: 'inset(0 50% 0 0)' }}
         />
       </span>,
@@ -30,15 +43,28 @@ export default function StarRating({ title = '', rating = 0, outOf = 5 }) {
     stars.push(
       <StarOutlineIcon
         key={`empty-${i}`}
-        className="h-10 w-10 text-orange-500"
+        className="h-8 w-8 text-orange-500 md:h-10 md:w-10"
       />,
     );
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-label-base text-core-black font">{title}</div>
+      <div
+        className={
+          className ? `${className} text-core-black` : 'text-label-base'
+        }
+      >
+        {title}
+      </div>
       <div className="flex">{stars}</div>
     </div>
   );
 }
+
+StarRating.propTypes = {
+  title: PropTypes.string.isRequired,
+  rating: PropTypes.number,
+  outOf: PropTypes.number,
+  className: PropTypes.string,
+};
