@@ -1,7 +1,9 @@
+import React from 'react';
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Link } from './link';
+import PropTypes from 'prop-types';
 
 /**
  * Default TW  Component sourced from Catalyst UI Kit
@@ -190,6 +192,14 @@ export const Button = forwardRef(function Button(
   );
 });
 
+Button.propTypes = {
+  color: PropTypes.string,
+  outline: PropTypes.bool,
+  plain: PropTypes.bool,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
 /**
  * Expand the hit area to at least 44×44px on touch devices
  */
@@ -204,3 +214,7 @@ export function TouchTarget({ children }) {
     </>
   );
 }
+
+TouchTarget.propTypes = {
+  children: PropTypes.node,
+};
