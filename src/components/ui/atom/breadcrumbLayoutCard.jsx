@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * Sourced from UI Application/Cards/Basic card,
  * customized to breadcrumb layout
+ * Might move this into a layout specific file/folder at a later date
  *
  */
 
