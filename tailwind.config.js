@@ -175,6 +175,9 @@ export default {
           ],
         },
       },
+      screens: {
+        xs: '400px',
+      },
     },
     plugins: [],
   },
