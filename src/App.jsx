@@ -1,13 +1,17 @@
-import Footer from './components/ui/molecule/footer';
 import React from 'react';
+import Breadcrumb from './components/ui/molecule/breadcrumb';
 
-import HeftiNavbar from './components/ui/molecule/heftiNavbar';
+const longPages = [
+  { name: 'HEFTI Homepage', href: '#', current: false },
+  { name: 'All Nursing Homes', href: '#', current: false },
+  { name: 'Aspen Point Health and Rehabilitation', href: '#', current: false },
+  { name: 'Report Builder', href: '#', current: true },
+];
 
 function App() {
   return (
     <div className="">
-      <HeftiNavbar />
-      <Footer />
+      <Breadcrumb pages={longPages} />
     </div>
   );
 }

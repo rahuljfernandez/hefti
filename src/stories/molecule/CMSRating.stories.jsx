@@ -1,3 +1,4 @@
+import * as React from 'react';
 import CMSRating from '../../components/ui/molecule/CMSRating';
 
 export default {
