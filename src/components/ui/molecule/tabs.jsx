@@ -32,7 +32,7 @@ Tabs.propTypes = {
  * - tabsData: array of tabs
  * - activeTab: the currently active tab
  * - onTabChange: callback when a tab is clicked
- * example:  <Tabs tabsData={tabsData} onTabChange={setActiveTab}/>
+ * example:  <Tabs tabsData={tabsData} onTabChange={setActiveTab} activeTab={activeTab}/>
  */
 
 export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
