@@ -43,7 +43,6 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
     }
   };
 
-  console.log(activeTab.name);
   return (
     <div className="bg-background-secondary">
       <div className="grid grid-cols-1 sm:hidden">
