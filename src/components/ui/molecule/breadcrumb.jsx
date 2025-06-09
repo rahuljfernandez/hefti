@@ -18,6 +18,7 @@ const defaultPages = [
   { name: 'Current Page', href: '#', current: true },
 ];
 //Ask Nick about hover color, leaving stock for now
+//Note: defaultPages is for Storybook
 export default function Breadcrumb({ pages = defaultPages }) {
   return (
     <BreadcrumbLayoutCard className="bg-zinc-200">

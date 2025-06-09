@@ -1,17 +1,11 @@
 import React from 'react';
-import Breadcrumb from './components/ui/molecule/breadcrumb';
 
-const longPages = [
-  { name: 'HEFTI Homepage', href: '#', current: false },
-  { name: 'All Nursing Homes', href: '#', current: false },
-  { name: 'Aspen Point Health and Rehabilitation', href: '#', current: false },
-  { name: 'Report Builder', href: '#', current: true },
-];
+import ProfileTemplate from './components/ui/template/profileTemplate';
 
 function App() {
   return (
     <div className="">
-      <Breadcrumb pages={longPages} />
+      <ProfileTemplate />
     </div>
   );
 }
