@@ -18,6 +18,7 @@ import LayoutCard from '../atom/layout-card';
  * Each section is respresented by its own organism level component found in ownershipFlowSections.jsx
  *
  * Data is currently hardcoded using "ownershipProfileData" found in lib
+ * TODO: I think conditional rendering if no section data is found will need to be handled here.
  */
 
 export default function OwnershipFlowDiagram() {

@@ -3,6 +3,16 @@ import PropTypes from 'prop-types';
 
 /**
  * Used within the ownerhsip flow diagram. It displays a labled data box with up to two-key value pairs.
+ * 
+ * Example:
+ *  <OwnershipBox
+             label1="FACILITY NAME"
+             value1={items.name}
+             label2="MANAGING EMPLOYEE"
+             value2={items.managingEmployee}
+             variant="orange"
+           />
+
  * Notes:
  * -If either label2/value2 are not provided the second section does not renter
  * -The value prop can accept a string or an array then applies conditional render.

@@ -1,6 +1,7 @@
 import { ArrowUpIcon } from '@heroicons/react/24/solid';
 import React from 'react';
 import PropTypes from 'prop-types';
+
 /**
  * Sourced from Application/UI Cards/Card with header and footer
  * Trimmed out borders from the stock TW component - applied tokens
