@@ -249,7 +249,12 @@ export const ownershipProfileData = {
   directOwners: [
     {
       name: 'VHS MO OPCO Holdings LLC',
-      corporateOfficer: 'William Miller',
+      corporateOfficer: [
+        'William Miller',
+        'William Millr',
+        'William Miler',
+        'William Mller',
+      ],
     },
   ],
   indirectOwners: [
@@ -268,6 +273,14 @@ export const ownershipProfileData = {
     {
       name: 'William Miller',
       ownershipPercentage: null,
+    },
+    {
+      name: 'Vertical Health Services LLC',
+      ownershipPercentage: null,
+    },
+    {
+      name: 'VHS Holdco LLC',
+      ownershipPercentage: '5%',
     },
   ],
 };

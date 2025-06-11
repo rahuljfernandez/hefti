@@ -1,3 +1,4 @@
+import React from 'react';
 import OwnerHighlights from '../../components/ui/organism/ownerHighlights';
 
 export default {

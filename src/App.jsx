@@ -1,10 +1,19 @@
 import React from 'react';
 import { ownershipProfileData } from './lib/mockData';
-import { IndirectOwnersFlowSection } from './components/ui/organism/ownershipFlowSections';
+import {
+  DirectOwnersFlowSection,
+  FacilityFlowSection,
+  IndirectOwnersFlowSection,
+  OperatorFlowSection,
+} from './components/ui/organism/ownershipFlowSections';
+import OwnershipFlowDiagram from './components/ui/organism/ownershipFlowDiagram';
+import { OwnershipBox } from './components/ui/molecule/ownershipFlowBox';
 
 function App() {
   return (
-    <IndirectOwnersFlowSection items={ownershipProfileData.indirectOwners} />
+    <div>
+      <OwnershipFlowDiagram />
+    </div>
   );
 }
 
