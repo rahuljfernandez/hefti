@@ -1,18 +1,21 @@
 import React from 'react';
-import Breadcrumb from './components/ui/molecule/breadcrumb';
-
-const longPages = [
-  { name: 'HEFTI Homepage', href: '#', current: false },
-  { name: 'All Nursing Homes', href: '#', current: false },
-  { name: 'Aspen Point Health and Rehabilitation', href: '#', current: false },
-  { name: 'Report Builder', href: '#', current: true },
-];
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/ui/template/MainLayout';
+import Home from './pages/Home';
+import Sandbox from './pages/Sandbox';
+import About from './pages/About';
+import ContactUs from './pages/ContactUs';
 
 function App() {
   return (
-    <div className="">
-      <Breadcrumb pages={longPages} />
-    </div>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="contact-us" element={<ContactUs />} />
+        <Route path="sandbox" element={<Sandbox />} />
+      </Route>
+    </Routes>
   );
 }
 
