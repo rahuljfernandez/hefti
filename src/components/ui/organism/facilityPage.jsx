@@ -1,3 +1,4 @@
+import React from 'react';
 import FacilityProviderHighlights from './facilityProviderHighlights';
 import TabsWithHeader from '../molecule/tabsWithHeader';
 import HeftiNavbar from '../molecule/heftiNavbar';
