@@ -233,3 +233,54 @@ export const relatedFacilitiesData = [
     Serious_Deficiencies: 1,
   },
 ];
+
+export const ownershipProfileData = {
+  operator: {
+    name: 'Clay Street Consulting LLC',
+  },
+  facility: {
+    name: 'Aspen Point Health And Rehabilitation',
+    managingEmployee: 'Keesha Robinson',
+    propertyOwner: {
+      name: 'Omega Healthcare Investors, Inc.',
+      type: 'REIT',
+    },
+  },
+  directOwners: [
+    {
+      name: 'VHS MO OPCO Holdings LLC',
+      corporateOfficer: [
+        'William Miller',
+        'William Millr',
+        'William Miler',
+        'William Mller',
+      ],
+    },
+  ],
+  indirectOwners: [
+    {
+      name: 'Vertical Health Services LLC',
+      ownershipPercentage: null,
+    },
+    {
+      name: 'VHS Holdco LLC',
+      ownershipPercentage: '5%',
+    },
+    {
+      name: 'VHS Ultimate Parent LLC',
+      ownershipPercentage: null,
+    },
+    {
+      name: 'William Miller',
+      ownershipPercentage: null,
+    },
+    {
+      name: 'Vertical Health Services LLC',
+      ownershipPercentage: null,
+    },
+    {
+      name: 'VHS Holdco LLC',
+      ownershipPercentage: '5%',
+    },
+  ],
+};

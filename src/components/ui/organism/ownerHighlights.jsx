@@ -1,3 +1,4 @@
+import React from 'react';
 import CMSRating from '../molecule/CMSRating';
 import StatsCard from '../molecule/statsCard';
 import LayoutCard from '../atom/layout-card';

@@ -1,11 +1,18 @@
 import React from 'react';
-
-import ProfileTemplate from './components/ui/template/profileTemplate';
+import { ownershipProfileData } from './lib/mockData';
+import {
+  DirectOwnersFlowSection,
+  FacilityFlowSection,
+  IndirectOwnersFlowSection,
+  OperatorFlowSection,
+} from './components/ui/organism/ownershipFlowSections';
+import OwnershipFlowDiagram from './components/ui/organism/ownershipFlowDiagram';
+import { OwnershipBox } from './components/ui/molecule/ownershipFlowBox';
 
 function App() {
   return (
-    <div className="">
-      <ProfileTemplate />
+    <div>
+      <OwnershipFlowDiagram />
     </div>
   );
 }
