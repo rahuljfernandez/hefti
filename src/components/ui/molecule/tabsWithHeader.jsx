@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import SectionHeader from '../molecule/sectionHeader';
 import Tabs from './Tabs';
 
@@ -34,12 +35,16 @@ const TABS = [
  *We manage the activeTab state here witch sets the default to the first tab.  This is passed down to the Tabs component.
  */
 
-export default function TabsWithHeader() {
-  const [activeTab, setActiveTab] = useState(TABS[0]);
+export default function TabsWithHeader({ tabsData = TABS }) {
+  const [activeTab, setActiveTab] = useState(tabsData[0]);
   return (
     <div className="bg-background-secondary">
       <div className="pb-3">
-        <Tabs tabsData={TABS} onTabChange={setActiveTab} />
+        <Tabs
+          tabsData={tabsData}
+          onTabChange={setActiveTab}
+          activeTab={activeTab}
+        />
       </div>
       <div className="py-6">
         <SectionHeader title={activeTab.displayTitle} variant="primary" />
@@ -47,3 +52,13 @@ export default function TabsWithHeader() {
     </div>
   );
 }
+
+TabsWithHeader.propTypes = {
+  tabsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      displayTitle: PropTypes.string.isRequired,
+      href: PropTypes.string,
+    }),
+  ),
+};
