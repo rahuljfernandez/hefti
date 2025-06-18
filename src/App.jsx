@@ -1,19 +1,21 @@
 import React from 'react';
-import { ownershipProfileData } from './lib/mockData';
-import {
-  DirectOwnersFlowSection,
-  FacilityFlowSection,
-  IndirectOwnersFlowSection,
-  OperatorFlowSection,
-} from './components/ui/organism/ownershipFlowSections';
-import OwnershipFlowDiagram from './components/ui/organism/ownershipFlowDiagram';
-import { OwnershipBox } from './components/ui/molecule/ownershipFlowBox';
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/ui/template/MainLayout';
+import Home from './pages/Home';
+import Sandbox from './pages/Sandbox';
+import About from './pages/About';
+import ContactUs from './pages/ContactUs';
 
 function App() {
   return (
-    <div>
-      <OwnershipFlowDiagram />
-    </div>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="contact-us" element={<ContactUs />} />
+        <Route path="sandbox" element={<Sandbox />} />
+      </Route>
+    </Routes>
   );
 }
 
