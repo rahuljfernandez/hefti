@@ -8,7 +8,15 @@ import {
  *
  * Sourced from Application UI/ Centered page numbers
  */
-export default function BrowsePagination() {
+export default function BrowsePagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
+  const pages = [];
+  for (let i = 0; i <= totalPages; i++) {
+    pages.push(i);
+  }
   return (
     <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">

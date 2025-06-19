@@ -2,44 +2,44 @@ import React, { useEffect, useState } from 'react';
 import ListContainer, {
   ListContainerSeparate,
 } from '../components/ui/organism/ListContainer';
-import { BrowseNursingHomes } from '../components/ui/molecule/listContainerContent';
+import { BrowseOwners } from '../components/ui/molecule/listContainerContent';
 import BrowseListView from '../components/ui/organism/browseListView';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://app.hefti-data-api.lndo.site:8000/api';
 
-function Facilities() {
-  const [facilities, setFacilities] = useState([]);
+function Owners() {
+  const [owners, setOwners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/facilities`)
+    fetch(`${API_BASE_URL}/owners`)
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch facilities');
+        if (!res.ok) throw new Error('Failed to fetch Owners');
         return res.json();
       })
-      .then(setFacilities)
+      .then(setOwners)
       .catch(setError)
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading facilities...</p>;
+  if (loading) return <p>Loading owners...</p>;
   if (error) return <p>Error: {error.message}</p>;
-  console.log(facilities);
+  console.log(owners);
 
   return (
     <div className="bg-gray-100">
-      <BrowseListView title="Nursing Homes">
+      <BrowseListView title="Owners / Affiliated Entities">
         <ListContainer
-          items={facilities}
+          items={owners}
           LayoutSelector={ListContainerSeparate}
-          ListContent={BrowseNursingHomes}
+          ListContent={BrowseOwners}
         />
       </BrowseListView>
     </div>
   );
 }
 
-export default Facilities;
+export default Owners;

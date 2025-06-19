@@ -5,6 +5,7 @@ import StarRating from './starRating';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
+import { toTitleCase } from '../../../lib/toTitleCase';
 /*Todo: 
 -Extract badgeColorVariant to helper file
 -The long keys inside badge will need a design decision and likey need to be converted for display
@@ -206,49 +207,116 @@ RelatedFacilities.propTypes = {
  *  link needs to be working
  */
 
-export function NursingHomes({ item }) {
+export function BrowseNursingHomes({ item }) {
   return (
-    <>
-      {/* Top Row */}
-      <div className="grid grid-cols-2 items-start gap-4 pb-2 md:grid-cols-3">
-        <div className="col-span-2">
-          <a
-            href="#"
-            className="text-heading-xs font-bold text-blue-600 underline"
-            style={{
-              textDecorationThickness: '2px',
-              textUnderlineOffset: '2px',
-            }}
-          >
-            {item.name}
-          </a>
-          <p className="text-paragraph-base py-2">
-            {item.address}, {item.city}, {item.state}
-          </p>
-        </div>
-        <div className="flex h-full items-center justify-start md:justify-end">
-          <Link
-            to={`/facilities/${item.id}`}
-            className="text-label-sm border-border-primary inline-block rounded-lg border px-4 py-2 font-extrabold"
-          >
-            View Profile
-          </Link>
-        </div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Name + Address */}
+      <div className="md:col-span-2">
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(item.name)}
+        </a>
+        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
+        </p>
       </div>
 
-      <Divider />
+      {/* Button — Top right on desktop, bottom on mobile */}
+      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+        <Link
+          to={`/facilities/${item.id}`}
+          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
+        >
+          View Profile
+        </Link>
+      </div>
+
+      {/* Divider */}
+      <Divider className="order-2 md:order-none md:col-span-3" />
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 gap-4 pt-2 text-sm md:grid-cols-2">
-        <div>
-          <p className="text-paragraph-base py-2 font-bold">Owner</p>
-          <p className="text-paragraph-base">{item.owner}Bakersfield LLc</p>
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="md:flex md:flex-row md:pr-6">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Owned by:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {/* {toTitleCase(item.owner)}*/}Alliance HealthCare
+          </p>
         </div>
-        <div>
-          <p className="text-paragraph-base py-2 font-bold">Ownership Type</p>
-          <p className="text-paragraph-base">{item.ownershipType}Corporate</p>
+
+        <div className="md:flex md:flex-row">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Ownership Type:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {/* {toTitleCase(item.ownershipType)} */}NonProfit
+          </p>
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+export function BrowseOwners({ item }) {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Name + Address */}
+      <div className="md:col-span-2">
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(item.name)}
+        </a>
+        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
+        </p>
+      </div>
+
+      {/* Button — Top right on desktop, bottom on mobile */}
+      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+        <Link
+          to={`/facilities/${item.id}`}
+          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
+        >
+          View Profile
+        </Link>
+      </div>
+
+      {/* Divider */}
+      <Divider className="order-2 md:order-none md:col-span-3" />
+
+      {/* Bottom Row */}
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="md:flex md:flex-row md:pr-6">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Owned by:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {/* {toTitleCase(item.owner)}*/}Alliance HealthCare
+          </p>
+        </div>
+
+        <div className="md:flex md:flex-row">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Ownership Type:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {/* {toTitleCase(item.ownershipType)} */}NonProfit
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
