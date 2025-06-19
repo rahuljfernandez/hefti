@@ -3,6 +3,8 @@ import { Badge } from '../atom/badge';
 import { formatOwnershipPercentage } from '../../../lib/stringFormatters';
 import StarRating from './starRating';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { Divider } from '../atom/divider';
 /*Todo: 
 -Extract badgeColorVariant to helper file
 -The long keys inside badge will need a design decision and likey need to be converted for display
@@ -198,3 +200,55 @@ export function RelatedFacilities({ item }) {
 RelatedFacilities.propTypes = {
   item: PropTypes.object.isRequired,
 };
+
+/**
+ *TODO:zip code needs to be added to dataset to match design
+ *  link needs to be working
+ */
+
+export function NursingHomes({ item }) {
+  return (
+    <>
+      {/* Top Row */}
+      <div className="grid grid-cols-2 items-start gap-4 pb-2 md:grid-cols-3">
+        <div className="col-span-2">
+          <a
+            href="#"
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {item.name}
+          </a>
+          <p className="text-paragraph-base py-2">
+            {item.address}, {item.city}, {item.state}
+          </p>
+        </div>
+        <div className="flex h-full items-center justify-start md:justify-end">
+          <Link
+            to={`/facilities/${item.id}`}
+            className="text-label-sm border-border-primary inline-block rounded-lg border px-4 py-2 font-extrabold"
+          >
+            View Profile
+          </Link>
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 gap-4 pt-2 text-sm md:grid-cols-2">
+        <div>
+          <p className="text-paragraph-base py-2 font-bold">Owner</p>
+          <p className="text-paragraph-base">{item.owner}Bakersfield LLc</p>
+        </div>
+        <div>
+          <p className="text-paragraph-base py-2 font-bold">Ownership Type</p>
+          <p className="text-paragraph-base">{item.ownershipType}Corporate</p>
+        </div>
+      </div>
+    </>
+  );
+}

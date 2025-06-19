@@ -37,6 +37,7 @@ export default function ListContainer({
   ListContent,
   variant = 'static',
 }) {
+  console.log(items);
   return (
     <div>
       <LayoutSelector
@@ -115,7 +116,7 @@ export function ListContainerSeparate({ items = [], renderItem }) {
       {items.map((item, i) => (
         <li
           key={item.id || i}
-          className="bg-core-white overflow-hidden rounded-xl px-4 py-4 shadow-sm sm:px-6"
+          className="bg-core-white border-border-primary overflow-hidden rounded-xl border px-4 py-4 shadow-sm sm:px-6"
         >
           {renderItem(item)}
         </li>
