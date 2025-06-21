@@ -31,9 +31,12 @@ function Facilities() {
 
   return (
     <div className="bg-gray-100">
-      <BrowseListView title="Nursing Homes">
+      <BrowseListView
+        title="Nursing Homes"
+        searchPlaceholder="Nursing Home name..."
+      >
         <ListContainer
-          items={facilities}
+          items={facilities.data}
           LayoutSelector={ListContainerSeparate}
           ListContent={BrowseNursingHomes}
         />
