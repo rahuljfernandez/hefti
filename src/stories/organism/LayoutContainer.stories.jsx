@@ -1,19 +1,23 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { BrowserRouter } from 'react-router-dom';
 import {
   Deficiencies,
   OwnershipAndStakeholders,
   Penalties,
   RelatedFacilities,
+  BrowseNursingHomes,
 } from '../../components/ui/molecule/listContainerContent';
 import ListContainer, {
   ListContainerDivider,
   ListContainerSeparate,
-} from '../../components/ui/organism/listContainer';
+} from '../../components/ui/organism/ListContainer';
 import {
   deficiencyReports,
   ownershipData,
   penaltiesData,
   relatedFacilitiesData,
+  mockNursingHomes,
 } from '../../lib/mockData';
 
 export default {
@@ -29,14 +33,19 @@ export default {
       defaultValue: 'divider',
     },
   },
+  decorators: [
+    (Story) => (
+      <BrowserRouter>
+        <Story />
+      </BrowserRouter>
+    ),
+  ],
 };
 
 const layoutMap = {
   divider: ListContainerDivider,
   separate: ListContainerSeparate,
 };
-
-import PropTypes from 'prop-types';
 
 const Template = ({ layoutType = 'divider', ...args }) => {
   const LayoutSelector = layoutMap[layoutType];
@@ -73,4 +82,11 @@ RelatedFacilities_.args = {
   items: relatedFacilitiesData,
   layoutType: 'divider',
   ListContent: RelatedFacilities,
+};
+
+export const BrowseFacilities_ = Template.bind({});
+BrowseFacilities_.args = {
+  items: mockNursingHomes,
+  layoutType: 'separate',
+  ListContent: BrowseNursingHomes,
 };

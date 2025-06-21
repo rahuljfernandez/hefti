@@ -204,6 +204,7 @@ RelatedFacilities.propTypes = {
 
 /**
  *TODO:zip code needs to be added to dataset to match design
+ * Need to get data from owner table
  *  link needs to be working
  */
 

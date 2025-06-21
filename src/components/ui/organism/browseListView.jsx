@@ -6,14 +6,21 @@ import BrowsePagination from '../molecule/browsePagination';
 import SelectMenu from '../molecule/selectMenu';
 import SearchMenu from '../molecule/searchMenu';
 
-export default function BrowseListView({ title, children, searchPlaceholder }) {
-  const [currentPage, setCurrentPage] = useState(1);
+export default function BrowseListView({
+  title,
+  children,
+  searchPlaceholder,
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
   return (
     <LayoutPage>
       <section className="pt-4 pb-16">
         <Heading className="text-display-xs" level={1}>
           {title}
         </Heading>
+
         {/*Search Bar */}
         <div className="py-8">
           <Heading className="text-label-lg font-bold"> Search by name</Heading>
@@ -32,11 +39,11 @@ export default function BrowseListView({ title, children, searchPlaceholder }) {
         {children}
 
         {/*Pagination Scroll */}
-        <div className="pt-4">
+        <div className="pt-8">
           <BrowsePagination
             currentPage={currentPage}
-            totalPages={500}
-            onPageChange={(page) => setCurrentPage(page)}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
           />
         </div>
       </section>
@@ -48,4 +55,7 @@ BrowseListView.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node,
   searchPlaceholder: PropTypes.string,
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number,
+  onPageChange: PropTypes.func,
 };

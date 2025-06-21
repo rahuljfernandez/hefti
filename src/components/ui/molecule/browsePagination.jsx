@@ -1,91 +1,91 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from '@heroicons/react/20/solid';
+import { getVisiblePages } from '../../../lib/getVisiblePages';
 
 /**
  *
- * Sourced from Application UI/ Centered page numbers
+ * This is a pagination component used for both Browse facility/owner with prev,next, context window.
+ * Sourced from Application UI/ Centered page numbers, modified the center context window display.
+ * The state is being managed by the top level parent and is prop-drilled to this component.
+ * Imports getVisiblePages helper which returns an array that provides the context window.
+ * 
+ * example:
+ *  <BrowsePagination
+        currentPage={currentPage} - the current page
+        totalPages={totalPages} - total pages number used to provide right bound of context
+        onPageChange={onPageChange} -function to set a new current page in parent
+    />
+ *
  */
+
 export default function BrowsePagination({
   currentPage,
   totalPages,
   onPageChange,
 }) {
-  const pages = [];
-  for (let i = 0; i <= totalPages; i++) {
-    pages.push(i);
-  }
+  console.log('currentPage', currentPage);
+  console.log('totalPages', totalPages);
   return (
-    <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+    <nav className="border-content-tertiary flex items-center justify-between border-t px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pr-1 hover:border-gray-300 hover:text-gray-700"
+        <button
+          onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+          disabled={currentPage === 1}
+          className="text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pr-1 hover:cursor-pointer hover:text-gray-700"
         >
           <ArrowLongLeftIcon
             aria-hidden="true"
             className="text-content-secondary mr-4 size-5"
           />
           Previous
-        </a>
+        </button>
       </div>
       <div className="hidden md:-mt-px md:flex">
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 hover:border-gray-300 hover:text-gray-700"
-        >
-          1
-        </a>
-        {/* Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" */}
-        <a
-          href="#"
-          aria-current="page"
-          className="inline-flex items-center border-t-2 border-indigo-500 px-4 pt-4 text-sm font-medium text-indigo-600"
-        >
-          2
-        </a>
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 hover:border-gray-300 hover:text-gray-700"
-        >
-          3
-        </a>
-        <span className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4">
-          ...
-        </span>
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 hover:border-gray-300 hover:text-gray-700"
-        >
-          8
-        </a>
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 hover:border-gray-300 hover:text-gray-700"
-        >
-          9
-        </a>
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 hover:border-gray-300 hover:text-gray-700"
-        >
-          10
-        </a>
+        {getVisiblePages(currentPage, totalPages).map((page, index) =>
+          page === '...' ? (
+            <span
+              key={`ellipsis-${index}`}
+              className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent px-4 pt-4 font-medium"
+            >
+              ...
+            </span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => onPageChange(page)}
+              className={`text-paragraph-base inline-flex items-center border-t-2 px-4 pt-4 ${
+                page === currentPage
+                  ? 'border-blue-700 text-blue-700'
+                  : 'hover:border-content-secondary border-transparent text-gray-500 hover:cursor-pointer hover:text-gray-700'
+              }`}
+            >
+              {page}
+            </button>
+          ),
+        )}
       </div>
       <div className="-mt-px flex w-0 flex-1 justify-end">
-        <a
-          href="#"
-          className="text-paragraph-base text-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pl-1 hover:border-gray-300 hover:text-gray-700"
+        <button
+          onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pl-1 hover:cursor-pointer hover:text-gray-700"
         >
           Next
           <ArrowLongRightIcon
             aria-hidden="true"
             className="text-content-secondary ml-4 size-5"
           />
-        </a>
+        </button>
       </div>
     </nav>
   );
 }
+BrowsePagination.propTypes = {
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+};
