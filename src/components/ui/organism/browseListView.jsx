@@ -13,6 +13,9 @@ export default function BrowseListView({
   currentPage,
   totalPages,
   onPageChange,
+  search,
+  onSearchChange,
+  suggestions,
 }) {
   return (
     <LayoutPage>
@@ -26,7 +29,12 @@ export default function BrowseListView({
           <Heading className="text-label-lg font-bold"> Search by name</Heading>
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <div className="w-full md:flex-[2]">
-              <SearchMenu placeholder={searchPlaceholder} />
+              <SearchMenu
+                placeholder={searchPlaceholder}
+                search={search}
+                onChange={onSearchChange}
+                suggestions={suggestions}
+              />
             </div>
             <div className="flex w-full gap-2 md:flex-[1] md:flex-row">
               <SelectMenu />
@@ -39,13 +47,15 @@ export default function BrowseListView({
         {children}
 
         {/*Pagination Scroll */}
-        <div className="pt-8">
-          <BrowsePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-        </div>
+        {totalPages > 1 && (
+          <div className="pt-8">
+            <BrowsePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={onPageChange}
+            />
+          </div>
+        )}
       </section>
     </LayoutPage>
   );
@@ -55,7 +65,10 @@ BrowseListView.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node,
   searchPlaceholder: PropTypes.string,
+  search: PropTypes.string,
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number,
   onPageChange: PropTypes.func,
+  onSearchChange: PropTypes.func,
+  suggestions: PropTypes.array,
 };

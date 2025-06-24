@@ -14,54 +14,92 @@ function Facilities() {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get('page')) || 1;
   const [page, setPage] = useState(pageFromUrl);
+  const searchFromURL = searchParams.get('search') || '';
+  const [search, setSearch] = useState(searchFromURL);
+  const [suggestions, setSuggestions] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [pageCount, setPageCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-
     const params = new URLSearchParams({
       page,
       take: 20,
     });
+
+    if (search) params.set('search', search);
+
     fetch(`${API_BASE_URL}/facilities?${params}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch facilities');
         return res.json();
       })
       .then((data) => {
-        console.log(data);
         setFacilities(data.data);
         setPageCount(data.pageCount);
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [page, search]);
 
-  if (loading) return <p>Loading facilities...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  //This is for the search suggestion dropdown
+  useEffect(() => {
+    if (!search) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      fetch(`${API_BASE_URL}/facilities/suggestions?search=${search}`)
+        .then((res) => res.json())
+        .then((data) =>
+          setSuggestions(data.map((d) => ({ id: d.id, label: d.name }))),
+        );
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   function handlePageChange(newPage) {
     setPage(newPage);
     setSearchParams({ page: newPage });
   }
 
+  function handleSearchChange(newSearch) {
+    setSearch(newSearch);
+    setPage(1);
+    setSearchParams({ page: 1, search: newSearch });
+  }
+
   return (
-    <div className="bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <BrowseListView
         currentPage={page}
         totalPages={pageCount}
         onPageChange={handlePageChange}
+        search={search}
+        onSearchChange={handleSearchChange}
+        suggestions={suggestions}
         title="Nursing Homes"
         searchPlaceholder="Nursing Home name..."
       >
-        <ListContainer
-          items={facilities}
-          LayoutSelector={ListContainerSeparate}
-          ListContent={BrowseNursingHomes}
-        />
+        {facilities.length > 0 ? (
+          <ListContainer
+            items={facilities}
+            LayoutSelector={ListContainerSeparate}
+            ListContent={BrowseNursingHomes}
+          />
+        ) : (
+          <p className="text-paragraph-base text-core-black mt-4 text-center">
+            <span className="font-bold">&quot;{search}&quot; </span>did not
+            return any results.
+          </p>
+        )}
+        {loading && (
+          <p className="text-sm text-gray-500">Loading new page...</p>
+        )}
+        {error && <p>Error: {error.message}</p>}
       </BrowseListView>
     </div>
   );

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 export default function LayoutPage({ children }) {
   return (
-    <div className="mx-auto max-w-[1180px] sm:px-6 lg:px-8 xl:px-0">
+    <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8 xl:px-0">
       {children}
     </div>
   );

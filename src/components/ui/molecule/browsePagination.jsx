@@ -27,8 +27,6 @@ export default function BrowsePagination({
   totalPages,
   onPageChange,
 }) {
-  console.log('currentPage', currentPage);
-  console.log('totalPages', totalPages);
   return (
     <nav className="border-content-tertiary flex items-center justify-between border-t px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
