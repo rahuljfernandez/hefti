@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ListContainer, {
   ListContainerSeparate,
@@ -12,10 +12,11 @@ const API_BASE_URL =
 
 function Facilities() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const pageFromUrl = parseInt(searchParams.get('page')) || 1;
-  const [page, setPage] = useState(pageFromUrl);
-  const searchFromURL = searchParams.get('search') || '';
-  const [search, setSearch] = useState(searchFromURL);
+  const page = parseInt(searchParams.get('page')) || 1;
+  // const [page, setPage] = useState(pageFromUrl);
+  const search = searchParams.get('search') || '';
+  // const [search, setSearch] = useState(searchFromURL);
+  const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [pageCount, setPageCount] = useState(1);
@@ -25,10 +26,12 @@ function Facilities() {
   useEffect(() => {
     const params = new URLSearchParams({
       page,
-      take: 20,
     });
 
-    if (search) params.set('search', search);
+    //  Only add search if it's non-empty
+    if (search.trim() !== '') {
+      params.set('search', search);
+    }
 
     fetch(`${API_BASE_URL}/facilities?${params}`)
       .then((res) => {
@@ -47,30 +50,47 @@ function Facilities() {
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
+      setHasFetchedSuggestions(false);
       return;
     }
 
-    const timeout = setTimeout(() => {
-      fetch(`${API_BASE_URL}/facilities/suggestions?search=${search}`)
-        .then((res) => res.json())
-        .then((data) =>
-          setSuggestions(data.map((d) => ({ id: d.id, label: d.name }))),
-        );
-    }, 300);
-
-    return () => clearTimeout(timeout);
+    fetch(`${API_BASE_URL}/facilities/suggestions?search=${search}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSuggestions(data.map((d) => ({ id: d.id, label: d.name })));
+        setHasFetchedSuggestions(true);
+      });
   }, [search]);
 
   function handlePageChange(newPage) {
-    setPage(newPage);
-    setSearchParams({ page: newPage });
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set('page', newPage);
+      return params;
+    });
   }
 
-  function handleSearchChange(newSearch) {
-    setSearch(newSearch);
-    setPage(1);
-    setSearchParams({ page: 1, search: newSearch });
-  }
+  const handleSearchChange = useCallback(
+    (newSearch) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        const prevSearch = params.get('search') || '';
+
+        // Only reset page if the search term actually changed
+        if (prevSearch !== newSearch) {
+          params.set('page', 1);
+        }
+
+        if (newSearch.trim() !== '') {
+          params.set('search', newSearch);
+        } else {
+          params.delete('search');
+        }
+        return params;
+      });
+    },
+    [setSearchParams],
+  );
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -81,6 +101,7 @@ function Facilities() {
         search={search}
         onSearchChange={handleSearchChange}
         suggestions={suggestions}
+        hasFetchedSuggestions={hasFetchedSuggestions}
         title="Nursing Homes"
         searchPlaceholder="Nursing Home name..."
       >

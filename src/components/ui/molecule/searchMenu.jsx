@@ -5,19 +5,29 @@ import { useNavigate } from 'react-router-dom';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { highlightQuery } from '../../../lib/highlightQuery';
 import { Heading } from '../atom/heading';
+import { useDebouncedValue } from '../../../hooks/useDebounceValue';
 
 export default function SearchMenu({
   placeholder,
   search,
-  onChange,
+  onSearchChange,
   suggestions,
+  hasFetchedSuggestions,
 }) {
   const [isActive, setIsActive] = useState(false);
   const [query, setQuery] = useState(search || '');
+  const debouncedQuery = useDebouncedValue(query, 300);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const wrapperRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const isInitial = debouncedQuery === '';
+    if (!isInitial) {
+      onSearchChange(debouncedQuery);
+    }
+  }, [debouncedQuery, onSearchChange]);
 
   // Keep local input in sync with parent (eg: when you type the api is updating to display real time results as list items)
   useEffect(() => {
@@ -41,12 +51,6 @@ export default function SearchMenu({
     document.body.style.overflow = isMobileSearchOpen ? 'hidden' : '';
   }, [isMobileSearchOpen]);
 
-  function handleInputChange(e) {
-    setQuery(e.target.value);
-    onChange(e.target.value);
-    setShowDropdown(true);
-  }
-
   function handlePick(suggestion) {
     navigate(`/facilities/${suggestion.id}`);
   }
@@ -67,7 +71,7 @@ export default function SearchMenu({
         className="text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-400 sm:text-sm/6"
         placeholder={placeholder}
         value={query}
-        onChange={handleInputChange}
+        onChange={(e) => setQuery(e.target.value)}
         onFocus={() => {
           const isMobile = window.innerWidth < 768;
           setIsMobileSearchOpen(isMobile);
@@ -82,7 +86,7 @@ export default function SearchMenu({
 
       {showDropdown && (
         <ul className="absolute top-13 z-10 mt-1 max-h-105 w-full overflow-hidden rounded-xl bg-white py-1 shadow-md">
-          {query === '' ? (
+          {debouncedQuery === '' ? (
             <li className="text-paragraph-base text-core-black px-4 py-6">
               Enter your search term
             </li>
@@ -97,15 +101,18 @@ export default function SearchMenu({
               </li>
             ))
           ) : (
-            <li className="text-paragraph-base text-core-black px-4 py-6">
-              <span className="font-bold">&quot;{query}&quot; </span>did not
-              match any auto-suggestions.
-            </li>
+            hasFetchedSuggestions &&
+            suggestions.length === 0 && (
+              <li className="text-paragraph-base text-core-black px-4 py-6">
+                <span className="font-bold">&quot;{query}&quot; </span>did not
+                match any auto-suggestions.
+              </li>
+            )
           )}
         </ul>
       )}
 
-      {/* ✅ MOBILE MODAL */}
+      {/* MOBILE MODAL */}
       {isMobileSearchOpen && (
         <div className="fixed inset-0 z-50 overflow-auto bg-white p-4">
           <div className="mb-4 flex justify-end">
@@ -121,7 +128,7 @@ export default function SearchMenu({
             <input
               type="text"
               value={query}
-              onChange={handleInputChange}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
               className="text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-400 sm:text-sm/6"
             />
@@ -132,7 +139,7 @@ export default function SearchMenu({
           </div>
 
           <ul className="mt-2">
-            {query.trim() === '' ? (
+            {debouncedQuery === '' ? (
               <li className="p-4 text-zinc-500">Enter your search term</li>
             ) : suggestions.length > 0 ? (
               suggestions.map((sugg) => (
@@ -145,10 +152,13 @@ export default function SearchMenu({
                 </li>
               ))
             ) : (
-              <li className="text-paragraph-base text-core-black px-4 py-6">
-                <span className="font-bold">&quot;{query}&quot; </span>did not
-                match any auto-suggestions.
-              </li>
+              hasFetchedSuggestions &&
+              suggestions.length === 0 && (
+                <li className="text-paragraph-base text-core-black px-4 py-6">
+                  <span className="font-bold">&quot;{query}&quot; </span>did not
+                  match any auto-suggestions.
+                </li>
+              )
             )}
           </ul>
         </div>
@@ -160,11 +170,12 @@ export default function SearchMenu({
 SearchMenu.propTypes = {
   placeholder: PropTypes.string.isRequired,
   search: PropTypes.string,
-  onChange: PropTypes.func,
+  onSearchChange: PropTypes.func.isRequired,
   suggestions: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  hasFetchedSuggestions: PropTypes.bool.isRequired,
 };

@@ -16,6 +16,7 @@ export default function BrowseListView({
   search,
   onSearchChange,
   suggestions,
+  hasFetchedSuggestions,
 }) {
   return (
     <LayoutPage>
@@ -32,13 +33,14 @@ export default function BrowseListView({
               <SearchMenu
                 placeholder={searchPlaceholder}
                 search={search}
-                onChange={onSearchChange}
+                onSearchChange={onSearchChange}
                 suggestions={suggestions}
+                hasFetchedSuggestions={hasFetchedSuggestions}
               />
             </div>
             <div className="flex w-full gap-2 md:flex-[1] md:flex-row">
-              <SelectMenu />
-              <SelectMenu />
+              <SelectMenu variant="sort" />
+              <SelectMenu variant="filter" />
             </div>
           </div>
         </div>
@@ -71,4 +73,5 @@ BrowseListView.propTypes = {
   onPageChange: PropTypes.func,
   onSearchChange: PropTypes.func,
   suggestions: PropTypes.array,
+  hasFetchedSuggestions: PropTypes.bool,
 };
