@@ -7,6 +7,17 @@ import { highlightQuery } from '../../../lib/highlightQuery';
 import { Heading } from '../atom/heading';
 import { useDebouncedValue } from '../../../hooks/useDebounceValue';
 
+/**
+ *
+ * Search input component with debounced value handling, suggesiton dropdown, and mobile modal support
+ *
+ * @param {string} placeholder - Placeholder text for the input field.
+ * @param {string} search - The current search query from the parent state.
+ * @param {function} onSearchChange - Callback to update the parent search query.
+ * @param {Array<{ id: string|number, label: string }>} suggestions - List of search suggestion results.
+ * @param {boolean} hasFetchedSuggestions - Flag indicating if suggestions were already fetched.
+ */
+
 export default function SearchMenu({
   placeholder,
   search,
@@ -14,14 +25,15 @@ export default function SearchMenu({
   suggestions,
   hasFetchedSuggestions,
 }) {
-  const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(false); //Tracks if desktop dropdown is active
   const [query, setQuery] = useState(search || '');
   const debouncedQuery = useDebouncedValue(query, 300);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const wrapperRef = useRef(null);
+  const wrapperRef = useRef(null); //used in order to detect clicks outside
   const navigate = useNavigate();
 
+  // Update parent search state after debounce delay
   useEffect(() => {
     const isInitial = debouncedQuery === '';
     if (!isInitial) {
@@ -51,10 +63,12 @@ export default function SearchMenu({
     document.body.style.overflow = isMobileSearchOpen ? 'hidden' : '';
   }, [isMobileSearchOpen]);
 
+  // Navigate to a facility detail page when a suggestion is selected
   function handlePick(suggestion) {
     navigate(`/facilities/${suggestion.id}`);
   }
 
+  // Closes the mobile search modal
   function closeMobileSearch() {
     setIsMobileSearchOpen(false);
     setShowDropdown(false);

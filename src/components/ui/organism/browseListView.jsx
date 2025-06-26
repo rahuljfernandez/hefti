@@ -6,6 +6,10 @@ import BrowsePagination from '../molecule/browsePagination';
 import SelectMenu from '../molecule/selectMenu';
 import SearchMenu from '../molecule/searchMenu';
 
+/**
+ * Reusable layout component for displaying a list of items with search, sort, filter, and pagination controls.
+ * Note: It accepts children prop that is intended to be the list items for nursing home browse and/or owners browse
+ */
 export default function BrowseListView({
   title,
   children,
@@ -15,6 +19,8 @@ export default function BrowseListView({
   onPageChange,
   search,
   onSearchChange,
+  onSortChange,
+  onFilterChange,
   suggestions,
   hasFetchedSuggestions,
 }) {
@@ -39,8 +45,8 @@ export default function BrowseListView({
               />
             </div>
             <div className="flex w-full gap-2 md:flex-[1] md:flex-row">
-              <SelectMenu variant="sort" />
-              <SelectMenu variant="filter" />
+              <SelectMenu variant="sort" onSortChange={onSortChange} />
+              <SelectMenu variant="filter" onFilterChange={onFilterChange} />
             </div>
           </div>
         </div>
@@ -74,4 +80,6 @@ BrowseListView.propTypes = {
   onSearchChange: PropTypes.func,
   suggestions: PropTypes.array,
   hasFetchedSuggestions: PropTypes.bool,
+  onSortChange: PropTypes.func,
+  onFilterChange: PropTypes.func,
 };

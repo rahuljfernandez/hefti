@@ -6,16 +6,24 @@ import ListContainer, {
 import { BrowseNursingHomes } from '../components/ui/molecule/listContainerContent';
 import BrowseListView from '../components/ui/organism/browseListView';
 
+/**
+ * Main page for browsing nursing home facilities.  Inlcudes search, sort, filter, pagination, and suggestion logic.
+ * This component is the single source of truth for all browse nursing home api data.  Data is prop drilled down to children components to render the ui.
+ * Uses BrowseListView component to provide title/search/pagination. BrowseListView also recieves a ListContainer child that rquires the facilities data to display LI's
+ */
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://app.hefti-data-api.lndo.site:8000/api';
 
 function Facilities() {
+  // --- URL Params ---
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page')) || 1;
-  // const [page, setPage] = useState(pageFromUrl);
   const search = searchParams.get('search') || '';
-  // const [search, setSearch] = useState(searchFromURL);
+  const sort = searchParams.get('sort') || 'asc';
+  const filter = searchParams.get('filter') || '';
+  // --- UI State ---
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [facilities, setFacilities] = useState([]);
@@ -23,12 +31,15 @@ function Facilities() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //Fetch facility data when page, serach, sort or filter changes
   useEffect(() => {
     const params = new URLSearchParams({
       page,
+      sort,
+      filter,
     });
 
-    //  Only add search if it's non-empty
+    //  Only add search if it's not empty
     if (search.trim() !== '') {
       params.set('search', search);
     }
@@ -44,9 +55,9 @@ function Facilities() {
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page, search]);
+  }, [page, search, sort, filter]);
 
-  //This is for the search suggestion dropdown
+  //Fetch suggestions when user types in the search box
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
@@ -62,6 +73,7 @@ function Facilities() {
       });
   }, [search]);
 
+  //update URL param when pagination changes
   function handlePageChange(newPage) {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
@@ -70,6 +82,7 @@ function Facilities() {
     });
   }
 
+  //Update search query in URL and reset to page 1 if different
   const handleSearchChange = useCallback(
     (newSearch) => {
       setSearchParams((prev) => {
@@ -92,6 +105,42 @@ function Facilities() {
     [setSearchParams],
   );
 
+  //Update sort query in URL
+  const handleSortChange = useCallback(
+    (newSort) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('page', 1);
+        if (newSort) {
+          params.set('sort', newSort);
+        } else {
+          params.delete('sort');
+        }
+        return params;
+      });
+    },
+    [setSearchParams],
+  );
+
+  //Update filter query in URL
+  const handleFilterChange = useCallback(
+    (newFilter) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('page', 1);
+
+        if (newFilter) {
+          params.set('filter', newFilter);
+        } else {
+          params.delete('filter');
+        }
+
+        return params;
+      });
+    },
+    [setSearchParams],
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       <BrowseListView
@@ -100,6 +149,8 @@ function Facilities() {
         onPageChange={handlePageChange}
         search={search}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}
         title="Nursing Homes"
@@ -112,10 +163,13 @@ function Facilities() {
             ListContent={BrowseNursingHomes}
           />
         ) : (
-          <p className="text-paragraph-base text-core-black mt-4 text-center">
-            <span className="font-bold">&quot;{search}&quot; </span>did not
-            return any results.
-          </p>
+          facilities.length === 0 &&
+          !loading && (
+            <p className="text-paragraph-base text-core-black mt-4 text-center">
+              <span className="font-bold">&quot;{search || filter}&quot; </span>
+              did not return any results.
+            </p>
+          )
         )}
         {loading && (
           <p className="text-sm text-gray-500">Loading new page...</p>

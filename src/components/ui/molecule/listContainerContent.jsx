@@ -248,7 +248,9 @@ export function BrowseNursingHomes({ item }) {
             Owned by:
           </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {/* {toTitleCase(item.owner)}*/}Alliance HealthCare
+            {item.ownership.parent_company_name
+              ? toTitleCase(item.ownership.parent_company_name)
+              : 'N/A'}
           </p>
         </div>
 
@@ -257,13 +259,17 @@ export function BrowseNursingHomes({ item }) {
             Ownership Type:
           </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {/* {toTitleCase(item.ownershipType)} */}NonProfit
+            {toTitleCase(item.ownership.ownership_type)}
           </p>
         </div>
       </div>
     </div>
   );
 }
+
+BrowseNursingHomes.propTypes = {
+  item: PropTypes.object.isRequired,
+};
 
 export function BrowseOwners({ item }) {
   return (
