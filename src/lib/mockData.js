@@ -284,3 +284,51 @@ export const ownershipProfileData = {
     },
   ],
 };
+
+export const mockNursingHomes = [
+  {
+    id: 1,
+    name: 'pleasant valley nursing center',
+    address: '123 Main Street',
+    city: 'Springfield',
+    state: 'IL',
+    owner: 'Alliance HealthCare',
+    ownershipType: 'NonProfit',
+  },
+  {
+    id: 2,
+    name: 'oak ridge care home',
+    address: '456 Oak Avenue',
+    city: 'Madison',
+    state: 'WI',
+    owner: 'Care Group Inc.',
+    ownershipType: 'ForProfit',
+  },
+  {
+    id: 3,
+    name: 'sunset senior living',
+    address: '789 Sunset Blvd',
+    city: 'Phoenix',
+    state: 'AZ',
+    owner: 'Sun Health Partners',
+    ownershipType: 'NonProfit',
+  },
+  {
+    id: 4,
+    name: 'maple grove nursing home',
+    address: '321 Maple Street',
+    city: 'Columbus',
+    state: 'OH',
+    owner: 'Maple Healthcare LLC',
+    ownershipType: 'ForProfit',
+  },
+  {
+    id: 5,
+    name: 'riverbend retirement center',
+    address: '555 River Road',
+    city: 'Richmond',
+    state: 'VA',
+    owner: 'Riverbend Senior Services',
+    ownershipType: 'NonProfit',
+  },
+];
