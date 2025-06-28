@@ -271,30 +271,42 @@ BrowseNursingHomes.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+//Todo: connect the right data variables
+//Todo: two instances of badge logic, including the mobile one.
 export function BrowseOwners({ item }) {
+  // console.log(item);
+  // console.log('cms_ownership_type:', item.cms_ownership_type, 'item:', item);
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
-      <div className="md:col-span-2">
-        <a
-          href="#"
-          className="text-heading-xs font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {toTitleCase(item.name)}
-        </a>
-        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
+      <div className="flex flex-col md:col-span-2">
+        <p className="text-paragraph-base text-content-secondary order-2 py-2 md:order-1 md:py-0 md:pt-2">
+          {toTitleCase(item.cms_ownership_type || '')}
         </p>
+        <div className="order-1 flex flex-col gap-4 md:order-2 md:flex-row">
+          <a
+            href="#"
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {toTitleCase(item.cms_ownership_name)}
+          </a>
+
+          <div>
+            <Badge className="text-paragraph-xs font-bold">
+              {item.cms_ownership_breakdown_summary || 'Badge'}
+            </Badge>
+          </div>
+        </div>
       </div>
 
       {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+      <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
         <Link
-          to={`/facilities/${item.id}`}
+          to={`/owners/${item.id}`}
           className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
         >
           View Profile
@@ -302,28 +314,49 @@ export function BrowseOwners({ item }) {
       </div>
 
       {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
+      <Divider className="order-3 md:order-none md:col-span-3" />
 
       {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="md:flex md:flex-row md:pr-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Owned by:
-          </p>
+      <div className="order-4 flex flex-col gap-2 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="flex flex-row pr-4">
           <p className="text-paragraph-base text-core-black font-semibold">
-            {/* {toTitleCase(item.owner)}*/}Alliance HealthCare
+            {46}
+          </p>
+          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
+            Facilities
           </p>
         </div>
 
-        <div className="md:flex md:flex-row">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Ownership Type:
-          </p>
+        <div className="flex flex-row pr-4">
           <p className="text-paragraph-base text-core-black font-semibold">
-            {/* {toTitleCase(item.ownershipType)} */}NonProfit
+            {1}
+          </p>
+          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
+            States or Territories
+          </p>
+        </div>
+
+        <div className="flex flex-row pr-4">
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {'98%'}
+          </p>
+          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
+            Direct Ownership
+          </p>
+        </div>
+
+        <div className="flex flex-row">
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {'2%'}
+          </p>
+          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
+            Operational/Managerial Control
           </p>
         </div>
       </div>
     </div>
   );
 }
+BrowseOwners.propTypes = {
+  item: PropTypes.object.isRequired,
+};

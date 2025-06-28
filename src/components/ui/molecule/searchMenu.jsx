@@ -24,6 +24,7 @@ export default function SearchMenu({
   onSearchChange,
   suggestions,
   hasFetchedSuggestions,
+  type,
 }) {
   const [isActive, setIsActive] = useState(false); //Tracks if desktop dropdown is active
   const [query, setQuery] = useState(search || '');
@@ -35,11 +36,10 @@ export default function SearchMenu({
 
   // Update parent search state after debounce delay
   useEffect(() => {
-    const isInitial = debouncedQuery === '';
-    if (!isInitial) {
+    if (debouncedQuery.trim() !== (search || '').trim()) {
       onSearchChange(debouncedQuery);
     }
-  }, [debouncedQuery, onSearchChange]);
+  }, [debouncedQuery, onSearchChange, search]);
 
   // Keep local input in sync with parent (eg: when you type the api is updating to display real time results as list items)
   useEffect(() => {
@@ -63,9 +63,13 @@ export default function SearchMenu({
     document.body.style.overflow = isMobileSearchOpen ? 'hidden' : '';
   }, [isMobileSearchOpen]);
 
-  // Navigate to a facility detail page when a suggestion is selected
+  // Navigate to a facility/owner detail page when a suggestion is selected
   function handlePick(suggestion) {
-    navigate(`/facilities/${suggestion.id}`);
+    if (type === 'owners') {
+      navigate(`/owners/${suggestion.id}`);
+    } else {
+      navigate(`/facilities/${suggestion.id}`);
+    }
   }
 
   // Closes the mobile search modal
@@ -192,4 +196,5 @@ SearchMenu.propTypes = {
     }),
   ).isRequired,
   hasFetchedSuggestions: PropTypes.bool.isRequired,
+  type: PropTypes.oneOf(['facilities', 'owners']).isRequired,
 };
