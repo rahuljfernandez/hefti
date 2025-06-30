@@ -285,50 +285,66 @@ export const ownershipProfileData = {
   ],
 };
 
-export const mockNursingHomes = [
+export const nursingHomesMock = [
   {
     id: 1,
-    name: 'pleasant valley nursing center',
-    address: '123 Main Street',
-    city: 'Springfield',
-    state: 'IL',
-    owner: 'Alliance HealthCare',
-    ownershipType: 'NonProfit',
+    name: 'Sunny Acres Nursing Home',
+    address: '123 Sunshine Lane',
+    city: 'Orlando',
+    state: 'FL',
+    ownership: {
+      parent_company_name: 'ARCH OPCO HOLDINGS, LLC',
+      ownership_type: 'For Profit - Corporation',
+    },
   },
   {
     id: 2,
-    name: 'oak ridge care home',
-    address: '456 Oak Avenue',
-    city: 'Madison',
-    state: 'WI',
-    owner: 'Care Group Inc.',
-    ownershipType: 'ForProfit',
+    name: 'Shady Grove Care Center',
+    address: '456 Shady Oak Blvd',
+    city: 'Miami',
+    state: 'FL',
+    ownership: {
+      parent_company_name: 'BDCC CONSULTING GROUP LLC',
+      ownership_type: 'Nonprofit - Corporation',
+    },
   },
   {
     id: 3,
-    name: 'sunset senior living',
-    address: '789 Sunset Blvd',
-    city: 'Phoenix',
-    state: 'AZ',
-    owner: 'Sun Health Partners',
-    ownershipType: 'NonProfit',
+    name: 'Oak Ridge Rehab Facility',
+    address: '789 Oak Ridge Drive',
+    city: 'Tampa',
+    state: 'FL',
+    ownership: {
+      parent_company_name: '',
+      ownership_type: 'Government - County',
+    },
+  },
+];
+
+export const facilitiesMock = [
+  {
+    id: 1,
+    name: 'Sunny Acres Nursing Home',
+    city: 'Orlando',
+    state: 'FL',
   },
   {
-    id: 4,
-    name: 'maple grove nursing home',
-    address: '321 Maple Street',
-    city: 'Columbus',
-    state: 'OH',
-    owner: 'Maple Healthcare LLC',
-    ownershipType: 'ForProfit',
+    id: 2,
+    name: 'Shady Grove Care Center',
+    city: 'Miami',
+    state: 'FL',
+  },
+];
+
+export const ownersMock = [
+  {
+    cms_ownership_name: 'ARCH OPCO HOLDINGS, LLC',
+    cms_ownership_type: 'Organization',
+    facilities: { state: 'FL' },
   },
   {
-    id: 5,
-    name: 'riverbend retirement center',
-    address: '555 River Road',
-    city: 'Richmond',
-    state: 'VA',
-    owner: 'Riverbend Senior Services',
-    ownershipType: 'NonProfit',
+    cms_ownership_name: 'DEMONS, KEITH',
+    cms_ownership_type: 'Individual',
+    facilities: { state: 'FL' },
   },
 ];

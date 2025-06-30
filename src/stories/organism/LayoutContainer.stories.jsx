@@ -7,6 +7,7 @@ import {
   Penalties,
   RelatedFacilities,
   BrowseNursingHomes,
+  BrowseOwners,
 } from '../../components/ui/molecule/listContainerContent';
 import ListContainer, {
   ListContainerDivider,
@@ -17,7 +18,8 @@ import {
   ownershipData,
   penaltiesData,
   relatedFacilitiesData,
-  mockNursingHomes,
+  nursingHomesMock,
+  ownersMock,
 } from '../../lib/mockData';
 
 export default {
@@ -86,7 +88,14 @@ RelatedFacilities_.args = {
 
 export const BrowseFacilities_ = Template.bind({});
 BrowseFacilities_.args = {
-  items: mockNursingHomes,
+  items: nursingHomesMock,
   layoutType: 'separate',
   ListContent: BrowseNursingHomes,
+};
+
+export const BrowseOwners_ = Template.bind({});
+BrowseOwners_.args = {
+  items: ownersMock,
+  layoutType: 'separate',
+  ListContent: BrowseOwners,
 };
