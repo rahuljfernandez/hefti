@@ -19,6 +19,7 @@ export default function ProfileHeader({ title, badges = [] }) {
           </Badge>
         ))}
       </div>
+      <h3 className="mt-4">Data as of May 1, 2025</h3>
     </div>
   );
 }

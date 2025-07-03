@@ -1,3 +1,5 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import StarRating from './starRating';
 /**
  * Molecule that helps build out organisms
@@ -12,10 +14,24 @@ export default function CMSRating({ stars = [] }) {
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {stars.map((stars, i) => (
           <div key={stars.title + i}>
-            <StarRating title={stars.title} rating={stars.rating} />
+            <StarRating
+              title={stars.title}
+              rating={stars.rating}
+              size={stars.size}
+              ratingSize={stars.ratingSize}
+            />
           </div>
         ))}
       </div>
     </div>
   );
 }
+
+CMSRating.propTypes = {
+  stars: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      rating: PropTypes.number.isRequired,
+    }),
+  ),
+};

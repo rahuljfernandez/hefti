@@ -10,11 +10,24 @@ import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
  *    <StarRating title="Super Star Rating Scale" rating={4.5} />
  */
 
+const textSizeClasses = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  base: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-xl',
+  '2xl': 'text-2xl',
+  '3xl': 'text-3xl',
+  '4xl': 'text-4xl',
+};
+
 export default function StarRating({
   title = '',
   rating = 0,
   outOf = 5,
   className = '',
+  size = 'h-8 w-8',
+  ratingSize = 'base',
 }) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
@@ -24,19 +37,16 @@ export default function StarRating({
 
   for (let i = 0; i < fullStars; i++) {
     stars.push(
-      <StarIcon
-        key={`full-${i}`}
-        className="h-8 w-8 text-orange-500 md:h-10 md:w-10"
-      />,
+      <StarIcon key={`full-${i}`} className={`${size} text-orange-500`} />,
     );
   }
 
   if (hasHalfStar) {
     stars.push(
-      <span key="half" className="relative h-8 w-8 md:h-10 md:w-10">
-        <StarOutlineIcon className="absolute h-8 w-8 text-orange-500 md:h-10 md:w-10" />
+      <span key="half" className={`relative ${size} `}>
+        <StarOutlineIcon className={`absolute ${size} text-orange-500`} />
         <StarIcon
-          className="absolute h-8 w-8 text-orange-500 md:h-10 md:w-10"
+          className={`absolute ${size} text-orange-500`}
           style={{ clipPath: 'inset(0 50% 0 0)' }}
         />
       </span>,
@@ -47,13 +57,13 @@ export default function StarRating({
     stars.push(
       <StarOutlineIcon
         key={`empty-${i}`}
-        className="h-8 w-8 text-orange-500 md:h-10 md:w-10"
+        className={`${size} text-orange-500`}
       />,
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col ${title ? 'gap-2' : ''}`}>
       <div
         className={
           className ? `${className} text-core-black` : 'text-label-base'
@@ -61,7 +71,12 @@ export default function StarRating({
       >
         {title}
       </div>
-      <div className="flex">{stars}</div>
+      <div className="flex items-center">
+        {stars}
+        <span className={`${textSizeClasses[ratingSize]} px-2 pt-1 font-bold`}>
+          {rating}
+        </span>
+      </div>
     </div>
   );
 }
@@ -71,4 +86,6 @@ StarRating.propTypes = {
   rating: PropTypes.number,
   outOf: PropTypes.number,
   className: PropTypes.string,
+  size: PropTypes.string,
+  ratingSize: PropTypes.string,
 };
