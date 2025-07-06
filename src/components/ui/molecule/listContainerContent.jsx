@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
+import { slugify } from '../../../lib/slugify';
 /*Todo: 
 -Extract badgeColorVariant to helper file
 -The long keys inside badge will need a design decision and likey need to be converted for display
@@ -13,102 +14,47 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 */
 
 export function OwnershipAndStakeholders({ item }) {
+  const badgeColorVariantsOwnership = {
+    '5% OR GREATER DIRECT OWNERSHIP INTEREST': 'cyan',
+    '5% OR GREATER INDIRECT OWNERSHIP INTEREST': 'indigo',
+    'OPERATIONAL/MANAGERIAL CONTROL': 'fuchsia',
+    'CORPORATE OFFICER': 'pink',
+    'MANAGING EMPLOYEE': 'rose',
+  };
+  const badgeColor = badgeColorVariantsOwnership[item.cms_ownership_role];
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {/* Name + Address */}
-      <div className="order-1 md:order-none md:col-span-2">
-        <p className="text-label-xs text-content-secondary py-2">
-          {item.type.toUpperCase()}
-        </p>
-        <a
-          href="#"
-          className="text-heading-xs font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {toTitleCase(item.name)}
-        </a>
-      </div>
-
-      {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-2 md:order-none md:flex md:items-center md:justify-end">
-        <Badge>{item.role}</Badge>
-        {/* <Link
-          to={`/facilities/${item.id}`}
-          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-        >
-          View Profile
-        </Link> */}
-      </div>
-
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
-
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="flex flex-col md:pr-6">
-          <p className="text-label-xs text-content-secondary md:pr-1 md:pb-2">
-            OWNERSHIP PERCENTAGE:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.percentage)}
-          </p>
+    <>
+      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
+        {/* Col 1 - Row 1 */}
+        <div className="text-label-xs order-1 sm:order-none">
+          {item.cms_ownership_type?.toUpperCase()}
         </div>
 
-        <div className="flex flex-col">
-          <p className="text-label-xs text-content-secondary md:pr-1 md:pb-2">
-            OWNERHSHIP MINIMUM:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.ownership)}
-          </p>
+        {/* Col 2 - Row 1 */}
+        <div className="text-label-xs order-3 sm:order-none">
+          OWNERSHIP PERCENTAGE
+        </div>
+
+        {/* Col 3 - spans both rows */}
+        <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
+          <Badge className="max-w-44" color={badgeColor}>
+            {item.cms_ownership_role}
+          </Badge>
+        </div>
+
+        {/* Col 1 - Row 2 */}
+        <div className="text-paragraph-base order-2 sm:order-none">
+          {item.ownership_entity?.cms_ownership_name}
+        </div>
+
+        {/* Col 2 - Row 2 */}
+        <div className="text-paragraph-base order-4 sm:order-none">
+          {formatOwnershipPercentage(item.cms_ownership_percentage)}
         </div>
       </div>
-    </div>
+    </>
   );
-  // const badgeColorVariantsOwnership = {
-  //   '5% OR GREATER DIRECT OWNERSHIP INTEREST': 'cyan',
-  //   '5% OR GREATER INDIRECT OWNERSHIP INTEREST': 'indigo',
-  //   'OPERATIONAL/MANAGERIAL CONTROL': 'fuchsia',
-  //   'CORPORATE OFFICER': 'pink',
-  //   'MANAGING EMPLOYEE': 'rose',
-  // };
-  // const badgeColor = badgeColorVariantsOwnership[item.CMS_Ownership_Role];
-
-  // return (
-  //   <>
-  //     <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
-  //       {/* Col 1 - Row 1 */}
-  //       <div className="text-label-xs order-1 sm:order-none">
-  //         {item.CMS_Ownership_Type.toUpperCase()}
-  //       </div>
-
-  //       {/* Col 2 - Row 1 */}
-  //       <div className="text-label-xs order-3 sm:order-none">
-  //         OWNERSHIP PERCENTAGE
-  //       </div>
-
-  //       {/* Col 3 - spans both rows */}
-  //       <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
-  //         <Badge className="max-w-44" color={badgeColor}>
-  //           {item.CMS_Ownership_Role}
-  //         </Badge>
-  //       </div>
-
-  //       {/* Col 1 - Row 2 */}
-  //       <div className="text-paragraph-base order-2 sm:order-none">
-  //         {item.CMS_Ownership_Name}
-  //       </div>
-
-  //       {/* Col 2 - Row 2 */}
-  //       <div className="text-paragraph-base order-4 sm:order-none">
-  //         {formatOwnershipPercentage(item.CMS_Ownership_Percentage)}
-  //       </div>
-  //     </div>
-  //   </>
-  // );
 }
 
 OwnershipAndStakeholders.propTypes = {
@@ -210,102 +156,46 @@ Penalties.propTypes = {
 //facilty name is probably a link?
 export function RelatedFacilities({ item }) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {/* Name + Address */}
-      <div className="md:col-span-2">
-        <a
-          href="#"
-          className="text-heading-xs font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {toTitleCase(item.name)}
-        </a>
-        <p className="text-paragraph-base text-content-secondary py-2 md:py-0 md:pt-2">
-          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
-        </p>
-      </div>
-
-      {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <Link
-          to={`/facilities/${item.id}`}
-          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-        >
-          View Profile
-        </Link>
-      </div>
-
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
-
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="items-center md:flex md:flex-row md:pr-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            CMS Rating:
-          </p>
-          <div className="">
-            <StarRating
-              rating={item.cms_rating}
-              size={'h-6 w-6'}
-              ratingSize="base"
-            />
-          </div>
+    <>
+      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start sm:gap-x-4">
+        {/* Col 1 - Row 1 */}
+        <div className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
+          {item.Facility_Name}
         </div>
 
-        <div className="md:flex md:flex-row">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Owners Role:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.ownership_role)}
-          </p>
+        {/* Col 2 - spans both rows */}
+        <div className="order-3 row-span-2 sm:order-none sm:flex sm:items-center">
+          <StarRating
+            title="Overall CMS Rating"
+            rating={item.CMS_Rating}
+            className="text-paragraph-base"
+          />
+        </div>
+
+        {/* Col 3 - Row 1 */}
+        <div className="text-paragraph-base order-3 font-bold sm:order-none">
+          {item.Total_Deficiencies > 0 ? (
+            `${item.Total_Deficiencies} Total Deficiencies`
+          ) : (
+            <span className="invisible">(0 Total_Deficiencies)</span>
+          )}
+        </div>
+
+        {/* Col 1 - Row 2 */}
+        <div className="text-paragraph-base order-2 sm:order-none">
+          {`${item.Address}, ${item.City}, ${item.State}`}
+        </div>
+
+        {/* Col 1 - Row 3 */}
+        <div className="text-paragraph-base order-4 sm:order-none">
+          {item.Serious_Deficiencies > 0 ? (
+            `${item.Serious_Deficiencies} Serious Deficienc${item.Serious_Deficiencies > 1 ? 'ies' : 'y'}`
+          ) : (
+            <span className="invisible">(0 Serious_Deficiencies)</span>
+          )}
         </div>
       </div>
-    </div>
-    // <>
-    //   <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start sm:gap-x-4">
-    //     {/* Col 1 - Row 1 */}
-    //     <div className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
-    //       {item.Facility_Name}
-    //     </div>
-
-    //     {/* Col 2 - spans both rows */}
-    //     <div className="order-3 row-span-2 sm:order-none sm:flex sm:items-center">
-    //       <StarRating
-    //         title="Overall CMS Rating"
-    //         rating={item.CMS_Rating}
-    //         className="text-paragraph-base"
-    //       />
-    //     </div>
-
-    //     {/* Col 3 - Row 1 */}
-    //     <div className="text-paragraph-base order-3 font-bold sm:order-none">
-    //       {item.Total_Deficiencies > 0 ? (
-    //         `${item.Total_Deficiencies} Total Deficiencies`
-    //       ) : (
-    //         <span className="invisible">(0 Total_Deficiencies)</span>
-    //       )}
-    //     </div>
-
-    //     {/* Col 1 - Row 2 */}
-    //     <div className="text-paragraph-base order-2 sm:order-none">
-    //       {`${item.Address}, ${item.City}, ${item.State}`}
-    //     </div>
-
-    //     {/* Col 1 - Row 3 */}
-    //     <div className="text-paragraph-base order-4 sm:order-none">
-    //       {item.Serious_Deficiencies > 0 ? (
-    //         `${item.Serious_Deficiencies} Serious Deficienc${item.Serious_Deficiencies > 1 ? 'ies' : 'y'}`
-    //       ) : (
-    //         <span className="invisible">(0 Serious_Deficiencies)</span>
-    //       )}
-    //     </div>
-    //   </div>
-    // </>
+    </>
   );
 }
 
@@ -320,6 +210,20 @@ RelatedFacilities.propTypes = {
  */
 
 export function BrowseNursingHomes({ item }) {
+  // Add error handling for missing or malformed data
+  if (!item) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="md:col-span-3">
+          <p className="text-paragraph-base text-red-600">Error: Invalid facility data</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the first ownership entity for display (or handle multiple)
+  const primaryOwnership = item.facility_ownership_links?.[0]?.ownership_entity;
+  
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
@@ -332,17 +236,20 @@ export function BrowseNursingHomes({ item }) {
             textUnderlineOffset: '2px',
           }}
         >
-          {toTitleCase(item.name)}
+          {toTitleCase(item.provider_name || 'Unknown Facility')}
         </a>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
+          {item.street_address && item.city && item.state 
+            ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
+            : 'Address not available'
+          }
         </p>
       </div>
 
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
         <Link
-          to={`/facilities/${item.id}`}
+          to={`/facilities/${slugify(item.provider_name)}`}
           className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
         >
           View Profile
@@ -359,9 +266,9 @@ export function BrowseNursingHomes({ item }) {
             Owned by:
           </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {item.ownership.parent_company_name
-              ? toTitleCase(item.ownership.parent_company_name)
-              : 'N/A'}
+            {primaryOwnership?.cms_ownership_name
+              ? toTitleCase(primaryOwnership.cms_ownership_name)
+              : (primaryOwnership?.parent_company_name ? toTitleCase(primaryOwnership.parent_company_name) : 'N/A')}
           </p>
         </div>
 
@@ -370,7 +277,7 @@ export function BrowseNursingHomes({ item }) {
             Ownership Type:
           </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.ownership.ownership_type)}
+            {toTitleCase(item.ownership_type || 'N/A')}
           </p>
         </div>
       </div>
@@ -382,42 +289,47 @@ BrowseNursingHomes.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
-//Todo: connect the right data variables
-//Todo: two instances of badge logic, including the mobile one.
 export function BrowseOwners({ item }) {
-  // console.log(item);
-  // console.log('cms_ownership_type:', item.cms_ownership_type, 'item:', item);
+  // Add error handling for missing or malformed data
+  if (!item) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="md:col-span-3">
+          <p className="text-paragraph-base text-red-600">Error: Invalid ownership data</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the first facility for display (or handle multiple)
+  const primaryFacility = item.facility_ownership_links?.[0]?.facility;
+  
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
-      <div className="flex flex-col md:col-span-2">
-        <p className="text-paragraph-base text-content-secondary order-2 py-2 md:order-1 md:py-0 md:pt-2">
-          {toTitleCase(item.cms_ownership_type || '')}
+      <div className="md:col-span-2">
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(item.cms_ownership_name || 'Unknown Owner')}
+        </a>
+        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+          {primaryFacility && primaryFacility.street_address && primaryFacility.city && primaryFacility.state 
+            ? `${toTitleCase(primaryFacility.street_address)}, ${toTitleCase(primaryFacility.city)}, ${primaryFacility.state}`
+            : 'Multiple locations'
+          }
         </p>
-        <div className="order-1 flex flex-col gap-4 md:order-2 md:flex-row">
-          <a
-            href="#"
-            className="text-heading-xs font-bold text-blue-600 underline"
-            style={{
-              textDecorationThickness: '2px',
-              textUnderlineOffset: '2px',
-            }}
-          >
-            {toTitleCase(item.cms_ownership_name)}
-          </a>
-
-          <div>
-            <Badge className="text-paragraph-xs font-bold">
-              {item.cms_ownership_breakdown_summary || 'Badge'}
-            </Badge>
-          </div>
-        </div>
       </div>
 
       {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
+      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
         <Link
-          to={`/owners/${item.id}`}
+          to={`/owners/${slugify(item.cms_ownership_name)}`}
           className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
         >
           View Profile
@@ -425,49 +337,28 @@ export function BrowseOwners({ item }) {
       </div>
 
       {/* Divider */}
-      <Divider className="order-3 md:order-none md:col-span-3" />
+      <Divider className="order-2 md:order-none md:col-span-3" />
 
       {/* Bottom Row */}
-      <div className="order-4 flex flex-col gap-2 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="flex flex-row pr-4">
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {46}
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="md:flex md:flex-row md:pr-6">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Total Facilities:
           </p>
-          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
-            Facilities
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {item.cms_owner_total_facilities || item.facility_ownership_links?.length || 0}
           </p>
         </div>
 
-        <div className="flex flex-row pr-4">
+        <div className="md:flex md:flex-row">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Ownership Type:
+          </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {1}
-          </p>
-          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
-            States or Territories
-          </p>
-        </div>
-
-        <div className="flex flex-row pr-4">
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {'98%'}
-          </p>
-          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
-            Direct Ownership
-          </p>
-        </div>
-
-        <div className="flex flex-row">
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {'2%'}
-          </p>
-          <p className="text-paragraph-base text-content-secondary pb-1 pl-1 md:pb-0">
-            Operational/Managerial Control
+            {toTitleCase(item.cms_ownership_type || 'N/A')}
           </p>
         </div>
       </div>
     </div>
   );
 }
-BrowseOwners.propTypes = {
-  item: PropTypes.object.isRequired,
-};

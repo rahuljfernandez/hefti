@@ -16,73 +16,36 @@ import { RelatedFacilities } from '../components/ui/molecule/listContainerConten
  *
  */
 
-//short term hard coded data
-export const relatedFacilitiesMock = [
-  {
-    id: 1,
-    name: 'Desert Canyon Post Acute, Llc',
-    address: '1942 West Avenue J',
-    city: 'Lancaster',
-    state: 'CA',
-    ownership_role: 'Direct Owner',
-    cms_rating: 4,
-  },
-  {
-    id: 2,
-    name: 'Fulton Gardens Post Acute, Llc',
-    address: '537 E Fulton Street',
-    city: 'Stockton',
-    state: 'CA',
-    ownership_role: 'Indirect Owner',
-    cms_rating: 3,
-  },
-  {
-    id: 3,
-    name: 'The Care Center On Hazeltine, Llc',
-    address: '6835 Hazeltine Ave',
-    city: 'Van Nuys',
-    state: 'CA',
-    ownership_role: 'Indirect Owner',
-    cms_rating: 2,
-  },
-  {
-    id: 4,
-    name: 'Thousand Oaks Post Acute, Llc',
-    address: '93 West Avenida De Los Arboles',
-    city: 'Thousand Oaks',
-    state: 'CA',
-    ownership_role: 'Direct Owner',
-    cms_rating: 5,
-  },
-];
-
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://app.hefti-data-api.lndo.site:8000/api';
 
 export default function OwnersProfile() {
-  const { name } = useParams();
+  const { slug } = useParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(name)}`)
+    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => res.json())
       .then((data) => setOwner(data))
       .finally(() => setLoading(false));
-  }, [name]);
+  }, [slug]);
 
   if (loading) return <p>Loading owner details...</p>;
   if (!owner) return <p>Owner not found.</p>;
-  console.log(owner);
+
+  // Use related facilities from API if available
+  const relatedFacilities = owner.facility_ownership_links?.map(link => link.facility) || [];
+
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
-          title={owner.owner_name}
+          title={owner.cms_ownership_name}
           badges={[
-            { title: owner.facilities[0].cms_ownership_type, color: 'cyan' },
+            { title: owner.cms_ownership_type, color: 'cyan' },
           ]}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
@@ -90,11 +53,11 @@ export default function OwnersProfile() {
         </Heading>
         <OwenerProviderHighlights items={owner} />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Facilities owned by {owner.owner_name}
+          Facilities owned by {owner.cms_ownership_name}
         </Heading>
         <div className="pb-8">
           <ListContainer
-            items={relatedFacilitiesMock}
+            items={relatedFacilities}
             LayoutSelector={ListContainerDivider}
             ListContent={RelatedFacilities}
           />

@@ -13,10 +13,15 @@ import FacilityProfileDescription from '../molecule/facilityProfileDescription';
  */
 
 export default function FacilityProviderHighlights({ items }) {
+  if (!items) return <div>No facility data available.</div>;
+
+  const penalties = items.penalties || {};
+  const ratings = items.ratings || {};
+
   const facilityCardStats = [
     {
       key: 'Total Deficiencies',
-      stat: items.penalties.health_deficiencies,
+      stat: penalties.health_deficiencies ?? 'N/A',
       rating: 'Above Average',
       description:
         'Average numbor of serious deficiencies found in affiliated homes in the last three years',
@@ -24,7 +29,7 @@ export default function FacilityProviderHighlights({ items }) {
     },
     {
       key: 'Number of Fines',
-      stat: items.penalties.number_of_fines,
+      stat: penalties.number_of_fines ?? 'N/A',
       rating: 'Below Average',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
@@ -32,7 +37,7 @@ export default function FacilityProviderHighlights({ items }) {
     },
     {
       key: 'Fines Total',
-      stat: items.penalties.total_amount_of_fines_usd,
+      stat: penalties.total_amount_of_fines_usd ?? 'N/A',
       rating: 'Below Average',
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
@@ -48,7 +53,7 @@ export default function FacilityProviderHighlights({ items }) {
           stars={[
             {
               title: 'Overall Star Rating',
-              rating: items.ratings.overall_rating,
+              rating: ratings.overall_rating ?? 'N/A',
               size: 'h-10 w-10',
               ratingSize: '4xl',
             },
@@ -60,7 +65,7 @@ export default function FacilityProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Health Inspection Rating"
-                rating={items.ratings.health_inspection_rating}
+                rating={ratings.health_inspection_rating ?? 'N/A'}
                 ratingSize="2xl"
               />
             </div>
@@ -69,7 +74,7 @@ export default function FacilityProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Staffing Rating"
-                rating={items.ratings.staffing_rating}
+                rating={ratings.staffing_rating ?? 'N/A'}
                 ratingSize="2xl"
               />
             </div>
@@ -77,7 +82,7 @@ export default function FacilityProviderHighlights({ items }) {
           <div className="py-4">
             <StarRating
               title="Quality Measures Rating"
-              rating={items.ratings.quality_rating}
+              rating={ratings.quality_rating ?? 'N/A'}
               ratingSize="2xl"
             />
           </div>

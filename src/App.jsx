@@ -20,8 +20,8 @@ function App() {
         <Route path="sandbox" element={<Sandbox />} />
         <Route path="facilities" element={<Facilities />} />
         <Route path="owners" element={<Owners />} />
-        <Route path="/owners/:name" element={<OwnersProfile />} />
-        <Route path="/facilities/:id" element={<FacilityProfile />} />
+        <Route path="/owners/:slug" element={<OwnersProfile />} />
+        <Route path="/facilities/:slug" element={<FacilityProfile />} />
       </Route>
     </Routes>
   );
