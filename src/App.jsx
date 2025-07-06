@@ -7,6 +7,8 @@ import About from './pages/About';
 import ContactUs from './pages/ContactUs';
 import Facilities from './pages/Facilities';
 import Owners from './pages/Owners';
+import OwnersProfile from './pages/OwnersProfile';
+import FacilityProfile from './pages/FacilityProfile';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="sandbox" element={<Sandbox />} />
         <Route path="facilities" element={<Facilities />} />
         <Route path="owners" element={<Owners />} />
+        <Route path="/owners/:name" element={<OwnersProfile />} />
+        <Route path="/facilities/:id" element={<FacilityProfile />} />
       </Route>
     </Routes>
   );

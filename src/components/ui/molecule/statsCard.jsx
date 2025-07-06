@@ -1,6 +1,7 @@
+import React from 'react';
 import { Badge } from '../atom/badge';
 import { getBadgeColor } from '../../../lib/getBadgeColor';
-import { statTemplates } from '../../../lib/startTemplates';
+import PropTypes from 'prop-types';
 
 /**
  * This component is built with Application Ui Stats/Simple and Stats/With Shared Border.
@@ -22,24 +23,6 @@ const variants = {
   },
 };
 
-const fallbackStats = [
-  {
-    key: 'Total Deficiencies',
-    stat: '17',
-    rating: 'Above Average',
-  },
-  {
-    key: 'Staffing Score',
-    stat: '1',
-    rating: 'Below Average',
-  },
-  {
-    key: 'Health Inspection',
-    stat: '1',
-    rating: 'Below Average',
-  },
-];
-
 function formatValue(value, isCurrency = false) {
   if (!value) return 'N/A';
   return isCurrency ? `$${value}` : value;
@@ -53,32 +36,20 @@ function normalizeKey(str) {
 }
 
 //StatCardLayout handles all the styling
-function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
+function StatCardLayout({ stats, variant = 'panel' }) {
   const styles = variants[variant];
   return (
     <div>
       <dl className={styles.wrapper}>
         {stats.map((item, i) => {
-          //statTemplates holds the static data each card would need while stats inserts the dynamic values
-          const template = statTemplates[normalizeKey(item.key)];
-
-          if (!template) return null;
-
-          const {
-            name,
-            nationalAverage,
-            description,
-            isCurrency = false,
-          } = template;
-
           return (
-            <div key={template.name + i} className={styles.item}>
+            <div key={item.key + i} className={styles.item}>
               <dt className="text-label-lg text-core-black flex items-center truncate">
-                {name}
+                {item.key}
               </dt>
               <div className="flex flex-row gap-3 py-4">
                 <dd className="text-heading-lg text-core-black leading-none">
-                  {formatValue(item.stat, isCurrency)}
+                  {formatValue(item.stat, item.isCurrency)}
                 </dd>
                 <div className="flex items-center">
                   <Badge
@@ -90,10 +61,11 @@ function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
                 </div>
               </div>
               <div className="text-paragraph-base text-content-secondary">
-                {description}
+                {item.description}
               </div>
               <div className="text-paragraph-base text-content-secondary py-1">
-                National average: {formatValue(nationalAverage, isCurrency)}
+                {/* National average:{' '}
+                {formatValue(nationalAverage, item.isCurrency)} */}
               </div>
             </div>
           );
@@ -103,7 +75,20 @@ function StatCardLayout({ stats = fallbackStats, variant = 'panel' }) {
   );
 }
 
+StatCardLayout.propTypes = {
+  stats: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      rating: PropTypes.string,
+      isCurrency: PropTypes.bool,
+      description: PropTypes.string,
+    }),
+  ).isRequired,
+  variant: PropTypes.oneOf(['card', 'panel']),
+};
+
 //Wrapper for StatCardLayout which applies the syling.
-export default function StatsCard({ stats = fallbackStats, variant = 'card' }) {
+export default function StatsCard({ stats, variant = 'card' }) {
   return <StatCardLayout stats={stats} variant={variant} />;
 }

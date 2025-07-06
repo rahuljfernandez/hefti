@@ -13,47 +13,102 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 */
 
 export function OwnershipAndStakeholders({ item }) {
-  const badgeColorVariantsOwnership = {
-    '5% OR GREATER DIRECT OWNERSHIP INTEREST': 'cyan',
-    '5% OR GREATER INDIRECT OWNERSHIP INTEREST': 'indigo',
-    'OPERATIONAL/MANAGERIAL CONTROL': 'fuchsia',
-    'CORPORATE OFFICER': 'pink',
-    'MANAGING EMPLOYEE': 'rose',
-  };
-  const badgeColor = badgeColorVariantsOwnership[item.CMS_Ownership_Role];
-
   return (
-    <>
-      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
-        {/* Col 1 - Row 1 */}
-        <div className="text-label-xs order-1 sm:order-none">
-          {item.CMS_Ownership_Type.toUpperCase()}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Name + Address */}
+      <div className="order-1 md:order-none md:col-span-2">
+        <p className="text-label-xs text-content-secondary py-2">
+          {item.type.toUpperCase()}
+        </p>
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(item.name)}
+        </a>
+      </div>
+
+      {/* Button — Top right on desktop, bottom on mobile */}
+      <div className="order-2 md:order-none md:flex md:items-center md:justify-end">
+        <Badge>{item.role}</Badge>
+        {/* <Link
+          to={`/facilities/${item.id}`}
+          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
+        >
+          View Profile
+        </Link> */}
+      </div>
+
+      {/* Divider */}
+      <Divider className="order-2 md:order-none md:col-span-3" />
+
+      {/* Bottom Row */}
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="flex flex-col md:pr-6">
+          <p className="text-label-xs text-content-secondary md:pr-1 md:pb-2">
+            OWNERSHIP PERCENTAGE:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {toTitleCase(item.percentage)}
+          </p>
         </div>
 
-        {/* Col 2 - Row 1 */}
-        <div className="text-label-xs order-3 sm:order-none">
-          OWNERSHIP PERCENTAGE
-        </div>
-
-        {/* Col 3 - spans both rows */}
-        <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
-          <Badge className="max-w-44" color={badgeColor}>
-            {item.CMS_Ownership_Role}
-          </Badge>
-        </div>
-
-        {/* Col 1 - Row 2 */}
-        <div className="text-paragraph-base order-2 sm:order-none">
-          {item.CMS_Ownership_Name}
-        </div>
-
-        {/* Col 2 - Row 2 */}
-        <div className="text-paragraph-base order-4 sm:order-none">
-          {formatOwnershipPercentage(item.CMS_Ownership_Percentage)}
+        <div className="flex flex-col">
+          <p className="text-label-xs text-content-secondary md:pr-1 md:pb-2">
+            OWNERHSHIP MINIMUM:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {toTitleCase(item.ownership)}
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
+  // const badgeColorVariantsOwnership = {
+  //   '5% OR GREATER DIRECT OWNERSHIP INTEREST': 'cyan',
+  //   '5% OR GREATER INDIRECT OWNERSHIP INTEREST': 'indigo',
+  //   'OPERATIONAL/MANAGERIAL CONTROL': 'fuchsia',
+  //   'CORPORATE OFFICER': 'pink',
+  //   'MANAGING EMPLOYEE': 'rose',
+  // };
+  // const badgeColor = badgeColorVariantsOwnership[item.CMS_Ownership_Role];
+
+  // return (
+  //   <>
+  //     <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
+  //       {/* Col 1 - Row 1 */}
+  //       <div className="text-label-xs order-1 sm:order-none">
+  //         {item.CMS_Ownership_Type.toUpperCase()}
+  //       </div>
+
+  //       {/* Col 2 - Row 1 */}
+  //       <div className="text-label-xs order-3 sm:order-none">
+  //         OWNERSHIP PERCENTAGE
+  //       </div>
+
+  //       {/* Col 3 - spans both rows */}
+  //       <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
+  //         <Badge className="max-w-44" color={badgeColor}>
+  //           {item.CMS_Ownership_Role}
+  //         </Badge>
+  //       </div>
+
+  //       {/* Col 1 - Row 2 */}
+  //       <div className="text-paragraph-base order-2 sm:order-none">
+  //         {item.CMS_Ownership_Name}
+  //       </div>
+
+  //       {/* Col 2 - Row 2 */}
+  //       <div className="text-paragraph-base order-4 sm:order-none">
+  //         {formatOwnershipPercentage(item.CMS_Ownership_Percentage)}
+  //       </div>
+  //     </div>
+  //   </>
+  // );
 }
 
 OwnershipAndStakeholders.propTypes = {
@@ -155,46 +210,102 @@ Penalties.propTypes = {
 //facilty name is probably a link?
 export function RelatedFacilities({ item }) {
   return (
-    <>
-      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start sm:gap-x-4">
-        {/* Col 1 - Row 1 */}
-        <div className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
-          {item.Facility_Name}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Name + Address */}
+      <div className="md:col-span-2">
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(item.name)}
+        </a>
+        <p className="text-paragraph-base text-content-secondary py-2 md:py-0 md:pt-2">
+          {toTitleCase(item.address)}, {toTitleCase(item.city)}, {item.state}
+        </p>
+      </div>
+
+      {/* Button — Top right on desktop, bottom on mobile */}
+      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+        <Link
+          to={`/facilities/${item.id}`}
+          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
+        >
+          View Profile
+        </Link>
+      </div>
+
+      {/* Divider */}
+      <Divider className="order-2 md:order-none md:col-span-3" />
+
+      {/* Bottom Row */}
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="items-center md:flex md:flex-row md:pr-6">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            CMS Rating:
+          </p>
+          <div className="">
+            <StarRating
+              rating={item.cms_rating}
+              size={'h-6 w-6'}
+              ratingSize="base"
+            />
+          </div>
         </div>
 
-        {/* Col 2 - spans both rows */}
-        <div className="order-3 row-span-2 sm:order-none sm:flex sm:items-center">
-          <StarRating
-            title="Overall CMS Rating"
-            rating={item.CMS_Rating}
-            className="text-paragraph-base"
-          />
-        </div>
-
-        {/* Col 3 - Row 1 */}
-        <div className="text-paragraph-base order-3 font-bold sm:order-none">
-          {item.Total_Deficiencies > 0 ? (
-            `${item.Total_Deficiencies} Total Deficiencies`
-          ) : (
-            <span className="invisible">(0 Total_Deficiencies)</span>
-          )}
-        </div>
-
-        {/* Col 1 - Row 2 */}
-        <div className="text-paragraph-base order-2 sm:order-none">
-          {`${item.Address}, ${item.City}, ${item.State}`}
-        </div>
-
-        {/* Col 1 - Row 3 */}
-        <div className="text-paragraph-base order-4 sm:order-none">
-          {item.Serious_Deficiencies > 0 ? (
-            `${item.Serious_Deficiencies} Serious Deficienc${item.Serious_Deficiencies > 1 ? 'ies' : 'y'}`
-          ) : (
-            <span className="invisible">(0 Serious_Deficiencies)</span>
-          )}
+        <div className="md:flex md:flex-row">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            Owners Role:
+          </p>
+          <p className="text-paragraph-base text-core-black font-semibold">
+            {toTitleCase(item.ownership_role)}
+          </p>
         </div>
       </div>
-    </>
+    </div>
+    // <>
+    //   <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start sm:gap-x-4">
+    //     {/* Col 1 - Row 1 */}
+    //     <div className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
+    //       {item.Facility_Name}
+    //     </div>
+
+    //     {/* Col 2 - spans both rows */}
+    //     <div className="order-3 row-span-2 sm:order-none sm:flex sm:items-center">
+    //       <StarRating
+    //         title="Overall CMS Rating"
+    //         rating={item.CMS_Rating}
+    //         className="text-paragraph-base"
+    //       />
+    //     </div>
+
+    //     {/* Col 3 - Row 1 */}
+    //     <div className="text-paragraph-base order-3 font-bold sm:order-none">
+    //       {item.Total_Deficiencies > 0 ? (
+    //         `${item.Total_Deficiencies} Total Deficiencies`
+    //       ) : (
+    //         <span className="invisible">(0 Total_Deficiencies)</span>
+    //       )}
+    //     </div>
+
+    //     {/* Col 1 - Row 2 */}
+    //     <div className="text-paragraph-base order-2 sm:order-none">
+    //       {`${item.Address}, ${item.City}, ${item.State}`}
+    //     </div>
+
+    //     {/* Col 1 - Row 3 */}
+    //     <div className="text-paragraph-base order-4 sm:order-none">
+    //       {item.Serious_Deficiencies > 0 ? (
+    //         `${item.Serious_Deficiencies} Serious Deficienc${item.Serious_Deficiencies > 1 ? 'ies' : 'y'}`
+    //       ) : (
+    //         <span className="invisible">(0 Serious_Deficiencies)</span>
+    //       )}
+    //     </div>
+    //   </div>
+    // </>
   );
 }
 

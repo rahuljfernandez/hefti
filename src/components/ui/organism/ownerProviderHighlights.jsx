@@ -1,38 +1,38 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import StatsCard from '../molecule/statsCard';
 import CMSRating from '../molecule/CMSRating';
 import LayoutCard from '../atom/layout-card';
 import StarRating from '../molecule/starRating';
 import { Divider } from '../atom/divider';
-import FacilityProfileDescription from '../molecule/facilityProfileDescription';
+import OwnerProfileDescription from '../molecule/ownerProfileDescription';
 /**
- * Organism component that will be used to build FaciltyPage-this is the top block(Provider Highlights)
+ * Organism component that will be used to build Owner-Page this is the top block(Owner Highlights)
  *
  */
 
-export default function FacilityProviderHighlights({ items }) {
-  const facilityCardStats = [
+//need to incorporate teh correct data once its ready to work with
+export default function OwenerProviderHighlights({ items }) {
+  const ownerCardStats = [
     {
-      key: 'Total Deficiencies',
-      stat: items.penalties.health_deficiencies,
+      key: 'Average Total Deficiencies',
+      stat: 11.2,
       rating: 'Above Average',
       description:
         'Average numbor of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
     },
     {
-      key: 'Number of Fines',
-      stat: items.penalties.number_of_fines,
+      key: 'Average Number of Fines',
+      stat: 2.0,
       rating: 'Below Average',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
     },
     {
-      key: 'Fines Total',
-      stat: items.penalties.total_amount_of_fines_usd,
+      key: 'Average Fines Total',
+      stat: 265723,
       rating: 'Below Average',
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
@@ -41,14 +41,14 @@ export default function FacilityProviderHighlights({ items }) {
   return (
     <LayoutCard>
       <div className="border-b border-gray-200 pb-5">
-        <FacilityProfileDescription items={items} />
+        <OwnerProfileDescription items={items} />
       </div>
       <div className="border-b border-gray-200 py-5">
         <CMSRating
           stars={[
             {
               title: 'Overall Star Rating',
-              rating: items.ratings.overall_rating,
+              rating: 2.8,
               size: 'h-10 w-10',
               ratingSize: '4xl',
             },
@@ -60,7 +60,7 @@ export default function FacilityProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Health Inspection Rating"
-                rating={items.ratings.health_inspection_rating}
+                rating={2.8}
                 ratingSize="2xl"
               />
             </div>
@@ -69,7 +69,7 @@ export default function FacilityProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Staffing Rating"
-                rating={items.ratings.staffing_rating}
+                rating={2.8}
                 ratingSize="2xl"
               />
             </div>
@@ -77,7 +77,7 @@ export default function FacilityProviderHighlights({ items }) {
           <div className="py-4">
             <StarRating
               title="Quality Measures Rating"
-              rating={items.ratings.quality_rating}
+              rating={2.8}
               ratingSize="2xl"
             />
           </div>
@@ -85,39 +85,8 @@ export default function FacilityProviderHighlights({ items }) {
       </div>
 
       <div className="">
-        <StatsCard variant="panel" stats={facilityCardStats} />
+        <StatsCard variant="panel" stats={ownerCardStats} />
       </div>
     </LayoutCard>
   );
 }
-
-FacilityProviderHighlights.propTypes = {
-  items: PropTypes.shape({
-    ratings: PropTypes.shape({
-      overall_rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      health_inspection_rating: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      staffing_rating: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      quality_rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    }),
-    penalties: PropTypes.shape({
-      health_deficiencies: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      number_of_fines: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      total_amount_of_fines_usd: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-    }),
-  }).isRequired,
-};
