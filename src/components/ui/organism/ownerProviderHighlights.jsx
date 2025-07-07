@@ -13,10 +13,21 @@ import OwnerProfileDescription from '../molecule/ownerProfileDescription';
 
 //need to incorporate teh correct data once its ready to work with
 export default function OwenerProviderHighlights({ items }) {
+  if (!items) return <div>No owner data available.</div>;
+
+  // Use real data if available, otherwise fallback to hardcoded values
+  const avgDeficiencies = items.avg_deficiencies ?? 11.2;
+  const avgFines = items.avg_fines ?? 2.0;
+  const avgFinesTotal = items.avg_fines_total ?? 265723;
+  const overallRating = items.overall_rating ?? 2.8;
+  const healthInspectionRating = items.health_inspection_rating ?? 2.8;
+  const staffingRating = items.staffing_rating ?? 2.8;
+  const qualityRating = items.quality_rating ?? 2.8;
+
   const ownerCardStats = [
     {
       key: 'Average Total Deficiencies',
-      stat: 11.2,
+      stat: avgDeficiencies,
       rating: 'Above Average',
       description:
         'Average numbor of serious deficiencies found in affiliated homes in the last three years',
@@ -24,7 +35,7 @@ export default function OwenerProviderHighlights({ items }) {
     },
     {
       key: 'Average Number of Fines',
-      stat: 2.0,
+      stat: avgFines,
       rating: 'Below Average',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
@@ -32,7 +43,7 @@ export default function OwenerProviderHighlights({ items }) {
     },
     {
       key: 'Average Fines Total',
-      stat: 265723,
+      stat: avgFinesTotal,
       rating: 'Below Average',
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
@@ -48,7 +59,7 @@ export default function OwenerProviderHighlights({ items }) {
           stars={[
             {
               title: 'Overall Star Rating',
-              rating: 2.8,
+              rating: overallRating,
               size: 'h-10 w-10',
               ratingSize: '4xl',
             },
@@ -60,7 +71,7 @@ export default function OwenerProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Health Inspection Rating"
-                rating={2.8}
+                rating={healthInspectionRating}
                 ratingSize="2xl"
               />
             </div>
@@ -69,7 +80,7 @@ export default function OwenerProviderHighlights({ items }) {
             <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
               <StarRating
                 title="Staffing Rating"
-                rating={2.8}
+                rating={staffingRating}
                 ratingSize="2xl"
               />
             </div>
@@ -77,7 +88,7 @@ export default function OwenerProviderHighlights({ items }) {
           <div className="py-4">
             <StarRating
               title="Quality Measures Rating"
-              rating={2.8}
+              rating={qualityRating}
               ratingSize="2xl"
             />
           </div>

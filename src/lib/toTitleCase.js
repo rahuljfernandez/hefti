@@ -1,8 +1,4 @@
 export function toTitleCase(str) {
-  return str
-    .toLowerCase()
-    .split(' ')
-    .filter(Boolean)
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(' ');
+  if (!str || typeof str !== 'string') return '';
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }

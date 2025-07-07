@@ -12,22 +12,30 @@ import PropTypes from 'prop-types';
 //badges and logic
 
 export default function FacilityProfileDescription({ items }) {
+  if (!items) return <div>No facility data available.</div>;
+
+  const address = items.address || items.street_address || '';
+  const city = items.city || '';
+  const state = items.state || '';
+  const ownership = items.ownership || {};
+  const residentStats = items.resident_stats || {};
+
   const facilityData = [
     {
       title: 'LOCATION',
-      value: `${items.address}, ${items.city}, ${items.state}`,
+      value: `${address}, ${city}, ${state}`,
     },
-    { title: 'OWNERSHIP APPLICATION', value: items.ownership.ownership_type },
-    { title: 'TELEPHONE NUMBER', value: 'Need db update' },
-    { title: 'PROPERTY OWNER', value: items.ownership.reit_name },
+    { title: 'OWNERSHIP APPLICATION', value: ownership.ownership_type ?? 'N/A' },
+    { title: 'TELEPHONE NUMBER', value: items.phone_number ?? 'N/A' },
+    { title: 'PROPERTY OWNER', value: ownership.reit_name ?? 'N/A' },
     {
       title: 'AVERAGE NUMBER OF RESIDENTS PER DAY',
-      value: items.resident_stats.number_of_residents,
+      value: residentStats.number_of_residents ?? 'N/A',
     },
-    { title: 'OPERATOR OWNER', value: items.ownership.pe_name },
+    { title: 'OPERATOR OWNER', value: ownership.pe_name ?? 'N/A' },
     {
       title: 'NUMBER OF CERTIFIED BEDS',
-      value: items.resident_stats.number_of_beds,
+      value: residentStats.number_of_beds ?? 'N/A',
     },
   ];
   return (

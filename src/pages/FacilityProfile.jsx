@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -13,70 +13,37 @@ import ListContainer, {
 } from '../components/ui/organism/ListContainer';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
 
-/**
- * FacilityProfile serves as the landing page for specific nursing home facilities
- * Todo:
- * Pass facility into ownershipFlowDigagram then link up the values
- */
-
-//short term hard coded data
-const dummyOwnershipData = [
-  {
-    name: 'Vhs Mo Opco Holdings Llc',
-    type: 'Organization',
-    role: 'Direct Ownership',
-    percentage: '100%',
-    ownership: '5% or Greater Indirect Ownership Interest',
-  },
-  {
-    name: 'Vertical Health Services Llc',
-    type: 'Organization',
-    role: 'Indirect Ownership',
-    percentage: 'No percentage provided',
-    ownership: '5% or Greater Indirect Ownership Interest',
-  },
-  {
-    name: 'William Miller',
-    type: 'Individual',
-    role: 'Corporate Officer',
-    percentage: 'No percentage provided',
-    ownership: '5% or Greater Indirect Ownership Interest',
-  },
-  {
-    name: 'Keesha Robinson',
-    type: 'Individual',
-    role: 'Managing Employee',
-    percentage: 'No percentage provided',
-    ownership: '5% or Greater Indirect Ownership Interest',
-  },
-];
-
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://app.hefti-data-api.lndo.site:8000/api';
 
 export default function FacilityProfile() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/facilities/${id}`)
+    fetch(`${API_BASE_URL}/facilities/${slug}`)
       .then((res) => res.json())
       .then((data) => setFacility(data))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [slug]);
 
   if (loading) return <p>Loading facility details...</p>;
   if (!facility) return <p>Facility not found.</p>;
+
+  // Use real ownership data from facility
+  const ownershipLinks = facility.facility_ownership_links || [];
 
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
-          title={facility.name}
-          badges={[{ title: facility.ownership.ownership_type, color: 'cyan' }]}
+          title={facility.provider_name}
+          badges={[
+            { title: facility.ownership_type, color: 'cyan' },
+          ]}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Provider Highlights
@@ -86,7 +53,7 @@ export default function FacilityProfile() {
           Ownership and Stakeholders
         </Heading>
         <ListContainer
-          items={dummyOwnershipData}
+          items={ownershipLinks}
           LayoutSelector={ListContainerDivider}
           ListContent={OwnershipAndStakeholders}
         />
