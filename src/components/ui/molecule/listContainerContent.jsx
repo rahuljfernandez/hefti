@@ -7,53 +7,107 @@ import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
+import { badgeConfig } from '../../../lib/getBadgeColor';
 /*Todo: 
--Extract badgeColorVariant to helper file
--The long keys inside badge will need a design decision and likey need to be converted for display
--When access to real query data is granted will need to make small changes from test data setup
+reit/pe is that working for OwnershipAndStaekholders?
 */
 
 export function OwnershipAndStakeholders({ item }) {
-  const badgeColorVariantsOwnership = {
-    '5% OR GREATER DIRECT OWNERSHIP INTEREST': 'cyan',
-    '5% OR GREATER INDIRECT OWNERSHIP INTEREST': 'indigo',
-    'OPERATIONAL/MANAGERIAL CONTROL': 'fuchsia',
-    'CORPORATE OFFICER': 'pink',
-    'MANAGING EMPLOYEE': 'rose',
+  const role = item.cms_ownership_role;
+  const config = badgeConfig[role] || {
+    color: 'gray',
+    label: role ?? 'Unknown',
   };
-  const badgeColor = badgeColorVariantsOwnership[item.cms_ownership_role];
+
+  const isReit = item.is_reit === true;
+  const isPe = item.is_pe === true;
 
   return (
-    <>
-      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
-        {/* Col 1 - Row 1 */}
-        <div className="text-label-xs order-1 sm:order-none">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Name + Address */}
+
+      <div className="md:col-span-2">
+        <p className="text-paragraph-base text-content-secondary py-2 md:py-2 md:pt-2">
           {item.cms_ownership_type?.toUpperCase()}
+        </p>
+        <a
+          href="#"
+          className="text-heading-xs font-bold text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
+        >
+          {toTitleCase(
+            item.ownership_entity?.cms_ownership_name || 'Unknown Owner',
+          )}
+        </a>
+      </div>
+
+      {/* Button — Top right on desktop, bottom on mobile */}
+      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+        <Badge className="max-w-44" color={config?.color || 'gray'}>
+          {config?.label || toTitleCase(item.cms_ownership_role || 'Unknown')}
+        </Badge>
+
+        {isReit && <Badge color="orange">REIT</Badge>}
+        {isPe && <Badge color="cyan">PRIVATE EQUITY</Badge>}
+      </div>
+
+      {/* Divider */}
+      <Divider className="order-2 md:order-none md:col-span-3" />
+
+      {/* Bottom Row */}
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="gap-2 md:flex md:flex-col md:pr-6">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            OWNERHSIP PERCENTAGE
+          </p>
+          <p className="text-paragraph-base text-core-black">
+            {formatOwnershipPercentage(item.cms_ownership_percentage)}
+          </p>
         </div>
 
-        {/* Col 2 - Row 1 */}
-        <div className="text-label-xs order-3 sm:order-none">
-          OWNERSHIP PERCENTAGE
-        </div>
-
-        {/* Col 3 - spans both rows */}
-        <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
-          <Badge className="max-w-44" color={badgeColor}>
-            {item.cms_ownership_role}
-          </Badge>
-        </div>
-
-        {/* Col 1 - Row 2 */}
-        <div className="text-paragraph-base order-2 sm:order-none">
-          {item.ownership_entity?.cms_ownership_name}
-        </div>
-
-        {/* Col 2 - Row 2 */}
-        <div className="text-paragraph-base order-4 sm:order-none">
-          {formatOwnershipPercentage(item.cms_ownership_percentage)}
+        <div className="gap-2 md:flex md:flex-col">
+          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+            OWNERSHIP MINIMUM
+          </p>
+          <p className="text-paragraph-base text-core-black">
+            {toTitleCase(item.cms_ownership_role || 'N/A')}
+          </p>
         </div>
       </div>
-    </>
+    </div>
+    // <>
+    //   {/* <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
+    //     {/* Col 1 - Row 1 */}
+    //     <div className="text-label-xs order-1 sm:order-none">
+    //       {item.cms_ownership_type?.toUpperCase()}
+    //     </div>
+
+    //     {/* Col 2 - Row 1 */}
+    //     <div className="text-label-xs order-3 sm:order-none">
+    //       OWNERSHIP PERCENTAGE
+    //     </div>
+
+    //     {/* Col 3 - spans both rows */}
+    //     <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
+    //       <Badge className="max-w-44" color={badgeColor}>
+    //         {item.cms_ownership_role}
+    //       </Badge>
+    //     </div>
+
+    //     {/* Col 1 - Row 2 */}
+    //     <div className="text-paragraph-base order-2 sm:order-none">
+    //       {item.ownership_entity?.cms_ownership_name}
+    //     </div>
+
+    //     {/* Col 2 - Row 2 */}
+    //     <div className="text-paragraph-base order-4 sm:order-none">
+    //       {formatOwnershipPercentage(item.cms_ownership_percentage)}
+    //     </div>
+    //   </div> */}
+    // </>
   );
 }
 
@@ -215,7 +269,9 @@ export function BrowseNursingHomes({ item }) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="md:col-span-3">
-          <p className="text-paragraph-base text-red-600">Error: Invalid facility data</p>
+          <p className="text-paragraph-base text-red-600">
+            Error: Invalid facility data
+          </p>
         </div>
       </div>
     );
@@ -223,7 +279,7 @@ export function BrowseNursingHomes({ item }) {
 
   // Get the first ownership entity for display (or handle multiple)
   const primaryOwnership = item.facility_ownership_links?.[0]?.ownership_entity;
-  
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
@@ -239,10 +295,9 @@ export function BrowseNursingHomes({ item }) {
           {toTitleCase(item.provider_name || 'Unknown Facility')}
         </a>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {item.street_address && item.city && item.state 
+          {item.street_address && item.city && item.state
             ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
-            : 'Address not available'
-          }
+            : 'Address not available'}
         </p>
       </div>
 
@@ -268,7 +323,9 @@ export function BrowseNursingHomes({ item }) {
           <p className="text-paragraph-base text-core-black font-semibold">
             {primaryOwnership?.cms_ownership_name
               ? toTitleCase(primaryOwnership.cms_ownership_name)
-              : (primaryOwnership?.parent_company_name ? toTitleCase(primaryOwnership.parent_company_name) : 'N/A')}
+              : primaryOwnership?.parent_company_name
+                ? toTitleCase(primaryOwnership.parent_company_name)
+                : 'N/A'}
           </p>
         </div>
 
@@ -295,7 +352,9 @@ export function BrowseOwners({ item }) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="md:col-span-3">
-          <p className="text-paragraph-base text-red-600">Error: Invalid ownership data</p>
+          <p className="text-paragraph-base text-red-600">
+            Error: Invalid ownership data
+          </p>
         </div>
       </div>
     );
@@ -303,7 +362,7 @@ export function BrowseOwners({ item }) {
 
   // Get the first facility for display (or handle multiple)
   const primaryFacility = item.facility_ownership_links?.[0]?.facility;
-  
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
@@ -319,10 +378,12 @@ export function BrowseOwners({ item }) {
           {toTitleCase(item.cms_ownership_name || 'Unknown Owner')}
         </a>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {primaryFacility && primaryFacility.street_address && primaryFacility.city && primaryFacility.state 
+          {primaryFacility &&
+          primaryFacility.street_address &&
+          primaryFacility.city &&
+          primaryFacility.state
             ? `${toTitleCase(primaryFacility.street_address)}, ${toTitleCase(primaryFacility.city)}, ${primaryFacility.state}`
-            : 'Multiple locations'
-          }
+            : 'Multiple locations'}
         </p>
       </div>
 
@@ -346,7 +407,9 @@ export function BrowseOwners({ item }) {
             Total Facilities:
           </p>
           <p className="text-paragraph-base text-core-black font-semibold">
-            {item.cms_owner_total_facilities || item.facility_ownership_links?.length || 0}
+            {item.cms_owner_total_facilities ||
+              item.facility_ownership_links?.length ||
+              0}
           </p>
         </div>
 

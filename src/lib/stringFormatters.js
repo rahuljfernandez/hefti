@@ -15,3 +15,10 @@ export function formatOwnershipPercentage(value) {
 
   return isNumericPercentage ? trimmed : toSentenceCase(trimmed);
 }
+
+export function formatPhoneNumber(phone) {
+  if (!phone) return 'N/A';
+  const cleaned = phone.toString().replace(/\D/g, '');
+  if (cleaned.length !== 10) return phone;
+  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+}
