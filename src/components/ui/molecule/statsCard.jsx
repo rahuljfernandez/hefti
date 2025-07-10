@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '../atom/badge';
-import { getBadgeColor } from '../../../lib/getBadgeColor';
+import { getBadgeColorAboveBelow } from '../../../lib/getBadgeColor';
 import PropTypes from 'prop-types';
 
 /**
@@ -24,8 +24,17 @@ const variants = {
 };
 
 function formatValue(value, isCurrency = false) {
-  if (!value) return 'N/A';
-  return isCurrency ? `$${value}` : value;
+  if (value === null || value === undefined || value === '') return 'N/A';
+
+  const number = Number(value);
+  if (isNaN(number)) return value;
+
+  return isCurrency
+    ? number.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    : number.toLocaleString();
 }
 
 function normalizeKey(str) {
@@ -53,7 +62,7 @@ function StatCardLayout({ stats, variant = 'panel' }) {
                 </dd>
                 <div className="flex items-center">
                   <Badge
-                    color={getBadgeColor(item.rating)}
+                    color={getBadgeColorAboveBelow(item.rating)}
                     className="text-label-xs leading-none"
                   >
                     {item.rating}

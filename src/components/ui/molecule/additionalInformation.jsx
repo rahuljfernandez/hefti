@@ -1,22 +1,24 @@
 import React from 'react';
 import LayoutCard from '../atom/layout-card';
 import { Heading } from '../atom/heading';
+import PropTypes from 'prop-types';
 
 /**
  * This component is placed at the bottom of Facilities Profiles page.
  *
  */
 
-export default function AdditionalInformation() {
+export default function AdditionalInformation({ items }) {
   const additionalData = [
+    { title: 'LEGAL BUSINESS NAME', value: items.parent_company_name || 'N/A' },
+    { title: 'CHAIN', value: items.chain_name || 'N/A' },
     {
       title: 'LATEST CERTIFICATION DATE',
-      value: 'items.certification_date',
+      value: items.certification_date || 'N/A',
     },
-    { title: 'LEGAL BUSINESS NAME', value: 'name' },
-    { title: 'CCN', value: 'items.ccn ' },
-    { title: 'CHAIN', value: 'items.chain' },
-    { title: 'CHAIN SIZE', value: 'items.ownership.pe_name ' },
+
+    { title: 'CHAIN SIZE', value: items.chain_size || 'N/A' },
+    { title: 'CCN', value: items.ccn || 'N/A' },
   ];
   return (
     <LayoutCard>
@@ -38,3 +40,13 @@ export default function AdditionalInformation() {
     </LayoutCard>
   );
 }
+
+AdditionalInformation.propTypes = {
+  items: PropTypes.shape({
+    parent_company_name: PropTypes.string,
+    chain_name: PropTypes.string,
+    certification_date: PropTypes.string,
+    chain_size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    ccn: PropTypes.string,
+  }).isRequired,
+};

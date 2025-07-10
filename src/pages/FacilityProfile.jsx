@@ -35,15 +35,15 @@ export default function FacilityProfile() {
   // Use real ownership data from facility
   const ownershipLinks = facility.facility_ownership_links || [];
 
+  //todo: is badge for ownership_type always cyan???
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
           title={facility.provider_name}
-          badges={[
-            { title: facility.ownership_type, color: 'cyan' },
-          ]}
+          ownershipType={facility.ownership_type}
+          freshness={facility.data_freshness}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Provider Highlights
@@ -64,7 +64,7 @@ export default function FacilityProfile() {
           <OwnershipFlowDiagram />
         </div>
         <div className="pb-8">
-          <AdditionalInformation />
+          <AdditionalInformation items={facility} />
         </div>
       </LayoutPage>
     </div>
