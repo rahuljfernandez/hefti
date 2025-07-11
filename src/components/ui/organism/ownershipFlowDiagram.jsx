@@ -1,12 +1,14 @@
 import React from 'react';
 import { ownershipProfileData } from '../../../lib/mockData';
 import {
+  CorporateFlowSection,
   DirectOwnersFlowSection,
   FacilityFlowSection,
   IndirectOwnersFlowSection,
   OperatorFlowSection,
 } from '../organism/ownershipFlowSections';
 import LayoutCard from '../atom/layout-card';
+import PropTypes from 'prop-types';
 
 /**
  * This component visually represents the ownership structure of a facility
@@ -21,13 +23,21 @@ import LayoutCard from '../atom/layout-card';
  * TODO: I think conditional rendering if no section data is found will need to be handled here.
  */
 
-export default function OwnershipFlowDiagram() {
+export default function OwnershipFlowDiagram({ items, facility }) {
+  const hasOperator = items.some(
+    (owner) => owner.cms_ownership_role === 'OPERATIONAL/MANAGERIAL CONTROL',
+  );
   return (
     <LayoutCard>
-      <IndirectOwnersFlowSection items={ownershipProfileData.indirectOwners} />
-      <DirectOwnersFlowSection items={ownershipProfileData.directOwners} />
-      <FacilityFlowSection items={ownershipProfileData.facility} />
-      <OperatorFlowSection items={ownershipProfileData.operator} />
+      <IndirectOwnersFlowSection items={items} />
+      <DirectOwnersFlowSection items={items} facility={facility} />
+      <CorporateFlowSection items={items} />
+      <FacilityFlowSection
+        items={items}
+        facility={facility}
+        hasOperator={hasOperator}
+      />
+      <OperatorFlowSection items={items} />
     </LayoutCard>
   );
 }

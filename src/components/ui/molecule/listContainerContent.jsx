@@ -23,7 +23,7 @@ export function OwnershipAndStakeholders({ item }) {
   const isPe = item.is_pe === true;
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
       {/* Name + Address */}
 
       <div className="md:col-span-2">

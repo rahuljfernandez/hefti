@@ -19,6 +19,7 @@ export default function CMSRating({ stars = [] }) {
               rating={stars.rating}
               size={stars.size}
               ratingSize={stars.ratingSize}
+              className={stars.className}
             />
           </div>
         ))}

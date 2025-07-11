@@ -63,7 +63,7 @@ export default function StarRating({
   }
 
   return (
-    <div className={`flex flex-col ${title ? 'gap-2' : ''}`}>
+    <div className={`flex flex-col font-sans ${title ? 'gap-2' : ''}`}>
       <div
         className={
           className ? `${className} text-core-black` : 'text-label-base'
