@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import OwnershipFlowCard from '../molecule/ownershipFlowCard';
 import { OwnershipBox } from '../molecule/ownershipFlowBox';
 import { ArrowLeftIcon, ArrowUpIcon } from '@heroicons/react/16/solid';
+import { toTitleCase } from '../../../lib/toTitleCase';
 
 /**
  * This file contains 4 components that make up the OwnershipFlowDiagram.
@@ -29,12 +30,12 @@ export function IndirectOwnersFlowSection({ items }) {
             <OwnershipBox
               key={index}
               label1="INDIRECT OWNER"
-              value1={owner.ownership_entity.cms_ownership_name}
+              value1={toTitleCase(owner.ownership_entity.cms_ownership_name)}
               label2="OWNERSHIP PERCENTAGE"
               value2={
                 owner.cms_ownership_percentage === null
                   ? 'No Percentage provided'
-                  : owner.cms_ownership_percentage
+                  : toTitleCase(owner.cms_ownership_percentage)
               }
             />
           ))}
@@ -86,12 +87,12 @@ export function DirectOwnersFlowSection({ items, facility }) {
             <OwnershipBox
               key={index}
               label1="DIRECT OWNER"
-              value1={owner.ownership_entity.cms_ownership_name}
+              value1={toTitleCase(owner.ownership_entity.cms_ownership_name)}
               label2="OWNERSHIP PERCENTAGE"
               value2={
                 owner.cms_ownership_percentage === null
                   ? 'No Percentage provided'
-                  : owner.cms_ownership_percentage
+                  : toTitleCase(owner.cms_ownership_percentage)
               }
             />
           ))}
@@ -211,7 +212,7 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
           <div>
             <OwnershipBox
               label1="FACILITY NAME"
-              value1={provider_name}
+              value1={toTitleCase(provider_name)}
               {...(managingEmployee.length > 0 && {
                 label2: 'MANAGING EMPLOYEE',
                 value2: managingEmployee,
