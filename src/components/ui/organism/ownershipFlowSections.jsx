@@ -119,10 +119,19 @@ export function DirectOwnersFlowSection({ items, facility }) {
 DirectOwnersFlowSection.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      corporateOfficer: PropTypes.string,
+      cms_ownership_role: PropTypes.string.isRequired,
+      cms_ownership_percentage: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
+      ownership_entity: PropTypes.shape({
+        cms_ownership_name: PropTypes.string.isRequired,
+      }).isRequired,
     }),
   ).isRequired,
+  facility: PropTypes.shape({
+    pe_name: PropTypes.string,
+  }).isRequired,
 };
 
 export function CorporateFlowSection({ items = [] }) {
@@ -248,17 +257,21 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
 }
 
 FacilityFlowSection.propTypes = {
-  items: PropTypes.shape({
-    propertyOwner: PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-    }).isRequired,
-    name: PropTypes.string.isRequired,
-    managingEmployee: PropTypes.string,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      cms_ownership_role: PropTypes.string.isRequired,
+      ownership_entity: PropTypes.shape({
+        cms_ownership_name: PropTypes.string.isRequired,
+      }).isRequired,
+    }),
+  ).isRequired,
+  facility: PropTypes.shape({
+    provider_name: PropTypes.string.isRequired,
+    reit_name: PropTypes.string,
   }).isRequired,
+  hasOperator: PropTypes.bool,
 };
 
-//Check if there is only ever 1 operator
 export function OperatorFlowSection({ items }) {
   const operator = items
     .filter(
@@ -276,7 +289,12 @@ export function OperatorFlowSection({ items }) {
 }
 
 OperatorFlowSection.propTypes = {
-  items: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-  }).isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      cms_ownership_role: PropTypes.string.isRequired,
+      ownership_entity: PropTypes.shape({
+        cms_ownership_name: PropTypes.string.isRequired,
+      }).isRequired,
+    }),
+  ).isRequired,
 };
