@@ -15,8 +15,6 @@ import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 export default function FacilityProviderHighlights({ items }) {
   if (!items) return <div>No facility data available.</div>;
   console.log('items:', items);
-
-  console.log('overall:', items.overall_rating);
   //Todo: The descripts need updating
   const facilityCardStats = [
     {
@@ -56,6 +54,7 @@ export default function FacilityProviderHighlights({ items }) {
               rating: items.overall_rating ?? 'N/A',
               size: 'h-10 w-10',
               ratingSize: '4xl',
+              className: 'font-bold',
             },
           ]}
         />

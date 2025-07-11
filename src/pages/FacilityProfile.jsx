@@ -35,9 +35,8 @@ export default function FacilityProfile() {
   // Use real ownership data from facility
   const ownershipLinks = facility.facility_ownership_links || [];
 
-  //todo: is badge for ownership_type always cyan???
   return (
-    <div className="bg-background-secondary">
+    <div className="bg-background-secondary font-sans">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
@@ -49,21 +48,30 @@ export default function FacilityProfile() {
           Provider Highlights
         </Heading>
         <FacilityProviderHighlights items={facility} />
-        <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Ownership and Stakeholders
-        </Heading>
-        <ListContainer
-          items={ownershipLinks}
-          LayoutSelector={ListContainerDivider}
-          ListContent={OwnershipAndStakeholders}
-        />
-        <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Ownership Diagram
-        </Heading>
-        <div className="pb-8">
-          <OwnershipFlowDiagram />
-        </div>
-        <div className="pb-8">
+
+        {ownershipLinks.length > 0 && (
+          <>
+            <Heading level={2} className="text-heading-sm mt-8 mb-4">
+              Ownership and Stakeholders
+            </Heading>
+            <ListContainer
+              items={ownershipLinks}
+              LayoutSelector={ListContainerDivider}
+              ListContent={OwnershipAndStakeholders}
+            />
+            <Heading level={2} className="text-heading-sm mt-8 mb-4">
+              Ownership Diagram
+            </Heading>
+            <div className="pb-8">
+              <OwnershipFlowDiagram
+                items={ownershipLinks}
+                facility={facility}
+              />
+            </div>
+          </>
+        )}
+
+        <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
           <AdditionalInformation items={facility} />
         </div>
       </LayoutPage>

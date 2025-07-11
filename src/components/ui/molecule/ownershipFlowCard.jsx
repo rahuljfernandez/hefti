@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
  * Trimmed out borders from the stock TW component - applied tokens
  *
  * UI container for the ownership flow diagram.
- * Arrow Up Icon is not rendered for OPERATOR as that is at the base
  *
  * Example:
  * <OwnershipFlowCard title="FACILITY" color="bg-orange-50">
@@ -27,14 +26,6 @@ export default function OwnershipFlowCard({ title, children, color }) {
 
       {/*Body/Main*/}
       <div className="px-4 py-5 sm:p-6">{children}</div>
-
-      {/*Footer ArrowUp */}
-      {title !== 'OPERATOR' && (
-        <div className="bg-core-white flex justify-center px-4 py-4 sm:px-6">
-          <ArrowUpIcon className="h-5 w-5" />
-          {/* We use less vertical padding on card footers at all sizes than on headers or body sections */}
-        </div>
-      )}
     </div>
   );
 }

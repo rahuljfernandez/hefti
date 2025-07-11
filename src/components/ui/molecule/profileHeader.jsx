@@ -10,7 +10,7 @@ import { getBadgeColorOwnershipType } from '../../../lib/getBadgeColor';
 export default function ProfileHeader({ title, ownershipType, freshness }) {
   console.log(ownershipType);
   return (
-    <div className="bg-background-secondary my-6">
+    <div className="bg-background-secondary my-6 font-sans">
       <Heading className="text-display-xs" level={1}>
         {title}
       </Heading>

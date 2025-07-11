@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { toTitleCase } from '../../../lib/toTitleCase';
 
 /**
  * Used within the ownerhsip flow diagram. It displays a labled data box with up to two-key value pairs.
@@ -34,7 +35,7 @@ export function OwnershipBox({
 
   return (
     <div
-      className={`space-y-2 rounded-md border-4 p-4 ${variantStyles[variant]}`}
+      className={`space-y-2 rounded-md border-4 p-4 font-sans ${variantStyles[variant]}`}
     >
       {/*1st Line Values */}
       <div className="">
@@ -44,7 +45,7 @@ export function OwnershipBox({
         {Array.isArray(value1) ? (
           <ul className="text-label-sm text-core-black space-y-1">
             {value1.map((item, index) => (
-              <li key={index}>{item}</li>
+              <li key={index}>{toTitleCase(item)}</li>
             ))}
           </ul>
         ) : (
@@ -62,7 +63,7 @@ export function OwnershipBox({
           {Array.isArray(value2) ? (
             <ul className="text-label-sm text-core-black space-y-1">
               {value2.map((item, index) => (
-                <li key={index}>{item}</li>
+                <li key={index}>{toTitleCase(item)}</li>
               ))}
             </ul>
           ) : (

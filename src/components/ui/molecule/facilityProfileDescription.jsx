@@ -70,7 +70,7 @@ export default function FacilityProfileDescription({ items }) {
                 <Badge color="yellow">REIT</Badge>
               </>
             ) : (
-              <span className="text-content-secondary text-label-sm">N/A</span>
+              <span className="text-core-black text-paragraph-base">N/A</span>
             )}
           </dd>
         </div>
@@ -95,7 +95,7 @@ export default function FacilityProfileDescription({ items }) {
                 <Badge color="blue">REIT</Badge>
               </>
             ) : (
-              <span className="text-content-secondary text-label-sm">N/A</span>
+              <span className="text-core-black text-paragraph-base">N/A</span>
             )}
           </dd>
         </div>
