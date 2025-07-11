@@ -285,7 +285,7 @@ export function BrowseNursingHomes({ item }) {
       {/* Name + Address */}
       <div className="md:col-span-2">
         <Link
-          to={`/facilities/${slugify(`${item.ccn}-${item.provider_name}`)}`}
+          to={`/facilities/${item.slug}`}
           className="text-heading-xs font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
@@ -304,7 +304,7 @@ export function BrowseNursingHomes({ item }) {
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
         <Link
-          to={`/facilities/${slugify(`${item.ccn}-${item.provider_name}`)}`}
+          to={`/facilities/${item.slug}`}
           className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
         >
           View Profile
@@ -367,8 +367,8 @@ export function BrowseOwners({ item }) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
       <div className="md:col-span-2">
-        <a
-          href="#"
+        <Link
+          to={`/owners/${item.slug}`}
           className="text-heading-xs font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
@@ -376,7 +376,7 @@ export function BrowseOwners({ item }) {
           }}
         >
           {toTitleCase(item.cms_ownership_name || 'Unknown Owner')}
-        </a>
+        </Link>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
           {primaryFacility &&
           primaryFacility.street_address &&
@@ -390,7 +390,7 @@ export function BrowseOwners({ item }) {
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
         <Link
-          to={`/owners/${slugify(item.cms_ownership_name)}`}
+          to={`/owners/${item.slug}`}
           className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
         >
           View Profile
