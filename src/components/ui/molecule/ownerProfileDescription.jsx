@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { formatUSD } from '../../../lib/stringFormatters';
 
 /**
  * Component for the facility profile
@@ -10,18 +11,20 @@ import PropTypes from 'prop-types';
 export default function OwnerProfileDescription({ items }) {
   if (!items) return <div>No owner data available.</div>;
 
-  const ownershipType = items.ownership_type ?? 'N/A';
   const operationalBreakdown = items.operational_breakdown ?? {};
   const ownershipRolesBreakdown = items.ownership_roles_breakdown ?? {};
 
   // Use real data if available, otherwise fallback to hardcoded values
   const ownerData = [
-    { title: 'OWNERSHIP ROLES', value: items.ownership_roles ?? 5 },
-    { title: 'STATES OR TERRITORIES', value: items.states_territories ?? ['FL, MD'] },
-    { title: 'TOTAL DEFICIENCIES', value: items.total_deficiencies ?? 20 },
-    { title: 'TOTAL PENALTIES', value: items.total_penalties ?? 5 },
-    { title: 'TOTAL FINES', value: items.total_fines ?? 230000 },
-    { title: 'OWNERSHIP TYPE', value: ownershipType },
+    { title: 'OWNERSHIP ROLES', value: items.cms_broad_ownership_role },
+    {
+      title: 'STATES OR TERRITORIES',
+      value: items.cms_owner_states,
+    },
+    { title: 'TOTAL DEFICIENCIES', value: items.cms_owner_n_deficiencies },
+    { title: 'TOTAL PENALTIES', value: items.cms_owner_total_penalties },
+    { title: 'TOTAL FINES', value: formatUSD(items.cms_owner_total_fines) },
+    { title: 'OWNERSHIP TYPE', value: items.cms_ownership_type },
     {
       title: 'OPERATIONAL BREAKDOWN',
       breakdown: operationalBreakdown,

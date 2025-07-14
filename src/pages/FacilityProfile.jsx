@@ -12,6 +12,7 @@ import ListContainer, {
   ListContainerDivider,
 } from '../components/ui/organism/ListContainer';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
+import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -43,6 +44,7 @@ export default function FacilityProfile() {
           title={facility.provider_name}
           ownershipType={facility.ownership_type}
           freshness={facility.data_freshness}
+          func={getBadgeColorOwnershipType}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Provider Highlights

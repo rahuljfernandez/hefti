@@ -9,6 +9,8 @@ import OwenerProviderHighlights from '../components/ui/organism/ownerProviderHig
 import ListContainer from '../components/ui/organism/listContainer';
 import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
+import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
+import { toTitleCase } from '../lib/toTitleCase';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -36,22 +38,26 @@ export default function OwnersProfile() {
   if (!owner) return <p>Owner not found.</p>;
 
   // Use related facilities from API if available
-  const relatedFacilities = owner.facility_ownership_links?.map(link => link.facility) || [];
+  const relatedFacilities =
+    owner.facility_ownership_links?.map((link) => link.facility) || [];
 
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
-          title={owner.cms_ownership_name}
-          badges={[
-            { title: owner.cms_ownership_type, color: 'cyan' },
-          ]}
+          title={toTitleCase(owner.cms_ownership_name)}
+          ownershipType={owner.cms_ownership_type}
+          freshness={relatedFacilities[0].data_freshness}
+          func={getBadgeColorOwnerProfile}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Owner Highlights
         </Heading>
-        <OwenerProviderHighlights items={owner} />
+        <OwenerProviderHighlights
+          items={owner}
+          relatedFacilities={relatedFacilities}
+        />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Facilities owned by {owner.cms_ownership_name}
         </Heading>

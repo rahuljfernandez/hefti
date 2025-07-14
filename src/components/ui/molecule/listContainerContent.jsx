@@ -279,7 +279,7 @@ export function BrowseNursingHomes({ item }) {
 
   // Get the first ownership entity for display (or handle multiple)
   const primaryOwnership = item.facility_ownership_links?.[0]?.ownership_entity;
-
+  console.log('item:', item);
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
@@ -362,7 +362,7 @@ export function BrowseOwners({ item }) {
 
   // Get the first facility for display (or handle multiple)
   const primaryFacility = item.facility_ownership_links?.[0]?.facility;
-
+  console.log('item:', item);
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
