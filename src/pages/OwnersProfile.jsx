@@ -35,8 +35,10 @@ export default function OwnersProfile() {
   if (loading) return <p>Loading owner details...</p>;
   if (!owner) return <p>Owner not found.</p>;
 
+  console.log('owner', owner);
   // Use related facilities from API if available
-  const relatedFacilities = owner.facility_ownership_links?.map(link => link.facility) || [];
+  const relatedFacilities =
+    owner.facility_ownership_links?.map((link) => link.facility) || [];
 
   return (
     <div className="bg-background-secondary">
@@ -44,9 +46,7 @@ export default function OwnersProfile() {
       <LayoutPage>
         <ProfileHeader
           title={owner.cms_ownership_name}
-          badges={[
-            { title: owner.cms_ownership_type, color: 'cyan' },
-          ]}
+          badges={[{ title: owner.cms_ownership_type, color: 'cyan' }]}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Owner Highlights

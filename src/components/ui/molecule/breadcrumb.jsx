@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import BreadcrumbLayoutCard from '../atom/breadcrumbLayoutCard';
 import { Button } from '../atom/button';
+import { Link, useNavigate } from 'react-router-dom';
 
 /**
  * Component is sourced from Application UI
@@ -10,6 +11,8 @@ import { Button } from '../atom/button';
  * Wrapped in a custom layout card to apply spacing
  * Could be design issues with very long page names in the Li's, especially if there are 3-4 li's
  * Applied flex wrap to Ol to mitigate this and simple "Go back" option for mobile.
+ *
+ * NOTE:For alpha we have simplified to just use Go back link and removed the Report Builder button.  The desktop version and button are commented out for alpha
  */
 
 const defaultPages = [
@@ -20,23 +23,24 @@ const defaultPages = [
 //Ask Nick about hover color, leaving stock for now
 //Note: defaultPages is for Storybook
 export default function Breadcrumb({ pages = defaultPages }) {
+  const navigate = useNavigate();
   return (
     <BreadcrumbLayoutCard className="bg-zinc-200">
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl">
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between xl:px-6">
           <div>
-            {/* Mobile: Go Back link */}
-            <div className="flex items-center justify-between sm:hidden">
+            {/* Mobile: Go Back link sm:hidden removed for alpha */}
+            <div className="flex items-center justify-between">
               <ChevronLeftIcon className="size-5 shrink-0 text-blue-700" />
-              <a
-                href="#"
+              <button
+                onClick={() => navigate(-1)}
                 className="text-paragraph-sm font-medium text-blue-700 hover:underline"
               >
                 Go back
-              </a>
+              </button>
             </div>
             {/* Desktop */}
-            <ol
+            {/* <ol
               role="list"
               className="hidden items-center sm:flex sm:flex-wrap"
             >
@@ -52,28 +56,28 @@ export default function Breadcrumb({ pages = defaultPages }) {
                           className={`text-core-black size-5 shrink-0 ${page.current ? 'font-semibold' : ''}`}
                         />
                       )}
-                      <a
-                        href={page.href}
+                      <Link
+                        to={page.to}
                         aria-current={page.current ? 'page' : undefined}
                         className={`text-paragraph-sm text-core-black hover:text-gray-700 ${page.current ? 'font-semibold' : ''}`}
                       >
                         {page.name}
-                      </a>
+                      </Link>
                     </div>
                   </li>
                 );
               })}
-            </ol>
+            </ol> */}
           </div>
           {/* Report Builder*/}
-          <div className="">
+          {/* <div className="">
             <Button
               href="#"
               className="text-label-base bg-background-inverse-primary border-border-inverse-primary inline-flex h-10 items-center border whitespace-nowrap"
             >
               Report Builder
             </Button>
-          </div>
+          </div> */}
         </div>
       </nav>
     </BreadcrumbLayoutCard>
