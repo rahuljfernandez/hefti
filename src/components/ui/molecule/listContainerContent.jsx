@@ -362,7 +362,6 @@ export function BrowseOwners({ item }) {
 
   // Get the first facility for display (or handle multiple)
   const primaryFacility = item.facility_ownership_links?.[0]?.facility;
-
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
