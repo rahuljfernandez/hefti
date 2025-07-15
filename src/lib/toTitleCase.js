@@ -1,4 +1,4 @@
-const PRESERVE = ['LLC', 'INC', 'LP', 'LTD', 'CO'];
+const PRESERVE = ['LLC', 'INC', 'LP', 'LTD', 'CO', 'TR'];
 
 export function toTitleCase(str = '') {
   return str

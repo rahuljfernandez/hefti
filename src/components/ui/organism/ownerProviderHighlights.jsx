@@ -18,17 +18,25 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
 
   // Use real data if available, otherwise fallback to hardcoded values
 
-  const avgFinesTotal = relatedFacilities.length
+  const finesAvgCount = relatedFacilities.length
     ? relatedFacilities.reduce(
         (sum, item) => sum + (item.number_of_fines || 0),
         0,
       ) / relatedFacilities.length
     : 0;
 
-  const overallRating = items.cms_owner_average_overall_rating.toFixed(1);
-  const healthInspectionRating = items.cms_owner_average_hi_rating.toFixed(1);
-  const staffingRating = items.cms_owner_average_staffing_rating.toFixed(1);
-  const qualityRating = items.cms_owner_average_quality_rating.toFixed(1);
+  const overallRating = (items.cms_owner_average_overall_rating ?? 0).toFixed(
+    1,
+  );
+  const healthInspectionRating = (
+    items.cms_owner_average_hi_rating ?? 0
+  ).toFixed(1);
+  const staffingRating = (items.cms_owner_average_staffing_rating ?? 0).toFixed(
+    1,
+  );
+  const qualityRating = (items.cms_owner_average_quality_rating ?? 0).toFixed(
+    1,
+  );
 
   const ownerCardStats = [
     {
@@ -36,26 +44,25 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
       stat: items.cms_owner_average_deficiencies.toFixed(1),
       rating: items.national_comparison_deficiencies,
       description:
-        'Average numbor of serious deficiencies found in affiliated homes in the last three years',
+        'Average number of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
     },
     {
       key: 'Average Number of Fines',
-      stat: items.cms_owner_average_fines,
+      stat: finesAvgCount.toFixed(1),
       rating: 'Below Average',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
     },
     {
-      key: 'Average Fines Total',
+      key: 'Average Fine',
       stat: items.cms_owner_average_fines,
       rating: items.national_comparison_fines,
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
     },
   ];
-  console.log(items);
   return (
     <LayoutCard>
       <div className="border-b border-gray-200 pb-5">
@@ -108,3 +115,24 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
     </LayoutCard>
   );
 }
+
+OwenerProviderHighlights.propTypes = {
+  items: PropTypes.shape({
+    cms_owner_average_deficiencies: PropTypes.number.isRequired,
+    cms_owner_average_fines: PropTypes.number.isRequired,
+    cms_owner_average_overall_rating: PropTypes.number.isRequired,
+    cms_owner_average_hi_rating: PropTypes.number.isRequired,
+    cms_owner_average_staffing_rating: PropTypes.number.isRequired,
+    cms_owner_average_quality_rating: PropTypes.number.isRequired,
+
+    cms_owner_total_facilities: PropTypes.number,
+    national_comparison_deficiencies: PropTypes.string,
+    national_comparison_fines: PropTypes.string,
+  }).isRequired,
+
+  relatedFacilities: PropTypes.arrayOf(
+    PropTypes.shape({
+      number_of_fines: PropTypes.number,
+    }),
+  ).isRequired,
+};

@@ -14,7 +14,6 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 
 export function IndirectOwnersFlowSection({ items }) {
   const [showAll, setShowAll] = useState(false);
-  console.log('items:', items);
   const indirectOwner = items.filter(
     (owner) =>
       owner.cms_ownership_role === '5% OR GREATER INDIRECT OWNERSHIP INTEREST',

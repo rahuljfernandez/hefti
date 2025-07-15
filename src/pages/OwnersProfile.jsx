@@ -26,6 +26,7 @@ export default function OwnersProfile() {
   const { slug } = useParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
@@ -39,7 +40,10 @@ export default function OwnersProfile() {
 
   // Use related facilities from API if available
   const relatedFacilities =
-    owner.facility_ownership_links?.map((link) => link.facility) || [];
+    owner.facility_ownership_links?.map((link) => ({
+      ...link.facility,
+      cms_ownership_role: link.cms_ownership_role,
+    })) || [];
 
   return (
     <div className="bg-background-secondary">
@@ -59,15 +63,25 @@ export default function OwnersProfile() {
           relatedFacilities={relatedFacilities}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Facilities owned by {owner.cms_ownership_name}
+          Facilities owned by {toTitleCase(owner.cms_ownership_name)}
         </Heading>
         <div className="pb-8">
           <ListContainer
-            items={relatedFacilities}
+            items={showAll ? relatedFacilities : relatedFacilities.slice(0, 20)}
             LayoutSelector={ListContainerDivider}
             ListContent={RelatedFacilities}
           />
         </div>
+        {!showAll && relatedFacilities.length > 20 && (
+          <div className="pb-8 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+            >
+              Load All Facilities
+            </button>
+          </div>
+        )}
       </LayoutPage>
     </div>
   );
