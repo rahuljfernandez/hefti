@@ -8,6 +8,7 @@ import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
 import { badgeConfig } from '../../../lib/getBadgeColor';
+import { ownerRoleMap } from '../../../lib/ownerRolehelper';
 /*Todo: 
 reit/pe is that working for OwnershipAndStaekholders?
 */
@@ -30,8 +31,8 @@ export function OwnershipAndStakeholders({ item }) {
         <p className="text-paragraph-base text-content-secondary py-2 md:py-2 md:pt-2">
           {item.cms_ownership_type?.toUpperCase()}
         </p>
-        <a
-          href="#"
+        <Link
+          to={`/owners/${item.ownership_entity.slug}`}
           className="text-heading-xs font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
@@ -41,7 +42,7 @@ export function OwnershipAndStakeholders({ item }) {
           {toTitleCase(
             item.ownership_entity?.cms_ownership_name || 'Unknown Owner',
           )}
-        </a>
+        </Link>
       </div>
 
       {/* Button — Top right on desktop, bottom on mobile */}
@@ -209,44 +210,60 @@ Penalties.propTypes = {
 
 //facilty name is probably a link?
 export function RelatedFacilities({ item }) {
+  const roleKey = item.cms_ownership_role || 'N/A';
+  const roleLabel = ownerRoleMap[roleKey]?.label;
   return (
     <>
-      <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start sm:gap-x-4">
-        {/* Col 1 - Row 1 */}
-        <div className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
-          {item.Facility_Name}
+      <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <Link
+            to={`/facilities/${item.slug}`}
+            className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none"
+          >
+            {toTitleCase(item.provider_name)}
+          </Link>
+          <div className="text-paragraph-base text-content-secondary order-2 md:order-none">
+            {`${toTitleCase(item.street_address)}, ${toTitleCase(item.city)}, ${item.state} ${
+              item.zip_code
+            }`}
+          </div>
         </div>
+        {/* Button — Top right on desktop, bottom on mobile */}
+        <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
+          <Link
+            to={`/facilities/${item.slug}`}
+            className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
+          >
+            View Profile
+          </Link>
+        </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Col 2 - spans both rows */}
-        <div className="order-3 row-span-2 sm:order-none sm:flex sm:items-center">
-          <StarRating
-            title="Overall CMS Rating"
-            rating={item.CMS_Rating}
-            className="text-paragraph-base"
-          />
-        </div>
+        <div className="order-3 md:order-none md:col-span-3 md:flex md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+          {/* CMS Rating */}
+          <div className="flex flex-col items-start pr-6 md:flex-row md:items-center md:gap-2">
+            <p className="text-paragraph-base text-content-secondary">
+              CMS Rating
+            </p>
+            <StarRating
+              rating={item.overall_rating}
+              className="text-paragraph-base text-content-secondary"
+            />
+          </div>
 
-        {/* Col 3 - Row 1 */}
-        <div className="text-paragraph-base order-3 font-bold sm:order-none">
-          {item.Total_Deficiencies > 0 ? (
-            `${item.Total_Deficiencies} Total Deficiencies`
-          ) : (
-            <span className="invisible">(0 Total_Deficiencies)</span>
-          )}
-        </div>
-
-        {/* Col 1 - Row 2 */}
-        <div className="text-paragraph-base order-2 sm:order-none">
-          {`${item.Address}, ${item.City}, ${item.State}`}
-        </div>
-
-        {/* Col 1 - Row 3 */}
-        <div className="text-paragraph-base order-4 sm:order-none">
-          {item.Serious_Deficiencies > 0 ? (
-            `${item.Serious_Deficiencies} Serious Deficienc${item.Serious_Deficiencies > 1 ? 'ies' : 'y'}`
-          ) : (
-            <span className="invisible">(0 Serious_Deficiencies)</span>
-          )}
+          {/* Owner Role */}
+          <div className="flex flex-col md:flex-row md:gap-2">
+            <p className="text-paragraph-base text-content-secondary pb-1">
+              Owners Role:
+            </p>
+            <p className="text-paragraph-base text-core-black font-bold">
+              {roleLabel}
+            </p>
+          </div>
         </div>
       </div>
     </>

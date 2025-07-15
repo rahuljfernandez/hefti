@@ -22,3 +22,13 @@ export function formatPhoneNumber(phone) {
   if (cleaned.length !== 10) return phone;
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
 }
+
+export function formatUSD(value) {
+  if (typeof value !== 'number') return '$0.00';
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+}

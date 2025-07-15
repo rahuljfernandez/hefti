@@ -11,6 +11,14 @@ const getBadgeColorAboveBelow = (rating) => {
       return 'gray';
   }
 };
+const getBadgeColorOwnerProfile = (type) => {
+  switch (type) {
+    case 'Organization':
+      return 'orange';
+    case 'Individual':
+      return 'teal';
+  }
+};
 
 const getBadgeColorOwnershipType = (type) => {
   switch (type) {
@@ -87,4 +95,9 @@ const badgeConfig = {
   'OWNERSHIP DATA NOT AVAILABLE': { color: '', label: 'None' },
 };
 
-export { getBadgeColorAboveBelow, getBadgeColorOwnershipType, badgeConfig };
+export {
+  getBadgeColorAboveBelow,
+  getBadgeColorOwnershipType,
+  badgeConfig,
+  getBadgeColorOwnerProfile,
+};

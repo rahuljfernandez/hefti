@@ -9,6 +9,8 @@ import OwenerProviderHighlights from '../components/ui/organism/ownerProviderHig
 import ListContainer from '../components/ui/organism/listContainer';
 import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
+import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
+import { toTitleCase } from '../lib/toTitleCase';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -24,6 +26,7 @@ export default function OwnersProfile() {
   const { slug } = useParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
@@ -38,30 +41,49 @@ export default function OwnersProfile() {
   console.log('owner', owner);
   // Use related facilities from API if available
   const relatedFacilities =
-    owner.facility_ownership_links?.map((link) => link.facility) || [];
+    owner.facility_ownership_links?.map((link) => ({
+      ...link.facility,
+      cms_ownership_role: link.cms_ownership_role,
+    })) || [];
+
 
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
-          title={owner.cms_ownership_name}
-          badges={[{ title: owner.cms_ownership_type, color: 'cyan' }]}
+          title={toTitleCase(owner.cms_ownership_name)}
+          ownershipType={owner.cms_ownership_type}
+          freshness={relatedFacilities[0].data_freshness}
+          func={getBadgeColorOwnerProfile}
         />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
           Owner Highlights
         </Heading>
-        <OwenerProviderHighlights items={owner} />
+        <OwenerProviderHighlights
+          items={owner}
+          relatedFacilities={relatedFacilities}
+        />
         <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Facilities owned by {owner.cms_ownership_name}
+          Facilities owned by {toTitleCase(owner.cms_ownership_name)}
         </Heading>
         <div className="pb-8">
           <ListContainer
-            items={relatedFacilities}
+            items={showAll ? relatedFacilities : relatedFacilities.slice(0, 20)}
             LayoutSelector={ListContainerDivider}
             ListContent={RelatedFacilities}
           />
         </div>
+        {!showAll && relatedFacilities.length > 20 && (
+          <div className="pb-8 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+            >
+              Load All Facilities
+            </button>
+          </div>
+        )}
       </LayoutPage>
     </div>
   );

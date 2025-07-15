@@ -1,58 +1,140 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { formatUSD } from '../../../lib/stringFormatters';
 
 /**
- * Component for the facility profile
+ * Component for the owner profile
  */
 
-//Todo:
-//Waiting on updated data.  The entire shape of the data will need to be contructed on the backend.  Will need to figure out breakdowns
 export default function OwnerProfileDescription({ items }) {
   if (!items) return <div>No owner data available.</div>;
-
-  const ownershipType = items.ownership_type ?? 'N/A';
-  const operationalBreakdown = items.operational_breakdown ?? {};
-  const ownershipRolesBreakdown = items.ownership_roles_breakdown ?? {};
-
-  // Use real data if available, otherwise fallback to hardcoded values
-  const ownerData = [
-    { title: 'OWNERSHIP ROLES', value: items.ownership_roles ?? 5 },
-    { title: 'STATES OR TERRITORIES', value: items.states_territories ?? ['FL, MD'] },
-    { title: 'TOTAL DEFICIENCIES', value: items.total_deficiencies ?? 20 },
-    { title: 'TOTAL PENALTIES', value: items.total_penalties ?? 5 },
-    { title: 'TOTAL FINES', value: items.total_fines ?? 230000 },
-    { title: 'OWNERSHIP TYPE', value: ownershipType },
-    {
-      title: 'OPERATIONAL BREAKDOWN',
-      breakdown: operationalBreakdown,
-    },
-    {
-      title: 'OWNERSHIP ROLES BREAKDOWN',
-      breakdown: ownershipRolesBreakdown,
-    },
-  ];
   return (
     <div className="mt-6">
-      <dl className="grid grid-cols-1 sm:grid-cols-2">
-        {ownerData.map(({ title, value, breakdown }) => (
-          <div key={title} className="px-4 pb-6 sm:col-span-1 sm:px-0">
-            <dt className="text-label-sm text-content-secondary">{title}</dt>
-            <dd className="text-paragraph-base text-content-primary mt-1">
-              {breakdown && Object.keys(breakdown).length > 0 ? (
-                <ul className="space-y-1">
-                  {Object.entries(breakdown).map(([k, v]) => (
-                    <li key={k}>
-                      <span className="font-semibold">{v}</span> {k}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                value
-              )}
-            </dd>
+      <div className="text-paragraph-base grid grid-cols-1 gap-x-8 gap-y-6 font-sans md:grid-cols-2">
+        {/* Left Column */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              OWNERSHIP ROLES
+            </p>
+            <p className="">{items.cms_owner_total_facilities || '—'}</p>
           </div>
-        ))}
-      </dl>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              STATES OR TERRITORIES
+            </p>
+            <p className="">{items.cms_owner_states || '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider uppercase">
+              TOTAL DEFICIENCIES
+            </p>
+            <p className="">
+              {items.cms_owner_n_deficiencies?.toLocaleString() || '—'}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              TOTAL PENALTIES
+            </p>
+            <p className="">
+              {items.cms_owner_total_penalties?.toLocaleString() || '—'}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              TOTAL FINES
+            </p>
+            <p className="">{formatUSD(items.cms_owner_total_fines) || '—'}</p>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              OWNERSHIP TYPE
+            </p>
+            <p className="">{items.cms_ownership_type || '—'}</p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              OPERATIONAL BREAKDOWN
+            </p>
+            <p className="text-content-secondary">
+              <span className="text-core-black font-bold">
+                {items.cms_for_profit_ownership_n}
+              </span>{' '}
+              For Profit
+            </p>
+            <p className="text-content-secondary">
+              {' '}
+              <span className="text-core-black font-bold">
+                {items.cms_non_profit_ownership_n}
+              </span>{' '}
+              Nonprofit
+            </p>
+            <p className="text-content-secondary">
+              {' '}
+              <span className="text-core-black font-bold">
+                {items.cms_government_ownership_n}
+              </span>{' '}
+              Government
+            </p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              OWNERSHIP ROLES
+            </p>
+            <p className="text-content-secondary">
+              {' '}
+              <span className="text-core-black font-bold">
+                {items.cms_direct_ownership_role_n}
+              </span>{' '}
+              Direct Owner
+            </p>
+            <p className="text-content-secondary">
+              {' '}
+              <span className="text-core-black font-bold">
+                {items.cms_indirect_ownership_role_n}
+              </span>{' '}
+              Indirect Owner
+            </p>
+            <p className="text-content-secondary">
+              {' '}
+              <span className="text-core-black font-bold">
+                {items.cms_indirect_ownership_role_n}
+              </span>{' '}
+              Operational
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+
+OwnerProfileDescription.propTypes = {
+  items: PropTypes.shape({
+    cms_owner_total_facilities: PropTypes.number,
+    cms_ownership_type: PropTypes.string,
+    cms_owner_states: PropTypes.string,
+    cms_owner_n_deficiencies: PropTypes.number,
+    cms_owner_total_penalties: PropTypes.number,
+    cms_owner_total_fines: PropTypes.number,
+
+    cms_for_profit_ownership_n: PropTypes.number,
+    cms_non_profit_ownership_n: PropTypes.number,
+    cms_government_ownership_n: PropTypes.number,
+
+    cms_direct_ownership_role_n: PropTypes.number,
+    cms_indirect_ownership_role_n: PropTypes.number,
+    cms_operational_role_n: PropTypes.number,
+  }),
+};

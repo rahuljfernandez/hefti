@@ -12,39 +12,53 @@ import OwnerProfileDescription from '../molecule/ownerProfileDescription';
  */
 
 //need to incorporate teh correct data once its ready to work with
-export default function OwenerProviderHighlights({ items }) {
+export default function OwenerProviderHighlights({ items, relatedFacilities }) {
   if (!items) return <div>No owner data available.</div>;
+  console.log('rel', relatedFacilities);
 
   // Use real data if available, otherwise fallback to hardcoded values
-  const avgDeficiencies = items.avg_deficiencies ?? 11.2;
-  const avgFines = items.avg_fines ?? 2.0;
-  const avgFinesTotal = items.avg_fines_total ?? 265723;
-  const overallRating = items.overall_rating ?? 2.8;
-  const healthInspectionRating = items.health_inspection_rating ?? 2.8;
-  const staffingRating = items.staffing_rating ?? 2.8;
-  const qualityRating = items.quality_rating ?? 2.8;
+
+  const finesAvgCount = relatedFacilities.length
+    ? relatedFacilities.reduce(
+        (sum, item) => sum + (item.number_of_fines || 0),
+        0,
+      ) / relatedFacilities.length
+    : 0;
+
+  const overallRating = (items.cms_owner_average_overall_rating ?? 0).toFixed(
+    1,
+  );
+  const healthInspectionRating = (
+    items.cms_owner_average_hi_rating ?? 0
+  ).toFixed(1);
+  const staffingRating = (items.cms_owner_average_staffing_rating ?? 0).toFixed(
+    1,
+  );
+  const qualityRating = (items.cms_owner_average_quality_rating ?? 0).toFixed(
+    1,
+  );
 
   const ownerCardStats = [
     {
       key: 'Average Total Deficiencies',
-      stat: avgDeficiencies,
-      rating: 'Above Average',
+      stat: items.cms_owner_average_deficiencies.toFixed(1),
+      rating: items.national_comparison_deficiencies,
       description:
-        'Average numbor of serious deficiencies found in affiliated homes in the last three years',
+        'Average number of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
     },
     {
       key: 'Average Number of Fines',
-      stat: avgFines,
+      stat: finesAvgCount.toFixed(1),
       rating: 'Below Average',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
     },
     {
-      key: 'Average Fines Total',
-      stat: avgFinesTotal,
-      rating: 'Below Average',
+      key: 'Average Fine',
+      stat: items.cms_owner_average_fines,
+      rating: items.national_comparison_fines,
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
     },
@@ -58,10 +72,11 @@ export default function OwenerProviderHighlights({ items }) {
         <CMSRating
           stars={[
             {
-              title: 'Overall Star Rating',
+              title: 'Average Rating Across All Facilities',
               rating: overallRating,
               size: 'h-10 w-10',
               ratingSize: '4xl',
+              className: 'font-bold',
             },
           ]}
         />
@@ -101,3 +116,24 @@ export default function OwenerProviderHighlights({ items }) {
     </LayoutCard>
   );
 }
+
+OwenerProviderHighlights.propTypes = {
+  items: PropTypes.shape({
+    cms_owner_average_deficiencies: PropTypes.number.isRequired,
+    cms_owner_average_fines: PropTypes.number.isRequired,
+    cms_owner_average_overall_rating: PropTypes.number.isRequired,
+    cms_owner_average_hi_rating: PropTypes.number.isRequired,
+    cms_owner_average_staffing_rating: PropTypes.number.isRequired,
+    cms_owner_average_quality_rating: PropTypes.number.isRequired,
+
+    cms_owner_total_facilities: PropTypes.number,
+    national_comparison_deficiencies: PropTypes.string,
+    national_comparison_fines: PropTypes.string,
+  }).isRequired,
+
+  relatedFacilities: PropTypes.arrayOf(
+    PropTypes.shape({
+      number_of_fines: PropTypes.number,
+    }),
+  ).isRequired,
+};
