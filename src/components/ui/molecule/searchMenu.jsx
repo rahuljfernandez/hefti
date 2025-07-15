@@ -66,9 +66,9 @@ export default function SearchMenu({
   // Navigate to a facility/owner detail page when a suggestion is selected
   function handlePick(suggestion) {
     if (type === 'owners') {
-      navigate(`/owners/${suggestion.id}`);
+      navigate(`/owners/${suggestion.slug}`);
     } else {
-      navigate(`/facilities/${suggestion.id}`);
+      navigate(`/facilities/${suggestion.slug}`);
     }
   }
 
