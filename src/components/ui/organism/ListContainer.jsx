@@ -91,7 +91,7 @@ export function ListContainerDivider({ items = [], renderItem }) {
     <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border shadow-sm">
       <ul role="list" className="divide-y divide-gray-200">
         {items.map((item, i) => (
-          <li key={item.id || i} className="px-4 py-4 sm:px-6">
+          <li key={item.id + i} className="px-4 py-4 sm:px-6">
             {renderItem(item)}
           </li>
         ))}

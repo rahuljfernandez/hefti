@@ -76,6 +76,7 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
               rating: overallRating,
               size: 'h-10 w-10',
               ratingSize: '4xl',
+              className: 'font-bold',
             },
           ]}
         />

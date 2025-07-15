@@ -8,8 +8,6 @@ import { formatUSD } from '../../../lib/stringFormatters';
 
 export default function OwnerProfileDescription({ items }) {
   if (!items) return <div>No owner data available.</div>;
-
-  console.log('profileDescriptionData:', items);
   return (
     <div className="mt-6">
       <div className="text-paragraph-base grid grid-cols-1 gap-x-8 gap-y-6 font-sans md:grid-cols-2">
