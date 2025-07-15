@@ -4,6 +4,7 @@ import ListContainer, {
 } from '../components/ui/organism/ListContainer';
 import { BrowseNursingHomes } from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
+import Breadcrumb from '../components/ui/molecule/breadcrumb';
 
 /**
  * Main page for browsing nursing home facilities.
@@ -25,19 +26,22 @@ const API_BASE_URL =
 
 function Facilities() {
   return (
-    <BrowsePage
-      apiEndpoint={`${API_BASE_URL}/facilities`}
-      title="Nursing Homes"
-      searchPlaceholder="Nursing home name..."
-      type="facilities"
-      renderList={(items) => (
-        <ListContainer
-          items={items}
-          LayoutSelector={ListContainerSeparate}
-          ListContent={BrowseNursingHomes}
-        />
-      )}
-    />
+    <>
+      <Breadcrumb />
+      <BrowsePage
+        apiEndpoint={`${API_BASE_URL}/facilities`}
+        title="Nursing Homes"
+        searchPlaceholder="Nursing home name..."
+        type="facilities"
+        renderList={(items) => (
+          <ListContainer
+            items={items}
+            LayoutSelector={ListContainerSeparate}
+            ListContent={BrowseNursingHomes}
+          />
+        )}
+      />
+    </>
   );
 }
 

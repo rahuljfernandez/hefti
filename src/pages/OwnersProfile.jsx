@@ -38,12 +38,14 @@ export default function OwnersProfile() {
   if (loading) return <p>Loading owner details...</p>;
   if (!owner) return <p>Owner not found.</p>;
 
+  console.log('owner', owner);
   // Use related facilities from API if available
   const relatedFacilities =
     owner.facility_ownership_links?.map((link) => ({
       ...link.facility,
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
+
 
   return (
     <div className="bg-background-secondary">

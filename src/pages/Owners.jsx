@@ -4,6 +4,7 @@ import ListContainer, {
 } from '../components/ui/organism/ListContainer';
 import { BrowseOwners } from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
+import Breadcrumb from '../components/ui/molecule/breadcrumb';
 /**
  * Main page for browsing owners.
  *
@@ -24,18 +25,21 @@ const API_BASE_URL =
 
 export default function Owners() {
   return (
-    <BrowsePage
-      apiEndpoint={`${API_BASE_URL}/owners`}
-      title="Owners"
-      searchPlaceholder="Owner name..."
-      type="owners"
-      renderList={(items) => (
-        <ListContainer
-          items={items}
-          LayoutSelector={ListContainerSeparate}
-          ListContent={BrowseOwners}
-        />
-      )}
-    />
+    <>
+      <Breadcrumb />
+      <BrowsePage
+        apiEndpoint={`${API_BASE_URL}/owners`}
+        title="Owners"
+        searchPlaceholder="Owner name..."
+        type="owners"
+        renderList={(items) => (
+          <ListContainer
+            items={items}
+            LayoutSelector={ListContainerSeparate}
+            ListContent={BrowseOwners}
+          />
+        )}
+      />
+    </>
   );
 }
