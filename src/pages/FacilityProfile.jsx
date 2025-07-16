@@ -46,14 +46,14 @@ export default function FacilityProfile() {
           freshness={facility.data_freshness}
           func={getBadgeColorOwnershipType}
         />
-        <Heading level={2} className="text-heading-sm mt-8 mb-4">
+        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Provider Highlights
         </Heading>
         <FacilityProviderHighlights items={facility} />
 
         {ownershipLinks.length > 0 && (
           <>
-            <Heading level={2} className="text-heading-sm mt-8 mb-4">
+            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
               Ownership and Stakeholders
             </Heading>
             <ListContainer
@@ -61,7 +61,7 @@ export default function FacilityProfile() {
               LayoutSelector={ListContainerDivider}
               ListContent={OwnershipAndStakeholders}
             />
-            <Heading level={2} className="text-heading-sm mt-8 mb-4">
+            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
               Ownership Diagram
             </Heading>
             <div className="pb-8">

@@ -28,13 +28,14 @@ export default function BrowseListView({
   return (
     <LayoutPage>
       <section className="pt-4 pb-16">
-        <Heading className="text-display-xs" level={1}>
-          {title}
-        </Heading>
+        <Heading className="text-display-xs">{title}</Heading>
 
         {/*Search Bar */}
         <div className="py-8">
-          <Heading className="text-label-lg font-bold"> Search by name</Heading>
+          <Heading level={4} className="text-label-lg">
+            {' '}
+            Search by name
+          </Heading>
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <div className="w-full md:flex-[2]">
               <SearchMenu
