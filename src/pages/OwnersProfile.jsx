@@ -46,7 +46,6 @@ export default function OwnersProfile() {
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
 
-
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
@@ -57,15 +56,15 @@ export default function OwnersProfile() {
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
         />
-        <Heading level={2} className="text-heading-sm mt-8 mb-4">
+        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
         </Heading>
         <OwenerProviderHighlights
           items={owner}
           relatedFacilities={relatedFacilities}
         />
-        <Heading level={2} className="text-heading-sm mt-8 mb-4">
-          Facilities owned by {toTitleCase(owner.cms_ownership_name)}
+        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
+          Facilities associated with {toTitleCase(owner.cms_ownership_name)}
         </Heading>
         <div className="pb-8">
           <ListContainer

@@ -34,7 +34,10 @@ export default function BrowseListView({
 
         {/*Search Bar */}
         <div className="py-8">
-          <Heading className="text-label-lg font-bold"> Search by name</Heading>
+          <Heading level={4} className="text-label-lg">
+            {' '}
+            Search by name
+          </Heading>
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <div className="w-full md:flex-[2]">
               <SearchMenu

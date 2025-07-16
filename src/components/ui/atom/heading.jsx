@@ -12,8 +12,8 @@ import clsx from 'clsx';
 export function Heading({ className, level = 1, ...props }) {
   let Element = `h${level}`;
   const sizeMap = {
-    1: 'text-4xl font-bold',
-    2: 'text-3xl font-semibold',
+    1: 'text-5xl font-bold',
+    2: 'text-4xl font-semibold',
     3: 'text-2xl font-semibold',
     4: 'text-xl font-semibold',
     5: 'text-lg font-semibold',
@@ -22,7 +22,11 @@ export function Heading({ className, level = 1, ...props }) {
   return (
     <Element
       {...props}
-      className={clsx(sizeMap[level], className, 'text-core-black dark:text-core-white')}
+      className={clsx(
+        sizeMap[level],
+        className,
+        'text-core-black dark:text-core-white',
+      )}
     />
   );
 }
