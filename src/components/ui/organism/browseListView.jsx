@@ -28,7 +28,9 @@ export default function BrowseListView({
   return (
     <LayoutPage>
       <section className="pt-4 pb-16">
-        <Heading className="text-display-xs">{title}</Heading>
+        <Heading className="text-display-xs" level={1}>
+          {title}
+        </Heading>
 
         {/*Search Bar */}
         <div className="py-8">
