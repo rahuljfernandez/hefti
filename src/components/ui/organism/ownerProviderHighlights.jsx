@@ -18,13 +18,6 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
 
   // Use real data if available, otherwise fallback to hardcoded values
 
-  const finesAvgCount = relatedFacilities.length
-    ? relatedFacilities.reduce(
-        (sum, item) => sum + (item.number_of_fines || 0),
-        0,
-      ) / relatedFacilities.length
-    : 0;
-
   const overallRating = (items.cms_owner_average_overall_rating ?? 0).toFixed(
     1,
   );
@@ -48,9 +41,9 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
       isCurrency: false,
     },
     {
-      key: 'Average Number of Fines',
-      stat: finesAvgCount.toFixed(1),
-      rating: 'Below Average',
+      key: 'Average Number of Penalties',
+      stat: items.cms_owner_average_penalties,
+      rating: items.national_comparison_penalties,
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
@@ -63,6 +56,7 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
       isCurrency: true,
     },
   ];
+
   return (
     <LayoutCard>
       <div className="border-b border-gray-200 pb-5">
@@ -125,8 +119,10 @@ OwenerProviderHighlights.propTypes = {
     cms_owner_average_hi_rating: PropTypes.number.isRequired,
     cms_owner_average_staffing_rating: PropTypes.number.isRequired,
     cms_owner_average_quality_rating: PropTypes.number.isRequired,
+    cms_owner_average_penalties: PropTypes.number.isRequired,
 
     cms_owner_total_facilities: PropTypes.number,
+    national_comparison_penalties: PropTypes.string,
     national_comparison_deficiencies: PropTypes.string,
     national_comparison_fines: PropTypes.string,
   }).isRequired,
