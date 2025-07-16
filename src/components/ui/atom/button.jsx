@@ -178,13 +178,13 @@ export const Button = forwardRef(function Button(
   );
 
   return 'href' in props ? (
-    <Link {...props} className={classes} ref={ref}>
+    <Link {...props} className={clsx(classes, 'cursor-pointer')} ref={ref}>
       <TouchTarget>{children}</TouchTarget>
     </Link>
   ) : (
     <Headless.Button
       {...props}
-      className={clsx(classes, 'cursor-default')}
+      className={clsx(classes, 'cursor-pointer')}
       ref={ref}
     >
       <TouchTarget>{children}</TouchTarget>

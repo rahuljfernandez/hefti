@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/atom/button';
 import { Heading } from '../components/ui/atom/heading';
 import { Divider } from '../components/ui/atom/divider';
+import { slugify } from '../lib/slugify';
+import { toTitleCase } from '../lib/toTitleCase';
+import { BuildingOffice2Icon, UserGroupIcon } from '@heroicons/react/24/outline';
 // import your icon components if available
 
 export default function Home() {
@@ -33,7 +36,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#e0e7ff] via-[#f3e8ff] to-[#f0fdfa]">
       <header className="bg-core-black flex items-center justify-between px-6 py-3 text-white">
         <div className="font-bold">HEFTI</div>
         <nav>
@@ -44,7 +47,8 @@ export default function Home() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-4xl py-12">
+      {/* Top (hero + cards) section with gradient background */}
+      <section className="mx-auto max-w-3xl py-8">
         <Heading level={1} className="mb-4 text-center">
           Powering better oversight through clearer nursing home data
         </Heading>
@@ -54,88 +58,96 @@ export default function Home() {
         </p>
 
         <div className="mb-12 flex flex-col justify-center gap-6 md:flex-row">
-          <div className="flex flex-1 flex-col items-center rounded-xl bg-white p-6 shadow">
-            {/* Icon can go here */}
-            <Heading level={3} className="mb-2">
+          <div className="flex flex-1 flex-col items-center rounded-2xl border border-blue-200 bg-blue-50/60 p-5 shadow-md">
+            <BuildingOffice2Icon className="mb-3 h-10 w-10 text-blue-400" />
+            <Heading level={3} className="mb-2 text-xl font-semibold">
               Nursing Homes
             </Heading>
-            <ul className="mb-4 text-center text-sm text-gray-600">
+            <ul className="mb-4 text-center text-sm text-blue-900/80">
               <li>See full list of nursing homes</li>
               <li>View nursing home profile pages</li>
             </ul>
-            <Link to="/facilities">
-              <Button>Browse Nursing Homes</Button>
+            <Link to="/facilities" className="w-full">
+              <Button className="w-full py-3 text-base font-bold rounded-lg">Browse Nursing Homes</Button>
             </Link>
           </div>
-          <div className="flex flex-1 flex-col items-center rounded-xl bg-white p-6 shadow">
-            {/* Icon can go here */}
-            <Heading level={3} className="mb-2">
+          <div className="flex flex-1 flex-col items-center rounded-2xl border border-purple-200 bg-purple-50/60 p-5 shadow-md">
+            <UserGroupIcon className="mb-3 h-10 w-10 text-purple-400" />
+            <Heading level={3} className="mb-2 text-xl font-semibold">
               Owners
             </Heading>
-            <ul className="mb-4 text-center text-sm text-gray-600">
+            <ul className="mb-4 text-center text-sm text-purple-900/80">
               <li>See full list of nursing home owners</li>
               <li>View profile pages for owners</li>
             </ul>
-            <Link to="/owners">
-              <Button>Browse Owners</Button>
+            <Link to="/owners" className="w-full">
+              <Button className="w-full py-3 text-base font-bold rounded-lg">Browse Owners</Button>
             </Link>
           </div>
         </div>
+      </section>
 
-        <Divider className="my-8" />
-
-        <Heading level={2} className="mb-6 text-center">
-          State of the Nursing Home Industry
-        </Heading>
-        {loading ? (
-          <p className="text-center text-gray-500">Loading industry data...</p>
-        ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <div>
-              <Heading level={4} className="mb-2">
-                Top 10 Largest Chains
-              </Heading>
-              <ul className="divide-y divide-gray-200 rounded-xl bg-white shadow">
-                {topChains.map((chain) => (
-                  <li
-                    key={chain.name}
-                    className="flex justify-between px-4 py-2"
-                  >
-                    <span className="text-blue-700 underline">
-                      {chain.name}
-                    </span>
-                    <span className="text-gray-700">
-                      {chain.count} facilities
-                    </span>
-                  </li>
-                ))}
-              </ul>
+      {/* Bottom (lists) section with gray background */}
+      <section className="w-full bg-gray-100 py-8 pb-16 min-h-[400px]">
+        <div className="mx-auto max-w-5xl">
+          <Divider className="my-4" />
+          <Heading level={2} className="mb-6 text-center">
+            State of the Nursing Home Industry
+          </Heading>
+          {loading ? (
+            <p className="text-center text-gray-500">Loading industry data...</p>
+          ) : error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div>
+                <Heading level={4} className="mb-2">
+                  Top 10 Largest Chains
+                </Heading>
+                <ul className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white/80 border-l-2 border-blue-200 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
+                  {topChains.map((chain) => (
+                    <Link
+                      key={chain.name}
+                      to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
+                      className="flex items-center justify-between px-6 py-3 hover:bg-blue-50/40 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <span className="font-medium text-base">
+                        {toTitleCase(chain.name)}
+                      </span>
+                      <span className="text-gray-400 text-right font-semibold min-w-[80px]">
+                        {chain.count} facilities
+                      </span>
+                    </Link>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <Heading level={4} className="mb-2">
+                  Top 10 Largest Individual Owners
+                </Heading>
+                <ul className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white/80 border-l-2 border-purple-200 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
+                  {topOwners.map((owner) => (
+                    <Link
+                      key={owner.name}
+                      to={owner.slug ? `/owners/${owner.slug}` : `/owners/${slugify(owner.name)}`}
+                      className="flex items-center justify-between px-6 py-3 hover:bg-purple-50/40 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <span className="font-medium text-base">
+                        {toTitleCase(owner.name)}
+                      </span>
+                      <span className="text-gray-400 text-right font-semibold min-w-[80px]">
+                        {owner.count} facilities
+                      </span>
+                    </Link>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div>
-              <Heading level={4} className="mb-2">
-                Top 10 Largest Individual Owners
-              </Heading>
-              <ul className="divide-y divide-gray-200 rounded-xl bg-white shadow">
-                {topOwners.map((owner) => (
-                  <li
-                    key={owner.name}
-                    className="flex justify-between px-4 py-2"
-                  >
-                    <span className="text-purple-700 underline">
-                      {owner.name}
-                    </span>
-                    <span className="text-gray-700">
-                      {owner.count} facilities
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-      </main>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

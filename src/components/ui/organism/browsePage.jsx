@@ -37,6 +37,7 @@ export default function BrowsePage({
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || 'asc';
   const state = searchParams.get('state') || '';
+  const chain = searchParams.get('chain') || '';
   // // --- UI State ---
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -49,6 +50,7 @@ export default function BrowsePage({
     const params = new URLSearchParams({ page, sort, state });
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
+    if (chain.trim() !== '') params.set('chain', chain);
 
     fetch(`${apiEndpoint}?${params}`)
       .then((res) => {
@@ -61,7 +63,7 @@ export default function BrowsePage({
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page, search, sort, state, apiEndpoint]);
+  }, [page, search, sort, state, chain, apiEndpoint]);
 
   //Fetch suggestions when user types in the search box
   useEffect(() => {
