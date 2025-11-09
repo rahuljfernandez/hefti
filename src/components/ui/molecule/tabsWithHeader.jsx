@@ -35,7 +35,7 @@ const TABS = [
  *We manage the activeTab state here witch sets the default to the first tab.  This is passed down to the Tabs component.
  */
 
-export default function TabsWithHeader({ tabsData = TABS }) {
+export default function TabsWithInfo({ tabsData = TABS }) {
   const [activeTab, setActiveTab] = useState(tabsData[0]);
   return (
     <div className="bg-background-secondary">
@@ -53,7 +53,7 @@ export default function TabsWithHeader({ tabsData = TABS }) {
   );
 }
 
-TabsWithHeader.propTypes = {
+TabsWithInfo.propTypes = {
   tabsData: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
@@ -62,3 +62,6 @@ TabsWithHeader.propTypes = {
     }),
   ),
 };
+
+//Plan
+//Each tab will have a component that will be rendered when it becomes active

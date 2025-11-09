@@ -12,13 +12,7 @@ export default function FacilityPage() {
     <div className="bg-background-secondary">
       <HeftiNavbar />
       <LayoutPage>
-        <ProfileHeader
-          title={'Aspen Point Health and Rehabilitation'}
-          badges={[
-            { title: 'FOR PROFIT', color: 'cyan' },
-            { title: 'INDIVIDUAL', color: 'orange' },
-          ]}
-        />
+        <ProfileHeader />
         <TabsWithHeader />
         <FacilityProviderHighlights />
       </LayoutPage>

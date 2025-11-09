@@ -13,6 +13,9 @@ import ListContainer, {
 } from '../components/ui/organism/ListContainer';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
+import Tabs from '../components/ui/molecule/Tabs';
+import { facilityProfileTabsDescriptions } from '../lib/tabDescriptions';
+import TabsWithInfo from '../components/ui/molecule/tabsWithHeader';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -46,6 +49,8 @@ export default function FacilityProfile() {
           freshness={facility.data_freshness}
           func={getBadgeColorOwnershipType}
         />
+        <TabsWithInfo tabsData={facilityProfileTabsDescriptions} />
+        {/* 
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Provider Highlights
         </Heading>
@@ -75,7 +80,7 @@ export default function FacilityProfile() {
 
         <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
           <AdditionalInformation items={facility} />
-        </div>
+        </div> */}
       </LayoutPage>
     </div>
   );
