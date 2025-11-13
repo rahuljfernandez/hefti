@@ -441,3 +441,34 @@ export function BrowseOwners({ item }) {
     </div>
   );
 }
+
+export function MetricCardLong({ item }) {
+  return (
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+      {/** Main Percent and Color Badge */}
+      <div className="flex items-center gap-4 md:order-2">
+        <p className="text-heading-lg">{item.value}</p>
+        <Badge
+          className="text-paragraph-xs max-h-6 max-w-44 font-medium"
+          color={item.labelColor || 'gray'}
+        >
+          {toTitleCase(item.label || 'Unknown')}
+        </Badge>
+      </div>
+      {/** Title and Subtitle */}
+      <div className="md:order-1 md:col-span-2">
+        <p className="text-label-lg mb-1">{item.title}</p>
+        <p className="text-label-base text-content-secondary">
+          {item.subtitle}
+        </p>
+      </div>
+      {/** Empty space for desktop display */}
+      <div className="md:order-3 md:col-span-2"></div>
+      {/** State and National Average */}
+      <div className="md:order-4">
+        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state} average ${item.stateAvg}`}</p>
+        <p className="text-paragraph-base text-content-secondary">{`National average ${item.nationalAverage}`}</p>
+      </div>
+    </div>
+  );
+}
