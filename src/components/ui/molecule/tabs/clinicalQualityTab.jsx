@@ -5,7 +5,7 @@ import ListContainer, {
 } from '../../organism/ListContainer';
 import { MetricCardLong } from '../listContainerContent';
 /**
- *  This component displays the Clinical Quality Measures data for an individual facility. We be apart of the dynamic tabs scheme.
+ *  This component displays the Clinical Quality Measures data for an individual facility. Will be apart of the dynamic tabs scheme.
  */
 
 export default function ClinicalQuality({ ownershipLinks, facility }) {
@@ -83,7 +83,7 @@ export default function ClinicalQuality({ ownershipLinks, facility }) {
         />
       </div>
       {/**Long Stay Stats */}
-      <div>
+      <div className="pb-8">
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Short Stay
         </Heading>

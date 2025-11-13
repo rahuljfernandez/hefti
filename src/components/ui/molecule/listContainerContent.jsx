@@ -442,14 +442,15 @@ export function BrowseOwners({ item }) {
   );
 }
 
+//MetricCardLong is suppose to be reusable, but want to come back to that once data is created.  For now (11/13/25), the layout is finished, just needs data
 export function MetricCardLong({ item }) {
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-0 xl:grid-cols-3">
       {/** Main Percent and Color Badge */}
-      <div className="flex items-center gap-4 md:order-2">
+      <div className="flex items-center gap-4 md:order-2 xl:pl-8">
         <p className="text-heading-lg">{item.value}</p>
         <Badge
-          className="text-paragraph-xs max-h-6 max-w-44 font-medium"
+          className="text-paragraph-xs max-w-44 py-1 font-medium"
           color={item.labelColor || 'gray'}
         >
           {toTitleCase(item.label || 'Unknown')}
@@ -465,9 +466,9 @@ export function MetricCardLong({ item }) {
       {/** Empty space for desktop display */}
       <div className="md:order-3 md:col-span-2"></div>
       {/** State and National Average */}
-      <div className="md:order-4">
-        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state} average ${item.stateAvg}`}</p>
-        <p className="text-paragraph-base text-content-secondary">{`National average ${item.nationalAverage}`}</p>
+      <div className="md:order-4 xl:pl-8">
+        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state} average: ${item.stateAvg}`}</p>
+        <p className="text-paragraph-base text-content-secondary">{`National average: ${item.nationalAverage}`}</p>
       </div>
     </div>
   );
