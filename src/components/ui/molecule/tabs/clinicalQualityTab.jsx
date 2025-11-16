@@ -18,7 +18,7 @@ export default function ClinicalQuality({ ownershipLinks, facility }) {
       subtitle: 'Lower percentages are better',
       value: '2.6%',
       label: 'Above State Average',
-      labelColor: 'red', // you can map this later for badge color logic
+      labelColor: 'red',
       state: 'Missouri',
       stateAvg: '2.1%',
       nationalAverage: '1.2%',
