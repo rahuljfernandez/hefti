@@ -348,3 +348,26 @@ export const ownersMock = [
     facilities: { state: 'FL' },
   },
 ];
+
+export const ownershipChangeData = [
+  { month: 'Jun 2025', count: 81 },
+  { month: 'May 2025', count: 42 },
+  { month: 'Apr 2025', count: 28 },
+  { month: 'Mar 2025', count: 33 },
+  { month: 'Feb 2025', count: 47 },
+  { month: 'Jan 2025', count: 19 },
+
+  { month: 'Dec 2024', count: 8 },
+  { month: 'Nov 2024', count: 21 },
+  { month: 'Oct 2024', count: 11 },
+  { month: 'Sep 2024', count: 16 },
+  { month: 'Aug 2024', count: 24 },
+  { month: 'Jul 2024', count: 21 },
+
+  { month: 'Jun 2024', count: 15 },
+  { month: 'May 2024', count: 12 },
+  { month: 'Apr 2024', count: 18 },
+  { month: 'Mar 2024', count: 10 },
+  { month: 'Feb 2024', count: 14 },
+  { month: 'Jan 2024', count: 9 },
+];
