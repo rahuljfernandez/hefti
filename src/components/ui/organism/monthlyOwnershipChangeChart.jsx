@@ -36,6 +36,20 @@ function Chart({ width, height }) {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
+  //Responsive settings for SVG
+  const isMobile = width < 500;
+  //Font size
+  const responsiveFontSize = isMobile ? 12 : 16;
+  //X axis positioning of month label
+  const monthXLabel = isMobile ? 62 : 50;
+  //X axis positioning of facilities ownership change label
+  const textXLabel = isMobile ? 10 : 50;
+  const lineXlabel2 = isMobile ? width - 35 : 500;
+  //X axis positioning of specific month column list items
+  const monthXListItems = isMobile ? -10 : 20;
+  //X axis positioning of bars
+  const barXListItems = isMobile ? 10 : 50;
+
   // Scales
   const yScale = scaleBand({
     domain: ownershipChangeData.map((d) => d.month),
@@ -54,10 +68,10 @@ function Chart({ width, height }) {
       <svg width={width} height={height}>
         {/* Header and labels above chart */}
         <Text
-          x={margin.left - 50}
+          x={margin.left - monthXLabel}
           y={margin.top}
           textAnchor="end"
-          fontSize={16}
+          fontSize={responsiveFontSize}
           fontWeight={500}
           fill="#000"
         >
@@ -65,10 +79,10 @@ function Chart({ width, height }) {
         </Text>
 
         <Text
-          x={margin.left + 50}
+          x={margin.left + textXLabel}
           y={margin.top}
           textAnchor="start"
-          fontSize={16}
+          fontSize={responsiveFontSize}
           fontWeight={500}
           fill="000"
         >
@@ -78,7 +92,7 @@ function Chart({ width, height }) {
         {/* Horizontal line */}
         <line
           x1={0}
-          x2={500}
+          x2={lineXlabel2}
           y1={margin.top + 20}
           y2={margin.top + 20}
           stroke="#000"
@@ -95,7 +109,7 @@ function Chart({ width, height }) {
               <Group key={d.month}>
                 {/* Bar */}
                 <Bar
-                  x={50}
+                  x={barXListItems}
                   y={barY}
                   width={barWidth}
                   height={barHeight}
@@ -105,10 +119,11 @@ function Chart({ width, height }) {
 
                 {/* Value Text */}
                 <Text
-                  x={20}
+                  x={monthXListItems}
                   y={barY + barHeight / 2}
                   verticalAnchor="middle"
                   textAnchor="end"
+                  fontSize={responsiveFontSize}
                   fontWeight={500}
                   fill="#000"
                 >
@@ -121,6 +136,7 @@ function Chart({ width, height }) {
                   y={barY + barHeight / 2}
                   verticalAnchor="middle"
                   textAnchor="start"
+                  fontSize={responsiveFontSize}
                   fontWeight={500}
                   fill="#000"
                 >
