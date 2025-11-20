@@ -32,12 +32,12 @@ export default function MonthlyOwnershipChangeChart() {
 }
 
 function Chart({ width, height }) {
-  const margin = { top: 20, right: 40, bottom: 20, left: 100 };
+  const margin = { top: 20, right: 100, bottom: 20, left: 100 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
   //Responsive settings for SVG
-  const isMobile = width < 500;
+  const isMobile = width < 800;
   //Font size
   const responsiveFontSize = isMobile ? 12 : 16;
   //X axis positioning of month label
@@ -49,6 +49,15 @@ function Chart({ width, height }) {
   const monthXListItems = isMobile ? -10 : 20;
   //X axis positioning of bars
   const barXListItems = isMobile ? 10 : 50;
+  const isPeakOrLowestX = isMobile ? 35 : 60;
+
+  //Determining peak and lowest ownership change monthly volume
+  const peak = ownershipChangeData.reduce((max, item) =>
+    item.count > max.count ? item : max,
+  );
+  const lowest = ownershipChangeData.reduce((min, item) =>
+    item.count < min.count ? item : min,
+  );
 
   // Scales
   const yScale = scaleBand({
@@ -104,6 +113,9 @@ function Chart({ width, height }) {
             const barWidth = xScale(d.count);
             const barY = yScale(d.month);
             const barHeight = yScale.bandwidth();
+            const isPeak = d.month === peak.month;
+            const isLowest = d.month === lowest.month;
+            const barchartWidth = isMobile ? barWidth + 20 : barWidth;
 
             return (
               <Group key={d.month}>
@@ -111,7 +123,7 @@ function Chart({ width, height }) {
                 <Bar
                   x={barXListItems}
                   y={barY}
-                  width={barWidth}
+                  width={barchartWidth}
                   height={barHeight}
                   fill="#1f2937" // Tailwind gray-800
                   rx={4}
@@ -142,6 +154,35 @@ function Chart({ width, height }) {
                 >
                   {d.month}
                 </Text>
+
+                {/*Peak Marker*/}
+                {isPeak && (
+                  <Text
+                    x={barWidth + isPeakOrLowestX}
+                    y={barY + barHeight / 2}
+                    verticalAnchor="middle"
+                    textAnchor="start"
+                    fontSize={responsiveFontSize}
+                    fontWeight={600}
+                    fill="#000"
+                  >
+                    🡰 PEAK
+                  </Text>
+                )}
+                {/*Lowest Marker*/}
+                {isLowest && (
+                  <Text
+                    x={barWidth + isPeakOrLowestX}
+                    y={barY + barHeight / 2}
+                    verticalAnchor="middle"
+                    textAnchor="start"
+                    fontSize={responsiveFontSize}
+                    fontWeight={600}
+                    fill="#000"
+                  >
+                    🡰 LOWEST
+                  </Text>
+                )}
               </Group>
             );
           })}
