@@ -1,6 +1,6 @@
 import React from 'react';
 import FacilityProviderHighlights from './facilityProviderHighlights';
-import TabsWithHeader from '../molecule/tabsWithHeader';
+import TabsWithHeader from '../molecule/tabsWithInfo';
 import HeftiNavbar from '../molecule/heftiNavbar';
 import LayoutPage from '../atom/layout-page';
 import ProfileHeader from '../molecule/profileHeader';
@@ -12,13 +12,7 @@ export default function FacilityPage() {
     <div className="bg-background-secondary">
       <HeftiNavbar />
       <LayoutPage>
-        <ProfileHeader
-          title={'Aspen Point Health and Rehabilitation'}
-          badges={[
-            { title: 'FOR PROFIT', color: 'cyan' },
-            { title: 'INDIVIDUAL', color: 'orange' },
-          ]}
-        />
+        <ProfileHeader />
         <TabsWithHeader />
         <FacilityProviderHighlights />
       </LayoutPage>

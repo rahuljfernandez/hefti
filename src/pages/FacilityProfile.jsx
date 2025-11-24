@@ -3,16 +3,13 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
-import FacilityProviderHighlights from '../components/ui/organism/facilityProviderHighlights';
+
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
-import { Heading } from '../components/ui/atom/heading';
-import OwnershipFlowDiagram from '../components/ui/organism/ownershipFlowDiagram';
-import { OwnershipAndStakeholders } from '../components/ui/molecule/listContainerContent';
-import ListContainer, {
-  ListContainerDivider,
-} from '../components/ui/organism/ListContainer';
-import AdditionalInformation from '../components/ui/molecule/additionalInformation';
+
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
+
+import { facilityProfileTabsDescriptions } from '../lib/tabDescriptions';
+import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -35,7 +32,7 @@ export default function FacilityProfile() {
 
   // Use real ownership data from facility
   const ownershipLinks = facility.facility_ownership_links || [];
-
+  console.log('links', facility);
   return (
     <div className="bg-background-secondary font-sans">
       <Breadcrumb />
@@ -46,36 +43,11 @@ export default function FacilityProfile() {
           freshness={facility.data_freshness}
           func={getBadgeColorOwnershipType}
         />
-        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-          Provider Highlights
-        </Heading>
-        <FacilityProviderHighlights items={facility} />
-
-        {ownershipLinks.length > 0 && (
-          <>
-            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-              Ownership and Stakeholders
-            </Heading>
-            <ListContainer
-              items={ownershipLinks}
-              LayoutSelector={ListContainerDivider}
-              ListContent={OwnershipAndStakeholders}
-            />
-            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-              Ownership Diagram
-            </Heading>
-            <div className="pb-8">
-              <OwnershipFlowDiagram
-                items={ownershipLinks}
-                facility={facility}
-              />
-            </div>
-          </>
-        )}
-
-        <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
-          <AdditionalInformation items={facility} />
-        </div>
+        <TabsWithInfo
+          tabsData={facilityProfileTabsDescriptions}
+          facility={facility}
+          ownershipLinks={ownershipLinks}
+        />
       </LayoutPage>
     </div>
   );

@@ -45,7 +45,7 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
 
   return (
     <div className="bg-background-secondary">
-      <div className="grid grid-cols-1 sm:hidden">
+      <div className="grid grid-cols-1 lg:hidden">
         {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
         <select
           onChange={(e) => handleClick(e.target.value)}
@@ -62,7 +62,7 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
           className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
         />
       </div>
-      <div className="hidden sm:block">
+      <div className="hidden lg:block">
         <div className="border-b border-gray-200">
           <nav aria-label="Tabs" className="-mb-px flex space-x-8">
             {tabsData.map((tab) => (
