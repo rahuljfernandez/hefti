@@ -111,11 +111,11 @@ ListContainerDivider.propTypes = {
 
 export function ListContainerSeparate({ items = [], renderItem }) {
   return (
-    <ul role="list" className="space-y-3">
+    <ul role="list" className="">
       {items.map((item, i) => (
         <li
           key={item.id || i}
-          className="bg-core-white border-border-primary overflow-hidden rounded-xl border px-4 py-4 shadow-sm sm:px-6"
+          className="bg-core-white border-border-primary mb-3 overflow-hidden rounded-xl border px-4 py-4 shadow-sm sm:px-6"
         >
           {renderItem(item)}
         </li>

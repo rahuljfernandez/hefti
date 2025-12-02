@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../../../assets/logo';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 
 /**
  * Component is sourced from Marketing/Page Sections/ 4-column with company mission on dark
@@ -21,18 +22,25 @@ const navigation = {
 };
 
 export default function Footer() {
+  const isMobile = useIsMobile();
   return (
-    <footer className="bg-slate-900">
+    <footer className="bg-background-footer">
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-4 lg:grid-cols-5">
           <div className="md:col-span-2 md:grid">
             <Link to="/" aria-label="Home">
               <div className="flex items-center">
-                <Logo className="block h-full" />
-                <span className="xs:inline text-core-white ml-2 hidden text-xs leading-3.5 font-semibold tracking-widest italic">
-                  HEALTH ECONOMICS FINANCING & <br />
-                  TRANSPARENCY INITIATIVE
-                </span>
+                {isMobile ? (
+                  <Logo className="block h-full" />
+                ) : (
+                  <>
+                    <Logo className="block h-full" />
+                    <span className="text-core-white ml-2 text-xs leading-3.5 font-semibold tracking-widest italic">
+                      HEALTH ECONOMICS FINANCING & <br />
+                      TRANSPARENCY INITIATIVE
+                    </span>
+                  </>
+                )}
               </div>
             </Link>
           </div>

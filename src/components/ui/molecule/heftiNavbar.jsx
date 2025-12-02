@@ -36,7 +36,7 @@ function classNames(...classes) {
 
 export default function HeftiNavbar() {
   return (
-    <div className="bg-zinc-900">
+    <div className="bg-background-navbar">
       <div className="mx-auto max-w-7xl">
         <Disclosure>
           <Navbar className="">
