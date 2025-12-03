@@ -200,48 +200,60 @@
     .md\:px-8 {
       padding-inline: calc(var(--spacing) * 8) /* 2rem = 32px */;
     }
-     .md\:divide-x > * + * {
+    .md\:divide-x > * + * {
       border-left: 1px solid #e4e4e7; /* gray-200 */
-      border-top: none; 
+      border-top: none;
     }
-      .md\:divide-y-0 > * + * {
+    .md\:divide-y-0 > * + * {
       border-top: none !important;
     }
   }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lg\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .lg\:px-8 {
+    padding-inline: calc(var(--spacing) * 8) /* 2rem = 32px */;
+  }
+  .lg\:hidden {
+    display: none;
+  }
+  .lg\:block {
+    display: block;
+  }
+}
+
+@media (min-width: 1280px) {
+  .xl\:px-0 {
+    padding-inline: calc(var(--spacing) * 0) /* 0rem = 0px */;
   }
 
-  @media (min-width: 1024px) {
-    .lg\:flex-row {
-      flex-direction: row;
-    }
-    .lg\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .lg\:grid-cols-5 {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-    .lg\:px-8 {
-      padding-inline: calc(var(--spacing) * 8) /* 2rem = 32px */;
-    }
-    .lg\:hidden {
-      display: none;
-    }
-    .lg\:block {
-      display: block;
-    }
+  .xl\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  @media (min-width: 1280px) {
-    .xl\:px-0 {
-      padding-inline: calc(var(--spacing) * 0) /* 0rem = 0px */;
-    }
+  .xl\:pl-8 {
+    padding-left: calc(var(--spacing) * 8) /* 2rem = 32px */;
+  }
+}
 
-    .xl\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+@media (min-width: 1536px) {
+  .\32 xl\:h-\[500px\] {
+    height: 500px;
+  }
 
-    .xl\:pl-8 {
-      padding-left: calc(var(--spacing) * 8) /* 2rem = 32px */;
-    }
+  .\32 xl\:w-\[500px\] {
+    width: 500px;
+  }
+  .\32 xl\:-right-20 {
+    right: calc(var(--spacing) * -20) /* -5rem = -80px */;
   }
 }
