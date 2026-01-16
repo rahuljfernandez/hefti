@@ -59,6 +59,3 @@ TabsWithInfo.propTypes = {
   facility: PropTypes.object,
   ownershipLinks: PropTypes.array,
 };
-
-//Plan
-//Each tab will have a component that will be rendered when it becomes active

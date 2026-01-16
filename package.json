@@ -17,8 +17,12 @@
     "@fontsource-variable/inter": "^5.2.5",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
-    
     "@tailwindcss/vite": "^4.1.7",
+    "@visx/group": "^3.12.0",
+    "@visx/responsive": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "@visx/text": "^3.12.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.12.1",
     "react": "^19.1.0",

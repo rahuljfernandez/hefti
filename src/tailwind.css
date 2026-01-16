@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @config "../tailwind.config.js";
 @tailwind utilities;
+@import './fallback-breakpoints.css';
 
 @layer base {
   :root {
@@ -25,6 +26,8 @@
     --background-hover: theme(colors.zinc.500);
     --background-hover-overlay: rgba(0, 0, 0, 0.025);
     --background-inverse-hover-overlay: rgba(255, 255, 255, 0.05);
+    --background-navbar: theme(colors.zinc.900);
+    --background-footer: theme(colors.slate.900);
 
     --border-primary: theme(colors.zinc.200);
     --border-secondary: theme(colors.zinc.100);
@@ -35,4 +38,9 @@
     --border-hover-overlay: rgba(0, 0, 0, 0.2);
     --border-inverse-hover-overlay: rgba(255, 255, 255, 0.1);
   }
+}
+
+/*Fallback Overrides for Older Browsers */
+@supports not (color: oklch(0% 0 0)) {
+  @import './fallback-legacy.css';
 }

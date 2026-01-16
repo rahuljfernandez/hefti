@@ -25,6 +25,8 @@ export default {
           hover: 'var(--background-hover)',
           'hover-overlay': 'var(--background-hover-overlay)',
           'inverse-hover-overlay': 'var(--background-inverse-hover-overlay)',
+          navbar: 'var(--background-navbar)',
+          footer: 'var(--background-footer)',
         },
         border: {
           primary: 'var(--border-primary)',

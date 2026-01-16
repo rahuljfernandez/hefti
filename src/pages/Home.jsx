@@ -10,6 +10,7 @@ import {
   BuildingOffice2Icon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
+import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
@@ -109,7 +110,7 @@ export default function Home() {
       </section>
 
       {/* Bottom (lists) section with gray background */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 pb-16 font-sans sm:px-6 lg:px-8 xl:px-0">
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <div className="mx-auto max-w-5xl">
           <Heading level={2} className="text-heading-lg my-6 text-center">
             State of the Nursing Home Industry
@@ -173,6 +174,12 @@ export default function Home() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+      {/* Barchart Graphic Section */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <div className="mx-auto max-w-5xl">
+          <MonthlyOwnershipChangeChart />
         </div>
       </section>
     </div>
