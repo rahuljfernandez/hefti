@@ -20,7 +20,7 @@ import { toTitleCase } from '../lib/toTitleCase';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  'http://app.hefti-data-api.lndo.site:8000/api';
+  'http://hefti-data-api.ddev.site:3000/api';
 
 export default function OwnersProfile() {
   const { slug } = useParams();

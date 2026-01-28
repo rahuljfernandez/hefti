@@ -5,6 +5,14 @@ import { getBadgeColorOwnershipType } from '../../../lib/getBadgeColor';
 import { formatPhoneNumber } from '../../../lib/stringFormatters';
 import { toTitleCase } from '../../../lib/toTitleCase';
 
+// Helper function to round up to nearest whole number
+const roundUpToWhole = (value) => {
+  if (value === null || value === undefined || value === '') return 'N/A';
+  const num = parseFloat(value);
+  if (isNaN(num)) return 'N/A';
+  return Math.ceil(num);
+};
+
 /**
  * Component for the facility profile
  */
@@ -80,7 +88,7 @@ export default function FacilityProfileDescription({ items }) {
             AVERAGE NUMBER OF RESIDENTS PER DAY
           </dt>
           <dd className="text-paragraph-base text-content-primary mt-1">
-            {numberResidents ?? 'N/A'}
+            {roundUpToWhole(numberResidents)}
           </dd>
         </div>
 
