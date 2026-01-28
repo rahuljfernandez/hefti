@@ -13,7 +13,7 @@ import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  'http://app.hefti-data-api.lndo.site:8000/api';
+  'http://hefti-data-api.ddev.site:3000/api';
 
 export default function FacilityProfile() {
   const { slug } = useParams();
