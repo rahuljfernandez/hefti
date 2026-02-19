@@ -19,8 +19,8 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
-  console.log('API_BASE_URL:', API_BASE_URL);
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://hefti-data-api.ddev.site:3000/api';
 
   useEffect(() => {
     setLoading(true);
