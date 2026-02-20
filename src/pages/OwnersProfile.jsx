@@ -11,6 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
+import OwnerNetworkCtaBanner from '../components/ui/molecule/OwnerNetworkGraphCTA';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -38,7 +39,6 @@ export default function OwnersProfile() {
   if (loading) return <p>Loading owner details...</p>;
   if (!owner) return <p>Owner not found.</p>;
 
-  console.log('owner', owner);
   // Use related facilities from API if available
   const relatedFacilities =
     owner.facility_ownership_links?.map((link) => ({
@@ -56,6 +56,8 @@ export default function OwnersProfile() {
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
         />
+
+        <OwnerNetworkCtaBanner />
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
         </Heading>
