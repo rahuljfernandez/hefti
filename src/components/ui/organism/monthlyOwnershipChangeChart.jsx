@@ -92,7 +92,7 @@ export default function MonthlyOwnershipChangeChart() {
 }
 
 function Chart({ width, height, data }) {
-  const margin = { top: 20, right: 100, bottom: 20, left: 100 };
+  const margin = { top: 20, right: 120, bottom: 20, left: 100 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
   const chartId = useId();
@@ -106,13 +106,13 @@ function Chart({ width, height, data }) {
   //X axis positioning of month label
   const monthXLabel = isMobile ? 62 : 50;
   //X axis positioning of facilities ownership change label
-  const textXLabel = isMobile ? 10 : 50;
+  const textXLabel = isMobile ? -20 : 20;
   const lineXlabel2 = isMobile ? width - 35 : 500;
   //X axis positioning of specific month column list items
-  const monthXListItems = isMobile ? -10 : 20;
+  const monthXListItems = isMobile ? -35 : -10;
   //X axis positioning of bars
-  const barXListItems = isMobile ? 10 : 50;
-  const isPeakOrLowestX = isMobile ? 35 : 60;
+  const barXListItems = isMobile ? -20 : 20;
+  const isPeakOrLowestX = isMobile ? 10 : 30;
 
   // Scales
   const yScale = scaleBand({
