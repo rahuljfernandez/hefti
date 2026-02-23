@@ -112,7 +112,7 @@ function ForceLayoutControls({ enabledByDefault = true }) {
  * - Only hovered + neighbors keep labels
  * - Incident edges (touch hovered) are emphasized
  */
-function HoverFocusLayer({ hubId }) {
+function FocusLayer({ hubId, onPinnedChange }) {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [lockedNode, setLockedNode] = useState(null);
   const sigma = useSigma();
@@ -123,28 +123,58 @@ function HoverFocusLayer({ hubId }) {
   // If locked, that wins. Otherwise use hovered.
   const activeNode = lockedNode || hoveredNode;
 
+  // Grab the sigma container element so we can set cursor reliably
+  const container = useMemo(() => sigma.getContainer(), [sigma]);
+
+  // Tell parent when pinned changes (optional)
   useEffect(() => {
+    onPinnedChange?.(lockedNode);
+  }, [lockedNode, onPinnedChange]);
+
+  useEffect(() => {
+    const setCursor = (value) => {
+      if (container) container.style.cursor = value;
+    };
+
+    const clearHoverIfLocked = () => {
+      if (lockedNode) setHoveredNode(null);
+    };
+
     registerEvents({
       enterNode: (e) => {
-        if (lockedNode) return;
+        setCursor('pointer'); // cursor on interactive node
+        if (lockedNode) return; // hover preview disabled when pinned
         setHoveredNode(e.node);
       },
       leaveNode: () => {
+        setCursor('default');
         if (lockedNode) return;
         setHoveredNode(null);
       },
+
       clickNode: (e) => {
-        //toggle lock
-        setLockedNode((prev) => (prev === e.node ? null : e.node));
+        setLockedNode((prev) => (prev === e.node ? null : e.node)); // toggle pin
         setHoveredNode(null);
+        setCursor('pointer');
       },
-      //clicking empty space unlocks
+
       clickStage: () => {
         setLockedNode(null);
         setHoveredNode(null);
+        setCursor('default');
       },
+
+      // optional: if user drags the canvas, keep cursor sensible
+      // downStage: () => setCursor("grabbing"),
+      // upStage: () => setCursor("default"),
     });
-  }, [registerEvents, lockedNode]);
+
+    // If locking happens while hovering, clear hover
+    clearHoverIfLocked();
+
+    // cleanup cursor if component unmounts
+    return () => setCursor('default');
+  }, [container, lockedNode, registerEvents]);
 
   useEffect(() => {
     setSettings({
@@ -163,18 +193,21 @@ function HoverFocusLayer({ hubId }) {
         const isNeighbor = graph.neighbors(activeNode).includes(node);
 
         if (isActive) {
+          res.hidden = false;
           res.size = (data.size ?? 8) + 2;
           res.label = data.label ?? node;
           return res;
         }
 
         if (isNeighbor) {
+          res.hidden = false;
           res.label = data.label ?? node;
           return res;
         }
 
         res.label = '';
         res.color = 'rgba(160,160,160,0.20)';
+        res.hidden = true; //hides non-focused nodes that don't respond to z-index
         return res;
       },
 
@@ -210,11 +243,36 @@ function HoverFocusLayer({ hubId }) {
   return null;
 }
 
+// function SigmaLabelSettings() {
+//   const setSettings = useSetSettings();
+
+//   useEffect(() => {
+//     setSettings({
+//       renderLabels: true,
+
+//       // Key ones:
+//       labelRenderedSizeThreshold: 0, // show labels even for small nodes
+//       labelDensity: 2, // higher = more labels allowed
+//       labelGridCellSize: 50, // smaller cells = more labels can appear
+
+//       // Optional polish:
+//       labelFont:
+//         'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+//       labelSize: 14,
+//       labelWeight: 500,
+//     });
+//   }, [setSettings]);
+
+//   return null;
+// }
+
 export default function NetworkGraph({ data }) {
+  const [pinned, setPinned] = useState(null);
   return (
     <SigmaContainer style={sigmaStyle}>
+      {/* <SigmaLabelSettings /> */}
       <LoadNetwork data={data} />
-      <HoverFocusLayer hubId={data?.hubId} />
+      <FocusLayer hubId={data?.hubId} onPinnedChange={setPinned} />
       <ForceLayoutControls enabledByDefault />
       <ControlsContainer position={'bottom-right'}>
         <ZoomControl />
