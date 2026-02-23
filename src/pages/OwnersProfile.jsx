@@ -11,7 +11,8 @@ import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
-import OwnerNetworkCtaBanner from '../components/ui/molecule/OwnerNetworkGraphCTA';
+
+import OwnersNetworkProfile from '../components/ui/molecule/OwnerNetworkProfile';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -56,8 +57,7 @@ export default function OwnersProfile() {
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
         />
-
-        <OwnerNetworkCtaBanner />
+        <OwnersNetworkProfile ownerId={owner.id} />
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
         </Heading>
@@ -65,9 +65,11 @@ export default function OwnersProfile() {
           items={owner}
           relatedFacilities={relatedFacilities}
         />
+
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Facilities associated with {toTitleCase(owner.cms_ownership_name)}
         </Heading>
+
         <div className="pb-8">
           <ListContainer
             items={showAll ? relatedFacilities : relatedFacilities.slice(0, 20)}

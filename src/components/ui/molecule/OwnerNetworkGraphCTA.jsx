@@ -2,16 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LayoutCard from '../atom/layout-card';
 
-//As of 2/19 this is draft for demo purposes and to allow the click to open fullscreen sigma graph implementation.
+//As of 2/19 this is draft for demo purposes and to allow
 export default function OwnerNetworkCtaBanner({ onOpen }) {
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
-    'http://hefti-data-api.ddev.site:3000/api';
-
-  fetch(`${API_BASE_URL}/owners/id/123/network?depth=2`)
-    .then((res) => res.json())
-    .then((data) => console.log(data));
-
   return (
     <LayoutCard>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
