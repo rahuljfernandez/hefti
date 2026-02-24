@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import NetworkGraph from './networkGraph';
+import OwnerNetworkSidePanel from './OwnerNetworkSidePanel';
 
 export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const API_BASE_URL =
@@ -10,6 +11,8 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
   const [error, setError] = useState(null);
+  //Setter is passed into sigma network graph functional layer to facilitate the selecting of node id.  node id is passed into the side panel.
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
 
   //api call to grab owner network for graph
   const endpoint = useMemo(() => {
@@ -43,6 +46,12 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     return () => controller.abort();
   }, [isOpen, endpoint, ownerId]);
 
+  //Clear selection when opening or changing owner
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedNodeId(null);
+  }, [isOpen, ownerId]);
+
   //When modal is open enbable use of keyboard espape key to close modal
   useEffect(() => {
     if (!isOpen) return;
@@ -53,11 +62,9 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
   if (!isOpen) return null;
 
-  console.log('Data', data);
-
   return (
     <div className="fixed inset-0 z-100">
-      {/* Panel */}
+      {/* Panel This will need to be its own custom comp*/}
       <div className="absolute inset-0 flex flex-col overflow-hidden bg-white shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
@@ -100,7 +107,37 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
             </div>
           )}
 
-          {status === 'ready' && data && <NetworkGraph data={data} />}
+          {status === 'ready' && data && (
+            <div className="flex h-full">
+              <div className="min-w-0 flex-1">
+                <NetworkGraph data={data} onSelectNode={setSelectedNodeId} />
+              </div>
+
+              {/* Side panel that pushes layout */}
+              <div
+                className={[
+                  'shrink-0 overflow-hidden border-l bg-white',
+                  'transition-[width] duration-300 ease-in-out',
+                  selectedNodeId ? 'w-[420px]' : 'w-0',
+                ].join(' ')}
+              >
+                {/* Keep mounted so the width animation is smooth */}
+                <div
+                  className={[
+                    'h-full w-[420px]',
+                    'transition-transform duration-300 ease-in-out',
+                    selectedNodeId ? 'translate-x-0' : 'translate-x-full',
+                  ].join(' ')}
+                >
+                  <OwnerNetworkSidePanel
+                    data={data}
+                    selectedNodeId={selectedNodeId}
+                    onClear={() => setSelectedNodeId(null)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
