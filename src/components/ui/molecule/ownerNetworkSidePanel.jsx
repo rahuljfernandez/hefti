@@ -129,8 +129,15 @@ function HubPanel({ selectedNode, onClear }) {
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-          Details
+          OWnership Relations Count
         </div>
+        {selectedNode.meta.sharedFacilities.map((f) => (
+          <ul key={f.ownerId}>
+            <li>
+              {f.ownerName} {f.count}
+            </li>
+          </ul>
+        ))}
 
         <div className="mt-3 space-y-2 text-sm text-gray-700">
           <div>
