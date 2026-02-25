@@ -43,6 +43,9 @@ function buildGraph(data) {
       y: 0,
       nodeType: node.type,
       meta: node.meta,
+      starRating: Number.isFinite(Number(node?.meta.star_rating))
+        ? Number(node.meta.star_rating)
+        : null,
     });
   }
 
@@ -106,6 +109,7 @@ function InteractionLayer({
   onPinnedChange,
   pinRequestNodeId,
   onPinRequestConsumed,
+  sizeMetric,
 }) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
@@ -125,6 +129,24 @@ function InteractionLayer({
   useEffect(() => {
     onPinnedChange?.(lockedNode);
   }, [lockedNode, onPinnedChange]);
+
+  //calculating star ratingto size
+  const starToSize = useCallback((star) => {
+    // fallback for unknown ratings
+    if (star == null || Number.isNaN(star)) return 7;
+
+    // const clamped = Math.max(1, Math.min(5, star));
+    // return 6 + ((clamped - 1) / 4) * 8;
+
+    const s = Math.max(1, Math.min(5, star)); // 1..5
+    const t = (s - 1) / 4; // 0..1
+
+    const min = 5;
+    const max = 20;
+
+    const gamma = 2.2; // higher = more dramatic
+    return min + Math.pow(t, gamma) * (max - min);
+  }, []);
 
   //Shared pin function used by click + search
   const pinNode = useCallback(
@@ -186,6 +208,14 @@ function InteractionLayer({
       nodeReducer: (node, data) => {
         const res = { ...data };
 
+        // Base size by mode
+        if (sizeMetric === 'star') {
+          res.size = starToSize(data.starRating);
+        } else {
+          // keep what buildGraph set
+          res.size = data.size ?? 8;
+        }
+
         if (!activeNode) {
           res.hidden = false;
           res.label = data.label ?? node;
@@ -198,7 +228,9 @@ function InteractionLayer({
         if (isActive || isNeighbor) {
           res.hidden = false;
           res.label = data.label ?? node;
-          if (isActive) res.size = (data.size ?? 8) + 2;
+
+          if (isActive)
+            res.size = Math.max(res.size ?? 0, data.size ?? 8) * 1.15;
           return res;
         }
 
@@ -221,7 +253,7 @@ function InteractionLayer({
         return res;
       },
     });
-  }, [setSettings, graph, activeNode, neighborSet]);
+  }, [setSettings, graph, activeNode, neighborSet, starToSize, sizeMetric]);
 
   return null;
 }
@@ -296,7 +328,11 @@ export default function NetworkGraph({
   onSearchResults,
   pinRequestNodeId,
   onPinRequestConsumed,
+  sizeMetric,
 }) {
+  //fallback for setting node size mode
+  const effectiveSizeMetric = sizeMetric ?? 'default';
+
   return (
     <SigmaContainer style={sigmaStyle}>
       <LoadNetwork data={data} />
@@ -305,6 +341,7 @@ export default function NetworkGraph({
         onPinnedChange={onSelectNode}
         pinRequestNodeId={pinRequestNodeId}
         onPinRequestConsumed={onPinRequestConsumed}
+        sizeMetric={effectiveSizeMetric}
       />
       <GraphSearchController
         searchQuery={searchQuery}

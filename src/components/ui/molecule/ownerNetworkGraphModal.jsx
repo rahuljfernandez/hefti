@@ -122,6 +122,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
                   onPinRequestConsumed={() => setPinRequestNodeId(null)}
                   searchQuery={searchQuery}
                   onSearchResults={setSearchResults}
+                  sizeMetric={sizeMetric}
                 />
               </div>
 

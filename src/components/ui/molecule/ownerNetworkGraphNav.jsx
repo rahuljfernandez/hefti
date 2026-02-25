@@ -119,7 +119,7 @@ export default function OwnerNetworkGraphNav({
               </div>
             </div>
 
-            {/* Node size controls (VISUAL FIRST) */}
+            {/* Node size controls  */}
             <div className="flex items-center gap-3">
               <span className="text-core-white text-xs font-medium tracking-wide uppercase">
                 Node Size
