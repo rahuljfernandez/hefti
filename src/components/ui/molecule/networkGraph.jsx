@@ -98,6 +98,8 @@ function ForceAtlasToggle({ startOnMount = true }) {
     start();
     return () => stop();
   }, [startOnMount, start, stop]);
+
+  return null;
 }
 
 function InteractionLayer({
@@ -224,7 +226,7 @@ function InteractionLayer({
   return null;
 }
 
-function GraphSearchController({ searchQuery, onSearchResults, onSelectNode }) {
+function GraphSearchController({ searchQuery, onSearchResults }) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [index, setIndex] = useState([]);

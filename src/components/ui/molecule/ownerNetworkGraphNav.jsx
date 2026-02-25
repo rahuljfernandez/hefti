@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import clsx from 'clsx';
 import Logo from '../../../assets/logo';
 
@@ -41,7 +41,7 @@ export default function OwnerNetworkGraphNav({
               onFocus={() => {
                 setIsSearchOpen(true);
               }}
-              placeholder="Search nodes…"
+              placeholder="Search nodes..."
               className={clsx(
                 'w-[280px] rounded-lg border bg-white px-3 py-1.5 text-sm',
                 'border-gray-300 placeholder:text-gray-400',
@@ -50,9 +50,9 @@ export default function OwnerNetworkGraphNav({
             />
             {/* Dropdown */}
             {isSearchOpen && (
-              <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
+              <div className="bg-core-white absolute top-full left-0 z-[500] mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
                 <ul className="max-h-64 overflow-auto py-1">
-                  <div className="flex items-center justify-between border-b px-3 py-2">
+                  <li className="flex items-center justify-between border-b px-3 py-2">
                     <span className="text-lg text-gray-500">
                       Search Results
                     </span>
@@ -61,9 +61,9 @@ export default function OwnerNetworkGraphNav({
                       onClick={() => setIsSearchOpen(false)}
                       className="text-core-black text-lg hover:cursor-pointer hover:text-red-400"
                     >
-                      ✕
+                      X
                     </button>
-                  </div>
+                  </li>
                   {searchResults.map((n) => (
                     <li key={n.id}>
                       <button
@@ -76,7 +76,7 @@ export default function OwnerNetworkGraphNav({
                       >
                         <span className="truncate">{n.label}</span>
                         <span className="ml-3 shrink-0 text-xs text-gray-400">
-                          ↵
+                          Enter
                         </span>
                       </button>
                     </li>
