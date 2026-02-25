@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import Graph from 'graphology';
 import {
   SigmaContainer,
@@ -99,7 +100,11 @@ function ForceAtlasToggle({ startOnMount = true }) {
   }, [startOnMount, start, stop]);
 }
 
-function InteractionLayer({ onPinnedChange }) {
+function InteractionLayer({
+  onPinnedChange,
+  pinRequestNodeId,
+  onPinRequestConsumed,
+}) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const registerEvents = useRegisterEvents();
@@ -119,6 +124,31 @@ function InteractionLayer({ onPinnedChange }) {
     onPinnedChange?.(lockedNode);
   }, [lockedNode, onPinnedChange]);
 
+  //Shared pin function used by click + search
+  const pinNode = useCallback(
+    (nodeId) => {
+      if (!nodeId) return;
+
+      // If graph changed (depth switch) and node is gone, just ignore
+      if (!graph.hasNode(nodeId)) return;
+
+      setLockedNode((prev) => (prev === nodeId ? null : nodeId));
+      setHoveredNode(null);
+
+      // // camera focus to make it feel like a real click outcome
+      //focus camera is causing bugs, come back to this idea later.
+    },
+    [graph],
+  );
+
+  // ✅ When search selects a node, request comes in here
+  useEffect(() => {
+    if (!pinRequestNodeId) return;
+
+    pinNode(pinRequestNodeId);
+    onPinRequestConsumed?.();
+  }, [pinRequestNodeId, pinNode, onPinRequestConsumed]);
+
   // events: hover + click pin/unpin
   useEffect(() => {
     const container = sigma.getContainer();
@@ -133,8 +163,7 @@ function InteractionLayer({ onPinnedChange }) {
         if (!lockedNode) setHoveredNode(null);
       },
       clickNode: (e) => {
-        setLockedNode((prev) => (prev === e.node ? null : e.node));
-        setHoveredNode(null);
+        pinNode(e.node);
       },
       clickStage: () => {
         setLockedNode(null);
@@ -195,14 +224,92 @@ function InteractionLayer({ onPinnedChange }) {
   return null;
 }
 
-export default function NetworkGraph({ data, onSelectNode }) {
+function GraphSearchController({ searchQuery, onSearchResults, onSelectNode }) {
+  const sigma = useSigma();
+  const graph = sigma.getGraph();
+  const [index, setIndex] = useState([]);
+
+  function normalize(s) {
+    return (s || '').toString().trim().toLowerCase();
+  }
+
+  // simple scoring: startsWith > includes
+  function score(labelNorm, q) {
+    if (!q) return 0;
+    if (labelNorm.startsWith(q)) return 2;
+    if (labelNorm.includes(q)) return 1;
+    return 0;
+  }
+
+  useEffect(() => {
+    const buildIndex = () => {
+      const arr = [];
+      graph.forEachNode((id, attrs) => {
+        const label = attrs?.label ?? String(id);
+        arr.push({ id, label, labelNorm: normalize(label) });
+      });
+      setIndex(arr);
+    };
+
+    buildIndex(); // initial build
+
+    graph.on('nodeAdded', buildIndex);
+    graph.on('nodeDropped', buildIndex);
+    graph.on('edgeAdded', buildIndex);
+
+    return () => {
+      graph.off('nodeAdded', buildIndex);
+      graph.off('nodeDropped', buildIndex);
+      graph.off('edgeAdded', buildIndex);
+    };
+  }, [graph]);
+
+  // Build dropdown suggestions as user types
+  useEffect(() => {
+    const q = normalize(searchQuery);
+
+    // no query => no dropdown
+    if (!q) {
+      onSearchResults?.([]);
+      return;
+    }
+
+    const matches = index
+      .map((n) => ({ ...n, s: score(n.labelNorm, q) }))
+      .filter((n) => n.s > 0)
+      .sort((a, b) => b.s - a.s || a.label.localeCompare(b.label))
+      .slice(0, 10)
+      .map(({ id, label }) => ({ id, label }));
+
+    onSearchResults?.(matches);
+  }, [searchQuery, index, onSearchResults]);
+
+  return null;
+}
+
+export default function NetworkGraph({
+  data,
+  onSelectNode,
+  searchQuery,
+  onSearchResults,
+  pinRequestNodeId,
+  onPinRequestConsumed,
+}) {
   return (
     <SigmaContainer style={sigmaStyle}>
       <LoadNetwork data={data} />
       <ForceAtlasToggle startOnMount />
-      <InteractionLayer onPinnedChange={onSelectNode} />
-
-      <ControlsContainer position="bottom-right">
+      <InteractionLayer
+        onPinnedChange={onSelectNode}
+        pinRequestNodeId={pinRequestNodeId}
+        onPinRequestConsumed={onPinRequestConsumed}
+      />
+      <GraphSearchController
+        searchQuery={searchQuery}
+        onSearchResults={onSearchResults}
+        onSelectNode={onSelectNode}
+      />
+      <ControlsContainer position="top-right">
         <ZoomControl />
         <FullScreenControl />
       </ControlsContainer>

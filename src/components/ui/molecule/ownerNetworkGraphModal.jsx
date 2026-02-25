@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSidePanel from './OwnerNetworkSidePanel';
+import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
+import clsx from 'clsx';
 
 export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const API_BASE_URL =
@@ -13,11 +15,16 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const [error, setError] = useState(null);
   //Setter is passed into sigma network graph functional layer to facilitate the selecting of node id.  node id is passed into the side panel.
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [depth, setDepth] = useState(2); // default depth set to 2
+  const [sizeMetric, setSizeMetric] = useState('default');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]); // [{ id, label }]
+  const [pinRequestNodeId, setPinRequestNodeId] = useState(null);
 
   //api call to grab owner network for graph
   const endpoint = useMemo(() => {
-    return `${API_BASE_URL}/owners/id/${ownerId}/network?depth=2`;
-  }, [API_BASE_URL, ownerId]);
+    return `${API_BASE_URL}/owners/id/${ownerId}/network?depth=${depth}`;
+  }, [API_BASE_URL, ownerId, depth]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -46,11 +53,13 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     return () => controller.abort();
   }, [isOpen, endpoint, ownerId]);
 
-  //Clear selection when opening or changing owner
+  //Clear selection when opening or changing owner/depth
   useEffect(() => {
     if (!isOpen) return;
     setSelectedNodeId(null);
-  }, [isOpen, ownerId]);
+    setSearchQuery('');
+    setSearchResults([]);
+  }, [isOpen, ownerId, depth]);
 
   //When modal is open enbable use of keyboard espape key to close modal
   useEffect(() => {
@@ -64,30 +73,26 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
   return (
     <div className="fixed inset-0 z-100">
-      {/* Panel This will need to be its own custom comp*/}
-      <div className="absolute inset-0 flex flex-col overflow-hidden bg-white shadow-xl">
+      {/* Panel */}
+      <div className="bg-core-white absolute inset-0 flex flex-col overflow-visible shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-gray-900">
-              Network graph
-            </div>
-            <div className="text-xs text-gray-500">
-              Owner {ownerId} • shared facilities • depth=2
-            </div>
-          </div>
+        <OwnerNetworkGraphNav
+          onSetDepth={setDepth}
+          depth={depth}
+          onClose={onClose}
+          sizeMetric={sizeMetric}
+          onSetSizeMetric={setSizeMetric}
+          searchQuery={searchQuery}
+          onSetSearchQuery={setSearchQuery}
+          searchResults={searchResults}
+          onSelectSearchResult={(node) => {
+            console.log('Selected from dropdown:', node);
+            setSelectedNodeId(node.id);
+            setPinRequestNodeId(node.id);
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border px-3 py-1.5 text-sm font-semibold hover:bg-gray-50"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-
+            setSearchResults([]);
+          }}
+        />
         {/* Body */}
         <div className="relative flex-1">
           {status === 'loading' && (
@@ -110,24 +115,31 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           {status === 'ready' && data && (
             <div className="flex h-full">
               <div className="min-w-0 flex-1">
-                <NetworkGraph data={data} onSelectNode={setSelectedNodeId} />
+                <NetworkGraph
+                  data={data}
+                  onSelectNode={setSelectedNodeId}
+                  pinRequestNodeId={pinRequestNodeId}
+                  onPinRequestConsumed={() => setPinRequestNodeId(null)}
+                  searchQuery={searchQuery}
+                  onSearchResults={setSearchResults}
+                />
               </div>
 
               {/* Side panel that pushes layout */}
               <div
-                className={[
+                className={clsx(
                   'shrink-0 overflow-hidden border-l bg-white',
                   'transition-[width] duration-300 ease-in-out',
                   selectedNodeId ? 'w-[420px]' : 'w-0',
-                ].join(' ')}
+                )}
               >
                 {/* Keep mounted so the width animation is smooth */}
                 <div
-                  className={[
+                  className={clsx(
                     'h-full w-[420px]',
                     'transition-transform duration-300 ease-in-out',
                     selectedNodeId ? 'translate-x-0' : 'translate-x-full',
-                  ].join(' ')}
+                  )}
                 >
                   <OwnerNetworkSidePanel
                     data={data}

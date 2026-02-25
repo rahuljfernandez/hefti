@@ -40,6 +40,11 @@
   }
 }
 
+/*Need to remove display:block for Sigma's controller container */
+.react-sigma-control button svg {
+  display: inline-block;
+}
+
 /*Fallback Overrides for Older Browsers */
 @supports not (color: oklch(0% 0 0)) {
   @import './fallback-legacy.css';
