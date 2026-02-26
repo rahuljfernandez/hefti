@@ -45,6 +45,10 @@
   display: inline-block;
 }
 
+.sigma-container {
+  background-color: #fafafa !important;
+}
+
 /*Fallback Overrides for Older Browsers */
 @supports not (color: oklch(0% 0 0)) {
   @import './fallback-legacy.css';

@@ -334,7 +334,12 @@ export default function NetworkGraph({
   const effectiveSizeMetric = sizeMetric ?? 'default';
 
   return (
-    <SigmaContainer style={sigmaStyle}>
+    <SigmaContainer
+      style={sigmaStyle}
+      settings={{
+        backgroundColor: '#fafafa',
+      }}
+    >
       <LoadNetwork data={data} />
       <ForceAtlasToggle startOnMount />
       <InteractionLayer

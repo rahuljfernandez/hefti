@@ -126,29 +126,11 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
                 />
               </div>
 
-              {/* Side panel that pushes layout */}
-              <div
-                className={clsx(
-                  'shrink-0 overflow-hidden border-l bg-white',
-                  'transition-[width] duration-300 ease-in-out',
-                  selectedNodeId ? 'w-[420px]' : 'w-0',
-                )}
-              >
-                {/* Keep mounted so the width animation is smooth */}
-                <div
-                  className={clsx(
-                    'h-full w-[420px]',
-                    'transition-transform duration-300 ease-in-out',
-                    selectedNodeId ? 'translate-x-0' : 'translate-x-full',
-                  )}
-                >
-                  <OwnerNetworkSidePanel
-                    data={data}
-                    selectedNodeId={selectedNodeId}
-                    onClear={() => setSelectedNodeId(null)}
-                  />
-                </div>
-              </div>
+              <OwnerNetworkSidePanel
+                data={data}
+                selectedNodeId={selectedNodeId}
+                onClear={() => setSelectedNodeId(null)}
+              />
             </div>
           )}
         </div>

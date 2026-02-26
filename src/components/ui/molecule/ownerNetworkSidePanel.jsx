@@ -3,6 +3,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import StarRating from './starRating';
 import { Badge } from '../atom/badge';
 import { getBadgeColorOwnerProfile } from '../../../lib/getBadgeColor';
+import LayoutCard from '../atom/layout-card';
 
 export default function OwnerNetworkSidePanel({
   data,
@@ -22,7 +23,7 @@ export default function OwnerNetworkSidePanel({
   console.log('selected', selectedNode);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full w-[300px] flex-col md:w-[375px] xl:w-[450px]">
       {selectedNode.type === 'owner' ? (
         <OwnerPanel selectedNode={selectedNode} onClear={onClear} />
       ) : (
@@ -34,8 +35,8 @@ export default function OwnerNetworkSidePanel({
 //side panel for all nodes other than hub
 function OwnerPanel({ selectedNode, onClear }) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-start justify-between border-b px-4 py-3">
+    <div>
+      <div className="flex items-start justify-between px-4 py-5 sm:p-6">
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-gray-900">
             {selectedNode?.label}
@@ -93,7 +94,7 @@ function OwnerPanel({ selectedNode, onClear }) {
 //side panel for only Hub node
 function HubPanel({ selectedNode, onClear }) {
   return (
-    <div className="flex h-full flex-col">
+    <div>
       <div className="flex items-start justify-between border-b px-4 py-3">
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-gray-900">
