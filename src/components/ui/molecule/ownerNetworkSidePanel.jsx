@@ -9,6 +9,7 @@ export default function OwnerNetworkSidePanel({
   data,
   selectedNodeId,
   onClear,
+  onSelectNode,
 }) {
   const selectedNode = useMemo(() => {
     if (!data?.nodes?.length || !selectedNodeId) return null;
@@ -19,15 +20,16 @@ export default function OwnerNetworkSidePanel({
 
   if (!selectedNodeId) return null;
 
-  console.log('data', data);
-  console.log('selected', selectedNode);
-
   return (
-    <div className="flex h-full w-[300px] flex-col md:w-[375px] xl:w-[450px]">
+    <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden md:w-[375px] xl:w-[450px]">
       {selectedNode.type === 'owner' ? (
         <OwnerPanel selectedNode={selectedNode} onClear={onClear} />
       ) : (
-        <HubPanel selectedNode={selectedNode} onClear={onClear} />
+        <HubPanel
+          selectedNode={selectedNode}
+          onClear={onClear}
+          onSelectNode={onSelectNode}
+        />
       )}
     </div>
   );
@@ -35,7 +37,7 @@ export default function OwnerNetworkSidePanel({
 //side panel for all nodes other than hub
 function OwnerPanel({ selectedNode, onClear }) {
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex items-start justify-between px-4 py-5 sm:p-6">
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-gray-900">
@@ -92,9 +94,11 @@ function OwnerPanel({ selectedNode, onClear }) {
 }
 
 //side panel for only Hub node
-function HubPanel({ selectedNode, onClear }) {
+function HubPanel({ selectedNode, onClear, onSelectNode }) {
+  const shared = selectedNode?.meta?.sharedFacilities ?? [];
+
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex items-start justify-between border-b px-4 py-3">
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-gray-900">
@@ -132,13 +136,22 @@ function HubPanel({ selectedNode, onClear }) {
         <div className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
           OWnership Relations Count
         </div>
-        {selectedNode.meta.sharedFacilities.map((f) => (
-          <ul key={f.ownerId}>
-            <li>
-              {f.ownerName} {f.count}
+        <ul className="mt-2 rounded-lg">
+          {shared.map((owner) => (
+            <li key={owner.ownerId}>
+              <button
+                type="button"
+                onClick={() => onSelectNode?.(owner.ownerId)} // <-- THIS pins/selects Sigma node
+                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50"
+              >
+                <span className="truncate">{owner.ownerName}</span>
+                <span className="ml-3 shrink-0 text-xs text-gray-500">
+                  {owner.count}
+                </span>
+              </button>
             </li>
-          </ul>
-        ))}
+          ))}
+        </ul>
 
         <div className="mt-3 space-y-2 text-sm text-gray-700">
           <div>
@@ -156,3 +169,5 @@ function HubPanel({ selectedNode, onClear }) {
     </div>
   );
 }
+
+

@@ -188,6 +188,7 @@ function InteractionLayer({
       },
       clickNode: (e) => {
         pinNode(e.node);
+        console.log('node', e.node);
       },
       clickStage: () => {
         setLockedNode(null);
@@ -258,7 +259,7 @@ function InteractionLayer({
   return null;
 }
 
-function GraphSearchController({ searchQuery, onSearchResults }) {
+function GraphSearchController({ searchQuery, onSearchResults, isSearchOpen }) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [index, setIndex] = useState([]);
@@ -278,10 +279,29 @@ function GraphSearchController({ searchQuery, onSearchResults }) {
   useEffect(() => {
     const buildIndex = () => {
       const arr = [];
+
+      // Find hub node
+      let sharedMap = new Map();
+
+      graph.forEachNode((id, attrs) => {
+        if (attrs?.meta?.sharedFacilities) {
+          attrs.meta.sharedFacilities.forEach((sf) => {
+            sharedMap.set(sf.ownerId, sf.count);
+          });
+        }
+      });
+
       graph.forEachNode((id, attrs) => {
         const label = attrs?.label ?? String(id);
-        arr.push({ id, label, labelNorm: normalize(label) });
+
+        arr.push({
+          id,
+          label,
+          labelNorm: normalize(label),
+          count: sharedMap.get(id) ?? null,
+        });
       });
+
       setIndex(arr);
     };
 
@@ -298,25 +318,42 @@ function GraphSearchController({ searchQuery, onSearchResults }) {
     };
   }, [graph]);
 
-  // Build dropdown suggestions as user types
+  // Build dropdown suggestions as user types and send filtered count list when search input becomes active
   useEffect(() => {
+    if (!isSearchOpen) return; // don't push results when dropdown is closed
+
     const q = normalize(searchQuery);
 
-    // no query => no dropdown
+    // Full list when focused and empty query
     if (!q) {
-      onSearchResults?.([]);
+      const full = [...index]
+        .sort(
+          (a, b) =>
+            (b.count ?? -1) - (a.count ?? -1) || // count desc
+            a.label.localeCompare(b.label),
+        )
+        .slice(0, 50) // limit results to 50
+        .map(({ id, label, count }) => ({ id, label, count }));
+
+      onSearchResults?.(full);
       return;
     }
 
+    // Filtered list when typing:
     const matches = index
       .map((n) => ({ ...n, s: score(n.labelNorm, q) }))
       .filter((n) => n.s > 0)
-      .sort((a, b) => b.s - a.s || a.label.localeCompare(b.label))
-      .slice(0, 10)
-      .map(({ id, label }) => ({ id, label }));
+      .sort(
+        (a, b) =>
+          b.s - a.s ||
+          (b.count ?? 0) - (a.count ?? 0) ||
+          a.label.localeCompare(b.label),
+      )
+      .slice(0, 20)
+      .map(({ id, label, count }) => ({ id, label, count }));
 
     onSearchResults?.(matches);
-  }, [searchQuery, index, onSearchResults]);
+  }, [searchQuery, isSearchOpen, index, onSearchResults]);
 
   return null;
 }
@@ -329,6 +366,7 @@ export default function NetworkGraph({
   pinRequestNodeId,
   onPinRequestConsumed,
   sizeMetric,
+  isSearchOpen,
 }) {
   //fallback for setting node size mode
   const effectiveSizeMetric = sizeMetric ?? 'default';
@@ -338,6 +376,7 @@ export default function NetworkGraph({
       style={sigmaStyle}
       settings={{
         backgroundColor: '#fafafa',
+        autoRescale: false,
       }}
     >
       <LoadNetwork data={data} />
@@ -352,6 +391,7 @@ export default function NetworkGraph({
         searchQuery={searchQuery}
         onSearchResults={onSearchResults}
         onSelectNode={onSelectNode}
+        isSearchOpen={isSearchOpen}
       />
       <ControlsContainer position="top-right">
         <ZoomControl />

@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import clsx from 'clsx';
 import Logo from '../../../assets/logo';
+//
 
 export default function OwnerNetworkGraphNav({
   depth,
@@ -12,8 +13,12 @@ export default function OwnerNetworkGraphNav({
   onSetSearchQuery,
   searchResults,
   onSelectSearchResult,
+  sharedFaciltyResults,
+  isSearchOpen,
+  onSetIsSearchOpen,
 }) {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // const dropdownResults =
+  //   searchQuery.trim().length > 0 ? searchResults : sharedFaciltyResults;
   return (
     <div className="w-full border-b bg-black">
       <div className="mx-auto max-w-7xl px-4">
@@ -28,7 +33,7 @@ export default function OwnerNetworkGraphNav({
             className="relative flex flex-1 items-center justify-center gap-6"
             onBlur={() => {
               setTimeout(() => {
-                setIsSearchOpen(false);
+                onSetIsSearchOpen(false);
               }, 100);
             }}
           >
@@ -36,10 +41,10 @@ export default function OwnerNetworkGraphNav({
               value={searchQuery}
               onChange={(e) => {
                 onSetSearchQuery(e.target.value);
-                setIsSearchOpen(true);
+                onSetIsSearchOpen(true);
               }}
               onFocus={() => {
-                setIsSearchOpen(true);
+                onSetIsSearchOpen(true);
               }}
               placeholder="Search nodes..."
               className={clsx(
@@ -50,7 +55,7 @@ export default function OwnerNetworkGraphNav({
             />
             {/* Dropdown */}
             {isSearchOpen && (
-              <div className="bg-core-white absolute top-full left-0 z-[500] mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
+              <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
                 <ul className="max-h-64 overflow-auto py-1">
                   <li className="flex items-center justify-between border-b px-3 py-2">
                     <span className="text-lg text-gray-500">
@@ -58,25 +63,27 @@ export default function OwnerNetworkGraphNav({
                     </span>
                     <button
                       type="button"
-                      onClick={() => setIsSearchOpen(false)}
+                      onClick={() => onSetIsSearchOpen(false)}
                       className="text-core-black text-lg hover:cursor-pointer hover:text-red-400"
                     >
                       X
                     </button>
                   </li>
-                  {searchResults.map((n) => (
-                    <li key={n.id}>
+                  {searchResults.map((result) => (
+                    <li key={result.id}>
                       <button
                         type="button"
                         onMouseDown={(e) => {
                           e.preventDefault();
-                          onSelectSearchResult(n);
+                          onSelectSearchResult(result);
                         }}
                         className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:cursor-pointer hover:bg-gray-50"
                       >
-                        <span className="truncate">{n.label}</span>
-                        <span className="ml-3 shrink-0 text-xs text-gray-400">
-                          Enter
+                        <span className="truncate">{result.count}</span>
+                        <span className="truncate">{result.label}</span>
+
+                        <span className="ml-3 shrink-0 text-xs text-gray-500">
+                          Select in graph
                         </span>
                       </button>
                     </li>

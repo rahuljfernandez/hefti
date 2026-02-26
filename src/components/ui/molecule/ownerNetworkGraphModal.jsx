@@ -20,6 +20,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]); // [{ id, label }]
   const [pinRequestNodeId, setPinRequestNodeId] = useState(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   //api call to grab owner network for graph
   const endpoint = useMemo(() => {
@@ -71,10 +72,20 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
   if (!isOpen) return null;
 
+  //Here we are grabbing the weighted shared facilities to use in the search
+  const hubNode = data?.nodes?.find((node) => node.id === data.hubId);
+
+  const sharedFaciltyResults =
+    hubNode?.meta.sharedFacilities.map((shared) => ({
+      id: shared.ownerId,
+      label: shared.ownerName,
+      meta: { count: shared.count, kind: 'sharedFacility' },
+    })) ?? [];
+
   return (
     <div className="fixed inset-0 z-100">
       {/* Panel */}
-      <div className="bg-core-white absolute inset-0 flex flex-col overflow-visible shadow-xl">
+      <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
         {/* Header */}
         <OwnerNetworkGraphNav
           onSetDepth={setDepth}
@@ -85,6 +96,9 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           searchQuery={searchQuery}
           onSetSearchQuery={setSearchQuery}
           searchResults={searchResults}
+          sharedFaciltyResults={sharedFaciltyResults}
+          isSearchOpen={isSearchOpen}
+          onSetIsSearchOpen={setIsSearchOpen}
           onSelectSearchResult={(node) => {
             console.log('Selected from dropdown:', node);
             setSelectedNodeId(node.id);
@@ -94,7 +108,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           }}
         />
         {/* Body */}
-        <div className="relative flex-1">
+        <div className="relative min-h-0 flex-1">
           {status === 'loading' && (
             <div className="absolute inset-0 grid place-items-center">
               <div className="text-sm text-gray-600">Loading graph…</div>
@@ -113,7 +127,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           )}
 
           {status === 'ready' && data && (
-            <div className="flex h-full">
+            <div className="flex h-full min-h-0">
               <div className="min-w-0 flex-1">
                 <NetworkGraph
                   data={data}
@@ -123,13 +137,21 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
                   searchQuery={searchQuery}
                   onSearchResults={setSearchResults}
                   sizeMetric={sizeMetric}
+                  isSearchOpen={isSearchOpen}
                 />
               </div>
 
               <OwnerNetworkSidePanel
                 data={data}
                 selectedNodeId={selectedNodeId}
-                onClear={() => setSelectedNodeId(null)}
+                onClear={() => {
+                  setSelectedNodeId(null);
+                  setPinRequestNodeId(null);
+                }}
+                onSelectNode={(nodeId) => {
+                  setSelectedNodeId(nodeId);
+                  setPinRequestNodeId(nodeId);
+                }}
               />
             </div>
           )}
