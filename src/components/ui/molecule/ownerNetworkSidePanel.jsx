@@ -22,14 +22,14 @@ export default function OwnerNetworkSidePanel({
 
   return (
     <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden md:w-[375px] xl:w-[450px]">
-      {selectedNode.type === 'owner' ? (
-        <OwnerPanel selectedNode={selectedNode} onClear={onClear} />
-      ) : (
+      {selectedNode ? (
         <HubPanel
           selectedNode={selectedNode}
           onClear={onClear}
           onSelectNode={onSelectNode}
         />
+      ) : (
+        <OwnerPanel selectedNode={selectedNode} onClear={onClear} />
       )}
     </div>
   );
@@ -61,14 +61,6 @@ function OwnerPanel({ selectedNode, onClear }) {
           </div>
           <div>{selectedNode.meta.total_facilities} Facilities</div>
         </div>
-
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-md p-1 text-gray-400 hover:cursor-pointer hover:text-gray-600"
-        >
-          <XMarkIcon className="h-6 w-6" />
-        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -122,14 +114,6 @@ function HubPanel({ selectedNode, onClear, onSelectNode }) {
           </div>
           <div>{selectedNode.meta.total_facilities} Facilities</div>
         </div>
-
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-md p-1 text-gray-400 hover:cursor-pointer hover:text-gray-600"
-        >
-          <XMarkIcon className="h-6 w-6" />
-        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -169,5 +153,3 @@ function HubPanel({ selectedNode, onClear, onSelectNode }) {
     </div>
   );
 }
-
-

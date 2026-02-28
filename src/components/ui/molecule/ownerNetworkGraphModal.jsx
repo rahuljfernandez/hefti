@@ -21,6 +21,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const [searchResults, setSearchResults] = useState([]); // [{ id, label }]
   const [pinRequestNodeId, setPinRequestNodeId] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [defaultNodeId, setDefaultNodeId] = useState(null);
 
   //api call to grab owner network for graph
   const endpoint = useMemo(() => {
@@ -53,6 +54,22 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
     return () => controller.abort();
   }, [isOpen, endpoint, ownerId]);
+
+  //When data loads, set the default node to hub.
+  // This allows us to open the sidebar with the hub owner's info but not have it pinned.
+  // SetNodeId is linked to pinning.
+  // Keeping those seperate.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (status !== 'ready') return;
+    if (!data?.hubId) return;
+
+    setDefaultNodeId(data.hubId);
+  }, [isOpen, status, data?.hubId]);
+
+  //This is passed as a prop to OwnerNetworkSidePanel.
+  //There either the hub onwer or the node the user selects will be rendered.
+  const effectiveSelectedNodeId = selectedNodeId ?? defaultNodeId;
 
   //Clear selection when opening or changing owner/depth
   useEffect(() => {
@@ -143,7 +160,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
               <OwnerNetworkSidePanel
                 data={data}
-                selectedNodeId={selectedNodeId}
+                selectedNodeId={effectiveSelectedNodeId}
                 onClear={() => {
                   setSelectedNodeId(null);
                   setPinRequestNodeId(null);
