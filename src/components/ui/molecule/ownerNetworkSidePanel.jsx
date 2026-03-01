@@ -3,7 +3,9 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import StarRating from './starRating';
 import { Badge } from '../atom/badge';
 import { getBadgeColorOwnerProfile } from '../../../lib/getBadgeColor';
-import LayoutCard from '../atom/layout-card';
+import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
+import NetworkSidePanelSection from './networkSidePanelAccordian';
+import { NetworkSidePanelList } from './listContainerContent';
 
 export default function OwnerNetworkSidePanel({
   data,
@@ -19,10 +21,11 @@ export default function OwnerNetworkSidePanel({
   }, [data, selectedNodeId]);
 
   if (!selectedNodeId) return null;
+  console.log(selectedNode);
 
   return (
     <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden md:w-[375px] xl:w-[450px]">
-      {selectedNode ? (
+      {selectedNode.type === 'hub' ? (
         <HubPanel
           selectedNode={selectedNode}
           onClear={onClear}
@@ -35,121 +38,51 @@ export default function OwnerNetworkSidePanel({
   );
 }
 //side panel for all nodes other than hub
-function OwnerPanel({ selectedNode, onClear }) {
+function OwnerPanel({ selectedNode }) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex items-start justify-between px-4 py-5 sm:p-6">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-gray-900">
-            {selectedNode?.label}
-          </div>
-          <div>
-            <Badge
-              color={getBadgeColorOwnerProfile(
-                selectedNode.meta.cms_ownership_type,
-              )}
-            >
-              {selectedNode.meta.cms_ownership_type}
-            </Badge>
-          </div>
-          <div>
-            {' '}
-            <StarRating
-              title="Average Facility Rating"
-              rating={selectedNode.meta.star_rating}
-            />
-          </div>
-          <div>{selectedNode.meta.total_facilities} Facilities</div>
-        </div>
-      </div>
+      <NetworkSidePanelCardHeader selectedNode={selectedNode} />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-          Details
-        </div>
-
-        <div className="mt-3 space-y-2 text-sm text-gray-700">
-          <div>
-            <span className="font-medium text-gray-900">
-              CMS ownership type:
-            </span>{' '}
-            {selectedNode.meta.cms_ownership_type}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900">State:</span>{' '}
-            {selectedNode.meta.state}
-          </div>
-        </div>
-      </div>
+      <NetworkSidePanelSection title="Clinical Quality Measures">
+        {' '}
+        {/**Children */}
+      </NetworkSidePanelSection>
+      <NetworkSidePanelSection title="Staffing">
+        {/**Children */}{' '}
+      </NetworkSidePanelSection>
     </div>
   );
 }
 
 //side panel for only Hub node
-function HubPanel({ selectedNode, onClear, onSelectNode }) {
+function HubPanel({ selectedNode, onSelectNode }) {
   const shared = selectedNode?.meta?.sharedFacilities ?? [];
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex items-start justify-between border-b px-4 py-3">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-gray-900">
-            {selectedNode?.label}
-          </div>
-          <div>
-            <Badge
-              color={getBadgeColorOwnerProfile(
-                selectedNode.meta.cms_ownership_type,
-              )}
-            >
-              {selectedNode.meta.cms_ownership_type}
-            </Badge>
-          </div>
-          <div>
-            {' '}
-            <StarRating
-              title="Average Facility Rating"
-              rating={selectedNode.meta.star_rating}
-            />
-          </div>
-          <div>{selectedNode.meta.total_facilities} Facilities</div>
+      <NetworkSidePanelCardHeader selectedNode={selectedNode} />
+      <NetworkSidePanelSection title="Ownership Relations Count" defaultOpen>
+        {/**Children */}
+        <div className="bg-core-white max-h-64 overflow-y-auto px-4">
+          <ul className="mt-2 rounded-lg">
+            {shared.map((owner) => (
+              <li key={owner.ownerId}>
+                <NetworkSidePanelList
+                  item={owner}
+                  onSelectNode={onSelectNode}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-          OWnership Relations Count
-        </div>
-        <ul className="mt-2 rounded-lg">
-          {shared.map((owner) => (
-            <li key={owner.ownerId}>
-              <button
-                type="button"
-                onClick={() => onSelectNode?.(owner.ownerId)} // <-- THIS pins/selects Sigma node
-                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50"
-              >
-                <span className="truncate">{owner.ownerName}</span>
-                <span className="ml-3 shrink-0 text-xs text-gray-500">
-                  {owner.count}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3 space-y-2 text-sm text-gray-700">
-          <div>
-            <span className="font-medium text-gray-900">
-              CMS ownership type:
-            </span>{' '}
-            {selectedNode.meta.cms_ownership_type}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900">State:</span>{' '}
-            {selectedNode.meta.state}
-          </div>
-        </div>
-      </div>
+      </NetworkSidePanelSection>
+      <NetworkSidePanelSection title="Clinical Quality Measures">
+        {' '}
+        {/**Children */}
+      </NetworkSidePanelSection>
+      <NetworkSidePanelSection title="Staffing">
+        {/**Children */}{' '}
+      </NetworkSidePanelSection>
     </div>
   );
 }
