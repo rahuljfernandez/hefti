@@ -1,8 +1,4 @@
 import React, { useMemo } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import StarRating from './starRating';
-import { Badge } from '../atom/badge';
-import { getBadgeColorOwnerProfile } from '../../../lib/getBadgeColor';
 import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
 import NetworkSidePanelSection from './networkSidePanelAccordian';
 import { NetworkSidePanelList } from './listContainerContent';
@@ -20,8 +16,7 @@ export default function OwnerNetworkSidePanel({
     );
   }, [data, selectedNodeId]);
 
-  if (!selectedNodeId) return null;
-  console.log(selectedNode);
+  if (!selectedNodeId || !selectedNode) return null;
 
   return (
     <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden md:w-[375px] xl:w-[450px]">
@@ -37,7 +32,7 @@ export default function OwnerNetworkSidePanel({
     </div>
   );
 }
-//side panel for all nodes other than hub
+//side panel for all nodes other than hub owner
 function OwnerPanel({ selectedNode }) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">

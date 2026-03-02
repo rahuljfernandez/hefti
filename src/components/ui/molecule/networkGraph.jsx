@@ -370,12 +370,11 @@ export default function NetworkGraph({
 }) {
   //fallback for setting node size mode
   const effectiveSizeMetric = sizeMetric ?? 'default';
-
+  //if you need to set the background color of the graph it is done in tailwind.css
   return (
     <SigmaContainer
       style={sigmaStyle}
       settings={{
-        backgroundColor: '#fafafa',
         autoRescale: false,
       }}
     >

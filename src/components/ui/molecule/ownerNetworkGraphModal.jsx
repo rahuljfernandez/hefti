@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSidePanel from './OwnerNetworkSidePanel';
 import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
+import NetworkFilter from './networkFilter';
 import clsx from 'clsx';
 
 export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
@@ -75,6 +76,8 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   useEffect(() => {
     if (!isOpen) return;
     setSelectedNodeId(null);
+    setDefaultNodeId(null);
+    setPinRequestNodeId(null);
     setSearchQuery('');
     setSearchResults([]);
   }, [isOpen, ownerId, depth]);
@@ -93,7 +96,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const hubNode = data?.nodes?.find((node) => node.id === data.hubId);
 
   const sharedFaciltyResults =
-    hubNode?.meta.sharedFacilities.map((shared) => ({
+    hubNode?.meta?.sharedFacilities.map((shared) => ({
       id: shared.ownerId,
       label: shared.ownerName,
       meta: { count: shared.count, kind: 'sharedFacility' },
@@ -117,18 +120,27 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           isSearchOpen={isSearchOpen}
           onSetIsSearchOpen={setIsSearchOpen}
           onSelectSearchResult={(node) => {
-            console.log('Selected from dropdown:', node);
             setSelectedNodeId(node.id);
             setPinRequestNodeId(node.id);
-
+            setIsSearchOpen(false);
             setSearchResults([]);
           }}
         />
         {/* Body */}
         <div className="relative min-h-0 flex-1">
+          <div className="absolute top-0 left-0 z-20 w-48">
+            {/**Tools to interact with graph */}
+            <NetworkFilter
+              onSetDepth={setDepth}
+              depth={depth}
+              onSetSizeMetric={setSizeMetric}
+              sizeMetric={sizeMetric}
+            />
+          </div>
+
           {status === 'loading' && (
             <div className="absolute inset-0 grid place-items-center">
-              <div className="text-sm text-gray-600">Loading graph…</div>
+              <div className="text-sm text-gray-600">Loading graph...</div>
             </div>
           )}
 
@@ -136,7 +148,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
             <div className="absolute inset-0 grid place-items-center px-6 text-center">
               <div>
                 <div className="text-sm font-semibold text-gray-900">
-                  Couldn’t load graph
+                  Couldn't load graph
                 </div>
                 <div className="mt-1 text-sm text-gray-600">{error}</div>
               </div>
