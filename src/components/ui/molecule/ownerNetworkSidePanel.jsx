@@ -3,6 +3,7 @@ import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
 import NetworkSidePanelSection from './networkSidePanelAccordian';
 import { NetworkSidePanelList } from './listContainerContent';
 import PropTypes from 'prop-types';
+import NetworkFilter from './networkFilter';
 
 /**
  * Side panel shown beside the owner network graph.
@@ -20,7 +21,7 @@ import PropTypes from 'prop-types';
 export default function OwnerNetworkSidePanel({
   data,
   selectedNodeId,
-  onClear,
+
   onSelectNode,
 }) {
   const selectedNode = useMemo(() => {
@@ -33,15 +34,11 @@ export default function OwnerNetworkSidePanel({
   if (!selectedNodeId || !selectedNode) return null;
 
   return (
-    <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border md:w-[375px] xl:w-[450px]">
+    <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
       {selectedNode.type === 'hub' ? (
-        <HubPanel
-          selectedNode={selectedNode}
-          onClear={onClear}
-          onSelectNode={onSelectNode}
-        />
+        <HubPanel selectedNode={selectedNode} onSelectNode={onSelectNode} />
       ) : (
-        <OwnerPanel selectedNode={selectedNode} onClear={onClear} />
+        <OwnerPanel selectedNode={selectedNode} />
       )}
     </div>
   );

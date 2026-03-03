@@ -24,26 +24,21 @@ export default function NetworkSidePanelCardHeader({ selectedNode }) {
         </span>
       </div>
       {/*Name*/}
-      <div className="p-4">
+      <div className="px-4 pt-2">
         <p className="text-heading-xs tracking-wide">{selectedNode?.label}</p>
         <p className="text-label-base text-content-tertiary">
-          {selectedNode.meta.cms_ownership_type} Owner
+          {selectedNode.meta.total_facilities} Facilities
         </p>
       </div>
+
       {/*Divider*/}
       <div className="px-4">
         <Divider />
       </div>
 
-      {/*Info*/}
-      <div className="flex items-center justify-between p-4">
-        <div>
-          {' '}
-          <StarRating rating={selectedNode.meta.star_rating} />
-        </div>
-        <div className="text-label-base text-content-tertiary">
-          {selectedNode.meta.total_facilities} Facilities
-        </div>
+      {/*Star*/}
+      <div className="px-4 pt-1 pb-2">
+        <StarRating rating={selectedNode.meta.star_rating} />
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ export default function OwnerNetworkGraphNav({
             <Logo className="h-6 w-auto text-white" />
             {/* Search*/}
             <div
-              className="relative flex flex-1 items-center justify-center gap-6"
+              className="relative flex w-[240px] flex-1 items-center justify-center gap-6"
               onBlur={() => {
                 setTimeout(() => {
                   onSetIsSearchOpen(false);

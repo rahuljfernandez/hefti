@@ -31,7 +31,7 @@ export default function NetworkFilter({
   sizeMetric,
 }) {
   return (
-    <div className="w-[415px]">
+    <div className="lg:w-[300px] xl:w-[375px]">
       <NetworkSidePanelSection
         title={'Graph Filters'}
         icon={<Cog6ToothIcon className="h-5 w-5" />}
