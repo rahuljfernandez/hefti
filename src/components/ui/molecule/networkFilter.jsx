@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import InfoTooltip from '../atom/infoTooltip';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import NetworkFilterControl from '../atom/networkFilterControl';
 
 /**
  * Overlay filter panel for the network graph modal.
@@ -45,27 +46,16 @@ export default function NetworkFilter({
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+              <NetworkFilterControl
+                value={1}
+                active={depth === 1}
                 onClick={() => onSetDepth(1)}
-                className={clsx(
-                  'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 transition',
-                  depth === 1 ? 'bg-zinc-200' : 'bg-zinc-100 hover:bg-zinc-50',
-                )}
-              >
-                1
-              </button>
-
-              <button
-                type="button"
+              />
+              <NetworkFilterControl
+                value={2}
+                active={depth === 2}
                 onClick={() => onSetDepth(2)}
-                className={clsx(
-                  'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 transition',
-                  depth === 2 ? 'bg-zinc-200' : 'bg-zinc-100 hover:bg-zinc-50',
-                )}
-              >
-                2
-              </button>
+              />
             </div>
           </div>
 
@@ -79,54 +69,26 @@ export default function NetworkFilter({
 
           {/* Metric buttons */}
           <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
+            <NetworkFilterControl
+              value={'Default'}
+              active={sizeMetric === 'default'}
               onClick={() => onSetSizeMetric('default')}
-              className={clsx(
-                'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
-                sizeMetric === 'default'
-                  ? 'bg-zinc-200'
-                  : 'bg-zinc-100 hover:bg-zinc-50',
-              )}
-            >
-              Default
-            </button>
-            <button
-              type="button"
+            />
+            <NetworkFilterControl
+              value={'Star Rating'}
+              active={sizeMetric === 'star'}
               onClick={() => onSetSizeMetric('star')}
-              className={clsx(
-                'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
-                sizeMetric === 'star'
-                  ? 'bg-zinc-200'
-                  : 'bg-zinc-100 hover:bg-zinc-50',
-              )}
-            >
-              Star Rating
-            </button>
-            <button
-              type="button"
+            />
+            <NetworkFilterControl
+              value={'Quality'}
+              active={sizeMetric === 'quality'}
               onClick={() => onSetSizeMetric('quality')}
-              className={clsx(
-                'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
-                sizeMetric === 'quality'
-                  ? 'bg-zinc-200'
-                  : 'bg-zinc-100 hover:bg-zinc-50',
-              )}
-            >
-              Quality
-            </button>
-            <button
-              type="button"
+            />
+            <NetworkFilterControl
+              value={'Financial'}
+              active={sizeMetric === 'financial'}
               onClick={() => onSetSizeMetric('financial')}
-              className={clsx(
-                'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
-                sizeMetric === 'financial'
-                  ? 'bg-zinc-200'
-                  : 'bg-zinc-100 hover:bg-zinc-50',
-              )}
-            >
-              Financial
-            </button>
+            />
           </div>
         </div>
       </NetworkSidePanelSection>

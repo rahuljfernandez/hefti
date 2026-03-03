@@ -33,7 +33,7 @@ export default function OwnerNetworkSidePanel({
   if (!selectedNodeId || !selectedNode) return null;
 
   return (
-    <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden md:w-[375px] xl:w-[450px]">
+    <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border md:w-[375px] xl:w-[450px]">
       {selectedNode.type === 'hub' ? (
         <HubPanel
           selectedNode={selectedNode}
