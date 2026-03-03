@@ -85,7 +85,8 @@ export default function OwnerNetworkGraphNav({
 
                           {result.count != null && (
                             <span className="ml-3 shrink-0 text-xs text-gray-500">
-                              {result.count} Links
+                              {result.count}{' '}
+                              {result.count === 1 ? 'Link' : 'Links'}
                             </span>
                           )}
                         </button>

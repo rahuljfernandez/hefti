@@ -51,9 +51,10 @@ export default function OwnerNetworkSidePanel({
  * selectedNode: The resolved non-hub node to display in the panel header
  */
 function OwnerPanel({ selectedNode }) {
+  const nonHub = true;
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <NetworkSidePanelCardHeader selectedNode={selectedNode} />
+      <NetworkSidePanelCardHeader selectedNode={selectedNode} nonHub={nonHub} />
 
       <NetworkSidePanelSection title="Clinical Quality Measures">
         {' '}

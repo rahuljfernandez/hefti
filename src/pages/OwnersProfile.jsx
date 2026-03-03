@@ -28,6 +28,7 @@ export default function OwnersProfile() {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  console.log(slug);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)

@@ -505,7 +505,7 @@ export function NetworkSidePanelList({ item, onSelectNode }) {
         </span>
 
         <span className="text-content-secondary text-label-xs">
-          {item.count} Links
+          {item.count} {item.count === 1 ? 'Link' : 'Links'}
         </span>
       </div>
     </button>
