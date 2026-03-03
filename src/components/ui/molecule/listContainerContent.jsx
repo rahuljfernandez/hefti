@@ -486,7 +486,7 @@ export function NetworkSidePanelList({ item, onSelectNode }) {
     <button
       type="button"
       onClick={() => onSelectNode?.(item.ownerId)} // <-- THIS pins/selects Sigma node
-      className="flex w-full items-center gap-4 py-2 text-left text-sm hover:bg-gray-50"
+      className="flex w-full items-center gap-4 py-2 text-left text-sm hover:cursor-pointer hover:bg-gray-50"
     >
       {/* Icon */}
       {item.cms_ownership_type === 'Individual' ? (

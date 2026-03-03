@@ -111,7 +111,7 @@ export default function OwnerNetworkGraphNav({
             <button
               type="button"
               onClick={onClose}
-              className="text-label-sm bg-background-inverse-secondary text-core-white hover:bg-background-inverse-primary border-border-inverse-primary rounded-lg border px-8 py-2 tracking-wide"
+              className="text-label-sm bg-background-inverse-secondary text-core-white hover:bg-background-inverse-primary border-border-inverse-primary rounded-lg border px-8 py-2 tracking-wide hover:cursor-pointer"
             >
               CLOSE
             </button>

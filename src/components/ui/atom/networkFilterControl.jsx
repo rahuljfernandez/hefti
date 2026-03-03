@@ -26,7 +26,7 @@ export default function NetworkFilterControl({ value, active, onClick }) {
       type="button"
       onClick={onClick}
       className={clsx(
-        'text-label-xs text-core-black border-border-primary h-10 rounded-md border transition',
+        'text-label-xs text-core-black border-border-primary h-10 rounded-md border transition hover:cursor-pointer',
         active ? 'bg-zinc-200' : 'bg-zinc-100 hover:bg-zinc-50',
       )}
     >

@@ -31,7 +31,7 @@ export default function NetworkSidePanelSection({
     <Disclosure defaultOpen={defaultOpen}>
       {({ open }) => (
         <div className="bg-border-secondary border-border-primary min-h-14 border-t border-b">
-          <DisclosureButton className="flex w-full items-center justify-between px-4 py-3 text-left">
+          <DisclosureButton className="flex w-full items-center justify-between px-4 py-3 text-left hover:cursor-pointer">
             <span className="text-core-black text-paragraph-base flex items-center gap-1">
               {icon}
               <span>{title}</span>
