@@ -23,6 +23,7 @@ import { title } from 'framer-motion/client';
 
 export default function NetworkSidePanelSection({
   title,
+  icon,
   defaultOpen = false,
   children,
 }) {
@@ -31,7 +32,10 @@ export default function NetworkSidePanelSection({
       {({ open }) => (
         <div className="bg-border-secondary border-border-primary min-h-14 border-t border-b">
           <DisclosureButton className="flex w-full items-center justify-between px-4 py-3 text-left">
-            <span className="text-core-black text-paragraph-base">{title}</span>
+            <span className="text-core-black text-paragraph-base flex items-center gap-1">
+              {icon}
+              <span>{title}</span>
+            </span>
             <ChevronDownIcon
               className={`h-5 w-5 text-zinc-700 transition-transform ${
                 open ? 'rotate-180' : ''
@@ -47,6 +51,7 @@ export default function NetworkSidePanelSection({
 }
 NetworkSidePanelSection.propTypes = {
   title: PropTypes.string.isRequired,
+  icon: PropTypes.node,
   defaultOpen: PropTypes.bool,
   children: PropTypes.node,
 };

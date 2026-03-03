@@ -1,8 +1,9 @@
 import React from 'react';
 import NetworkSidePanelSection from './networkSidePanelAccordian';
-import { InformationCircleIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import InfoTooltip from '../atom/infoTooltip';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 /**
  * Overlay filter panel for the network graph modal.
@@ -30,13 +31,17 @@ export default function NetworkFilter({
 }) {
   return (
     <div className="w-[415px]">
-      <NetworkSidePanelSection title={'Graph Filters'} defaultOpen>
+      <NetworkSidePanelSection
+        title={'Graph Filters'}
+        icon={<Cog6ToothIcon className="h-5 w-5" />}
+        defaultOpen
+      >
         <div className="bg-core-white border-border-primary space-y-4 border px-4 pb-4">
           {/* Network Depth */}
           <div className="space-y-2">
-            <div className="text-label-sm text-core-black flex items-center gap-2">
-              <span className="mt-4">Network Depth</span>
-              <InformationCircleIcon className="mt-4 h-4 w-4 text-zinc-400" />
+            <div className="text-label-sm text-core-black mt-4 flex items-center gap-2">
+              <span className="">Network Depth</span>
+              <InfoTooltip text="Controls how many relationship layers are shown in the graph. Depth 1 shows direct connections. Depth 2 shows secondary relationships." />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -68,7 +73,7 @@ export default function NetworkFilter({
           <div className="space-y-2">
             <div className="text-label-sm text-core-black flex items-center gap-2">
               <span>Node Size</span>
-              <InformationCircleIcon className="h-4 w-4 text-zinc-400" />
+              <InfoTooltip text="Determines how node size is scaled.  Choose between uniform sizing or scaling by Star Rating, Quality, or Financial metrics." />
             </div>
           </div>
 
