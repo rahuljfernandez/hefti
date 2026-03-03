@@ -6,6 +6,26 @@ import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
 import NetworkFilter from './networkFilter';
 import clsx from 'clsx';
 
+/**
+ * Full-screen modal for viewing an owner's relationship network.
+ *
+ * Responsibilities:
+ * - Fetches network data for the selected owner and depth
+ * - Coordinates graph selection, pin requests, and search state
+ * - Acts as main hub for state in the Network Graph feature.
+ * - Opens the side panel on the hub owner by default without pinning the graph node
+ *
+ * Composition:
+ * - `OwnerNetworkGraphNav` for search and top-level controls
+ * - `NetworkGraph` for Sigma rendering and interaction
+ * - `OwnerNetworkSidePanel` for hub/owner details
+ * - `NetworkFilter` as a floating graph overlay
+ * 
+ *  * Note:
+ * - `selectedNodeId` tracks explicit user selection, while `defaultNodeId` keeps the hub panel open on initial load.
+
+ */
+
 export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
@@ -14,17 +34,17 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
   const [error, setError] = useState(null);
-  //Setter is passed into sigma network graph functional layer to facilitate the selecting of node id.  node id is passed into the side panel.
-  const [selectedNodeId, setSelectedNodeId] = useState(null);
-  const [depth, setDepth] = useState(2); // default depth set to 2
-  const [sizeMetric, setSizeMetric] = useState('default');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]); // [{ id, label }]
-  const [pinRequestNodeId, setPinRequestNodeId] = useState(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [defaultNodeId, setDefaultNodeId] = useState(null);
 
-  //api call to grab owner network for graph
+  const [selectedNodeId, setSelectedNodeId] = useState(null); // Explicit user-selected node
+  const [depth, setDepth] = useState(2); // Network depth sent to the API
+  const [sizeMetric, setSizeMetric] = useState('default'); // Controls node sizing mode
+  const [searchQuery, setSearchQuery] = useState(''); // Current search input value
+  const [searchResults, setSearchResults] = useState([]); // Search matches from the graph index
+  const [pinRequestNodeId, setPinRequestNodeId] = useState(null); // Requests a graph node to pin/focus
+  const [isSearchOpen, setIsSearchOpen] = useState(false); // Controls search dropdown visibility
+  const [defaultNodeId, setDefaultNodeId] = useState(null); // Hub node shown by default in the side panel
+
+  // Build the API endpoint for the current owner and selected network depth.
   const endpoint = useMemo(() => {
     return `${API_BASE_URL}/owners/id/${ownerId}/network?depth=${depth}`;
   }, [API_BASE_URL, ownerId, depth]);
@@ -56,10 +76,8 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     return () => controller.abort();
   }, [isOpen, endpoint, ownerId]);
 
-  //When data loads, set the default node to hub.
-  // This allows us to open the sidebar with the hub owner's info but not have it pinned.
-  // SetNodeId is linked to pinning.
-  // Keeping those seperate.
+  // When graph data is ready, default the side panel to the hub owner
+  // without pinning the hub node in Sigma.
   useEffect(() => {
     if (!isOpen) return;
     if (status !== 'ready') return;
@@ -68,11 +86,10 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     setDefaultNodeId(data.hubId);
   }, [isOpen, status, data?.hubId]);
 
-  //This is passed as a prop to OwnerNetworkSidePanel.
-  //There either the hub onwer or the node the user selects will be rendered.
+  // Side panel shows the explicit selection first, otherwise the default hub node.
   const effectiveSelectedNodeId = selectedNodeId ?? defaultNodeId;
 
-  //Clear selection when opening or changing owner/depth
+  // Reset graph UI state when the modal opens or the network scope changes.
   useEffect(() => {
     if (!isOpen) return;
     setSelectedNodeId(null);
@@ -82,7 +99,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     setSearchResults([]);
   }, [isOpen, ownerId, depth]);
 
-  //When modal is open enbable use of keyboard espape key to close modal
+  // Close the modal on Escape while it is open.
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e) => e.key === 'Escape' && onClose();
@@ -92,7 +109,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
 
   if (!isOpen) return null;
 
-  //Here we are grabbing the weighted shared facilities to use in the search
+  // Build shared-facility search metadata from the hub node.
   const hubNode = data?.nodes?.find((node) => node.id === data.hubId);
 
   const sharedFaciltyResults =
@@ -106,17 +123,12 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     <div className="fixed inset-0 z-100">
       {/* Panel */}
       <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
-        {/* Header */}
+        {/* Top Bar/ Basic Nav Bar */}
         <OwnerNetworkGraphNav
-          onSetDepth={setDepth}
-          depth={depth}
           onClose={onClose}
-          sizeMetric={sizeMetric}
-          onSetSizeMetric={setSizeMetric}
           searchQuery={searchQuery}
           onSetSearchQuery={setSearchQuery}
           searchResults={searchResults}
-          sharedFaciltyResults={sharedFaciltyResults}
           isSearchOpen={isSearchOpen}
           onSetIsSearchOpen={setIsSearchOpen}
           onSelectSearchResult={(node) => {
@@ -129,7 +141,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
         {/* Body */}
         <div className="relative min-h-0 flex-1">
           <div className="absolute top-0 left-0 z-20 w-48">
-            {/**Tools to interact with graph */}
+            {/* Floating controls for graph-specific filters */}
             <NetworkFilter
               onSetDepth={setDepth}
               depth={depth}
@@ -148,13 +160,13 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
             <div className="absolute inset-0 grid place-items-center px-6 text-center">
               <div>
                 <div className="text-sm font-semibold text-gray-900">
-                  Couldn't load graph
+                  Unable to load graph
                 </div>
                 <div className="mt-1 text-sm text-gray-600">{error}</div>
               </div>
             </div>
           )}
-
+          {/* Network Graph */}
           {status === 'ready' && data && (
             <div className="flex h-full min-h-0">
               <div className="min-w-0 flex-1">
@@ -169,7 +181,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
                   isSearchOpen={isSearchOpen}
                 />
               </div>
-
+              {/* Side Panel */}
               <OwnerNetworkSidePanel
                 data={data}
                 selectedNodeId={effectiveSelectedNodeId}

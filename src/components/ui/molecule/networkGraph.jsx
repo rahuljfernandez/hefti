@@ -16,8 +16,53 @@ import {
   ZoomControl,
 } from '@react-sigma/core';
 
+/**
+ * Owner network graph view built on Sigma and graphology.
+ *
+ * Responsibilities:
+ * - Converts API network data into a Sigma-compatible graph
+ * - Runs layout and graph interaction behavior for hover, click, and pinning
+ * - Filters visible neighborhoods based on the active node
+ * - Builds the search index that powers the modal search dropdown
+ */
 const sigmaStyle = { height: '100%', width: '100%' };
 
+const sharedFacilityShape = PropTypes.shape({
+  ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  count: PropTypes.number,
+});
+
+const nodeShape = PropTypes.shape({
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  meta: PropTypes.shape({
+    cms_ownership_type: PropTypes.string,
+    star_rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    sharedFacilities: PropTypes.arrayOf(sharedFacilityShape),
+  }),
+});
+
+const linkShape = PropTypes.shape({
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  source: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  target: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  weight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  relType: PropTypes.string,
+});
+
+const graphDataShape = PropTypes.shape({
+  hubId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  nodes: PropTypes.arrayOf(nodeShape),
+  links: PropTypes.arrayOf(linkShape),
+});
+
+/**
+ * Converts the fetched network payload into a graphology graph instance.
+ *
+ * Adds node display metadata, initializes coordinates for the layout worker,
+ * and creates weighted edges for Sigma to render.
+ */
 function buildGraph(data) {
   const graph = new Graph({ type: 'undirected', multi: false });
 
@@ -35,10 +80,10 @@ function buildGraph(data) {
       label: node.label || node.id,
       size: isHub ? 14 : 8,
       color: isHub
-        ? '#F59E0B'
+        ? '#F59E0B' //set hub color
         : node?.meta?.cms_ownership_type === 'Individual'
-          ? '#0F766E'
-          : '#C2410C',
+          ? '#0F766E' //set individual color
+          : '#C2410C', //set organization color
       x: 0,
       y: 0,
       nodeType: node.type,
@@ -80,6 +125,12 @@ function buildGraph(data) {
   return graph;
 }
 
+/**
+ * Loads the current network payload into Sigma whenever the backing data changes.
+ *
+ * Props:
+ * - data: Graph payload containing the nodes and links to render
+ */
 function LoadNetwork({ data }) {
   const loadGraph = useLoadGraph();
 
@@ -91,6 +142,16 @@ function LoadNetwork({ data }) {
   return null;
 }
 
+LoadNetwork.propTypes = {
+  data: graphDataShape,
+};
+
+/**
+ * Starts the ForceAtlas2 layout worker when the graph mounts.
+ *
+ * Props:
+ * - startOnMount: Whether the force layout should start automatically
+ */
 function ForceAtlasToggle({ startOnMount = true }) {
   const { start, stop, isRunning } = useWorkerLayoutForceAtlas2({
     settings: { slowDown: 10, gravity: 1, scalingRatio: 2 },
@@ -105,6 +166,25 @@ function ForceAtlasToggle({ startOnMount = true }) {
   return null;
 }
 
+ForceAtlasToggle.propTypes = {
+  startOnMount: PropTypes.bool,
+};
+
+/**
+ * Wires Sigma interactions for hover, click, and externally requested pinning.
+ *
+ * Responsibilities:
+ * - Tracks hovered and locked nodes
+ * - Notifies the parent when the pinned node changes
+ * - Applies reducers so the active node neighborhood stays visible
+ * - Handles search-driven pin requests from outside the graph
+ *
+ * Props:
+ * - onPinnedChang: Called when the locked node selection changes
+ * - pinRequestNodeId: Node id requested externally for pin/focus behavior
+ * - onPinRequestConsumed: Clears the external pin request after it is handled
+ * - sizeMetric: Controls whether nodes use default or star-based sizing
+ */
 function InteractionLayer({
   onPinnedChange,
   pinRequestNodeId,
@@ -135,9 +215,6 @@ function InteractionLayer({
     // fallback for unknown ratings
     if (star == null || Number.isNaN(star)) return 7;
 
-    // const clamped = Math.max(1, Math.min(5, star));
-    // return 6 + ((clamped - 1) / 4) * 8;
-
     const s = Math.max(1, Math.min(5, star)); // 1..5
     const t = (s - 1) / 4; // 0..1
 
@@ -165,7 +242,7 @@ function InteractionLayer({
     [graph],
   );
 
-  // ✅ When search selects a node, request comes in here
+  // When search selects a node, request comes in here
   useEffect(() => {
     if (!pinRequestNodeId) return;
 
@@ -259,6 +336,24 @@ function InteractionLayer({
   return null;
 }
 
+InteractionLayer.propTypes = {
+  onPinnedChange: PropTypes.func,
+  pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onPinRequestConsumed: PropTypes.func,
+  sizeMetric: PropTypes.string,
+};
+
+/**
+ * Builds and filters the graph search index used by the modal nav dropdown.
+ *
+ * Reads labels and shared-facility counts from the Sigma graph, then returns
+ * ranked results to the parent as the user focuses or types in the search box.
+ *
+ * Props:
+ * - searchQuery: Current raw text from the graph search input
+ * - onSearchResults: Sends the latest ranked result list to the parent
+ * - isSearchOpen: Whether the search dropdown is currently active
+ */
 function GraphSearchController({ searchQuery, onSearchResults, isSearchOpen }) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
@@ -320,7 +415,7 @@ function GraphSearchController({ searchQuery, onSearchResults, isSearchOpen }) {
 
   // Build dropdown suggestions as user types and send filtered count list when search input becomes active
   useEffect(() => {
-    if (!isSearchOpen) return; // don't push results when dropdown is closed
+    if (!isSearchOpen) return;
 
     const q = normalize(searchQuery);
 
@@ -358,6 +453,28 @@ function GraphSearchController({ searchQuery, onSearchResults, isSearchOpen }) {
   return null;
 }
 
+GraphSearchController.propTypes = {
+  searchQuery: PropTypes.string,
+  onSearchResults: PropTypes.func,
+  isSearchOpen: PropTypes.bool,
+};
+
+/**
+ * Top-level Sigma graph component used inside the owner network modal.
+ *
+ * Composes graph loading, layout, interaction logic, and search indexing into
+ * a single graph surface.
+ *
+ * Props:
+ * - data: Network payload returned by the owner network endpoint
+ * - onSelectNode: Updates the selected node when a graph node is pinned
+ * - searchQuery: Current search input value from the modal nav
+ * - onSearchResults: Receives search suggestions generated from graph data
+ * - pinRequestNodeId: External node id to pin from search or panel actions
+ * - onPinRequestConsumed: Clears the pin request after it has been handled
+ * - sizeMetric: Controls the node sizing mode
+ * - isSearchOpen: Whether the search dropdown is open
+ */
 export default function NetworkGraph({
   data,
   onSelectNode,
@@ -399,3 +516,14 @@ export default function NetworkGraph({
     </SigmaContainer>
   );
 }
+
+NetworkGraph.propTypes = {
+  data: graphDataShape,
+  onSelectNode: PropTypes.func,
+  searchQuery: PropTypes.string,
+  onSearchResults: PropTypes.func,
+  pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onPinRequestConsumed: PropTypes.func,
+  sizeMetric: PropTypes.string,
+  isSearchOpen: PropTypes.bool,
+};

@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import OwnerNetworkCtaBanner from './OwnerNetworkGraphCTA';
 import OwnerNetworkGraphModal from './OwnerNetworkGraphModal';
-
-export default function OwnersNetworkProfile({ ownerId }) {
+/**
+ * Small wrapper that owns the open/close state for the owner network graph.
+ * Renders the CTA banner and the full-screen graph modal for the current owner.
+ */
+export default function OwnersNetworkGraphLauncher({ ownerId }) {
   const [graphOpen, setGraphOpen] = useState(false);
 
   return (
@@ -22,6 +25,6 @@ export default function OwnersNetworkProfile({ ownerId }) {
   );
 }
 
-OwnersNetworkProfile.propTypes = {
+OwnersNetworkGraphLauncher.propTypes = {
   ownerId: PropTypes.string.isRequired,
 };

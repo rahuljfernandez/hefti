@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LayoutCard from '../atom/layout-card';
 
-//As of 2/19 this is draft for demo purposes and to allow
+//As of 2/19 this is draft for demo purposes
 export default function OwnerNetworkCtaBanner({ onOpen }) {
   return (
     <LayoutCard>

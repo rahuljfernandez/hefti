@@ -11,8 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
-
-import OwnersNetworkProfile from '../components/ui/molecule/OwnerNetworkProfile';
+import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -57,7 +56,7 @@ export default function OwnersProfile() {
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
         />
-        <OwnersNetworkProfile ownerId={owner.id} />
+        <OwnersNetworkGraphLauncher ownerId={owner.id} />
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
         </Heading>

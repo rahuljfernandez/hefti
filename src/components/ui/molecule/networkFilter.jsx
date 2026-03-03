@@ -2,6 +2,7 @@ import React from 'react';
 import NetworkSidePanelSection from './networkSidePanelAccordian';
 import { InformationCircleIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
 
 /**
  * Overlay filter panel for the network graph modal.
@@ -20,6 +21,7 @@ import clsx from 'clsx';
  * - Positioned by the parent container with absolute layout
  * - Reuses `NetworkSidePanelSection` to stay visually consistent with the side panel
  */
+
 export default function NetworkFilter({
   onSetDepth,
   depth,
@@ -27,7 +29,7 @@ export default function NetworkFilter({
   sizeMetric,
 }) {
   return (
-    <div className="w-[410px]">
+    <div className="w-[415px]">
       <NetworkSidePanelSection title={'Graph Filters'} defaultOpen>
         <div className="bg-core-white border-border-primary space-y-4 border px-4 pb-4">
           {/* Network Depth */}
@@ -74,7 +76,7 @@ export default function NetworkFilter({
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => onSetSizeMetric?.('default')}
+              onClick={() => onSetSizeMetric('default')}
               className={clsx(
                 'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
                 sizeMetric === 'default'
@@ -86,7 +88,7 @@ export default function NetworkFilter({
             </button>
             <button
               type="button"
-              onClick={() => onSetSizeMetric?.('star')}
+              onClick={() => onSetSizeMetric('star')}
               className={clsx(
                 'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
                 sizeMetric === 'star'
@@ -98,7 +100,7 @@ export default function NetworkFilter({
             </button>
             <button
               type="button"
-              onClick={() => onSetSizeMetric?.('quality')}
+              onClick={() => onSetSizeMetric('quality')}
               className={clsx(
                 'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
                 sizeMetric === 'quality'
@@ -110,7 +112,7 @@ export default function NetworkFilter({
             </button>
             <button
               type="button"
-              onClick={() => onSetSizeMetric?.('financial')}
+              onClick={() => onSetSizeMetric('financial')}
               className={clsx(
                 'text-label-xs text-core-black h-10 rounded-md border border-zinc-200 bg-zinc-100 transition',
                 sizeMetric === 'financial'
@@ -126,3 +128,11 @@ export default function NetworkFilter({
     </div>
   );
 }
+
+NetworkFilter.propTypes = {
+  onSetDepth: PropTypes.func.isRequired,
+  depth: PropTypes.oneOf([1, 2]).isRequired,
+  onSetSizeMetric: PropTypes.func.isRequired,
+  sizeMetric: PropTypes.oneOf(['default', 'star', 'quality', 'financial'])
+    .isRequired,
+};

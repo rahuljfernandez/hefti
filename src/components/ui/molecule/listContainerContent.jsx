@@ -480,7 +480,7 @@ export function MetricCardLong({ item }) {
   );
 }
 
-//This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel. It might also fit in the search dropdown..
+//This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel.
 export function NetworkSidePanelList({ item, onSelectNode }) {
   return (
     <button
