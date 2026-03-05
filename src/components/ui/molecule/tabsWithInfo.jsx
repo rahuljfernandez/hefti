@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import Tabs from './Tabs';
+import Tabs from './tabs';
 import ClinicalQualityTab from './tabs/clinicalQualityTab';
 import DeficienciesTab from './tabs/deficienciesTab';
 import FinancialOverviewTab from './tabs/financialOverviewTab';

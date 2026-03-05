@@ -3,7 +3,11 @@ name: Deploy to AWS Lambda
 on:
   push:
     branches:
-      - main
+      - sam/github_actions
+      #TODO: Convert this back to main
+      # also need to change this value in IAM -> Roles -> 
+      # github-actions-hefti-deployer -> Trust relationships
+      # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
 jobs:
   deploy:
@@ -27,11 +31,18 @@ jobs:
           role-to-assume: arn:aws:iam::330552994757:role/github-actions-hefti-deployer
           aws-region: us-east-2
 
-      - name: Install dependencies and prune dev
-        working-directory: hefti-data-api
-        run: |
-          npm prune --omit=dev
+      - name: Install dependencies
+        # using -legacy-peer-deps for "@visx packages only declare 
+        # peer dependency support for React 16/17/18, but we're on React 19"
+        run: npm install --legacy-peer-deps
 
+      - name: Build
+        run: npm run build
+
+      #TODO: Add step to push frontend build to the S3 bucket  
+
+
+#TODO: Using info below, setup 2nd/different job for backend API build.
 #      - name: Build deployment package
 #        run: |
 #          mkdir -p hefti-data-api-prod
