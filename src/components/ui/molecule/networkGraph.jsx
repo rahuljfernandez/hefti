@@ -153,7 +153,7 @@ LoadNetwork.propTypes = {
  * - startOnMount: Whether the force layout should start automatically
  */
 function ForceAtlasToggle({ startOnMount = true }) {
-  const { start, stop, isRunning } = useWorkerLayoutForceAtlas2({
+  const { start, stop } = useWorkerLayoutForceAtlas2({
     settings: { slowDown: 10, gravity: 1, scalingRatio: 2 },
   });
 
@@ -265,7 +265,6 @@ function InteractionLayer({
       },
       clickNode: (e) => {
         pinNode(e.node);
-        console.log('node', e.node);
       },
       clickStage: () => {
         setLockedNode(null);
@@ -484,6 +483,7 @@ export default function NetworkGraph({
   onPinRequestConsumed,
   sizeMetric,
   isSearchOpen,
+  showFullScreenControl = true,
 }) {
   //fallback for setting node size mode
   const effectiveSizeMetric = sizeMetric ?? 'default';
@@ -506,12 +506,11 @@ export default function NetworkGraph({
       <GraphSearchController
         searchQuery={searchQuery}
         onSearchResults={onSearchResults}
-        onSelectNode={onSelectNode}
         isSearchOpen={isSearchOpen}
       />
       <ControlsContainer position="top-right">
         <ZoomControl />
-        <FullScreenControl />
+        {showFullScreenControl && <FullScreenControl />}
       </ControlsContainer>
     </SigmaContainer>
   );
@@ -526,4 +525,5 @@ NetworkGraph.propTypes = {
   onPinRequestConsumed: PropTypes.func,
   sizeMetric: PropTypes.string,
   isSearchOpen: PropTypes.bool,
+  showFullScreenControl: PropTypes.bool,
 };

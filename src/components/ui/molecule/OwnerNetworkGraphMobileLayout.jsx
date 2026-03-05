@@ -1,0 +1,167 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import NetworkGraph from './networkGraph';
+import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
+import NetworkSidePanelCardHeader from './networkSidePanelCardHeader';
+import OwnerNetworkContent from './ownerNetworkContent';
+
+/**
+ * Mobile presentation shell for the Owner Network Graph modal.
+ *
+ * Responsibilities:
+ * - Renders the graph canvas under a draggable bottom sheet
+ * - Hosts mobile search UI and selected-owner summary inside the sheet
+ * - Renders hub/non-hub owner content sections in the sheet body
+ * - Displays loading/error states for mobile layout
+ *
+ * Note:
+ * - Drag/snap state is controlled by `OwnerNetworkGraphModal`; this component
+ *   only receives values + handlers via props.
+ */
+export default function OwnerNetworkGraphMobileLayout({
+  status,
+  error,
+  data,
+  onSelectNode,
+  pinRequestNodeId,
+  onPinRequestConsumed,
+  searchQuery,
+  onSearchResults,
+  sizeMetric,
+  isSearchOpen,
+  onSetSearchQuery,
+  searchResults,
+  onSelectSearchResult,
+  onSetIsSearchOpen,
+  onSearchOpen,
+  renderedSheetHeightPx,
+  isDraggingSheet,
+  onSheetPointerDown,
+  onSheetPointerMove,
+  onSheetPointerEnd,
+  sheetScrollRef,
+  selectedNode,
+  onSelectContentNode,
+}) {
+  return (
+    <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
+      <div className="relative min-h-0 flex-1">
+        {status === 'loading' && (
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="text-sm text-gray-600">Loading graph...</div>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="absolute inset-0 grid place-items-center px-6 text-center">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">
+                Unable to load graph
+              </div>
+              <div className="mt-1 text-sm text-gray-600">{error}</div>
+            </div>
+          </div>
+        )}
+
+        {status === 'ready' && data && (
+          <div className="h-full min-h-0">
+            <NetworkGraph
+              data={data}
+              onSelectNode={onSelectNode}
+              pinRequestNodeId={pinRequestNodeId}
+              onPinRequestConsumed={onPinRequestConsumed}
+              searchQuery={searchQuery}
+              onSearchResults={onSearchResults}
+              sizeMetric={sizeMetric}
+              isSearchOpen={isSearchOpen}
+              showFullScreenControl={false}
+            />
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 z-30">
+          <div
+            className={clsx(
+              'border-border-primary rounded-t-2xl border-t bg-zinc-900 shadow-xl',
+              'overflow-hidden transition-[height] duration-300 ease-out',
+              isDraggingSheet && 'transition-none',
+            )}
+            style={{ height: `${renderedSheetHeightPx}px` }}
+            onPointerDown={onSheetPointerDown}
+            onPointerMove={onSheetPointerMove}
+            onPointerUp={onSheetPointerEnd}
+            onPointerCancel={onSheetPointerEnd}
+          >
+            <div className="flex touch-none justify-center pt-2 pb-2">
+              <div className="bg-content-inverse-primary h-1 w-10 rounded-full" />
+            </div>
+
+            <div
+              ref={sheetScrollRef}
+              className="h-full overflow-y-auto px-4 pt-3 pb-4"
+            >
+              <div className="px-3 pb-2">
+                <OwnerNetworkSearchBar
+                  variant="mobile"
+                  searchQuery={searchQuery}
+                  onSetSearchQuery={onSetSearchQuery}
+                  searchResults={searchResults}
+                  onSelectSearchResult={onSelectSearchResult}
+                  isSearchOpen={isSearchOpen}
+                  onSetIsSearchOpen={(open) => {
+                    onSetIsSearchOpen(open);
+                    if (open) onSearchOpen();
+                  }}
+                />
+              </div>
+
+              {selectedNode && (
+                <NetworkSidePanelCardHeader
+                  variant="mobile"
+                  selectedNode={selectedNode}
+                  nonHub={selectedNode.type !== 'hub'}
+                />
+              )}
+
+              {selectedNode && (
+                <OwnerNetworkContent
+                  mode={selectedNode.type === 'hub' ? 'hub' : 'non-hub'}
+                  shared={selectedNode?.meta?.sharedFacilities ?? []}
+                  onSelectNode={onSelectContentNode}
+                  variant="mobile"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+OwnerNetworkGraphMobileLayout.propTypes = {
+  status: PropTypes.oneOf(['idle', 'loading', 'ready', 'error']).isRequired,
+  error: PropTypes.string,
+  data: PropTypes.object,
+  onSelectNode: PropTypes.func.isRequired,
+  pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onPinRequestConsumed: PropTypes.func.isRequired,
+  searchQuery: PropTypes.string.isRequired,
+  onSearchResults: PropTypes.func.isRequired,
+  sizeMetric: PropTypes.string.isRequired,
+  isSearchOpen: PropTypes.bool.isRequired,
+  onSetSearchQuery: PropTypes.func.isRequired,
+  searchResults: PropTypes.array.isRequired,
+  onSelectSearchResult: PropTypes.func.isRequired,
+  onSetIsSearchOpen: PropTypes.func.isRequired,
+  onSearchOpen: PropTypes.func.isRequired,
+  renderedSheetHeightPx: PropTypes.number.isRequired,
+  isDraggingSheet: PropTypes.bool.isRequired,
+  onSheetPointerDown: PropTypes.func.isRequired,
+  onSheetPointerMove: PropTypes.func.isRequired,
+  onSheetPointerEnd: PropTypes.func.isRequired,
+  sheetScrollRef: PropTypes.shape({ current: PropTypes.any }),
+  selectedNode: PropTypes.object,
+  onSelectContentNode: PropTypes.func.isRequired,
+};

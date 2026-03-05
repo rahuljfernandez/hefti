@@ -1,5 +1,5 @@
 import React from 'react';
-import NetworkSidePanelSection from './networkSidePanelAccordian';
+import NetworkSidePanelAccordion from './networkSidePanelAccordion';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import InfoTooltip from '../atom/infoTooltip';
@@ -21,7 +21,7 @@ import NetworkFilterControl from '../atom/networkFilterControl';
  * Notes:
  * - Rendered by `OwnerNetworkGraphModal`
  * - Positioned by the parent container with absolute layout
- * - Reuses `NetworkSidePanelSection` to stay visually consistent with the side panel
+ * - Reuses `NetworkSidePanelAccordion` to stay visually consistent with the side panel
  */
 
 export default function NetworkFilter({
@@ -32,7 +32,7 @@ export default function NetworkFilter({
 }) {
   return (
     <div className="lg:w-[300px] xl:w-[375px]">
-      <NetworkSidePanelSection
+      <NetworkSidePanelAccordion
         title={'Graph Filters'}
         icon={<Cog6ToothIcon className="h-5 w-5" />}
         defaultOpen
@@ -91,7 +91,7 @@ export default function NetworkFilter({
             />
           </div>
         </div>
-      </NetworkSidePanelSection>
+      </NetworkSidePanelAccordion>
     </div>
   );
 }

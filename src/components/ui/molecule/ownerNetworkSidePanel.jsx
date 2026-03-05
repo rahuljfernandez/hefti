@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
 import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
-import NetworkSidePanelSection from './networkSidePanelAccordian';
-import { NetworkSidePanelList } from './listContainerContent';
 import PropTypes from 'prop-types';
-import NetworkFilter from './networkFilter';
+import OwnerNetworkContent from './ownerNetworkContent';
 
 /**
  * Side panel shown beside the owner network graph.
@@ -15,14 +13,14 @@ import NetworkFilter from './networkFilter';
  * Props:
  * - data: Network payload containing the graph nodes used to resolve the selection
  * - selectedNodeId: Active node id from graph interactions or search
- * - onClear: Reserved clear handler passed down from the modal
+ 
  * - onSelectNode: Selects a related node from the hub panel list
  */
 export default function OwnerNetworkSidePanel({
   data,
   selectedNodeId,
-
   onSelectNode,
+  variant = 'desktop',
 }) {
   const selectedNode = useMemo(() => {
     if (!data?.nodes?.length || !selectedNodeId) return null;
@@ -36,9 +34,13 @@ export default function OwnerNetworkSidePanel({
   return (
     <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
       {selectedNode.type === 'hub' ? (
-        <HubPanel selectedNode={selectedNode} onSelectNode={onSelectNode} />
+        <HubPanel
+          selectedNode={selectedNode}
+          onSelectNode={onSelectNode}
+          variant={variant}
+        />
       ) : (
-        <OwnerPanel selectedNode={selectedNode} />
+        <OwnerPanel selectedNode={selectedNode} variant={variant} />
       )}
     </div>
   );
@@ -50,19 +52,16 @@ export default function OwnerNetworkSidePanel({
  * Props:
  * selectedNode: The resolved non-hub node to display in the panel header
  */
-function OwnerPanel({ selectedNode }) {
+function OwnerPanel({ selectedNode, variant }) {
   const nonHub = true;
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <NetworkSidePanelCardHeader selectedNode={selectedNode} nonHub={nonHub} />
-
-      <NetworkSidePanelSection title="Clinical Quality Measures">
-        {' '}
-        {/**Children */}
-      </NetworkSidePanelSection>
-      <NetworkSidePanelSection title="Staffing">
-        {/**Children */}{' '}
-      </NetworkSidePanelSection>
+      <NetworkSidePanelCardHeader
+        selectedNode={selectedNode}
+        nonHub={nonHub}
+        variant={variant}
+      />
+      <OwnerNetworkContent mode={'non-hub'} variant={variant} />
     </div>
   );
 }
@@ -74,34 +73,21 @@ function OwnerPanel({ selectedNode }) {
  * - selectedNode: The hub node, including shared-facility metadata
  * - onSelectNode: Selects a related owner from the hub relationship list
  */
-function HubPanel({ selectedNode, onSelectNode }) {
+function HubPanel({ selectedNode, onSelectNode, variant }) {
   const shared = selectedNode?.meta?.sharedFacilities ?? [];
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <NetworkSidePanelCardHeader selectedNode={selectedNode} />
-      <NetworkSidePanelSection title="Ownership Relations Count" defaultOpen>
-        {/**Children */}
-        <div className="bg-core-white max-h-64 overflow-y-auto px-4">
-          <ul className="mt-2 rounded-lg">
-            {shared.map((owner) => (
-              <li key={owner.ownerId}>
-                <NetworkSidePanelList
-                  item={owner}
-                  onSelectNode={onSelectNode}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </NetworkSidePanelSection>
-      <NetworkSidePanelSection title="Clinical Quality Measures">
-        {' '}
-        {/**Children */}
-      </NetworkSidePanelSection>
-      <NetworkSidePanelSection title="Staffing">
-        {/**Children */}{' '}
-      </NetworkSidePanelSection>
+      <NetworkSidePanelCardHeader
+        selectedNode={selectedNode}
+        variant={variant}
+      />
+      <OwnerNetworkContent
+        shared={shared}
+        onSelectNode={onSelectNode}
+        mode={'hub'}
+        variant={variant}
+      />
     </div>
   );
 }
@@ -132,15 +118,17 @@ OwnerNetworkSidePanel.propTypes = {
     nodes: PropTypes.arrayOf(selectedNodeShape),
   }),
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  onClear: PropTypes.func,
   onSelectNode: PropTypes.func,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
 
 OwnerPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
 
 HubPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   onSelectNode: PropTypes.func,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
 };

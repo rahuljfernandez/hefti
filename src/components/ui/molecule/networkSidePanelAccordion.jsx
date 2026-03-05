@@ -6,7 +6,7 @@ import {
 } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import PropTypes from 'prop-types';
-import { title } from 'framer-motion/client';
+import clsx from 'clsx';
 
 /**
  * Reusable collapsible section used in the network graph UI.
@@ -19,27 +19,44 @@ import { title } from 'framer-motion/client';
  * - Pass a `title` for the section header
  * - Pass `children` for the expandable content
  * - Use `defaultOpen` when a section should start expanded
+ *
  */
 
-export default function NetworkSidePanelSection({
+export default function NetworkSidePanelAccordion({
   title,
   icon,
   defaultOpen = false,
   children,
+  variant = 'desktop',
 }) {
+  const isMobile = variant === 'mobile';
   return (
     <Disclosure defaultOpen={defaultOpen}>
       {({ open }) => (
-        <div className="bg-border-secondary border-border-primary min-h-14 border-t border-b">
+        <div
+          className={clsx(
+            'min-h-14 border-t border-b',
+            isMobile
+              ? 'border-border-inverse-primary bg-zinc-900'
+              : 'bg-border-secondary border-border-primary',
+          )}
+        >
           <DisclosureButton className="flex w-full items-center justify-between px-4 py-3 text-left hover:cursor-pointer">
-            <span className="text-core-black text-paragraph-base flex items-center gap-1">
+            <span
+              className={clsx(
+                'text-paragraph-base flex items-center gap-1',
+                isMobile ? 'text-core-white' : 'text-core-black',
+              )}
+            >
               {icon}
               <span>{title}</span>
             </span>
             <ChevronDownIcon
-              className={`h-5 w-5 text-zinc-700 transition-transform ${
-                open ? 'rotate-180' : ''
-              }`}
+              className={clsx(
+                'h-5 w-5 transition-transform',
+                open && 'rotate-180',
+                isMobile ? 'text-content-tertiary' : 'text-zinc-700',
+              )}
             />
           </DisclosureButton>
 
@@ -49,9 +66,10 @@ export default function NetworkSidePanelSection({
     </Disclosure>
   );
 }
-NetworkSidePanelSection.propTypes = {
+NetworkSidePanelAccordion.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.node,
   defaultOpen: PropTypes.bool,
   children: PropTypes.node,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
