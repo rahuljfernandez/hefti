@@ -6,6 +6,7 @@ on:
       - sam/github_actions
       # also need to change this value in IAM -> Roles -> 
       # github-actions-hefti-deployer -> Trust relationships
+      # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
 jobs:
   deploy:
@@ -17,6 +18,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug - list files
+        run: ls -la
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
