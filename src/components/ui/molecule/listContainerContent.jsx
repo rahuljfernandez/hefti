@@ -8,7 +8,7 @@ import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
 import { badgeConfig } from '../../../lib/getBadgeColor';
-import { ownerRoleMap } from '../../../lib/ownerRolehelper';
+import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 /*Todo: 
 reit/pe is that working for OwnershipAndStaekholders?
 */
