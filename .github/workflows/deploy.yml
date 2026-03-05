@@ -32,23 +32,23 @@ jobs:
         run: |
           npm prune --omit=dev
 
-      - name: Build deployment package
-        run: |
-          mkdir -p hefti-data-api-prod
-          cp hefti-data-api/index.js hefti-data-api-prod/
-          cp hefti-data-api/package.json hefti-data-api-prod/
-          cp -r hefti-data-api/prisma hefti-data-api-prod/
-          cp -r hefti-data-api/node_modules hefti-data-api-prod/
-          cd hefti-data-api-prod
-          zip -r ../lambda.zip . > /dev/null
+#      - name: Build deployment package
+#        run: |
+#          mkdir -p hefti-data-api-prod
+#          cp hefti-data-api/index.js hefti-data-api-prod/
+#          cp hefti-data-api/package.json hefti-data-api-prod/
+#          cp -r hefti-data-api/prisma hefti-data-api-prod/
+#          cp -r hefti-data-api/node_modules hefti-data-api-prod/
+#          cd hefti-data-api-prod
+#          zip -r ../lambda.zip . > /dev/null
 
-      - name: Upload ZIP to S3
-        run: |
-          aws s3 cp lambda.zip s3://hefti-lambda/lambda.zip
+#      - name: Upload ZIP to S3
+#        run: |
+#          aws s3 cp lambda.zip s3://hefti-lambda/lambda.zip
 
-      - name: Deploy to Lambda
-        run: |
-          aws lambda update-function-code \
-            --function-name hefti-data-api \
-            --s3-bucket hefti-lambda \
-            --s3-key lambda.zip
+#      - name: Deploy to Lambda
+#        run: |
+#          aws lambda update-function-code \
+#            --function-name hefti-data-api \
+#            --s3-bucket hefti-lambda \
+#            --s3-key lambda.zip
