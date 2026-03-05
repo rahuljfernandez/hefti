@@ -33,10 +33,11 @@ jobs:
           role-to-assume: arn:aws:iam::330552994757:role/github-actions-hefti-deployer
           aws-region: us-east-2
 
-      - name: Install dependencies and prune dev
-#        working-directory: hefti-data-api
-        run: |
-          npm prune --omit=dev
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
 
 #      - name: Build deployment package
 #        run: |
