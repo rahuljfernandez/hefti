@@ -34,7 +34,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Install dependencies and prune dev
-        working-directory: hefti-data-api
+#        working-directory: hefti-data-api
         run: |
           npm prune --omit=dev
 
