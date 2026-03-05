@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - sam/github_actions
+      #TODO: Convert this back to main
       # also need to change this value in IAM -> Roles -> 
       # github-actions-hefti-deployer -> Trust relationships
       # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
@@ -19,9 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug - list files
-        run: ls -la
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -34,11 +32,17 @@ jobs:
           aws-region: us-east-2
 
       - name: Install dependencies
+        # using -legacy-peer-deps for "@visx packages only declare 
+        # peer dependency support for React 16/17/18, but we're on React 19"
         run: npm install --legacy-peer-deps
 
       - name: Build
         run: npm run build
 
+      #TODO: Add step to push frontend build to the S3 bucket  
+
+
+#TODO: Using info below, setup 2nd/different job for backend API build.
 #      - name: Build deployment package
 #        run: |
 #          mkdir -p hefti-data-api-prod
