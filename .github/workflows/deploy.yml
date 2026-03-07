@@ -1,4 +1,4 @@
-name: Deploy to AWS Lambda
+name: Deploy to AWS S3 hefti-app
 
 on:
   push:
@@ -39,7 +39,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      #TODO: Add step to push frontend build to the S3 bucket  
+      - name: Upload dist to S3
+        run: |
+          aws s3 sync dist/ s3://hefti-app --delete
 
 
 #TODO: Using info below, setup 2nd/different job for backend API build.
