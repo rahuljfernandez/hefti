@@ -40,6 +40,8 @@ jobs:
         run: npm run build
 
       - name: Upload dist to S3
+        # The --delete flag removes any files from the bucket that no longer exist in 
+        # the dist folder, keeping the bucket in sync with the build.
         run: |
           aws s3 sync dist/ s3://hefti-app --delete
 
