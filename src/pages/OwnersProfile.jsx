@@ -13,6 +13,10 @@ import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
 import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
+import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
+import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
+import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
+import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -74,16 +78,15 @@ export default function OwnersProfile() {
                 );
 
               case 'Deficiencies & Penalties':
-                return <DeficienciesTab facility={facility} />;
-
+                return <DeficienciesTab items={owner} />;
               case 'Clinical Quality Measures':
-                return <ClinicalQualityTab facility={facility} />;
+                return <ClinicalQualityTab items={owner} />;
 
               case 'Staffing':
-                return <StaffingTab facility={facility} />;
+                return <StaffingTab items={owner} />;
 
               case 'Financial Overview':
-                return <FinancialOverviewTab facility={facility} />;
+                return <FinancialOverviewTab items={owner} />;
 
               default:
                 return (

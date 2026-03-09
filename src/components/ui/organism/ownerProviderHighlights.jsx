@@ -6,6 +6,7 @@ import LayoutCard from '../atom/layout-card';
 import StarRating from '../molecule/starRating';
 import { Divider } from '../atom/divider';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
+import { Heading } from '../atom/heading';
 /**
  * Organism component that will be used to build Owner-Page this is the top block(Owner Highlights)
  *
@@ -58,56 +59,61 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
   ];
 
   return (
-    <LayoutCard>
-      <div className="border-b border-gray-200 pb-5">
-        <OwnerProfileDescription items={items} />
-      </div>
-      <div className="border-b border-gray-200 py-5">
-        <CMSRating
-          stars={[
-            {
-              title: 'Average Rating Across All Facilities',
-              rating: overallRating,
-              size: 'h-10 w-10',
-              ratingSize: '4xl',
-              className: 'font-bold',
-            },
-          ]}
-        />
-        <div className="border-b border-gray-200 py-4 md:hidden"></div>
-        <div className="flex flex-col md:flex-row md:pt-4">
-          <div className="py-4">
-            <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
+    <>
+      <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
+        Owner Highlights
+      </Heading>
+      <LayoutCard>
+        <div className="border-b border-gray-200 pb-5">
+          <OwnerProfileDescription items={items} />
+        </div>
+        <div className="border-b border-gray-200 py-5">
+          <CMSRating
+            stars={[
+              {
+                title: 'Average Rating Across All Facilities',
+                rating: overallRating,
+                size: 'h-10 w-10',
+                ratingSize: '4xl',
+                className: 'font-bold',
+              },
+            ]}
+          />
+          <div className="border-b border-gray-200 py-4 md:hidden"></div>
+          <div className="flex flex-col md:flex-row md:pt-4">
+            <div className="py-4">
+              <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
+                <StarRating
+                  title="Health Inspection Rating"
+                  rating={healthInspectionRating}
+                  ratingSize="2xl"
+                />
+              </div>
+            </div>
+            <div className="py-4 md:px-8">
+              <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
+                <StarRating
+                  title="Staffing Rating"
+                  rating={staffingRating}
+                  ratingSize="2xl"
+                />
+              </div>
+            </div>
+            <div className="py-4">
               <StarRating
-                title="Health Inspection Rating"
-                rating={healthInspectionRating}
+                title="Quality Measures Rating"
+                rating={qualityRating}
                 ratingSize="2xl"
               />
             </div>
-          </div>
-          <div className="py-4 md:px-8">
-            <div className="border-b border-gray-200 pb-4 md:border-r md:border-b-0 md:pr-8">
-              <StarRating
-                title="Staffing Rating"
-                rating={staffingRating}
-                ratingSize="2xl"
-              />
-            </div>
-          </div>
-          <div className="py-4">
-            <StarRating
-              title="Quality Measures Rating"
-              rating={qualityRating}
-              ratingSize="2xl"
-            />
           </div>
         </div>
-      </div>
 
-      <div className="">
-        <StatsCard variant="panel" stats={ownerCardStats} />
-      </div>
-    </LayoutCard>
+        <div className="">
+          <StatsCard variant="panel" stats={ownerCardStats} />
+        </div>
+      </LayoutCard>
+    </>
   );
 }
 

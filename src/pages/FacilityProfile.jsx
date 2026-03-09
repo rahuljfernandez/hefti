@@ -75,16 +75,16 @@ export default function FacilityProfile() {
                 return <ProviderHighlightsOwnershipTab facility={facility} />;
 
               case 'Deficiencies & Penalties':
-                return <DeficienciesTab facility={facility} />;
+                return <DeficienciesTab items={facility} />;
 
               case 'Clinical Quality Measures':
-                return <ClinicalQualityTab facility={facility} />;
+                return <ClinicalQualityTab items={facility} />;
 
               case 'Staffing':
-                return <StaffingTab facility={facility} />;
+                return <StaffingTab items={facility} />;
 
               case 'Financial Overview':
-                return <FinancialOverviewTab facility={facility} />;
+                return <FinancialOverviewTab items={facility} />;
 
               default:
                 return (
