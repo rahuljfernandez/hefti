@@ -1,43 +1,50 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Tabs from './Tabs';
-import ClinicalQualityTab from './tabs/clinicalQualityTab';
-import DeficienciesTab from './tabs/deficienciesTab';
-import FinancialOverviewTab from './tabs/financialOverviewTab';
-import ProviderHighlightsOwnershipTab from './tabs/providerHighlightsOwnershipTab';
-import StaffingTab from './tabs/staffingTab';
 
-// We manage the activeTab state here which sets the default to the first tab (Provider Highlights & Ownership) . This is passed down to the Tabs component.
+/**
+ * Shared tabs wrapper for profile pages.
+ *
+ * Responsibilities:
+ * - Owns `activeTab` selection state
+ * - Renders the shared `Tabs` UI
+ * - Exposes the selected tab through a render prop (`children(activeTab)`)
+ *
+ * Notes:
+ * - If `defaultTabName` is provided, it attempts to start on that tab.
+ * - If no render function is passed as `children`, a fallback message is shown.
+ */
 
-// The five imported tab components are stored in TAB_COMPONENTS, which maps each tab's name to its corresponding component. When a user clicks a tab (e.g., "Financial Overview"), activeTab.name updates, and the matching component (FinancialOverviewTab) is dynamically rendered.
+export default function TabsWithInfo({
+  tabsData,
+  defaultTabName,
+  children,
+  onTabChange,
+}) {
+  const initialTab =
+    tabsData.find((tab) => tab.name === defaultTabName) ?? tabsData[0];
 
-const TAB_COMPONENTS = {
-  'Provider Highlights & Ownership': ProviderHighlightsOwnershipTab,
-  'Deficiencies & Penalties': DeficienciesTab,
-  'Clinical Quality Measures': ClinicalQualityTab,
-  Staffing: StaffingTab,
-  'Financial Overview': FinancialOverviewTab,
-};
+  const [activeTab, setActiveTab] = useState(initialTab);
 
-export default function TabsWithInfo({ tabsData, facility, ownershipLinks }) {
-  const [activeTab, setActiveTab] = useState(tabsData[0]);
-  const ActiveComponent = TAB_COMPONENTS[activeTab.name];
+  // Updates local tab state and notifies the parent when tab selection changes.
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    onTabChange?.(tab);
+  };
 
   return (
     <div className="bg-background-secondary">
       <div className="pb-3">
         <Tabs
           tabsData={tabsData}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           activeTab={activeTab}
         />
       </div>
-      <div className="">
-        {ActiveComponent ? (
-          <ActiveComponent
-            facility={facility}
-            ownershipLinks={ownershipLinks}
-          />
+
+      <div>
+        {typeof children === 'function' ? (
+          children(activeTab)
         ) : (
           <p className="text-muted-foreground text-sm">
             This section is under development.
@@ -52,10 +59,11 @@ TabsWithInfo.propTypes = {
   tabsData: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      displayTitle: PropTypes.string.isRequired,
+      displayTitle: PropTypes.string,
       href: PropTypes.string,
     }),
-  ),
-  facility: PropTypes.object,
-  ownershipLinks: PropTypes.array,
+  ).isRequired,
+  defaultTabName: PropTypes.string,
+  children: PropTypes.func,
+  onTabChange: PropTypes.func,
 };

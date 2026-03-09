@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useState } from 'react';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -45,6 +44,7 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
 
   return (
     <div className="bg-background-secondary">
+      {/** Mobile */}
       <div className="grid grid-cols-1 lg:hidden">
         {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
         <select
@@ -62,6 +62,7 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
           className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
         />
       </div>
+      {/** Destop */}
       <div className="hidden lg:block">
         <div className="border-b border-gray-200">
           <nav aria-label="Tabs" className="-mb-px flex space-x-8">

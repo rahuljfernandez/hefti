@@ -11,7 +11,7 @@ import OwnerProfileDescription from '../molecule/ownerProfileDescription';
  *
  */
 
-//need to incorporate teh correct data once its ready to work with
+//need to incorporate the correct data once its ready to work with
 export default function OwenerProviderHighlights({ items, relatedFacilities }) {
   if (!items) return <div>No owner data available.</div>;
   console.log('rel', relatedFacilities);

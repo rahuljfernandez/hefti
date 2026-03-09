@@ -11,6 +11,8 @@ import { ListContainerDivider } from '../components/ui/organism/listContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
+import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
+import { profileTabsDescriptions } from '../lib/tabDescriptions';
 
 /**
  * OwnerProfile serves as the page for specific owners
@@ -45,7 +47,7 @@ export default function OwnersProfile() {
       ...link.facility,
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
-
+  console.log('related facilities', relatedFacilities);
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
@@ -56,13 +58,50 @@ export default function OwnersProfile() {
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
         />
-        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
+        {/* Shared tab shell; active tab content is chosen in the render function below. */}
+        <TabsWithInfo
+          tabsData={profileTabsDescriptions}
+          defaultTabName={'Provider Highlights & Ownership'}
+        >
+          {(activeTab) => {
+            switch (activeTab.name) {
+              case 'Provider Highlights & Ownership':
+                return (
+                  <OwenerProviderHighlights
+                    items={owner}
+                    relatedFacilities={relatedFacilities}
+                  />
+                );
+
+              case 'Deficiencies & Penalties':
+                return <DeficienciesTab facility={facility} />;
+
+              case 'Clinical Quality Measures':
+                return <ClinicalQualityTab facility={facility} />;
+
+              case 'Staffing':
+                return <StaffingTab facility={facility} />;
+
+              case 'Financial Overview':
+                return <FinancialOverviewTab facility={facility} />;
+
+              default:
+                return (
+                  <p className="text-muted-foreground text-sm">
+                    This section is under development.
+                  </p>
+                );
+            }
+          }}
+        </TabsWithInfo>
+
+        {/* <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
         </Heading>
         <OwenerProviderHighlights
           items={owner}
           relatedFacilities={relatedFacilities}
-        />
+        /> */}
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Facilities associated with {toTitleCase(owner.cms_ownership_name)}
         </Heading>

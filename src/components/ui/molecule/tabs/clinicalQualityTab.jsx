@@ -8,7 +8,7 @@ import { MetricCardLong } from '../listContainerContent';
  *  This component displays the Clinical Quality Measures data for an individual facility. Will be apart of the dynamic tabs scheme.
  */
 
-export default function ClinicalQuality({ ownershipLinks, facility }) {
+export default function ClinicalQualityTab({ ownershipLinks, facility }) {
   //I'm assuming at this point facility/ownershiptLinks will hold the needed data once backend is updated.
   // Temporary test data until backend connects
   const mockStats = [

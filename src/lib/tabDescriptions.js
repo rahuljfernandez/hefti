@@ -1,4 +1,4 @@
-export const facilityProfileTabsDescriptions = [
+export const profileTabsDescriptions = [
   {
     name: 'Provider Highlights & Ownership',
     displayTitle: 'Provider Highlights',
