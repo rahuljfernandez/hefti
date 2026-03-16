@@ -92,8 +92,8 @@ export default function StaffingTab({ items }) {
       <div>
         {/*Statistics Header */}
         <div>
-          <div className={'text-heading-sm'}>Staffing Quality</div>
-          <p className="text-paragraph-base">
+          <div className="text-heading-sm mb-2">Staffing Quality</div>
+          <p className="text-paragraph-base mb-6">
             Averages from 2023-07-01 to 2024-06-30
           </p>
         </div>
