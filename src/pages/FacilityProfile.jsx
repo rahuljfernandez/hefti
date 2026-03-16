@@ -73,12 +73,14 @@ export default function FacilityProfile() {
             switch (activeTab.name) {
               case 'Provider Highlights & Ownership':
                 return <ProviderHighlightsOwnershipTab facility={facility} />;
-
-              case 'Deficiencies & Penalties':
-                return <DeficienciesTab items={facility} />;
+              //As of 3/16/26 we are holding off on deficiencies
+              // case 'Deficiencies & Penalties':
+              //   return <DeficienciesTab items={facility} />;
 
               case 'Clinical Quality Measures':
-                return <ClinicalQualityTab items={facility} />;
+                return (
+                  <ClinicalQualityTab items={facility} status={'facililty'} />
+                );
 
               case 'Staffing':
                 return <StaffingTab items={facility} />;

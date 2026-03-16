@@ -51,7 +51,9 @@ export default function OwnersProfile() {
       ...link.facility,
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
+
   console.log('related facilities', relatedFacilities);
+
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
@@ -76,11 +78,12 @@ export default function OwnersProfile() {
                     relatedFacilities={relatedFacilities}
                   />
                 );
+              //As of 3/16/26 we are holding off on deficiencies
+              // case 'Deficiencies & Penalties':
+              //   return <DeficienciesTab items={owner} />;
 
-              case 'Deficiencies & Penalties':
-                return <DeficienciesTab items={owner} />;
               case 'Clinical Quality Measures':
-                return <ClinicalQualityTab items={owner} />;
+                return <ClinicalQualityTab items={owner} status={'owner'} />;
 
               case 'Staffing':
                 return <StaffingTab items={owner} />;
