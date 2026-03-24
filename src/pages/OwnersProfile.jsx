@@ -89,7 +89,7 @@ export default function OwnersProfile() {
                 return <StaffingTab items={owner} />;
 
               case 'Financial Overview':
-                return <FinancialOverviewTab items={owner} />;
+                return <FinancialOverviewTab />;
 
               default:
                 return (

@@ -55,14 +55,14 @@ export default function StaffingStatsCards({ stats }) {
             {item.rating ? (
               <Badge
                 color={getRatingColor(item.rating)}
-                className="mt-1 text-label-xs leading-none"
+                className="text-label-xs mt-1 leading-none"
               >
                 {item.rating}
               </Badge>
             ) : null}
           </div>
           <div className="text-core-black text-label-lg mt-3">{item.key}</div>
-          <p className="text-content-secondary text-paragraph-base mt-1 italic">
+          <p className="text-content-secondary text-paragraph-base mt-1">
             {item.description}
           </p>
           {item.nationalAverage !== undefined &&
