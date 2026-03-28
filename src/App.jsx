@@ -9,6 +9,7 @@ import Facilities from './pages/Facilities';
 import Owners from './pages/Owners';
 import OwnersProfile from './pages/OwnersProfile';
 import FacilityProfile from './pages/FacilityProfile';
+import HeftiResearch from './pages/HeftiResearch';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         <Route path="owners" element={<Owners />} />
         <Route path="/owners/:slug" element={<OwnersProfile />} />
         <Route path="/facilities/:slug" element={<FacilityProfile />} />
+        <Route path="/owners/:slug/research" element={<HeftiResearch />} />
+        <Route path="/facilities/:slug/research" element={<HeftiResearch />} />
       </Route>
     </Routes>
   );

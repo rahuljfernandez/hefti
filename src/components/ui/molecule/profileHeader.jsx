@@ -12,6 +12,7 @@ export default function ProfileHeader({
   ownershipType,
   freshness,
   func,
+  onClick,
 }) {
   return (
     <div className="bg-background-secondary my-6 flex flex-wrap font-sans lg:flex-row lg:justify-between">
@@ -27,7 +28,7 @@ export default function ProfileHeader({
         </h3>
       </div>
       <div>
-        <HeftiResearcherCTA />
+        <HeftiResearcherCTA onClick={onClick} />
       </div>
     </div>
   );
