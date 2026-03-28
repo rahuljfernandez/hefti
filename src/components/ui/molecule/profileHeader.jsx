@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
 import PropTypes from 'prop-types';
+import HeftiResearcherCTA from './heftiResearcherCTA';
 
 /*Custom component using Heading and Badge from TW Catalyst UI Kit  */
 /*Creates the header and badges w/ description atop profiles for Facilty or Owner*/
@@ -13,16 +14,21 @@ export default function ProfileHeader({
   func,
 }) {
   return (
-    <div className="bg-background-secondary my-6 font-sans">
-      <Heading className="text-display-xs" level={1}>
-        {title}
-      </Heading>
-      <div className="mt-4 flex flex-row gap-2">
-        <Badge color={func(ownershipType)}>{ownershipType}</Badge>
+    <div className="bg-background-secondary my-6 flex flex-wrap font-sans lg:flex-row lg:justify-between">
+      <div>
+        <Heading className="text-display-xs" level={1}>
+          {title}
+        </Heading>
+        <div className="mt-4 flex flex-row gap-2">
+          <Badge color={func(ownershipType)}>{ownershipType}</Badge>
+        </div>
+        <h3 className="text-paragraph-base text-content-secondary mt-4">
+          {freshness}
+        </h3>
       </div>
-      <h3 className="text-paragraph-base text-content-secondary mt-4">
-        {freshness}
-      </h3>
+      <div>
+        <HeftiResearcherCTA />
+      </div>
     </div>
   );
 }
