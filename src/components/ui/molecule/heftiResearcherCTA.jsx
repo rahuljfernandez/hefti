@@ -35,7 +35,7 @@ export default function HeftiResearcherCTA({ onClick }) {
         <p className="text-label-xs text-core-black">
           HEFTI Researcher{' '}
           <span className="text-xs font-normal">
-            can help you contruct charts based on this owner.
+            can help you construct charts based on this owner.
           </span>
         </p>
       </div>

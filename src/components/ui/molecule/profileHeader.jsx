@@ -39,4 +39,5 @@ ProfileHeader.propTypes = {
   ownershipType: PropTypes.string.isRequired,
   freshness: PropTypes.node,
   func: PropTypes.func,
+  onClick: PropTypes.func,
 };
