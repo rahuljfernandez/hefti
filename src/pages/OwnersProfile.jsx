@@ -49,7 +49,7 @@ export default function OwnersProfile() {
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
-    navigate(`/facilities/${slug}/research`);
+    navigate(`/owners/${slug}/research`);
   };
 
   return (

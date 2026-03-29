@@ -1,21 +1,96 @@
 import React, { useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://hefti-data-api.ddev.site:3000/api';
+
 export default function HeftiResearch() {
+  const { slug } = useParams();
+  const { pathname } = useLocation();
+  const contextType = pathname.includes('/owners/') ? 'owner' : 'facility';
+
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
 
   const hasStarted = messages.length > 0;
 
-  function submitPrompt() {
+  async function submitPrompt() {
     const trimmedPrompt = prompt.trim();
     if (!trimmedPrompt) return;
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      { id: currentMessages.length + 1, role: 'user', content: trimmedPrompt },
-    ]);
+
+    const userMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: trimmedPrompt,
+    };
+    const assistantMessage = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: '',
+    };
+
+    setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setPrompt('');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/researcher`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: trimmedPrompt, contextType, slug }),
+      });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk
+          .split('\n')
+          .filter((line) => line.startsWith('data: '));
+
+        for (const line of lines) {
+          const payload = line.slice(6);
+          if (payload === '[DONE]') break;
+
+          const { text, error } = JSON.parse(payload);
+
+          if (error) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMessage.id
+                  ? { ...m, content: `Error: ${error}` }
+                  : m,
+              ),
+            );
+            break;
+          }
+
+          if (text) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMessage.id
+                  ? { ...m, content: m.content + text }
+                  : m,
+              ),
+            );
+          }
+        }
+      }
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessage.id
+            ? { ...m, content: 'Something went wrong. Please try again.' }
+            : m,
+        ),
+      );
+    }
   }
 
   return (
