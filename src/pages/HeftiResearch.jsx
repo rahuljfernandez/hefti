@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
+import ReactMarkdown from 'react-markdown';
+import { MdComponents } from '../lib/mdComponents';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -21,6 +23,9 @@ export default function HeftiResearch() {
     const trimmedPrompt = prompt.trim();
     if (!trimmedPrompt) return;
 
+    // Snapshot history before touching state
+    const history = messages; // already has prior user + assistant turns
+
     const userMessage = {
       id: Date.now(),
       role: 'user',
@@ -35,11 +40,19 @@ export default function HeftiResearch() {
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setPrompt('');
 
+    // Build what we send: clean history + new user message (no empty assistant placeholder)
+    const outgoingMessages = [
+      ...history.map(({ role, content }) => ({ role, content })),
+      { role: 'user', content: trimmedPrompt },
+    ];
+
+    console.log('[researcher] outgoing messages:', outgoingMessages);
+
     try {
       const res = await fetch(`${API_BASE_URL}/researcher`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmedPrompt, contextType, slug }),
+        body: JSON.stringify({ messages: outgoingMessages, contextType, slug }),
       });
 
       const reader = res.body.getReader();
@@ -97,10 +110,10 @@ export default function HeftiResearch() {
     <>
       <Breadcrumb />
 
-      <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-[minmax(320px,0.95fr)_minmax(420px,1.05fr)]">
+      <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
         <section className="bg-background-secondary flex min-h-0 flex-col">
-          <div className="ml-auto flex h-full min-h-0 w-full max-w-[585px] flex-col">
+          <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
             {hasStarted ? (
               <>
                 {/**Text Display */}
@@ -115,9 +128,15 @@ export default function HeftiResearch() {
                             : 'text-paragraph-base text-core-black max-w-[92%]'
                         }
                       >
-                        <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                          {message.content}
-                        </p>
+                        {message.role === 'assistant' ? (
+                          <ReactMarkdown components={MdComponents}>
+                            {message.content}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
+                            {message.content}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
