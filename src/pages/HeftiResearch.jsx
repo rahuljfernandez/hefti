@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
@@ -16,8 +17,27 @@ export default function HeftiResearch() {
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
+  const [assistantMinHeight, setAssistantMinHeight] = useState(0);
+  const messagesContainerRef = useRef(null);
+  const lastUserMsgRef = useRef(null);
 
   const hasStarted = messages.length > 0;
+
+  useLayoutEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    function updateAssistantMinHeight() {
+      setAssistantMinHeight(Math.max(container.clientHeight - 120, 0));
+    }
+
+    updateAssistantMinHeight();
+
+    const resizeObserver = new ResizeObserver(updateAssistantMinHeight);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, [hasStarted]);
 
   async function submitPrompt() {
     const trimmedPrompt = prompt.trim();
@@ -35,10 +55,39 @@ export default function HeftiResearch() {
       id: Date.now() + 1,
       role: 'assistant',
       content: '',
+      isError: false,
     };
 
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
-    setPrompt('');
+    flushSync(() => {
+      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      setPrompt('');
+    });
+
+    requestAnimationFrame(() => {
+      const container = messagesContainerRef.current;
+      const lastUserMessage = lastUserMsgRef.current;
+
+      if (!container || !lastUserMessage) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const messageRect = lastUserMessage.getBoundingClientRect();
+      const topOffset = messageRect.top - containerRect.top;
+
+      container.scrollTo({
+        top: container.scrollTop + topOffset,
+        behavior: 'auto',
+      });
+    });
+
+    function setError(msg) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessage.id
+            ? { ...m, content: msg, isError: true }
+            : m,
+        ),
+      );
+    }
 
     // Build what we send: clean history + new user message (no empty assistant placeholder)
     const outgoingMessages = [
@@ -74,13 +123,7 @@ export default function HeftiResearch() {
           const { text, error } = JSON.parse(payload);
 
           if (error) {
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantMessage.id
-                  ? { ...m, content: `Error: ${error}` }
-                  : m,
-              ),
-            );
+            setError(error);
             break;
           }
 
@@ -96,13 +139,7 @@ export default function HeftiResearch() {
         }
       }
     } catch (err) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMessage.id
-            ? { ...m, content: 'Something went wrong. Please try again.' }
-            : m,
-        ),
-      );
+      setError(err.message || 'Something went wrong. Please try again.');
     }
   }
 
@@ -117,28 +154,50 @@ export default function HeftiResearch() {
             {hasStarted ? (
               <>
                 {/**Text Display */}
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8">
+                <div
+                  ref={messagesContainerRef}
+                  className="min-h-0 flex-1 overflow-y-auto px-6 py-8"
+                >
                   <div className="space-y-5">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={
-                          message.role === 'user'
-                            ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
-                            : 'text-paragraph-base text-core-black max-w-[92%]'
-                        }
-                      >
-                        {message.role === 'assistant' ? (
-                          <ReactMarkdown components={MdComponents}>
-                            {message.content}
-                          </ReactMarkdown>
-                        ) : (
-                          <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                            {message.content}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                    {messages.map((message, i) => {
+                      const isLastUser =
+                        message.role === 'user' &&
+                        !messages.slice(i + 1).some((m) => m.role === 'user');
+                      const isLatestAssistant =
+                        message.role === 'assistant' && i === messages.length - 1;
+                      return (
+                        <div
+                          key={message.id}
+                          ref={isLastUser ? lastUserMsgRef : null}
+                          style={
+                            isLatestAssistant
+                              ? { minHeight: `${assistantMinHeight}px` }
+                              : undefined
+                          }
+                          className={
+                            message.role === 'user'
+                              ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
+                              : 'text-paragraph-base text-core-black max-w-[92%]'
+                          }
+                        >
+                          {message.role === 'assistant' ? (
+                            message.isError ? (
+                              <p className="text-paragraph-base text-red-600">
+                                {message.content}
+                              </p>
+                            ) : (
+                              <ReactMarkdown components={MdComponents}>
+                                {message.content}
+                              </ReactMarkdown>
+                            )
+                          ) : (
+                            <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
+                              {message.content}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 <ResearcherComposer
