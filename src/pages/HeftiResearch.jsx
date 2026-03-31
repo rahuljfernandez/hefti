@@ -23,6 +23,10 @@ export default function HeftiResearch() {
 
   const hasStarted = messages.length > 0;
 
+  // Tracks the height of the scroll container so we can give the incoming assistant
+  // message bubble enough min-height to fill the remaining viewport. This ensures
+  // there's always enough scroll depth to push the user message to the top of the
+  // view when a new message is sent, even before the assistant has streamed any content.
   useLayoutEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -58,11 +62,19 @@ export default function HeftiResearch() {
       isError: false,
     };
 
+    // flushSync forces React to commit the new messages to the DOM synchronously
+    // before we proceed. Without this, the requestAnimationFrame below would run
+    // before the DOM has updated, meaning lastUserMsgRef wouldn't point to the
+    // correct element yet and the scroll would be off.
     flushSync(() => {
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
       setPrompt('');
     });
 
+    // After the DOM has updated, scroll the container so the user's message bubble
+    // sits at the top of the viewport. We use requestAnimationFrame to wait one
+    // paint cycle, ensuring layout is complete and getBoundingClientRect() returns
+    // accurate values before we calculate the scroll offset.
     requestAnimationFrame(() => {
       const container = messagesContainerRef.current;
       const lastUserMessage = lastUserMsgRef.current;
@@ -89,9 +101,9 @@ export default function HeftiResearch() {
       );
     }
 
-    // Build what we send: clean history + new user message (no empty assistant placeholder)
+    // Build what we send: trimmed history (max 20 messages) + new user message
     const outgoingMessages = [
-      ...history.map(({ role, content }) => ({ role, content })),
+      ...history.map(({ role, content }) => ({ role, content })).slice(-20),
       { role: 'user', content: trimmedPrompt },
     ];
 
@@ -164,7 +176,8 @@ export default function HeftiResearch() {
                         message.role === 'user' &&
                         !messages.slice(i + 1).some((m) => m.role === 'user');
                       const isLatestAssistant =
-                        message.role === 'assistant' && i === messages.length - 1;
+                        message.role === 'assistant' &&
+                        i === messages.length - 1;
                       return (
                         <div
                           key={message.id}
