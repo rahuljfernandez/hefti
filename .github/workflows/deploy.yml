@@ -3,9 +3,8 @@ name: Deploy to AWS S3 hefti-app
 on:
   push:
     branches:
-      - sam/github_actions
-      #TODO: Convert this back to main
-      # also need to change this value in IAM -> Roles -> 
+      - main
+      # must also change this value in IAM -> Roles -> 
       # github-actions-hefti-deployer -> Trust relationships
       # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
@@ -44,26 +43,3 @@ jobs:
         # the dist folder, keeping the bucket in sync with the build.
         run: |
           aws s3 sync dist/ s3://hefti-app --delete
-
-
-#TODO: Using info below, setup 2nd/different job for backend API build.
-#      - name: Build deployment package
-#        run: |
-#          mkdir -p hefti-data-api-prod
-#          cp hefti-data-api/index.js hefti-data-api-prod/
-#          cp hefti-data-api/package.json hefti-data-api-prod/
-#          cp -r hefti-data-api/prisma hefti-data-api-prod/
-#          cp -r hefti-data-api/node_modules hefti-data-api-prod/
-#          cd hefti-data-api-prod
-#          zip -r ../lambda.zip . > /dev/null
-
-#      - name: Upload ZIP to S3
-#        run: |
-#          aws s3 cp lambda.zip s3://hefti-lambda/lambda.zip
-
-#      - name: Deploy to Lambda
-#        run: |
-#          aws lambda update-function-code \
-#            --function-name hefti-data-api \
-#            --s3-bucket hefti-lambda \
-#            --s3-key lambda.zip
