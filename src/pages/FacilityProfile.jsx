@@ -39,6 +39,7 @@ export default function FacilityProfile() {
   const { slug } = useParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [national, setNational] = useState(null);
 
   useEffect(() => {
     // Reload facility details whenever the URL slug changes.
@@ -48,12 +49,27 @@ export default function FacilityProfile() {
       .finally(() => setLoading(false));
   }, [slug]);
 
+  useEffect(() => {
+    const fetchNational = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/national`);
+        const data = await res.json();
+        setNational(data);
+      } catch (err) {
+        console.error('Failed to fetch national averages:', err);
+      }
+    };
+
+    fetchNational();
+  }, []);
+
   if (loading) return <p>Loading facility details...</p>;
   if (!facility) return <p>Facility not found.</p>;
 
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility.facility_ownership_links || [];
   console.log('links', ownershipLinks);
+
   return (
     <div className="bg-background-secondary font-sans">
       <Breadcrumb />
@@ -79,7 +95,11 @@ export default function FacilityProfile() {
 
               case 'Clinical Quality Measures':
                 return (
-                  <ClinicalQualityTab items={facility} status={'facililty'} />
+                  <ClinicalQualityTab
+                    facility={facility}
+                    status={'facility'}
+                    national={national}
+                  />
                 );
 
               case 'Staffing':

@@ -449,12 +449,14 @@ export function MetricCardLong({ item }) {
       {/** Main Percent and Color Badge */}
       <div className="flex items-center gap-4 md:order-2 xl:pl-8">
         <p className="text-heading-lg">{item.value}</p>
-        <Badge
-          className="text-paragraph-xs max-w-44 py-1 font-medium"
-          color={item.labelColor || 'gray'}
-        >
-          {toTitleCase(item.label || 'Unknown')}
-        </Badge>
+        {item.label && (
+          <Badge
+            className="text-paragraph-xs max-w-44 py-1 font-medium"
+            color={item.labelColor || 'gray'}
+          >
+            {toTitleCase(item.label)}
+          </Badge>
+        )}
       </div>
       {/** Title and Subtitle */}
       <div className="md:order-1 md:col-span-2">
@@ -467,7 +469,7 @@ export function MetricCardLong({ item }) {
       <div className="md:order-3 md:col-span-2"></div>
       {/** State and National Average */}
       <div className="md:order-4 xl:pl-8">
-        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state} average: ${item.stateAvg}`}</p>
+        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state}  average: ${item.stateAvg}`}</p>
         <p className="text-paragraph-base text-content-secondary">{`National average: ${item.nationalAverage}`}</p>
       </div>
     </div>

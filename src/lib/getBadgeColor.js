@@ -1,5 +1,6 @@
 //Helper function to choose badge color/will need to be modified to relect cases where below average is bad or good
 const getBadgeColorAboveBelow = (rating) => {
+  if (!rating) return 'gray';
   switch (rating.toLowerCase()) {
     case 'above national average':
       return 'red';
@@ -95,9 +96,18 @@ const badgeConfig = {
   'OWNERSHIP DATA NOT AVAILABLE': { color: '', label: 'None' },
 };
 
+const getCmprColor = (cmpr) => {
+  if (!cmpr) return 'gray';
+  const lower = cmpr.toLowerCase();
+  if (lower.includes('above')) return 'red';
+  if (lower.includes('below')) return 'green';
+  return 'yellow';
+};
+
 export {
   getBadgeColorAboveBelow,
   getBadgeColorOwnershipType,
   badgeConfig,
   getBadgeColorOwnerProfile,
+  getCmprColor,
 };
