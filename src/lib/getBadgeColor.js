@@ -1,4 +1,5 @@
 const getBadgeColorAboveBelow = (rating, higherIsBetter = false) => {
+  if (!rating) return 'gray';
   switch (rating.toLowerCase()) {
     case 'above state average':
       return higherIsBetter ? 'green' : 'red';
