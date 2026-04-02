@@ -2,7 +2,11 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches:
+       - main
+      # must also change this value in IAM -> Roles -> 
+      # github-actions-hefti-deployer -> Trust relationships
+      # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
 jobs:
   deploy:
