@@ -5,7 +5,10 @@ import ListContainer, {
   ListContainerSeparate,
 } from '../../organism/ListContainer';
 import { MetricCardLong } from '../listContainerContent';
-import { formatMetricValue, expandStateAbbreviation } from '../../../../lib/stringFormatters';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+} from '../../../../lib/stringFormatters';
 import { getCmprColor } from '../../../../lib/getBadgeColor';
 /**
  *  This component displays the Clinical Quality Measures data for an individual facility. Will be apart of the dynamic tabs scheme.
@@ -26,9 +29,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_adl_help_increased),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_adl_help_increased),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_adl_help_increased,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_adl_help_increased),
     },
     {
       id: 2,
@@ -39,9 +40,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_antianxiety_medication),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_antianxiety_medication),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_antianxiety_medication,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_antianxiety_medication),
     },
     {
       id: 3,
@@ -52,9 +51,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_antipsychotic_medication),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_antipsychotic_medication),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_antipsychotic_medication,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_antipsychotic_medication),
     },
     {
       id: 4,
@@ -76,9 +73,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_depressive_symptoms),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_depressive_symptoms),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_depressive_symptoms,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_depressive_symptoms),
     },
     {
       id: 6,
@@ -89,9 +84,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_falls_major_injury),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_falls_major_injury),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_falls_major_injury,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_falls_major_injury),
     },
     {
       id: 7,
@@ -113,9 +106,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ls_physically_restrained),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_physically_restrained),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_physically_restrained,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_physically_restrained),
     },
     {
       id: 9,
@@ -123,12 +114,10 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       subtitle: 'Higher percentages are better',
       value: formatMetricValue(data?.ls_pneumococcal_vaccine),
       label: data?.cmpr_ls_pneumococcal_vaccine,
-      labelColor: getCmprColor(data?.cmpr_ls_pneumococcal_vaccine),
+      labelColor: getCmprColor(data?.cmpr_ls_pneumococcal_vaccine, true),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ls_pneumococcal_vaccine),
-      nationalAverage: formatMetricValue(
-        national?.national_ls_pneumococcal_vaccine,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ls_pneumococcal_vaccine),
     },
     {
       id: 10,
@@ -183,9 +172,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_num_ed_visits_per_1000),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_num_ed_visits_per_1000),
-      nationalAverage: formatMetricValue(
-        national?.national_num_ed_visits_per_1000,
-      ),
+      nationalAverage: formatMetricValue(national?.national_num_ed_visits_per_1000),
     },
     {
       id: 15,
@@ -196,9 +183,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_num_hospitalizations_per_1000),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_num_hospitalizations_per_1000),
-      nationalAverage: formatMetricValue(
-        national?.national_num_hospitalizations_per_1000,
-      ),
+      nationalAverage: formatMetricValue(national?.national_num_hospitalizations_per_1000),
     },
   ];
   const shortStayStats = [
@@ -211,9 +196,7 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       labelColor: getCmprColor(data?.cmpr_ss_antipsychotic_medication),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ss_antipsychotic_medication),
-      nationalAverage: formatMetricValue(
-        national?.national_ss_antipsychotic_medication,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ss_antipsychotic_medication),
     },
     {
       id: 2,
@@ -243,12 +226,10 @@ export default function ClinicalQualityTab({ facility, status, national }) {
       subtitle: 'Higher percentages are better',
       value: formatMetricValue(data?.ss_pneumococcal_vaccine),
       label: data?.cmpr_ss_pneumococcal_vaccine,
-      labelColor: getCmprColor(data?.cmpr_ss_pneumococcal_vaccine),
+      labelColor: getCmprColor(data?.cmpr_ss_pneumococcal_vaccine, true),
       state: expandStateAbbreviation(data?.state),
       stateAvg: formatMetricValue(data?.state_ss_pneumococcal_vaccine),
-      nationalAverage: formatMetricValue(
-        national?.national_ss_pneumococcal_vaccine,
-      ),
+      nationalAverage: formatMetricValue(national?.national_ss_pneumococcal_vaccine),
     },
   ];
 
