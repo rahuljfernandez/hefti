@@ -35,24 +35,24 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
   const ownerCardStats = [
     {
       key: 'Average Total Deficiencies',
-      stat: items.cms_owner_average_deficiencies.toFixed(1),
-      rating: items.national_comparison_deficiencies,
+      stat: items.cms_owner_average_deficiencies?.toFixed(1) ?? 'N/A',
+      // rating: items.national_comparison_deficiencies ?? 'N/A',
       description:
         'Average number of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
     },
     {
       key: 'Average Number of Penalties',
-      stat: items.cms_owner_average_penalties,
-      rating: items.national_comparison_penalties,
+      stat: items.cms_owner_average_penalties ?? 'N/A',
+      // rating: items.national_comparison_penalties ?? 'N/A',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
     },
     {
       key: 'Average Fine',
-      stat: items.cms_owner_average_fines,
-      rating: items.national_comparison_fines,
+      stat: items.cms_owner_average_fines ?? 'N/A',
+      // rating: items.national_comparison_fines ?? 'N/A',
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
     },

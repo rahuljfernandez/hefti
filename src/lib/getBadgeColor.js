@@ -2,11 +2,11 @@
 const getBadgeColorAboveBelow = (rating) => {
   if (!rating) return 'gray';
   switch (rating.toLowerCase()) {
-    case 'above national average':
+    case 'above state average':
       return 'red';
     case 'average':
       return 'yellow';
-    case 'below national average':
+    case 'below state average':
       return 'green';
     default:
       return 'gray';

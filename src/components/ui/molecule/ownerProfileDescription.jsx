@@ -32,7 +32,7 @@ export default function OwnerProfileDescription({ items }) {
               TOTAL DEFICIENCIES
             </p>
             <p className="">
-              {items.cms_owner_n_deficiencies?.toLocaleString() || '—'}
+              {items.cms_owner_total_deficiencies?.toLocaleString() || '—'}
             </p>
           </div>
 
@@ -125,7 +125,7 @@ OwnerProfileDescription.propTypes = {
     cms_owner_total_facilities: PropTypes.number,
     cms_ownership_type: PropTypes.string,
     cms_owner_states: PropTypes.string,
-    cms_owner_n_deficiencies: PropTypes.number,
+    cms_owner_total_deficiencies: PropTypes.number,
     cms_owner_total_penalties: PropTypes.number,
     cms_owner_total_fines: PropTypes.number,
 

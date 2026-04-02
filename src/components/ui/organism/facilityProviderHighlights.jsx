@@ -20,7 +20,7 @@ export default function FacilityProviderHighlights({ items }) {
     {
       key: 'Total Deficiencies',
       stat: items.health_deficiencies ?? 'N/A',
-      rating: items.national_comparison_deficiencies ?? 'N/A',
+      rating: items.cmpr_health_deficiencies ?? 'N/A',
       description:
         'Average numbor of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
@@ -28,7 +28,7 @@ export default function FacilityProviderHighlights({ items }) {
     {
       key: 'Number of Fines',
       stat: items.number_of_fines ?? 'N/A',
-      rating: items.national_comparison_fines ?? 'N/A',
+      rating: items.cmpr_number_of_fines ?? 'N/A',
       description:
         'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
       isCurrency: false,
@@ -36,7 +36,7 @@ export default function FacilityProviderHighlights({ items }) {
     {
       key: 'Fines Total',
       stat: items.total_amount_of_fines_in_usd ?? 'N/A',
-      rating: items.national_comparison_fines ?? 'N/A',
+      rating: items.cmpr_total_amount_of_fines_in_usd ?? 'N/A',
       description: 'Average total fines against affiliated homes.',
       isCurrency: true,
     },
@@ -106,11 +106,15 @@ FacilityProviderHighlights.propTypes = {
       PropTypes.string,
       PropTypes.number,
     ]),
-    national_comparison_fines: PropTypes.oneOfType([
+    cmpr_number_of_fines: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
     ]),
-    national_comparison_deficiencies: PropTypes.oneOfType([
+    cmpr_health_deficiencies: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+    cmpr_total_amount_of_fines_in_usd: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
     ]),
