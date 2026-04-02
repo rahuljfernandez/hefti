@@ -1,12 +1,8 @@
-name: Deploy to AWS S3 hefti-app
+name: Deploy
 
 on:
   push:
-    branches:
-      - main
-      # must also change this value in IAM -> Roles -> 
-      # github-actions-hefti-deployer -> Trust relationships
-      # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
+    branches: [main]
 
 jobs:
   deploy:
@@ -14,32 +10,14 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::330552994757:role/github-actions-hefti-deployer
           aws-region: us-east-2
-
-      - name: Install dependencies
-        # using -legacy-peer-deps for "@visx packages only declare 
-        # peer dependency support for React 16/17/18, but we're on React 19"
-        run: npm install --legacy-peer-deps
-
-      - name: Build
-        run: npm run build
-
-      - name: Upload dist to S3
-        # The --delete flag removes any files from the bucket that no longer exist in 
-        # the dist folder, keeping the bucket in sync with the build.
-        run: |
-          aws s3 sync dist/ s3://hefti-app --delete
+      # Same as npm run deploy (no --profile; OIDC). --legacy-peer-deps: visx vs React 19.
+      - run: npm install --legacy-peer-deps && npm run build && aws s3 sync dist s3://hefti-app --delete
