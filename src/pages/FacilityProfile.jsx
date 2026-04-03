@@ -96,7 +96,7 @@ export default function FacilityProfile() {
               case 'Clinical Quality Measures':
                 return (
                   <ClinicalQualityTab
-                    facility={facility}
+                    metricsSource={facility}
                     status={'facility'}
                     national={national}
                   />

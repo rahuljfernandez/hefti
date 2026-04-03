@@ -83,7 +83,12 @@ export default function OwnersProfile() {
               //   return <DeficienciesTab items={owner} />;
 
               case 'Clinical Quality Measures':
-                return <ClinicalQualityTab facility={owner} status={'owner'} />;
+                return (
+                  <ClinicalQualityTab
+                    metricsSource={owner}
+                    status={'owner'}
+                  />
+                );
 
               case 'Staffing':
                 return <StaffingTab items={owner} />;

@@ -13,9 +13,14 @@ import { Heading } from '../atom/heading';
  */
 
 //need to incorporate the correct data once its ready to work with
-export default function OwenerProviderHighlights({ items, relatedFacilities }) {
+export default function OwenerProviderHighlights({
+  items,
+  relatedFacilities,
+  national,
+}) {
   if (!items) return <div>No owner data available.</div>;
   console.log('rel', relatedFacilities);
+  console.log('national owner', national);
 
   // Use real data if available, otherwise fallback to hardcoded values
 
@@ -36,7 +41,7 @@ export default function OwenerProviderHighlights({ items, relatedFacilities }) {
     {
       key: 'Average Total Deficiencies',
       stat: items.cms_owner_average_deficiencies?.toFixed(1) ?? 'N/A',
-      // rating: items.national_comparison_deficiencies ?? 'N/A',
+      // rating: national_comparison_deficiencies ?? 'N/A',
       description:
         'Average number of serious deficiencies found in affiliated homes in the last three years',
       isCurrency: false,
@@ -138,4 +143,5 @@ OwenerProviderHighlights.propTypes = {
       number_of_fines: PropTypes.number,
     }),
   ).isRequired,
+  national: PropTypes.object,
 };

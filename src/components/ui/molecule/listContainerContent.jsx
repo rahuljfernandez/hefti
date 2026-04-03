@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
-import { badgeConfig } from '../../../lib/getBadgeColor';
+import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 /*Todo: 
 reit/pe is that working for OwnershipAndStaekholders?
@@ -449,12 +449,12 @@ export function MetricCardLong({ item }) {
       {/** Main Percent and Color Badge */}
       <div className="flex items-center gap-4 md:order-2 xl:pl-8">
         <p className="text-heading-lg">{item.value}</p>
-        {item.label && (
+        {item.comparison && (
           <Badge
             className="text-paragraph-xs max-w-44 py-1 font-medium"
-            color={item.labelColor || 'gray'}
+            color={item.comparisonColor || 'gray'}
           >
-            {toTitleCase(item.label)}
+            {toTitleCase(item.comparison)}
           </Badge>
         )}
       </div>
