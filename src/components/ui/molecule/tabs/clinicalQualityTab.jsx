@@ -20,12 +20,15 @@ export default function ClinicalQualityTab({
   status,
   national,
 }) {
-  const data = metricsSource;
+  const longStayStats =
+    status === 'facility'
+      ? buildFacilityLongStayStats(metricsSource, national)
+      : buildOwnerLongStayStats(metricsSource);
 
-  const facilityLongStayStats = buildFacilityLongStayStats(data, national);
-  const facilityShortStayStats = buildFacilityShortStayStats(data, national);
-  const ownerLongStayStats = buildOwnerLongStayStats(data);
-  const ownerShortStayStats = buildOwnerShortStayStats(data);
+  const shortStayStats =
+    status === 'facility'
+      ? buildFacilityShortStayStats(metricsSource, national)
+      : buildOwnerShortStayStats(metricsSource);
 
   return (
     <section>
@@ -45,22 +48,18 @@ export default function ClinicalQualityTab({
           Long Stay
         </Heading>
         <ListContainer
-          items={
-            status === 'facility' ? facilityLongStayStats : ownerLongStayStats
-          }
+          items={longStayStats}
           LayoutSelector={ListContainerSeparate}
           ListContent={MetricCardLong}
         />
       </div>
-      {/**Long Stay Stats */}
+      {/**Short Stay Stats */}
       <div className="pb-8">
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Short Stay
         </Heading>
         <ListContainer
-          items={
-            status === 'facility' ? facilityShortStayStats : ownerShortStayStats
-          }
+          items={shortStayStats}
           LayoutSelector={ListContainerSeparate}
           ListContent={MetricCardLong}
         />

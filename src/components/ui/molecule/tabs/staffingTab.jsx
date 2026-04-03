@@ -1,79 +1,33 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import LayoutCard from '../../atom/layout-card';
 import CMSRating from '../CMSRating';
 import { Divider } from '../../atom/divider';
-import StaffingStatsCards from '../staffingStatsCards';
+import ListContainer, { ListContainerGrid } from '../../organism/ListContainer';
+import { StaffingStatCard } from '../listContainerContent';
 import {
-  formatMetricValue,
-  expandStateAbbreviation,
-} from '../../../../lib/stringFormatters';
+  buildFacilityStaffingLevels,
+  buildFacilityStaffingTurnover,
+  buildOwnerStaffingLevels,
+  buildOwnerStaffingTurnover,
+} from '../../../../lib/staffingMetrics';
 
-export default function StaffingTab({ items }) {
-  console.log(items);
+export default function StaffingTab({ items, status }) {
+  const staffingLevelsStats =
+    status === 'facility'
+      ? buildFacilityStaffingLevels(items)
+      : buildOwnerStaffingLevels(items);
 
-  const facilityStaffingLevelsStats = [
-    {
-      key: 'LPN hours/residents/day',
-      stat: formatMetricValue(items.lpn_hprd),
-      rating: items.cmpr_lpn_hprd,
-      description: 'Reported total nurse staffing hours per resident per day.',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: formatMetricValue(items.state_lpn_hprd),
-      isCurrency: false,
-    },
-    {
-      key: 'RN Hours/resident/day',
-      stat: formatMetricValue(items.rn_hprd),
-      rating: items.cmpr_rn_hprd,
-      description:
-        'Reported total Registered Nurse staffing hours per resident per day.',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: formatMetricValue(items.state_rn_hprd),
-      isCurrency: false,
-    },
-    {
-      key: 'Nurse hours/resident/weekend',
-      stat: formatMetricValue(items.lpn_hprw),
-      rating: items.cmpr_lpn_hprw,
-      description:
-        'Reported total nurse staffing hours per resident on the weekend.',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: formatMetricValue(items.state_lpn_hprw),
-      isCurrency: false,
-    },
-  ];
+  const staffingTurnoverStats =
+    status === 'facility'
+      ? buildFacilityStaffingTurnover(items)
+      : buildOwnerStaffingTurnover(items);
 
-  const facilityStaffingTurnoverStats = [
-    {
-      key: 'Nursing Staff Turnover',
-      stat: formatMetricValue(items.nursing_turnover),
-      rating: items.cmpr_nursing_turnover,
-      description: 'Total staff turnover for staff over X number of quarters',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: formatMetricValue(items.state_nursing_turnover),
-      isCurrency: false,
-    },
-    {
-      key: 'RN Hours/resident/day',
-      stat: formatMetricValue(items.rn_hours_per_resident_day),
-      rating: null,
-      description:
-        'Total resgistered staff turnover for staff over X number of quarters',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: 0.8,
-      isCurrency: false,
-    },
-    {
-      key: 'Nurse hours/resident/weekend',
-      stat: formatMetricValue(items.rn_hours_per_resident_day),
-      rating: null,
-      description:
-        'Number of administrators who have left over X number of quarters',
-      state: expandStateAbbreviation(items?.state),
-      stateAvg: 2.8,
-      isCurrency: false,
-    },
-  ];
+  const staffingRating =
+    status === 'facility'
+      ? items.staffing_rating
+      : items.cms_owner_average_staffing_rating;
+
   return (
     <section>
       {/*Staffing Header */}
@@ -115,7 +69,8 @@ export default function StaffingTab({ items }) {
               stars={[
                 {
                   title: 'Overall Staffing Rating',
-                  rating: items.staffing_rating ?? 'N/A',
+                  rating:
+                    staffingRating,
                   size: 'h-10 w-10',
                   ratingSize: '4xl',
                   className: 'font-bold',
@@ -125,19 +80,21 @@ export default function StaffingTab({ items }) {
             {/*Staffing Levels*/}
             <div className="my-4">
               <div className="text-heading-xs">Staffing Levels</div>
-              {/*Cards */}
-              <div>
-                <StaffingStatsCards stats={facilityStaffingLevelsStats} />
-              </div>
+              <ListContainer
+                items={staffingLevelsStats}
+                LayoutSelector={ListContainerGrid}
+                ListContent={StaffingStatCard}
+              />
             </div>
             <Divider />
-            {/*Statting Turnover*/}
+            {/*Staffing Turnover*/}
             <div className="my-4">
               <div className="text-heading-xs">Staffing Turnover</div>
-              {/*Cards */}
-              <div>
-                <StaffingStatsCards stats={facilityStaffingTurnoverStats} />
-              </div>
+              <ListContainer
+                items={staffingTurnoverStats}
+                LayoutSelector={ListContainerGrid}
+                ListContent={StaffingStatCard}
+              />
             </div>
           </LayoutCard>
         </div>
@@ -145,3 +102,8 @@ export default function StaffingTab({ items }) {
     </section>
   );
 }
+
+StaffingTab.propTypes = {
+  items: PropTypes.object.isRequired,
+  status: PropTypes.string.isRequired,
+};

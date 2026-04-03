@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
-import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
+import { badgeConfig, getCmprColor, getBadgeColorAboveBelow } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 /*Todo: 
 reit/pe is that working for OwnershipAndStaekholders?
@@ -479,5 +479,38 @@ export function MetricCardLong({ item }) {
 }
 
 MetricCardLong.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+export function StaffingStatCard({ item }) {
+  return (
+    <div className="border-border-primary h-full rounded-xl border bg-white px-4 py-4 shadow-sm">
+      <div className="flex items-start gap-2">
+        <div className="text-core-black text-heading-lg leading-none">
+          {item.stat}
+        </div>
+        {item.rating ? (
+          <Badge
+            color={getBadgeColorAboveBelow(item.rating)}
+            className="text-label-xs mt-1 leading-none"
+          >
+            {item.rating}
+          </Badge>
+        ) : null}
+      </div>
+      <div className="text-core-black text-label-lg mt-3">{item.title}</div>
+      <p className="text-content-secondary text-paragraph-base mt-1">
+        {item.description}
+      </p>
+      {item.detail ? (
+        <div className="text-content-secondary text-paragraph-base mt-6">
+          {item.detail}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+StaffingStatCard.propTypes = {
   item: PropTypes.object.isRequired,
 };

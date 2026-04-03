@@ -103,7 +103,7 @@ export default function FacilityProfile() {
                 );
 
               case 'Staffing':
-                return <StaffingTab items={facility} />;
+                return <StaffingTab items={facility} status={'facility'} />;
 
               case 'Financial Overview':
                 return <FinancialOverviewTab items={facility} />;

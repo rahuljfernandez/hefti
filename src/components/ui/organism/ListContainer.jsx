@@ -128,3 +128,20 @@ ListContainerSeparate.propTypes = {
   items: PropTypes.array,
   renderItem: PropTypes.func.isRequired,
 };
+
+export function ListContainerGrid({ items = [], renderItem }) {
+  return (
+    <ul role="list" className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {items.map((item, i) => (
+        <li key={item.id || i}>
+          {renderItem(item)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+ListContainerGrid.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func.isRequired,
+};
