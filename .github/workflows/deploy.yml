@@ -1,9 +1,12 @@
-name: Deploy to AWS Lambda
+name: Deploy
 
 on:
   push:
     branches:
       - main
+      # must also change this value in IAM -> Roles -> 
+      # github-actions-hefti-deployer -> Trust relationships
+      # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
 jobs:
   deploy:
@@ -11,44 +14,14 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::330552994757:role/github-actions-hefti-deployer
           aws-region: us-east-2
-
-      - name: Install dependencies and prune dev
-        working-directory: hefti-data-api
-        run: |
-          npm prune --omit=dev
-
-#      - name: Build deployment package
-#        run: |
-#          mkdir -p hefti-data-api-prod
-#          cp hefti-data-api/index.js hefti-data-api-prod/
-#          cp hefti-data-api/package.json hefti-data-api-prod/
-#          cp -r hefti-data-api/prisma hefti-data-api-prod/
-#          cp -r hefti-data-api/node_modules hefti-data-api-prod/
-#          cd hefti-data-api-prod
-#          zip -r ../lambda.zip . > /dev/null
-
-#      - name: Upload ZIP to S3
-#        run: |
-#          aws s3 cp lambda.zip s3://hefti-lambda/lambda.zip
-
-#      - name: Deploy to Lambda
-#        run: |
-#          aws lambda update-function-code \
-#            --function-name hefti-data-api \
-#            --s3-bucket hefti-lambda \
-#            --s3-key lambda.zip
+      # Same as npm run deploy (no --profile; OIDC). --legacy-peer-deps: visx vs React 19.
+      - run: npm install --legacy-peer-deps && npm run build && aws s3 sync dist s3://hefti-app --delete
