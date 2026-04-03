@@ -340,39 +340,45 @@ const ownerShortStayConfig = [
 export function buildFacilityLongStayStats(metricsSource, national) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
-  return facilityLongStayConfig.map((metric) => ({
-    id: metric.id,
-    title: metric.title,
-    subtitle: metric.subtitle,
-    value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    comparison: metricsSource?.[metric.comparisonKey],
-    comparisonColor: getCmprColor(
-      metricsSource?.[metric.comparisonKey],
-      metric.higherIsBetter,
-    ),
-    state: stateName,
-    stateAvg: formatMetricValue(metricsSource?.[metric.stateAvgKey]),
-    nationalAverage: formatMetricValue(national?.[metric.nationalAvgKey]),
-  }));
+  return facilityLongStayConfig.map((metric) => {
+    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = formatMetricValue(national?.[metric.nationalAvgKey]);
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: formatMetricValue(metricsSource?.[metric.valueKey]),
+      comparison: metricsSource?.[metric.comparisonKey],
+      comparisonColor: getCmprColor(
+        metricsSource?.[metric.comparisonKey],
+        metric.higherIsBetter,
+      ),
+      detail1: `${stateName} average: ${stateAvg}`,
+      detail2: `National average: ${nationalAvg}`,
+    };
+  });
 }
 
 export function buildFacilityShortStayStats(metricsSource, national) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
-  return facilityShortStayConfig.map((metric) => ({
-    id: metric.id,
-    title: metric.title,
-    subtitle: metric.subtitle,
-    value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    comparison: metricsSource?.[metric.comparisonKey],
-    comparisonColor: getCmprColor(
-      metricsSource?.[metric.comparisonKey],
-      metric.higherIsBetter,
-    ),
-    state: stateName,
-    stateAvg: formatMetricValue(metricsSource?.[metric.stateAvgKey]),
-    nationalAverage: formatMetricValue(national?.[metric.nationalAvgKey]),
-  }));
+  return facilityShortStayConfig.map((metric) => {
+    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = formatMetricValue(national?.[metric.nationalAvgKey]);
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: formatMetricValue(metricsSource?.[metric.valueKey]),
+      comparison: metricsSource?.[metric.comparisonKey],
+      comparisonColor: getCmprColor(
+        metricsSource?.[metric.comparisonKey],
+        metric.higherIsBetter,
+      ),
+      detail1: `${stateName} average: ${stateAvg}`,
+      detail2: `National average: ${nationalAvg}`,
+    };
+  });
 }
 
 export function buildOwnerLongStayStats(metricsSource) {
@@ -381,8 +387,8 @@ export function buildOwnerLongStayStats(metricsSource) {
     title: metric.title,
     subtitle: metric.subtitle,
     value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    median: metric.medianKey,
-    stdDev: metric.stdDevKey,
+    detail1: `Median: ${metric.medianKey}`,
+    detail2: `Std Dev: ${metric.stdDevKey}`,
   }));
 }
 
@@ -392,7 +398,7 @@ export function buildOwnerShortStayStats(metricsSource) {
     title: metric.title,
     subtitle: metric.subtitle,
     value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    median: metric.medianKey,
-    stdDev: metric.stdDevKey,
+    detail1: `Median: ${metric.medianKey}`,
+    detail2: `Std Dev: ${metric.stdDevKey}`,
   }));
 }

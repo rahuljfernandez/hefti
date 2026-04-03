@@ -1,20 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from '../atom/badge';
-
-const ratingColors = {
-  'above average': 'red',
-  'above national average': 'red',
-  average: 'yellow',
-  'below average': 'green',
-  'below national average': 'green',
-};
-
-function getRatingColor(rating) {
-  if (!rating) return 'zinc';
-
-  return ratingColors[rating.toLowerCase()] ?? 'zinc';
-}
+import { getBadgeColorAboveBelow } from '../../../lib/getBadgeColor';
 
 function formatValue(value, isCurrency = false) {
   if (value === null || value === undefined || value === '') return 'N/A';
@@ -54,7 +41,7 @@ export default function StaffingStatsCards({ stats }) {
             </div>
             {item.rating ? (
               <Badge
-                color={getRatingColor(item.rating)}
+                color={getBadgeColorAboveBelow(item.rating)}
                 className="text-label-xs mt-1 leading-none"
               >
                 {item.rating}
@@ -65,12 +52,12 @@ export default function StaffingStatsCards({ stats }) {
           <p className="text-content-secondary text-paragraph-base mt-1">
             {item.description}
           </p>
-          {item.nationalAverage !== undefined &&
-          item.nationalAverage !== null &&
-          item.nationalAverage !== '' ? (
+          {item.stateAvg !== undefined &&
+          item.stateAvg !== null &&
+          item.stateAvg !== '' ? (
             <div className="text-content-secondary text-paragraph-base mt-6">
-              National average:{' '}
-              {formatValue(item.nationalAverage, item.isCurrency)}
+              {item.state} average:{' '}
+              {formatValue(item.stateAvg, item.isCurrency)}
             </div>
           ) : null}
         </article>
@@ -86,7 +73,8 @@ StaffingStatsCards.propTypes = {
       stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       rating: PropTypes.string,
       description: PropTypes.string,
-      nationalAverage: PropTypes.oneOfType([
+      state: PropTypes.string,
+      stateAvg: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,
       ]),

@@ -3,64 +3,74 @@ import LayoutCard from '../../atom/layout-card';
 import CMSRating from '../CMSRating';
 import { Divider } from '../../atom/divider';
 import StaffingStatsCards from '../staffingStatsCards';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+} from '../../../../lib/stringFormatters';
 
 export default function StaffingTab({ items }) {
   console.log(items);
-  //we barely have any of the data we need to complete this design.  I'm not sure what cna/rn/lpn hours per resident day are.  Don't see weekend specific data?  We don't have turnover data for the second section.
-  const staffingLevelsFacilityStats = [
+
+  const facilityStaffingLevelsStats = [
     {
-      key: 'Nurse hours/residents/day',
-      stat: items.cna_hours_per_resident_day,
-      rating: 'Above Average',
+      key: 'LPN hours/residents/day',
+      stat: formatMetricValue(items.lpn_hprd),
+      rating: items.cmpr_lpn_hprd,
       description: 'Reported total nurse staffing hours per resident per day.',
-      nationalAverage: 3.9,
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: formatMetricValue(items.state_lpn_hprd),
       isCurrency: false,
     },
     {
       key: 'RN Hours/resident/day',
-      stat: items.rn_hours_per_resident_day,
-      rating: 'Below Average',
+      stat: formatMetricValue(items.rn_hprd),
+      rating: items.cmpr_rn_hprd,
       description:
         'Reported total Registered Nurse staffing hours per resident per day.',
-      nationalAverage: 0.8,
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: formatMetricValue(items.state_rn_hprd),
       isCurrency: false,
     },
     {
       key: 'Nurse hours/resident/weekend',
-      stat: items.lpn_hours_per_resident_day,
-      rating: 'Above Average',
+      stat: formatMetricValue(items.lpn_hprw),
+      rating: items.cmpr_lpn_hprw,
       description:
         'Reported total nurse staffing hours per resident on the weekend.',
-      nationalAverage: 2.8,
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: formatMetricValue(items.state_lpn_hprw),
       isCurrency: false,
     },
   ];
 
-  const staffingTurnoverFacilityStats = [
+  const facilityStaffingTurnoverStats = [
     {
-      key: 'Nurse hours/residents/day',
-      stat: items.cna_hours_per_resident_day,
-      rating: 'Above Average',
-      description: 'Reported total nurse staffing hours per resident per day.',
-      nationalAverage: 3.9,
+      key: 'Nursing Staff Turnover',
+      stat: formatMetricValue(items.nursing_turnover),
+      rating: items.cmpr_nursing_turnover,
+      description: 'Total staff turnover for staff over X number of quarters',
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: formatMetricValue(items.state_nursing_turnover),
       isCurrency: false,
     },
     {
       key: 'RN Hours/resident/day',
-      stat: items.rn_hours_per_resident_day,
-      rating: 'Below Average',
+      stat: formatMetricValue(items.rn_hours_per_resident_day),
+      rating: null,
       description:
-        'Reported total Registered Nurse staffing hours per resident per day.',
-      nationalAverage: 0.8,
+        'Total resgistered staff turnover for staff over X number of quarters',
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: 0.8,
       isCurrency: false,
     },
     {
       key: 'Nurse hours/resident/weekend',
-      stat: items.rn_hours_per_resident_day,
-      rating: 'Above Average',
+      stat: formatMetricValue(items.rn_hours_per_resident_day),
+      rating: null,
       description:
-        'Reported total nurse staffing hours per resident on the weekend.',
-      nationalAverage: 2.8,
+        'Number of administrators who have left over X number of quarters',
+      state: expandStateAbbreviation(items?.state),
+      stateAvg: 2.8,
       isCurrency: false,
     },
   ];
@@ -117,7 +127,7 @@ export default function StaffingTab({ items }) {
               <div className="text-heading-xs">Staffing Levels</div>
               {/*Cards */}
               <div>
-                <StaffingStatsCards stats={staffingLevelsFacilityStats} />
+                <StaffingStatsCards stats={facilityStaffingLevelsStats} />
               </div>
             </div>
             <Divider />
@@ -126,7 +136,7 @@ export default function StaffingTab({ items }) {
               <div className="text-heading-xs">Staffing Turnover</div>
               {/*Cards */}
               <div>
-                <StaffingStatsCards stats={staffingTurnoverFacilityStats} />
+                <StaffingStatsCards stats={facilityStaffingTurnoverStats} />
               </div>
             </div>
           </LayoutCard>

@@ -442,7 +442,6 @@ export function BrowseOwners({ item }) {
   );
 }
 
-//MetricCardLong is suppose to be reusable, but want to come back to that once data is created.  For now (11/13/25), the layout is finished, just needs data
 export function MetricCardLong({ item }) {
   return (
     <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-0 xl:grid-cols-3">
@@ -467,11 +466,18 @@ export function MetricCardLong({ item }) {
       </div>
       {/** Empty space for desktop display */}
       <div className="md:order-3 md:col-span-2"></div>
-      {/** State and National Average */}
       <div className="md:order-4 xl:pl-8">
-        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state}  average: ${item.stateAvg}`}</p>
-        <p className="text-paragraph-base text-content-secondary">{`National average: ${item.nationalAverage}`}</p>
+        <p className="text-paragraph-base text-content-secondary mb-1">
+          {item.detail1}
+        </p>
+        <p className="text-paragraph-base text-content-secondary">
+          {item.detail2}
+        </p>
       </div>
     </div>
   );
 }
+
+MetricCardLong.propTypes = {
+  item: PropTypes.object.isRequired,
+};
