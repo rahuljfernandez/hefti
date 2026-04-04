@@ -6,24 +6,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-Tabs.propTypes = {
-  tabsData: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      href: PropTypes.string,
-      current: PropTypes.bool,
-      displayTitle: PropTypes.string,
-    }),
-  ),
-  onTabChange: PropTypes.func,
-  activeTab: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    href: PropTypes.string,
-    current: PropTypes.bool,
-    displayTitle: PropTypes.string,
-  }),
-};
-
 /**
  *
  * This component is based on UI/Application Tabs/Tabs with underline
@@ -95,3 +77,21 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
     </div>
   );
 }
+
+Tabs.propTypes = {
+  tabsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      href: PropTypes.string,
+      current: PropTypes.bool,
+      displayTitle: PropTypes.string,
+    }),
+  ),
+  onTabChange: PropTypes.func,
+  activeTab: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    href: PropTypes.string,
+    current: PropTypes.bool,
+    displayTitle: PropTypes.string,
+  }),
+};

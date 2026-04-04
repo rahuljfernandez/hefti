@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import Tabs from './Tabs';
+import Tabs from './tabs';
 
 export default function TabsWithInfo({ tabsData, defaultTabName, children }) {
-  const defaultTab = tabsData.find((t) => t.name === defaultTabName) ?? tabsData[0];
+  const defaultTab =
+    tabsData.find((tab) => tab.name === defaultTabName) ?? tabsData[0];
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
