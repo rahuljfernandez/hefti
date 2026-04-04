@@ -12,6 +12,15 @@ import {
   buildOwnerStaffingTurnover,
 } from '../../../../lib/staffingMetrics';
 
+/**
+ * Staffing tab content.
+ *
+ * Responsibilities:
+ * - Builds staffing-level and turnover metric groups from the supplied data source
+ * - Chooses facility or owner metric builders based on status
+ * - Selects the correct staffing rating field for the CMS rating display
+ * - Renders the staffing summary and supporting cards in a single tab panel
+ */
 export default function StaffingTab({ items, status }) {
   // Build stat arrays from lib config — maps data keys to display-ready objects
   const staffingLevelsStats =
@@ -24,7 +33,7 @@ export default function StaffingTab({ items, status }) {
       ? buildFacilityStaffingTurnover(items)
       : buildOwnerStaffingTurnover(items);
 
-  //determines the value(number) to be used in the Star rating display
+  // Select the rating field that matches the current profile type.
   const staffingRating =
     status === 'facility'
       ? items.staffing_rating
@@ -32,7 +41,7 @@ export default function StaffingTab({ items, status }) {
 
   return (
     <section>
-      {/*Staffing Header */}
+      {/* Intro copy explains how staffing levels and turnover should be interpreted. */}
       <div className="my-8">
         <div className="">
           <div className={'text-heading-md'}>Staffing Quality</div>
@@ -54,19 +63,17 @@ export default function StaffingTab({ items, status }) {
         </div>
       </div>
 
-      {/*Staffing Quality Statistics Section */}
+      {/* This section combines the overall staffing rating with the two supporting metric groups. */}
       <div>
-        {/*Statistics Header */}
         <div>
           <div className="text-heading-sm mb-2">Staffing Quality</div>
           <p className="text-paragraph-base mb-6">
             Averages from 2023-07-01 to 2024-06-30
           </p>
         </div>
-        {/*Statistics Container*/}
         <div className="my-4">
           <LayoutCard>
-            {/*CMS Rating*/}
+            {/* The CMS rating provides a quick summary before the supporting detail cards. */}
             <CMSRating
               stars={[
                 {
@@ -78,7 +85,7 @@ export default function StaffingTab({ items, status }) {
                 },
               ]}
             />
-            {/*Staffing Levels*/}
+            {/* Staffing level cards show hours-per-resident metrics by staff category. */}
             <div className="my-4">
               <div className="text-heading-xs">Staffing Levels</div>
               <ListContainer
@@ -88,7 +95,7 @@ export default function StaffingTab({ items, status }) {
               />
             </div>
             <Divider />
-            {/*Staffing Turnover*/}
+            {/* Turnover cards show how frequently key staff roles change over time. */}
             <div className="my-4">
               <div className="text-heading-xs">Staffing Turnover</div>
               <ListContainer

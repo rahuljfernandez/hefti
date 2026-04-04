@@ -7,12 +7,28 @@ import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
-import { badgeConfig, getCmprColor, getBadgeColorAboveBelow } from '../../../lib/getBadgeColor';
+import {
+  badgeConfig,
+  getCmprColor,
+  getBadgeColorAboveBelow,
+} from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
-/*Todo: 
-reit/pe is that working for OwnershipAndStaekholders?
-*/
 
+/**
+ * Collection of reusable content components for ListContainer and related card layouts.
+ *
+ * Each export in this file renders a specific item shape, such as ownership records,
+ * related facilities, provider metrics, or tab-specific stat cards. These components
+ * do not fetch or transform data. They expect display-ready item objects and focus
+ * only on rendering those objects in a consistent visual format.
+ *
+ * Example:
+ * <ListContainer
+ *   items={ownershipLinks}
+ *   LayoutSelector={ListContainerDivider}
+ *   ListContent={OwnershipAndStakeholders}
+ * />
+ */
 export function OwnershipAndStakeholders({ item }) {
   const role = item.cms_ownership_role;
   const config = badgeConfig[role] || {
@@ -442,6 +458,17 @@ export function BrowseOwners({ item }) {
   );
 }
 
+/**
+ * Long-form metric card used in tab sections such as Clinical Quality and Financial Overview.
+ *
+ * Expected item shape:
+ * - title, subtitle: metric labels shown on the left
+ * - value: primary metric value shown prominently
+ * - comparison, comparisonColor: optional badge content for benchmark comparisons
+ * - detail1, detail2: supporting benchmark or summary text shown below
+ *
+ * These items are typically built by the metric helper files in src/lib.
+ */
 export function MetricCardLong({ item }) {
   return (
     <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-0 xl:grid-cols-3">
@@ -482,6 +509,17 @@ MetricCardLong.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/**
+ * Compact staffing metric card used in the Staffing tab grid.
+ *
+ * Expected item shape:
+ * - stat: primary staffing value
+ * - title, description: card heading and explanatory copy
+ * - rating: optional comparison badge label
+ * - detail: supporting benchmark text shown at the bottom
+ *
+ * These items are typically built by the staffing metric helpers in src/lib/staffingMetrics.js.
+ */
 export function StaffingStatCard({ item }) {
   return (
     <div className="border-border-primary h-full rounded-xl border bg-white px-4 py-4 shadow-sm">

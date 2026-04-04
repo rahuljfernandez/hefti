@@ -1,6 +1,22 @@
 import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
 import { getCmprColor } from './getBadgeColor';
 
+/**
+ * Clinical quality metric config and builder helpers.
+ *
+ * Purpose:
+ * - Defines the field-to-card mapping for clinical quality tabs
+ * - Keeps facility and owner metric definitions in one place
+ * - Transforms raw API fields into the display-ready objects expected by MetricCardLong
+ *
+ * Pattern:
+ * - Config arrays describe which backend fields belong to each metric card
+ * - Builder functions read those configs and return normalized UI data
+ * - Facility builders include state and national comparison details
+ * - Owner builders return the owner-level values and summary benchmark text
+ */
+
+// Facility configs map individual facility fields to long-stay and short-stay cards.
 const facilityLongStayConfig = [
   {
     id: 1,
@@ -179,6 +195,9 @@ const facilityShortStayConfig = [
   },
 ];
 
+// Owner configs map owner aggregate fields to the same card shape used by the tab.
+// NOTE: medianKey and stdDevKey values are temporary placeholders until owner-level
+// benchmark data is available from the backend.
 const ownerLongStayConfig = [
   {
     id: 1,
@@ -337,6 +356,7 @@ const ownerShortStayConfig = [
   },
 ];
 
+// Facility builders add comparison labels and benchmark details for each metric card.
 export function buildFacilityLongStayStats(metricsSource, national) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
@@ -381,6 +401,8 @@ export function buildFacilityShortStayStats(metricsSource, national) {
   });
 }
 
+// Owner builders return the same card structure without facility-level comparison badges.
+// Placeholder benchmark values from the owner configs are surfaced here as detail text.
 export function buildOwnerLongStayStats(metricsSource) {
   return ownerLongStayConfig.map((metric) => ({
     id: metric.id,

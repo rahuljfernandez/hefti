@@ -7,13 +7,15 @@ function classNames(...classes) {
 }
 
 /**
+ * Presentational tab selector used by TabsShell.
  *
- * This component is based on UI/Application Tabs/Tabs with underline
- * Props:
- * - tabsData: array of tabs
- * - activeTab: the currently active tab
- * - onTabChange: callback when a tab is clicked
- * example:  <TabsSelector tabsData={tabsData} onTabChange={setActiveTab} activeTab={activeTab}/>
+ * Responsibilities:
+ * - Renders the tab navigation UI for mobile and desktop layouts
+ * - Receives the current active tab from its parent
+ * - Notifies the parent when the user selects a different tab
+ *
+ * This component does not own tab state. TabsShell is responsible for choosing
+ * the active tab and rendering the matching tab content.
  */
 
 export default function TabsSelector({

@@ -74,9 +74,7 @@ export default function OwnersProfile() {
           {(activeTab) => {
             switch (activeTab.name) {
               case 'Provider Highlights':
-                return (
-                  <ProviderHighlights items={owner} status="owner" />
-                );
+                return <ProviderHighlights items={owner} status="owner" />;
               //As of 3/16/26 we are holding off on deficiencies
               // case 'Deficiencies & Penalties':
               //   return <DeficienciesTab items={owner} />;
@@ -102,13 +100,6 @@ export default function OwnersProfile() {
           }}
         </TabsShell>
 
-        {/* <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-          Owner Highlights
-        </Heading>
-        <OwenerProviderHighlights
-          items={owner}
-          relatedFacilities={relatedFacilities}
-        /> */}
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Facilities associated with {toTitleCase(owner.cms_ownership_name)}
         </Heading>

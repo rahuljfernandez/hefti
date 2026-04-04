@@ -5,6 +5,22 @@ import {
 } from './stringFormatters';
 import { getCmprColor } from './getBadgeColor';
 
+/**
+ * Financial metric config and builder helpers.
+ *
+ * Purpose:
+ * - Defines the field-to-card mapping for financial overview tabs
+ * - Keeps facility and owner financial metric definitions in one place
+ * - Transforms raw API fields into the display-ready objects expected by MetricCardLong
+ *
+ * Pattern:
+ * - Config arrays describe which backend fields belong to each financial card
+ * - Shared builder helpers read those configs and return normalized UI data
+ * - Facility builders include state and national benchmark details
+ * - Owner builders return owner-level values and summary benchmark text
+ */
+
+// Facility configs map facility financial fields to profit, revenue, expense, and liquidity cards.
 const facilityProfitConfig = [
   {
     id: 1,
@@ -132,6 +148,7 @@ const facilityLiquidityConfig = [
   },
 ];
 
+// Shared facility builder applies formatting and benchmark lookups to each configured metric.
 function buildStats(config, metricsSource, national) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
@@ -176,7 +193,9 @@ export function buildFacilityLiquidityStats(metricsSource, national) {
   return buildStats(facilityLiquidityConfig, metricsSource, national);
 }
 
-// --- Owner configs ---
+// Owner configs map owner aggregate fields to the same long-form financial card shape.
+// NOTE: owner median/std-dev values are placeholders for now. 'N/A' is used until
+// benchmark data is available or the metric is not yet supplied by the backend.
 
 const ownerProfitConfig = [
   {
@@ -294,6 +313,8 @@ const ownerLiquidityConfig = [
   },
 ];
 
+// Shared owner builder formats owner aggregate values and attaches summary benchmark text.
+// Any placeholder benchmark values defined in the owner configs are rendered as-is.
 function buildOwnerStats(config, metricsSource) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);

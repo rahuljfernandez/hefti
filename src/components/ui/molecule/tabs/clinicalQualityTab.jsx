@@ -11,8 +11,15 @@ import {
   buildOwnerLongStayStats,
   buildOwnerShortStayStats,
 } from '../../../../lib/clinicalQualityMetrics';
+
 /**
- *  This component displays the Clinical Quality Measures data for an individual facility. Will be apart of the dynamic tabs scheme.
+ * Clinical quality tab content.
+ *
+ * Responsibilities:
+ * - Builds long-stay and short-stay metric groups from the provided data source
+ * - Switches between facility and owner metric builders based on status
+ * - Shows owner-specific context when values represent weighted averages
+ * - Renders each metric group using the shared long-form metric card layout
  */
 
 export default function ClinicalQualityTab({
@@ -43,7 +50,7 @@ export default function ClinicalQualityTab({
         </div>
       )}
 
-      {/**Long Stay Stats */}
+      {/* Long-stay measures are grouped separately because CMS reports them as a distinct care context. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Long Stay
@@ -54,7 +61,7 @@ export default function ClinicalQualityTab({
           ListContent={MetricCardLong}
         />
       </div>
-      {/**Short Stay Stats */}
+      {/* Short-stay measures use the same card layout but represent a different resident population. */}
       <div className="pb-8">
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Short Stay

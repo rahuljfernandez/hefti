@@ -16,6 +16,15 @@ import {
   buildOwnerLiquidityStats,
 } from '../../../../lib/financialMetrics';
 
+/**
+ * Financial overview tab content.
+ *
+ * Responsibilities:
+ * - Builds profit, revenue, expense, and liquidity metric groups
+ * - Switches between facility and owner metric builders based on status
+ * - Passes national comparison data when facility metrics need benchmark values
+ * - Renders each financial section using the shared long-form metric card layout
+ */
 export default function FinancialOverviewTab({ items, national, status }) {
   // Build stat arrays from lib config — maps data keys to display-ready objects
   const profitStats =
@@ -40,7 +49,7 @@ export default function FinancialOverviewTab({ items, national, status }) {
 
   return (
     <section>
-      {/*Financial Header */}
+      {/* Intro copy frames how to interpret the financial metric groups below. */}
       <div className="my-8">
         <div className="">
           <div className={'text-heading-md'}>Financial Overview</div>
@@ -60,7 +69,7 @@ export default function FinancialOverviewTab({ items, national, status }) {
         </div>
       </div>
 
-      {/**Profits*/}
+      {/* Profit metrics summarize overall operating performance and margin outcomes. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Profit
@@ -72,7 +81,7 @@ export default function FinancialOverviewTab({ items, national, status }) {
         />
       </div>
 
-      {/**Revenue */}
+      {/* Revenue metrics focus on income generated from patient services. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Revenue
@@ -84,7 +93,7 @@ export default function FinancialOverviewTab({ items, national, status }) {
         />
       </div>
 
-      {/**Expenses */}
+      {/* Expense metrics show where spending is concentrated and how related-party costs compare. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Expenses
@@ -96,7 +105,7 @@ export default function FinancialOverviewTab({ items, national, status }) {
         />
       </div>
 
-      {/**Liquidity */}
+      {/* Liquidity metrics indicate the provider's ability to cover obligations and finance operations. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Liquidity

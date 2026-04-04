@@ -1,5 +1,21 @@
 import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
 
+/**
+ * Staffing metric config and builder helpers.
+ *
+ * Purpose:
+ * - Defines the field-to-card mapping for staffing tabs
+ * - Keeps facility and owner staffing metric definitions in one place
+ * - Transforms raw API fields into the display-ready objects expected by StaffingStatCard
+ *
+ * Pattern:
+ * - Config arrays describe which backend fields belong to each staffing card
+ * - Builder functions read those configs and return normalized UI data
+ * - Facility builders include state benchmark details and comparison labels when available
+ * - Owner builders return owner-level values and summary benchmark text
+ */
+
+// Facility configs map facility staffing fields to staffing-level and turnover cards.
 const facilityStaffingLevelsConfig = [
   {
     id: 1,
@@ -56,6 +72,9 @@ const facilityStaffingTurnoverConfig = [
   },
 ];
 
+// Owner configs map owner aggregate fields to the same staffing card shape.
+// NOTE: owner median values are temporary placeholders, and some owner/facility
+// staffing fields remain 'N/A' until backend support is added.
 const ownerStaffingLevelsConfig = [
   {
     id: 1,
@@ -106,6 +125,7 @@ const ownerStaffingTurnoverConfig = [
   },
 ];
 
+// Facility builders add state benchmark details and comparison values for staffing cards.
 export function buildFacilityStaffingLevels(metricsSource) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
@@ -144,6 +164,8 @@ export function buildFacilityStaffingTurnover(metricsSource) {
   });
 }
 
+// Owner builders return the same staffing card shape using owner aggregate values.
+// Placeholder median values from the owner configs are surfaced here as detail text.
 export function buildOwnerStaffingLevels(metricsSource) {
   return ownerStaffingLevelsConfig.map((metric) => ({
     id: metric.id,

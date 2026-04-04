@@ -1,3 +1,19 @@
+/**
+ * Provider highlights metric config and builder helpers.
+ *
+ * Purpose:
+ * - Defines the field-to-card mapping for provider highlights summary cards
+ * - Keeps facility and owner provider-highlight metric definitions in one place
+ * - Transforms raw API fields into the display-ready objects used by the provider highlights UI
+ *
+ * Pattern:
+ * - Config arrays describe which backend fields belong to each summary card
+ * - Builder functions read those configs and return normalized UI data
+ * - Facility builders include comparison labels when the source data provides them
+ * - Owner builders return owner-level aggregate values in the same card shape
+ */
+
+// Facility configs map facility provider-highlight fields to summary cards.
 const facilityCardStatsConfig = [
   {
     key: 'Total Deficiencies',
@@ -48,6 +64,7 @@ const ownerCardStatsConfig = [
   },
 ];
 
+// Owner builders return a normalized summary-card shape from owner aggregate values.
 export function buildOwnerCardStats(metricsSource) {
   return ownerCardStatsConfig.map((metric) => {
     const raw = metricsSource?.[metric.valueKey];
@@ -66,6 +83,7 @@ export function buildOwnerCardStats(metricsSource) {
   });
 }
 
+// Facility builders return the same summary-card shape with facility comparison labels.
 export function buildFacilityCardStats(metricsSource) {
   return facilityCardStatsConfig.map((metric) => ({
     key: metric.key,
