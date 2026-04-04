@@ -20,6 +20,7 @@ export default function ClinicalQualityTab({
   status,
   national,
 }) {
+  // Build stat arrays from lib config — maps data keys to display-ready objects
   const longStayStats =
     status === 'facility'
       ? buildFacilityLongStayStats(metricsSource, national)

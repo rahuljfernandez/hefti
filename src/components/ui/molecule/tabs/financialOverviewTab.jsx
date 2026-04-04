@@ -17,6 +17,7 @@ import {
 } from '../../../../lib/financialMetrics';
 
 export default function FinancialOverviewTab({ items, national, status }) {
+  // Build stat arrays from lib config — maps data keys to display-ready objects
   const profitStats =
     status === 'facility'
       ? buildFacilityProfitStats(items, national)
@@ -36,8 +37,6 @@ export default function FinancialOverviewTab({ items, national, status }) {
     status === 'facility'
       ? buildFacilityLiquidityStats(items, national)
       : buildOwnerLiquidityStats(items);
-
-  console.log(items);
 
   return (
     <section>

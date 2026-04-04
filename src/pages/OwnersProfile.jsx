@@ -5,7 +5,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 import { Heading } from '../components/ui/atom/heading';
-import OwenerProviderHighlights from '../components/ui/organism/ownerProviderHighlights';
+import ProviderHighlights from '../components/ui/organism/providerHighlights';
 import ListContainer from '../components/ui/organism/ListContainer';
 import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
@@ -19,9 +19,13 @@ import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 
 /**
- * OwnerProfile serves as the page for specific owners
+ * Owner profile page container.
  *
- *
+ * Responsibilities:
+ * - Fetches owner data by route slug
+ * - Renders the owner profile header and tabbed content
+ * - Derives the related facilities list from ownership links
+ * - Shows the associated facilities section and load-more behavior
  */
 
 const API_BASE_URL =
@@ -71,10 +75,7 @@ export default function OwnersProfile() {
             switch (activeTab.name) {
               case 'Provider Highlights':
                 return (
-                  <OwenerProviderHighlights
-                    items={owner}
-                    relatedFacilities={relatedFacilities}
-                  />
+                  <ProviderHighlights items={owner} status="owner" />
                 );
               //As of 3/16/26 we are holding off on deficiencies
               // case 'Deficiencies & Penalties':

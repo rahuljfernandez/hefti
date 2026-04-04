@@ -13,6 +13,7 @@ import {
 } from '../../../../lib/staffingMetrics';
 
 export default function StaffingTab({ items, status }) {
+  // Build stat arrays from lib config — maps data keys to display-ready objects
   const staffingLevelsStats =
     status === 'facility'
       ? buildFacilityStaffingLevels(items)
@@ -23,6 +24,7 @@ export default function StaffingTab({ items, status }) {
       ? buildFacilityStaffingTurnover(items)
       : buildOwnerStaffingTurnover(items);
 
+  //determines the value(number) to be used in the Star rating display
   const staffingRating =
     status === 'facility'
       ? items.staffing_rating
@@ -69,8 +71,7 @@ export default function StaffingTab({ items, status }) {
               stars={[
                 {
                   title: 'Overall Staffing Rating',
-                  rating:
-                    staffingRating,
+                  rating: staffingRating,
                   size: 'h-10 w-10',
                   ratingSize: '4xl',
                   className: 'font-bold',

@@ -10,7 +10,7 @@ import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
 import TabsShell from '../components/ui/molecule/tabsShell';
-import ProviderHighlightsOwnershipTab from '../components/ui/molecule/tabs/providerHighlightsOwnershipTab';
+import ProviderHighlights from '../components/ui/organism/providerHighlights';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
@@ -87,7 +87,7 @@ export default function FacilityProfile() {
           {(activeTab) => {
             switch (activeTab.name) {
               case 'Provider Highlights':
-                return <ProviderHighlightsOwnershipTab facility={facility} />;
+                return <ProviderHighlights items={facility} status="facility" />;
               //As of 3/16/26 we are holding off on deficiencies
               // case 'Deficiencies & Penalties':
               //   return <DeficienciesTab items={facility} />;

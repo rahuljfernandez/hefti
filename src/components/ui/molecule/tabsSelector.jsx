@@ -32,7 +32,7 @@ export default function TabsSelector({
     <div className="bg-background-secondary">
       {/** Mobile */}
       <div className="grid grid-cols-1 lg:hidden">
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+        {/* Use an "onChange" listener to redirect the user to the selected tab. */}
         <select
           onChange={(e) => handleClick(e.target.value)}
           value={activeTab?.name}
