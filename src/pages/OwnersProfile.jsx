@@ -91,7 +91,7 @@ export default function OwnersProfile() {
                 return <StaffingTab items={owner} status={'owner'} />;
 
               case 'Financial Overview':
-                return <FinancialOverviewTab />;
+                return <FinancialOverviewTab items={owner} status={'owner'} />;
 
               default:
                 return (
