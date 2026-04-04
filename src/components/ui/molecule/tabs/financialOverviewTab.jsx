@@ -37,6 +37,8 @@ export default function FinancialOverviewTab({ items, national, status }) {
       ? buildFacilityLiquidityStats(items, national)
       : buildOwnerLiquidityStats(items);
 
+  console.log(items);
+
   return (
     <section>
       {/*Financial Header */}

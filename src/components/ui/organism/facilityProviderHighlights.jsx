@@ -5,8 +5,8 @@ import StatsCard from '../molecule/statsCard';
 import CMSRating from '../molecule/CMSRating';
 import LayoutCard from '../atom/layout-card';
 import StarRating from '../molecule/starRating';
-import { Divider } from '../atom/divider';
 import FacilityProfileDescription from '../molecule/facilityProfileDescription';
+import { buildFacilityCardStats } from '../../../lib/providerHighlightsMetrics';
 /**
  * Organism component that will be used to build FaciltyPage-this is the top block(Provider Highlights)
  *
@@ -15,32 +15,7 @@ import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 export default function FacilityProviderHighlights({ items }) {
   if (!items) return <div>No facility data available.</div>;
 
-  //Todo: The descripts need updating
-  const facilityCardStats = [
-    {
-      key: 'Total Deficiencies',
-      stat: items.health_deficiencies ?? 'N/A',
-      rating: items.cmpr_health_deficiencies ?? 'N/A',
-      description:
-        'Average numbor of serious deficiencies found in affiliated homes in the last three years',
-      isCurrency: false,
-    },
-    {
-      key: 'Number of Fines',
-      stat: items.number_of_fines ?? 'N/A',
-      rating: items.cmpr_number_of_fines ?? 'N/A',
-      description:
-        'Average percentage of nursing staff who stopped working at affiliated homes over a 12-month period',
-      isCurrency: false,
-    },
-    {
-      key: 'Fines Total',
-      stat: items.total_amount_of_fines_in_usd ?? 'N/A',
-      rating: items.cmpr_total_amount_of_fines_in_usd ?? 'N/A',
-      description: 'Average total fines against affiliated homes.',
-      isCurrency: true,
-    },
-  ];
+  const facilityCardStats = buildFacilityCardStats(items);
   return (
     <LayoutCard>
       <div className="border-b border-gray-200 pb-5">

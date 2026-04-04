@@ -43,7 +43,8 @@ export function formatPhoneNumber(phone) {
 }
 
 export function formatUSD(value) {
-  if (typeof value !== 'number') return '$0.00';
+  if (value === null || value === undefined || value === '') return 'N/A';
+  if (typeof value !== 'number') return 'N/A';
 
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

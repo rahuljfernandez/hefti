@@ -68,7 +68,6 @@ export default function FacilityProfile() {
 
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility.facility_ownership_links || [];
-  console.log('links', ownershipLinks);
 
   return (
     <div className="bg-background-secondary font-sans">

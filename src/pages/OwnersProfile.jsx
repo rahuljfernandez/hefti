@@ -52,8 +52,6 @@ export default function OwnersProfile() {
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
 
-  console.log('related facilities', relatedFacilities);
-
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
