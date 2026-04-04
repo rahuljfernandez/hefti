@@ -9,7 +9,7 @@ import { OwnershipAndStakeholders } from '../listContainerContent';
 import OwnershipFlowDiagram from '../../organism/ownershipFlowDiagram';
 import AdditionalInformation from '../additionalInformation';
 
-export default function ProviderHighlightsOwnershipTab({ facility }) {
+export default function ProviderHighlightsTab({ facility }) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
@@ -20,12 +20,12 @@ export default function ProviderHighlightsOwnershipTab({ facility }) {
   );
 }
 
-ProviderHighlightsOwnershipTab.propTypes = {
+ProviderHighlightsTab.propTypes = {
   ownershipLinks: PropTypes.array,
   facility: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 };
 
-ProviderHighlightsOwnershipTab.defaultProps = {
+ProviderHighlightsTab.defaultProps = {
   ownershipLinks: [],
   facility: null,
 };

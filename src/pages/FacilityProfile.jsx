@@ -9,7 +9,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
-import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
+import TabsShell from '../components/ui/molecule/tabsShell';
 import ProviderHighlightsOwnershipTab from '../components/ui/molecule/tabs/providerHighlightsOwnershipTab';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
@@ -80,13 +80,13 @@ export default function FacilityProfile() {
           func={getBadgeColorOwnershipType}
         />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
-        <TabsWithInfo
+        <TabsShell
           tabsData={profileTabsDescriptions}
-          defaultTabName={'Provider Highlights & Ownership'}
+          defaultTabName={'Provider Highlights'}
         >
           {(activeTab) => {
             switch (activeTab.name) {
-              case 'Provider Highlights & Ownership':
+              case 'Provider Highlights':
                 return <ProviderHighlightsOwnershipTab facility={facility} />;
               //As of 3/16/26 we are holding off on deficiencies
               // case 'Deficiencies & Penalties':
@@ -121,7 +121,7 @@ export default function FacilityProfile() {
                 );
             }
           }}
-        </TabsWithInfo>
+        </TabsShell>
 
         {/* Ownership details are shown only when linked ownership records exist. */}
         {ownershipLinks.length > 0 && (

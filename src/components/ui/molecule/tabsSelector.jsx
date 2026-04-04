@@ -13,10 +13,14 @@ function classNames(...classes) {
  * - tabsData: array of tabs
  * - activeTab: the currently active tab
  * - onTabChange: callback when a tab is clicked
- * example:  <Tabs tabsData={tabsData} onTabChange={setActiveTab} activeTab={activeTab}/>
+ * example:  <TabsSelector tabsData={tabsData} onTabChange={setActiveTab} activeTab={activeTab}/>
  */
 
-export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
+export default function TabsSelector({
+  tabsData = [],
+  onTabChange,
+  activeTab,
+}) {
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
     if (newActive) {
@@ -78,7 +82,7 @@ export default function Tabs({ tabsData = [], onTabChange, activeTab }) {
   );
 }
 
-Tabs.propTypes = {
+TabsSelector.propTypes = {
   tabsData: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,

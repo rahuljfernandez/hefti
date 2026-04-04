@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import Tabs from './tabs';
+import TabsSelector from './tabsSelector';
 
-export default function TabsWithInfo({ tabsData, defaultTabName, children }) {
+export default function TabsShell({ tabsData, defaultTabName, children }) {
   const defaultTab =
     tabsData.find((tab) => tab.name === defaultTabName) ?? tabsData[0];
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -10,7 +10,7 @@ export default function TabsWithInfo({ tabsData, defaultTabName, children }) {
   return (
     <div className="bg-background-secondary">
       <div className="pb-3">
-        <Tabs
+        <TabsSelector
           tabsData={tabsData}
           onTabChange={setActiveTab}
           activeTab={activeTab}
@@ -30,7 +30,7 @@ export default function TabsWithInfo({ tabsData, defaultTabName, children }) {
   );
 }
 
-TabsWithInfo.propTypes = {
+TabsShell.propTypes = {
   tabsData: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,

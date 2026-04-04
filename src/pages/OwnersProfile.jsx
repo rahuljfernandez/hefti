@@ -11,7 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
-import TabsWithInfo from '../components/ui/molecule/tabsWithInfo';
+import TabsShell from '../components/ui/molecule/tabsShell';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
@@ -63,13 +63,13 @@ export default function OwnersProfile() {
           func={getBadgeColorOwnerProfile}
         />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
-        <TabsWithInfo
+        <TabsShell
           tabsData={profileTabsDescriptions}
-          defaultTabName={'Provider Highlights & Ownership'}
+          defaultTabName={'Provider Highlights'}
         >
           {(activeTab) => {
             switch (activeTab.name) {
-              case 'Provider Highlights & Ownership':
+              case 'Provider Highlights':
                 return (
                   <OwenerProviderHighlights
                     items={owner}
@@ -99,7 +99,7 @@ export default function OwnersProfile() {
                 );
             }
           }}
-        </TabsWithInfo>
+        </TabsShell>
 
         {/* <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights

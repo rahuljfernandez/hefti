@@ -1,6 +1,6 @@
 export const profileTabsDescriptions = [
   {
-    name: 'Provider Highlights & Ownership',
+    name: 'Provider Highlights',
     displayTitle: 'Provider Highlights',
     href: '#',
   },
