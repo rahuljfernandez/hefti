@@ -12,7 +12,7 @@ import { getCmprColor } from './getBadgeColor';
  * Pattern:
  * - Config arrays describe which backend fields belong to each metric card
  * - Builder functions read those configs and return normalized UI data
- * - Facility builders include state and national comparison details
+ * - Facility builders include state and national benchmark details
  * - Owner builders return the owner-level values and summary benchmark text
  */
 
@@ -357,12 +357,17 @@ const ownerShortStayConfig = [
 ];
 
 // Facility builders add comparison labels and benchmark details for each metric card.
-export function buildFacilityLongStayStats(metricsSource, national) {
+export function buildFacilityLongStayStats(
+  metricsSource,
+  nationalBenchmarks,
+) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
   return facilityLongStayConfig.map((metric) => {
     const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
-    const nationalAvg = formatMetricValue(national?.[metric.nationalAvgKey]);
+    const nationalAvg = formatMetricValue(
+      nationalBenchmarks?.[metric.nationalAvgKey],
+    );
     return {
       id: metric.id,
       title: metric.title,
@@ -379,12 +384,17 @@ export function buildFacilityLongStayStats(metricsSource, national) {
   });
 }
 
-export function buildFacilityShortStayStats(metricsSource, national) {
+export function buildFacilityShortStayStats(
+  metricsSource,
+  nationalBenchmarks,
+) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
   return facilityShortStayConfig.map((metric) => {
     const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
-    const nationalAvg = formatMetricValue(national?.[metric.nationalAvgKey]);
+    const nationalAvg = formatMetricValue(
+      nationalBenchmarks?.[metric.nationalAvgKey],
+    );
     return {
       id: metric.id,
       title: metric.title,

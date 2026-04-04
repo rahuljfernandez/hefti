@@ -149,7 +149,7 @@ const facilityLiquidityConfig = [
 ];
 
 // Shared facility builder applies formatting and benchmark lookups to each configured metric.
-function buildStats(config, metricsSource, national) {
+function buildStats(config, metricsSource, nationalBenchmarks) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
   return config.map((metric) => {
@@ -158,7 +158,7 @@ function buildStats(config, metricsSource, national) {
       ? format(metricsSource?.[metric.stateAvgKey])
       : 'N/A';
     const nationalAvg = metric.nationalAvgKey
-      ? format(national?.[metric.nationalAvgKey])
+      ? format(nationalBenchmarks?.[metric.nationalAvgKey])
       : 'N/A';
     return {
       id: metric.id,
@@ -177,20 +177,20 @@ function buildStats(config, metricsSource, national) {
   });
 }
 
-export function buildFacilityProfitStats(metricsSource, national) {
-  return buildStats(facilityProfitConfig, metricsSource, national);
+export function buildFacilityProfitStats(metricsSource, nationalBenchmarks) {
+  return buildStats(facilityProfitConfig, metricsSource, nationalBenchmarks);
 }
 
-export function buildFacilityRevenueStats(metricsSource, national) {
-  return buildStats(facilityRevenueConfig, metricsSource, national);
+export function buildFacilityRevenueStats(metricsSource, nationalBenchmarks) {
+  return buildStats(facilityRevenueConfig, metricsSource, nationalBenchmarks);
 }
 
-export function buildFacilityExpensesStats(metricsSource, national) {
-  return buildStats(facilityExpensesConfig, metricsSource, national);
+export function buildFacilityExpensesStats(metricsSource, nationalBenchmarks) {
+  return buildStats(facilityExpensesConfig, metricsSource, nationalBenchmarks);
 }
 
-export function buildFacilityLiquidityStats(metricsSource, national) {
-  return buildStats(facilityLiquidityConfig, metricsSource, national);
+export function buildFacilityLiquidityStats(metricsSource, nationalBenchmarks) {
+  return buildStats(facilityLiquidityConfig, metricsSource, nationalBenchmarks);
 }
 
 // Owner configs map owner aggregate fields to the same long-form financial card shape.

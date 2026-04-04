@@ -39,7 +39,7 @@ export default function FacilityProfile() {
   const { slug } = useParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [national, setNational] = useState(null);
+  const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
 
   useEffect(() => {
     // Reload facility details whenever the URL slug changes.
@@ -50,17 +50,17 @@ export default function FacilityProfile() {
   }, [slug]);
 
   useEffect(() => {
-    const fetchNational = async () => {
+    const fetchNationalBenchmarks = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/national`);
         const data = await res.json();
-        setNational(data);
+        setNationalBenchmarks(data);
       } catch (err) {
         console.error('Failed to fetch national averages:', err);
       }
     };
 
-    fetchNational();
+    fetchNationalBenchmarks();
   }, []);
 
   if (loading) return <p>Loading facility details...</p>;
@@ -97,7 +97,7 @@ export default function FacilityProfile() {
                   <ClinicalQualityTab
                     metricsSource={facility}
                     status={'facility'}
-                    national={national}
+                    nationalBenchmarks={nationalBenchmarks}
                   />
                 );
 
@@ -109,7 +109,7 @@ export default function FacilityProfile() {
                   <FinancialOverviewTab
                     items={facility}
                     status={'facility'}
-                    national={national}
+                    nationalBenchmarks={nationalBenchmarks}
                   />
                 );
 

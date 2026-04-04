@@ -21,21 +21,20 @@ import {
  * - Shows owner-specific context when values represent weighted averages
  * - Renders each metric group using the shared long-form metric card layout
  */
-
 export default function ClinicalQualityTab({
   metricsSource,
   status,
-  national,
+  nationalBenchmarks,
 }) {
-  // Build stat arrays from lib config — maps data keys to display-ready objects
+  // Build stat arrays from lib config; maps data keys to display-ready objects.
   const longStayStats =
     status === 'facility'
-      ? buildFacilityLongStayStats(metricsSource, national)
+      ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
       : buildOwnerLongStayStats(metricsSource);
 
   const shortStayStats =
     status === 'facility'
-      ? buildFacilityShortStayStats(metricsSource, national)
+      ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
       : buildOwnerShortStayStats(metricsSource);
 
   return (
@@ -61,6 +60,7 @@ export default function ClinicalQualityTab({
           ListContent={MetricCardLong}
         />
       </div>
+
       {/* Short-stay measures use the same card layout but represent a different resident population. */}
       <div className="pb-8">
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
@@ -79,5 +79,5 @@ export default function ClinicalQualityTab({
 ClinicalQualityTab.propTypes = {
   metricsSource: PropTypes.object,
   status: PropTypes.string,
-  national: PropTypes.object,
+  nationalBenchmarks: PropTypes.object,
 };

@@ -22,29 +22,33 @@ import {
  * Responsibilities:
  * - Builds profit, revenue, expense, and liquidity metric groups
  * - Switches between facility and owner metric builders based on status
- * - Passes national comparison data when facility metrics need benchmark values
+ * - Passes national benchmark data when facility metrics need comparison values
  * - Renders each financial section using the shared long-form metric card layout
  */
-export default function FinancialOverviewTab({ items, national, status }) {
-  // Build stat arrays from lib config — maps data keys to display-ready objects
+export default function FinancialOverviewTab({
+  items,
+  nationalBenchmarks,
+  status,
+}) {
+  // Build stat arrays from lib config; maps data keys to display-ready objects.
   const profitStats =
     status === 'facility'
-      ? buildFacilityProfitStats(items, national)
+      ? buildFacilityProfitStats(items, nationalBenchmarks)
       : buildOwnerProfitStats(items);
 
   const revenueStats =
     status === 'facility'
-      ? buildFacilityRevenueStats(items, national)
+      ? buildFacilityRevenueStats(items, nationalBenchmarks)
       : buildOwnerRevenueStats(items);
 
   const expensesStats =
     status === 'facility'
-      ? buildFacilityExpensesStats(items, national)
+      ? buildFacilityExpensesStats(items, nationalBenchmarks)
       : buildOwnerExpensesStats(items);
 
   const liquidityStats =
     status === 'facility'
-      ? buildFacilityLiquidityStats(items, national)
+      ? buildFacilityLiquidityStats(items, nationalBenchmarks)
       : buildOwnerLiquidityStats(items);
 
   return (
@@ -56,10 +60,10 @@ export default function FinancialOverviewTab({ items, national, status }) {
         </div>
         <div className="my-4">
           <p className="text-paragraph-lg mb-4">
-            This page provides a snapshot of a facility's financial health,
+            This page provides a snapshot of a facility&apos;s financial health,
             including profitability, spending patterns, and liquidity. Reviewing
             those metrics can help you assess how a nursing home allocates its
-            resources, whether it's financially stable, and how much is invested
+            resources, whether it&apos;s financially stable, and how much is invested
             in resident care versus affiliated businesses. Use these indicators
             to identify red flags or signs of strong financial management.
           </p>
@@ -122,6 +126,6 @@ export default function FinancialOverviewTab({ items, national, status }) {
 
 FinancialOverviewTab.propTypes = {
   items: PropTypes.object,
-  national: PropTypes.object,
+  nationalBenchmarks: PropTypes.object,
   status: PropTypes.string,
 };
