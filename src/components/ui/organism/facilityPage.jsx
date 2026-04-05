@@ -1,6 +1,6 @@
 import React from 'react';
 import FacilityProviderHighlights from './facilityProviderHighlights';
-import TabsWithHeader from '../molecule/tabsWithInfo';
+import TabsShell from '../molecule/tabsShell';
 import HeftiNavbar from '../molecule/heftiNavbar';
 import LayoutPage from '../atom/layout-page';
 import ProfileHeader from '../molecule/profileHeader';
@@ -13,7 +13,7 @@ export default function FacilityPage() {
       <HeftiNavbar />
       <LayoutPage>
         <ProfileHeader />
-        <TabsWithHeader />
+        <TabsShell />
         <FacilityProviderHighlights />
       </LayoutPage>
     </div>

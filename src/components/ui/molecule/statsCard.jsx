@@ -49,7 +49,7 @@ function StatCardLayout({ stats, variant = 'panel' }) {
   const styles = variants[variant];
   return (
     <div>
-      <dl className={styles.wrapper}>
+      <dl className={styles.wrapper} aria-label="Statistics summary">
         {stats.map((item, i) => {
           return (
             <div key={item.key + i} className={styles.item}>

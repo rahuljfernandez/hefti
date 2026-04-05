@@ -1,21 +1,14 @@
-import TabsWithHeader from '../../components/ui/molecule/tabsWithHeader';
+import TabsSelector from '../../components/ui/molecule/tabsSelector';
 
 export default {
-  title: 'COMPONENTS/Molecule/TabsWithHeader',
-  components: TabsWithHeader,
+  title: 'COMPONENTS/Molecule/tabsSelector',
+  component: TabsSelector,
 };
-
-const Template = (args) => <TabsWithHeader {...args} />;
 
 const tabsData = [
   {
-    name: 'Provider Highlights & Ownership',
+    name: 'Provider Highlights',
     displayTitle: 'Provider Highlights',
-    href: '#',
-  },
-  {
-    name: 'Deficiencies & Penalties',
-    displayTitle: 'Deficiencies from Inspection Reports',
     href: '#',
   },
   {
@@ -35,7 +28,10 @@ const tabsData = [
   },
 ];
 
+const Template = (args) => <TabsSelector {...args} />;
+
 export const Base = Template.bind({});
 Base.args = {
-  tabsData: tabsData,
+  tabsData,
+  activeTab: tabsData[0],
 };

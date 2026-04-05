@@ -20,6 +20,7 @@ export default function AdditionalInformation({ items }) {
     { title: 'CHAIN SIZE', value: items.chain_size || 'N/A' },
     { title: 'CCN', value: items.ccn || 'N/A' },
   ];
+
   return (
     <LayoutCard>
       <div className="mt-6">
