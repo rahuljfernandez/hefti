@@ -185,7 +185,11 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
   const { provider_name, reit_name } = facility;
   console.log(provider_name);
   const managingEmployee = items
-    .filter((owner) => owner.cms_ownership_role === 'MANAGING EMPLOYEE')
+    .filter(
+      (owner) =>
+        owner.cms_ownership_role === 'MANAGING EMPLOYEE' ||
+        owner.cms_ownership_role === 'W-2 MANAGING EMPLOYEE',
+    )
     .map((owner) => owner.ownership_entity.cms_ownership_name);
 
   const securityInterest = items

@@ -86,6 +86,10 @@ const badgeConfig = {
     color: 'red',
     label: 'MANAGING EMPLOYEE',
   },
+  'W-2 MANAGING EMPLOYEE': {
+    color: 'red',
+    label: 'W-2 MANAGING EMPLOYEE',
+  },
   'OPERATIONAL/MANAGERIAL CONTROL': {
     color: 'yellow',
     label: 'OPERATIONAL/MANAGERIAL CONTROL',
