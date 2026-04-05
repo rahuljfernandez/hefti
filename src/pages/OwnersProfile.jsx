@@ -45,10 +45,15 @@ export default function OwnersProfile() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <p>Loading owner details...</p>;
-  if (!owner) return <p>Owner not found.</p>;
+  if (loading) {
+    return (
+      <p role="status" aria-live="polite">
+        Loading owner details...
+      </p>
+    );
+  }
+  if (!owner) return <p role="alert">Owner not found.</p>;
 
-  console.log('owner', owner);
   // Use related facilities from API if available
   const relatedFacilities =
     owner.facility_ownership_links?.map((link) => ({
@@ -56,14 +61,17 @@ export default function OwnersProfile() {
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
 
+  // Use the first facility's freshness as a proxy for the owner-level data freshness.
+  const freshness = relatedFacilities[0]?.data_freshness;
+
   return (
-    <div className="bg-background-secondary">
+    <main className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
           title={toTitleCase(owner.cms_ownership_name)}
           ownershipType={owner.cms_ownership_type}
-          freshness={relatedFacilities[0].data_freshness}
+          freshness={freshness}
           func={getBadgeColorOwnerProfile}
         />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
@@ -115,12 +123,14 @@ export default function OwnersProfile() {
             <button
               onClick={() => setShowAll(true)}
               className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+              aria-label={`Show all ${relatedFacilities.length} facilities`}
+              aria-expanded={showAll}
             >
               Load All Facilities
             </button>
           </div>
         )}
       </LayoutPage>
-    </div>
+    </main>
   );
 }

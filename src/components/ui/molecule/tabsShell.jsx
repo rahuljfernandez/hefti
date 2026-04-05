@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useId, useState } from 'react';
 import PropTypes from 'prop-types';
 import TabsSelector from './tabsSelector';
 
@@ -11,6 +11,10 @@ export default function TabsShell({ tabsData, defaultTabName, children }) {
   const defaultTab =
     tabsData.find((tab) => tab.name === defaultTabName) ?? tabsData[0];
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const tabSetId = useId().replace(/:/g, '');
+  const panelId = `${tabSetId}-panel`;
+  const getTabId = (tabName) =>
+    `${tabSetId}-tab-${tabsData.findIndex((tab) => tab.name === tabName)}`;
 
   return (
     <div className="bg-background-secondary">
@@ -19,10 +23,16 @@ export default function TabsShell({ tabsData, defaultTabName, children }) {
           tabsData={tabsData}
           onTabChange={setActiveTab}
           activeTab={activeTab}
+          panelId={panelId}
+          getTabId={getTabId}
         />
       </div>
 
-      <div>
+      <div
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={getTabId(activeTab?.name)}
+      >
         {/* The parent page decides what to render for the selected tab by passing a render function.
         We call that function with the current active tab so each page can map tab names to its own content. */}
         {typeof children === 'function' ? (

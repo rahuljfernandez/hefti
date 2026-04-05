@@ -63,14 +63,20 @@ export default function FacilityProfile() {
     fetchNationalBenchmarks();
   }, []);
 
-  if (loading) return <p>Loading facility details...</p>;
-  if (!facility) return <p>Facility not found.</p>;
+  if (loading) {
+    return (
+      <p role="status" aria-live="polite">
+        Loading facility details...
+      </p>
+    );
+  }
+  if (!facility) return <p role="alert">Facility not found.</p>;
 
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility.facility_ownership_links || [];
 
   return (
-    <div className="bg-background-secondary font-sans">
+    <main className="bg-background-secondary font-sans">
       <Breadcrumb />
       <LayoutPage>
         <ProfileHeader
@@ -151,6 +157,6 @@ export default function FacilityProfile() {
           <AdditionalInformation items={facility} />
         </div>
       </LayoutPage>
-    </div>
+    </main>
   );
 }

@@ -56,7 +56,7 @@ export default function FinancialOverviewTab({
       {/* Intro copy frames how to interpret the financial metric groups below. */}
       <div className="my-8">
         <div className="">
-          <div className={'text-heading-md'}>Financial Overview</div>
+          <h2 className="text-heading-md">Financial Overview</h2>
         </div>
         <div className="my-4">
           <p className="text-paragraph-lg mb-4">

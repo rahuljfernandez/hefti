@@ -63,15 +63,20 @@ export default function StarRating({
   }
 
   return (
-    <div className={`flex flex-col font-sans ${title ? 'gap-2' : ''}`}>
+    <div
+      className={`flex flex-col font-sans ${title ? 'gap-2' : ''}`}
+      role="img"
+      aria-label={`${title}: ${rating} out of ${outOf} stars`}
+    >
       <div
         className={
           className ? `${className} text-core-black` : 'text-label-base'
         }
+        aria-hidden="true"
       >
         {title}
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center" aria-hidden="true">
         {stars}
         <span className={`${textSizeClasses[ratingSize]} px-2 pt-1 font-bold`}>
           {rating}

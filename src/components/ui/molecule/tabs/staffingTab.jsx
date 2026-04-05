@@ -44,7 +44,7 @@ export default function StaffingTab({ items, status }) {
       {/* Intro copy explains how staffing levels and turnover should be interpreted. */}
       <div className="my-8">
         <div className="">
-          <div className={'text-heading-md'}>Staffing Quality</div>
+          <h2 className="text-heading-md">Staffing Quality</h2>
         </div>
         <div className="my-4">
           <p className="text-paragraph-lg mb-4">
@@ -87,7 +87,7 @@ export default function StaffingTab({ items, status }) {
             />
             {/* Staffing level cards show hours-per-resident metrics by staff category. */}
             <div className="my-4">
-              <div className="text-heading-xs">Staffing Levels</div>
+              <h3 className="text-heading-xs">Staffing Levels</h3>
               <ListContainer
                 items={staffingLevelsStats}
                 LayoutSelector={ListContainerGrid}
@@ -97,7 +97,7 @@ export default function StaffingTab({ items, status }) {
             <Divider />
             {/* Turnover cards show how frequently key staff roles change over time. */}
             <div className="my-4">
-              <div className="text-heading-xs">Staffing Turnover</div>
+              <h3 className="text-heading-xs">Staffing Turnover</h3>
               <ListContainer
                 items={staffingTurnoverStats}
                 LayoutSelector={ListContainerGrid}
