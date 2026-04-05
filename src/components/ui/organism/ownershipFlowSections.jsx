@@ -181,7 +181,9 @@ CorporateFlowSection.propTypes = {
 //When we get real data will have to inspect the conditional render here.
 
 export function FacilityFlowSection({ items, facility, hasOperator }) {
+  console.log('facilityFlow', facility, items);
   const { provider_name, reit_name } = facility;
+  console.log(provider_name);
   const managingEmployee = items
     .filter((owner) => owner.cms_ownership_role === 'MANAGING EMPLOYEE')
     .map((owner) => owner.ownership_entity.cms_ownership_name);

@@ -146,7 +146,7 @@ export default function FacilityProfile() {
             <div className="pb-8">
               <OwnershipFlowDiagram
                 items={ownershipLinks}
-                facility={ownershipLinks}
+                facility={facility}
               />
             </div>
           </>
