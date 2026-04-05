@@ -78,7 +78,7 @@ export function OwnershipAndStakeholders({ item }) {
       <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
         <div className="gap-2 md:flex md:flex-col md:pr-6">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERHSIP PERCENTAGE
+            OWNERSHIP PERCENTAGE
           </p>
           <p className="text-paragraph-base text-core-black">
             {formatOwnershipPercentage(item.cms_ownership_percentage)}
