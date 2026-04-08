@@ -14,7 +14,6 @@ import { SparklesIcon } from '@heroicons/react/20/solid';
  *
  * Props:
  *  - onClick: function — opens the chat panel
- *  - ownerName: string — used in the tooltip copy
  */
 
 export default function HeftiResearcherCTA({ onClick }) {

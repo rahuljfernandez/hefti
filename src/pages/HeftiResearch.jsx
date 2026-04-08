@@ -10,6 +10,25 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+/**
+ * HeftiResearch
+ *
+ * AI-powered researcher chat page for exploring facility and owner data.
+ * Accessible via the CTA on Owner and Facility profile pages.
+ *
+ * - Derives `contextType` ("owner" | "facility") from the current URL path
+ *   so the backend can scope its response to the right entity type.
+ * - Streams assistant responses from `POST /api/researcher` using the
+ *   Fetch ReadableStream API and renders them with react-markdown.
+ * - Keeps a rolling history of the last 20 messages to support multi-turn
+ *   conversation without unbounded context growth.
+ * - Uses `flushSync` + `requestAnimationFrame` to scroll the latest user
+ *   bubble to the top of the viewport immediately after send, before the
+ *   assistant has produced any output.
+ *
+ * Route params:
+ *  - slug: string — the owner or facility slug, forwarded to the API for context.
+ */
 export default function HeftiResearch() {
   const { slug } = useParams();
   const { pathname } = useLocation();
@@ -107,7 +126,7 @@ export default function HeftiResearch() {
       { role: 'user', content: trimmedPrompt },
     ];
 
-    console.log('[researcher] outgoing messages:', outgoingMessages);
+    // console.log('[researcher] outgoing messages:', outgoingMessages);
 
     try {
       const res = await fetch(`${API_BASE_URL}/researcher`, {

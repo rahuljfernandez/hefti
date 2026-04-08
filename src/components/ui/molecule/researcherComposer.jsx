@@ -2,6 +2,22 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { ArrowUpIcon } from '@heroicons/react/20/solid';
 import { Button } from '../atom/button';
 
+/**
+ * ResearcherComposer
+ *
+ * Controlled textarea input used to send messages to the Hefti Researcher AI.
+ * Used on the HeftiResearch page in both the empty and active chat states.
+ *
+ * - Auto-resizes vertically as the user types, capped at 200px.
+ * - Clicking anywhere on the composer (outside the send button) focuses the textarea.
+ * - Submits on Enter; Shift+Enter inserts a newline.
+ * - The send button only renders when the input has non-whitespace content.
+ *
+ * Props:
+ *  - value: string — controlled input value
+ *  - onChange: (value: string) => void — called on every keystroke
+ *  - onSubmit: () => void — called when the user submits (Enter or button click)
+ */
 export default function ResearcherComposer({ value, onChange, onSubmit }) {
   const textareaRef = useRef(null);
 
