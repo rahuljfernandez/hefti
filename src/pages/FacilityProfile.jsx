@@ -20,6 +20,8 @@ export default function FacilityProfile() {
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/facilities/${slug}`)
       .then((res) => res.json())
@@ -32,7 +34,12 @@ export default function FacilityProfile() {
 
   // Use real ownership data from facility
   const ownershipLinks = facility.facility_ownership_links || [];
-  console.log('links', facility);
+
+  //click handler to open the AI chat
+  const handleResearchClick = () => {
+    navigate(`/facilities/${slug}/research`);
+  };
+
   return (
     <div className="bg-background-secondary font-sans">
       <Breadcrumb />
@@ -42,6 +49,7 @@ export default function FacilityProfile() {
           ownershipType={facility.ownership_type}
           freshness={facility.data_freshness}
           func={getBadgeColorOwnershipType}
+          onClick={handleResearchClick}
         />
         <TabsWithInfo
           tabsData={facilityProfileTabsDescriptions}

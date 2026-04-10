@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -28,6 +28,8 @@ export default function OwnersProfile() {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => res.json())
@@ -38,13 +40,17 @@ export default function OwnersProfile() {
   if (loading) return <p>Loading owner details...</p>;
   if (!owner) return <p>Owner not found.</p>;
 
-  console.log('owner', owner);
   // Use related facilities from API if available
   const relatedFacilities =
     owner.facility_ownership_links?.map((link) => ({
       ...link.facility,
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
+
+  //click handler to open the AI chat
+  const handleResearchClick = () => {
+    navigate(`/owners/${slug}/research`);
+  };
 
   return (
     <div className="bg-background-secondary">
@@ -55,6 +61,7 @@ export default function OwnersProfile() {
           ownershipType={owner.cms_ownership_type}
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
+          onClick={handleResearchClick}
         />
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Owner Highlights
