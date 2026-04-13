@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -6,8 +6,8 @@ import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 import { Heading } from '../components/ui/atom/heading';
 import OwenerProviderHighlights from '../components/ui/organism/ownerProviderHighlights';
-import ListContainer from '../components/ui/organism/listContainer';
-import { ListContainerDivider } from '../components/ui/organism/listContainer';
+import ListContainer from '../components/ui/organism/ListContainer';
+import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
@@ -30,6 +30,8 @@ export default function OwnersProfile() {
   const [showAll, setShowAll] = useState(false);
   console.log(slug);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => res.json())
@@ -47,6 +49,11 @@ export default function OwnersProfile() {
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
 
+  //click handler to open the AI chat
+  const handleResearchClick = () => {
+    navigate(`/owners/${slug}/research`);
+  };
+
   return (
     <div className="bg-background-secondary">
       <Breadcrumb />
@@ -56,6 +63,7 @@ export default function OwnersProfile() {
           ownershipType={owner.cms_ownership_type}
           freshness={relatedFacilities[0].data_freshness}
           func={getBadgeColorOwnerProfile}
+          onClick={handleResearchClick}
         />
         <OwnersNetworkGraphLauncher ownerId={owner.id} />
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
