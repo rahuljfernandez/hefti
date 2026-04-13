@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -38,6 +38,8 @@ export default function OwnersProfile() {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => res.json())
@@ -61,6 +63,11 @@ export default function OwnersProfile() {
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
 
+  //click handler to open the AI chat
+  const handleResearchClick = () => {
+    navigate(`/owners/${slug}/research`);
+  };
+
   // Use the first facility's freshness as a proxy for the owner-level data freshness.
   const freshness = relatedFacilities[0]?.data_freshness;
 
@@ -73,6 +80,7 @@ export default function OwnersProfile() {
           ownershipType={owner.cms_ownership_type}
           freshness={freshness}
           func={getBadgeColorOwnerProfile}
+          onClick={handleResearchClick}
         />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
         <TabsShell

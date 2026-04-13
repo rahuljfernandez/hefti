@@ -41,6 +41,8 @@ export default function FacilityProfile() {
   const [loading, setLoading] = useState(true);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Reload facility details whenever the URL slug changes.
     fetch(`${API_BASE_URL}/facilities/${slug}`)
@@ -75,6 +77,11 @@ export default function FacilityProfile() {
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility.facility_ownership_links || [];
 
+  //click handler to open the AI chat
+  const handleResearchClick = () => {
+    navigate(`/facilities/${slug}/research`);
+  };
+
   return (
     <main className="bg-background-secondary font-sans">
       <Breadcrumb />
@@ -84,6 +91,7 @@ export default function FacilityProfile() {
           ownershipType={facility.ownership_type}
           freshness={facility.data_freshness}
           func={getBadgeColorOwnershipType}
+          onClick={handleResearchClick}
         />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
         <TabsShell
@@ -93,7 +101,9 @@ export default function FacilityProfile() {
           {(activeTab) => {
             switch (activeTab.name) {
               case 'Provider Highlights':
-                return <ProviderHighlights items={facility} status="facility" />;
+                return (
+                  <ProviderHighlights items={facility} status="facility" />
+                );
               //As of 3/16/26 we are holding off on deficiencies
               // case 'Deficiencies & Penalties':
               //   return <DeficienciesTab items={facility} />;
