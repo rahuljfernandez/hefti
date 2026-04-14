@@ -7,9 +7,10 @@ import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
 
 const API_BASE_URL =
-  import.meta.env.RESEARCHER_FUNCTION_URL ||
+  import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+console.log(API_BASE_URL);
 /**
  * HeftiResearch
  *
