@@ -23,9 +23,11 @@ export default function ProfileHeader({
         <div className="mt-4 flex flex-row gap-2">
           <Badge color={func(ownershipType)}>{ownershipType}</Badge>
         </div>
-        <h3 className="text-paragraph-base text-content-secondary mt-4">
-          {freshness}
-        </h3>
+        {freshness && (
+          <p className="text-paragraph-base text-content-secondary mt-4">
+            {freshness}
+          </p>
+        )}
       </div>
       <div>
         <HeftiResearcherCTA onClick={onClick} />

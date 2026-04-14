@@ -23,6 +23,9 @@ export const ownerRoleMap = {
   'MANAGING EMPLOYEE': {
     label: 'Managing Employee',
   },
+  'W-2 MANAGING EMPLOYEE': {
+    label: 'W-2 Managing Employee',
+  },
   'OPERATIONAL/MANAGERIAL CONTROL': {
     label: 'Operational/Managerial Control',
   },

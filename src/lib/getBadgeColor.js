@@ -1,13 +1,12 @@
-//Helper function to choose badge color/will need to be modified to relect cases where below average is bad or good
-const getBadgeColorAboveBelow = (rating) => {
+const getBadgeColorAboveBelow = (rating, higherIsBetter = false) => {
   if (!rating) return 'gray';
   switch (rating.toLowerCase()) {
     case 'above state average':
-      return 'red';
+      return higherIsBetter ? 'green' : 'red';
     case 'average':
       return 'yellow';
     case 'below state average':
-      return 'green';
+      return higherIsBetter ? 'red' : 'green';
     default:
       return 'gray';
   }
@@ -87,6 +86,10 @@ const badgeConfig = {
     color: 'red',
     label: 'MANAGING EMPLOYEE',
   },
+  'W-2 MANAGING EMPLOYEE': {
+    color: 'red',
+    label: 'W-2 MANAGING EMPLOYEE',
+  },
   'OPERATIONAL/MANAGERIAL CONTROL': {
     color: 'yellow',
     label: 'OPERATIONAL/MANAGERIAL CONTROL',
@@ -96,9 +99,20 @@ const badgeConfig = {
   'OWNERSHIP DATA NOT AVAILABLE': { color: '', label: 'None' },
 };
 
+// Returns a badge color based on a CMS comparison string (e.g. "Above State Average").
+// Pass higherIsBetter=true for metrics where a higher value is desirable (e.g. vaccination rates).
+// Default assumes lower is better (e.g. falls, infections, hospitalizations).
+const getCmprColor = (cmpr, higherIsBetter = false) => {
+  if (!cmpr) return 'gray';
+  const lower = cmpr.toLowerCase();
+  if (lower.includes('above')) return higherIsBetter ? 'green' : 'red';
+  if (lower.includes('below')) return higherIsBetter ? 'red' : 'green';
+  return 'yellow';
+};
 export {
   getBadgeColorAboveBelow,
   getBadgeColorOwnershipType,
   badgeConfig,
   getBadgeColorOwnerProfile,
+  getCmprColor,
 };
