@@ -1,94 +1,73 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Heading } from '../../atom/heading';
 import ListContainer, {
   ListContainerSeparate,
 } from '../../organism/ListContainer';
 import { MetricCardLong } from '../listContainerContent';
-/**
- *  This component displays the Clinical Quality Measures data for an individual facility. Will be apart of the dynamic tabs scheme.
- */
+import {
+  buildFacilityLongStayStats,
+  buildFacilityShortStayStats,
+  buildOwnerLongStayStats,
+  buildOwnerShortStayStats,
+} from '../../../../lib/clinicalQualityMetrics';
 
-export default function ClinicalQuality({ ownershipLinks, facility }) {
-  //I'm assuming at this point facility/ownershiptLinks will hold the needed data once backend is updated.
-  // Temporary test data until backend connects
-  const mockStats = [
-    {
-      id: 1,
-      title: 'Falls with major injury',
-      subtitle: 'Lower percentages are better',
-      value: '2.6%',
-      label: 'Above State Average',
-      labelColor: 'red',
-      state: 'Missouri',
-      stateAvg: '2.1%',
-      nationalAverage: '1.2%',
-    },
-    {
-      id: 2,
-      title: 'Hospitalizations per 1,000 long-stay resident days',
-      subtitle: 'Lower numbers are better',
-      value: '1.5',
-      label: 'Lower Than State Average',
-      labelColor: 'green',
-      state: 'Missouri',
-      stateAvg: '1.8',
-      nationalAverage: '1.7',
-    },
-    {
-      id: 3,
-      title: 'Residents received antipsychotic medication',
-      subtitle: 'Lower percentages are better',
-      value: '16%',
-      label: 'Above State Average',
-      labelColor: 'red',
-      state: 'Missouri',
-      stateAvg: '12%',
-      nationalAverage: '8%',
-    },
-    {
-      id: 4,
-      title: 'Residents with pressure ulcers',
-      subtitle: 'Lower percentages are better',
-      value: '5.3%',
-      label: 'Above State Average',
-      labelColor: 'red',
-      state: 'Missouri',
-      stateAvg: '4.3%',
-      nationalAverage: '4.3%',
-    },
-    {
-      id: 5,
-      title: 'Hospitalizations per 1,000 long-stay resident days',
-      subtitle: 'Lower numbers are better',
-      value: '1.5',
-      label: 'Above State Average',
-      labelColor: 'red',
-      state: 'Missouri',
-      stateAvg: '1.2',
-      nationalAverage: '0.8',
-    },
-  ];
+/**
+ * Clinical quality tab content.
+ *
+ * Responsibilities:
+ * - Builds long-stay and short-stay metric groups from the provided data source
+ * - Switches between facility and owner metric builders based on status
+ * - Shows owner-specific context when values represent weighted averages
+ * - Renders each metric group using the shared long-form metric card layout
+ */
+export default function ClinicalQualityTab({
+  metricsSource,
+  status,
+  nationalBenchmarks,
+}) {
+  // Build stat arrays from lib config; maps data keys to display-ready objects.
+  const longStayStats =
+    status === 'facility'
+      ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
+      : buildOwnerLongStayStats(metricsSource);
+
+  const shortStayStats =
+    status === 'facility'
+      ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
+      : buildOwnerShortStayStats(metricsSource);
 
   return (
     <section>
-      {/**Long Stay Stats */}
+      {status === 'owner' && (
+        <div className="pt-8">
+          <p className="text-paragraph-lg">
+            Scores represent the{' '}
+            <span className="font-bold">weighted average </span>
+            across all facilities under this owner&apos;s management.
+          </p>
+        </div>
+      )}
+
+      {/* Long-stay measures are grouped separately because CMS reports them as a distinct care context. */}
       <div>
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Long Stay
         </Heading>
         <ListContainer
-          items={mockStats}
+          items={longStayStats}
           LayoutSelector={ListContainerSeparate}
           ListContent={MetricCardLong}
         />
       </div>
-      {/**Long Stay Stats */}
+
+      {/* Short-stay measures use the same card layout but represent a different resident population. */}
       <div className="pb-8">
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Short Stay
         </Heading>
         <ListContainer
-          items={mockStats}
+          items={shortStayStats}
           LayoutSelector={ListContainerSeparate}
           ListContent={MetricCardLong}
         />
@@ -96,3 +75,9 @@ export default function ClinicalQuality({ ownershipLinks, facility }) {
     </section>
   );
 }
+
+ClinicalQualityTab.propTypes = {
+  metricsSource: PropTypes.object,
+  status: PropTypes.string,
+  nationalBenchmarks: PropTypes.object,
+};

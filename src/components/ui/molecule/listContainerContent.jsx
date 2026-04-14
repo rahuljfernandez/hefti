@@ -9,17 +9,30 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import { slugify } from '../../../lib/slugify';
 import {
   badgeConfig,
-  getBadgeColorOwnerProfile,
+  getCmprColor,
+  getBadgeColorAboveBelow,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-/*Todo: 
-reit/pe is that working for OwnershipAndStaekholders?
-*/
 
+/**
+ * Collection of reusable content components for ListContainer and related card layouts.
+ *
+ * Each export in this file renders a specific item shape, such as ownership records,
+ * related facilities, provider metrics, or tab-specific stat cards. These components
+ * do not fetch or transform data. They expect display-ready item objects and focus
+ * only on rendering those objects in a consistent visual format.
+ *
+ * Example:
+ * <ListContainer
+ *   items={ownershipLinks}
+ *   LayoutSelector={ListContainerDivider}
+ *   ListContent={OwnershipAndStakeholders}
+ * />
+ */
 export function OwnershipAndStakeholders({ item }) {
   const role = item.cms_ownership_role;
   const config = badgeConfig[role] || {
@@ -69,7 +82,7 @@ export function OwnershipAndStakeholders({ item }) {
       <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
         <div className="gap-2 md:flex md:flex-col md:pr-6">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERHSIP PERCENTAGE
+            OWNERSHIP PERCENTAGE
           </p>
           <p className="text-paragraph-base text-core-black">
             {formatOwnershipPercentage(item.cms_ownership_percentage)}
@@ -449,19 +462,31 @@ export function BrowseOwners({ item }) {
   );
 }
 
-//MetricCardLong is suppose to be reusable, but want to come back to that once data is created.  For now (11/13/25), the layout is finished, just needs data
+/**
+ * Long-form metric card used in tab sections such as Clinical Quality and Financial Overview.
+ *
+ * Expected item shape:
+ * - title, subtitle: metric labels shown on the left
+ * - value: primary metric value shown prominently
+ * - comparison, comparisonColor: optional badge content for benchmark comparisons
+ * - detail1, detail2: supporting benchmark or summary text shown below
+ *
+ * These items are typically built by the metric helper files in src/lib.
+ */
 export function MetricCardLong({ item }) {
   return (
     <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-0 xl:grid-cols-3">
       {/** Main Percent and Color Badge */}
       <div className="flex items-center gap-4 md:order-2 xl:pl-8">
         <p className="text-heading-lg">{item.value}</p>
-        <Badge
-          className="text-paragraph-xs max-w-44 py-1 font-medium"
-          color={item.labelColor || 'gray'}
-        >
-          {toTitleCase(item.label || 'Unknown')}
-        </Badge>
+        {item.comparison && (
+          <Badge
+            className="text-paragraph-xs max-w-44 py-1 font-medium"
+            color={item.comparisonColor || 'gray'}
+          >
+            {toTitleCase(item.comparison)}
+          </Badge>
+        )}
       </div>
       {/** Title and Subtitle */}
       <div className="md:order-1 md:col-span-2">
@@ -472,14 +497,65 @@ export function MetricCardLong({ item }) {
       </div>
       {/** Empty space for desktop display */}
       <div className="md:order-3 md:col-span-2"></div>
-      {/** State and National Average */}
       <div className="md:order-4 xl:pl-8">
-        <p className="text-paragraph-base text-content-secondary mb-1">{`${item.state} average: ${item.stateAvg}`}</p>
-        <p className="text-paragraph-base text-content-secondary">{`National average: ${item.nationalAverage}`}</p>
+        <p className="text-paragraph-base text-content-secondary mb-1">
+          {item.detail1}
+        </p>
+        <p className="text-paragraph-base text-content-secondary">
+          {item.detail2}
+        </p>
       </div>
     </div>
   );
 }
+
+MetricCardLong.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+/**
+ * Compact staffing metric card used in the Staffing tab grid.
+ *
+ * Expected item shape:
+ * - stat: primary staffing value
+ * - title, description: card heading and explanatory copy
+ * - rating: optional comparison badge label
+ * - detail: supporting benchmark text shown at the bottom
+ *
+ * These items are typically built by the staffing metric helpers in src/lib/staffingMetrics.js.
+ */
+export function StaffingStatCard({ item }) {
+  return (
+    <div className="border-border-primary h-full rounded-xl border bg-white px-4 py-4 shadow-sm">
+      <div className="flex items-start gap-2">
+        <div className="text-core-black text-heading-lg leading-none">
+          {item.stat}
+        </div>
+        {item.rating ? (
+          <Badge
+            color={getBadgeColorAboveBelow(item.rating)}
+            className="text-label-xs mt-1 leading-none"
+          >
+            {item.rating}
+          </Badge>
+        ) : null}
+      </div>
+      <div className="text-core-black text-label-lg mt-3">{item.title}</div>
+      <p className="text-content-secondary text-paragraph-base mt-1">
+        {item.description}
+      </p>
+      {item.detail ? (
+        <div className="text-content-secondary text-paragraph-base mt-6">
+          {item.detail}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+StaffingStatCard.propTypes = {
+  item: PropTypes.object.isRequired,
+};
 
 //This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel.
 export function NetworkSidePanelList({ item, onSelectNode, variant }) {

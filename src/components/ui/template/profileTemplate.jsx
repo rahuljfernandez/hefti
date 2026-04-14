@@ -2,7 +2,7 @@ import React from 'react';
 import LayoutPage from '../atom/layout-page';
 import HeftiNavbar from '../molecule/heftiNavbar';
 import ProfileHeader from '../molecule/profileHeader';
-import TabsWithHeader from '../molecule/tabsWithHeader';
+import TabsShell from '../molecule/tabsShell';
 import Footer from '../molecule/footer';
 import Breadcrumb from '../molecule/breadcrumb';
 import LayoutCard from '../atom/layout-card';
@@ -35,8 +35,7 @@ const tabsData = [
   },
 ];
 
-//This component is for storybook display only
-//Not sure at this time if I need to make a reusable component out of the placeholder content below or a one time use?
+// This component is for storybook/template display only.
 
 export default function ProfileTemplate() {
   return (
@@ -52,18 +51,19 @@ export default function ProfileTemplate() {
             { title: '[BADGE TITLE]', color: 'zinc' },
           ]}
         />
-        <TabsWithHeader tabsData={tabsData} />
-
-        {/* Placeholder for Content */}
-        <div className="mb-8">
-          <LayoutCard>
-            <div className="flex h-[620px] items-center justify-center bg-gray-100">
-              <h1 className="text-display-sm text-content-tertiary">
-                CORE CONTENT
-              </h1>
+        <TabsShell tabsData={tabsData} defaultTabName={'[selected tab]'}>
+          {() => (
+            <div className="mb-8">
+              <LayoutCard>
+                <div className="flex h-[620px] items-center justify-center bg-gray-100">
+                  <h1 className="text-display-sm text-content-tertiary">
+                    CORE CONTENT
+                  </h1>
+                </div>
+              </LayoutCard>
             </div>
-          </LayoutCard>
-        </div>
+          )}
+        </TabsShell>
       </LayoutPage>
       <Footer />
     </div>

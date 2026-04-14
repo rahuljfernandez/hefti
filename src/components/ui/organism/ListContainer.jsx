@@ -10,27 +10,23 @@ import {
 } from '@headlessui/react';
 
 /**
- * ListContainer component
+ * Shared list wrapper for pairing data items with a layout component and a content renderer.
  *
- * This component renders a list using a layout selector (e.g., divider or separate).
- * It supports static and expandable disclosure behavior.
- * NOTE: The "expandable" variant is funtional, but not styled or properly in place.  Might be somthing Nick wants to include in Version 2.
+ * Responsibilities:
+ * - Iterates over a collection of items and passes each item to a content component
+ * - Delegates list styling and structure to the supplied layout selector
+ * - Supports static and expandable disclosure behavior for item rows
  *
- * Props:
- * - items (array): The data to render in the list
- * - LayoutSelector (component): Wrapper component that defines list layout (e.g. divider or gap(separate) style)
- * - ListContent (component): Renders the content inside each list item
- * - variant (string): "static" (default) or "expandable" — determines if disclosure panel opens
+ * This component is the bridge between normalized data arrays and the reusable
+ * presentational renderers defined in listContainerContent.jsx.
  *
- * Example usage:
+ * Example:
  * <ListContainer
- *   items={data}
+ *   items={ownershipLinks}
  *   LayoutSelector={ListContainerDivider}
- *   ListContent={OwnershipAndStakeholders}
- *   variant="expandable"
+ *   ListContent={OwnershipAndStakeholders} <<<<===========
  * />
  */
-
 export default function ListContainer({
   items = [],
   LayoutSelector,
@@ -82,10 +78,8 @@ ListContainer.propTypes = {
 };
 
 /**
- * Sourced from Application UI - list items have a divider line between them.  Added design color, border, corner radius
- * ListContainerDivider and ListContainerSeperate set the styling of the ul/li's
+ * Divider-style list layout used for stacked rows with borders between items.
  */
-//The renderItem prop is passed in from the parent
 export function ListContainerDivider({ items = [], renderItem }) {
   return (
     <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border shadow-sm">
@@ -106,9 +100,8 @@ ListContainerDivider.propTypes = {
 };
 
 /**
- * Sourced from Application UI - list items have a gap between them. Added design color, border, corner radius
+ * Separate-card list layout used when each item should appear as its own card.
  */
-
 export function ListContainerSeparate({ items = [], renderItem }) {
   return (
     <ul role="list" className="">
@@ -125,6 +118,27 @@ export function ListContainerSeparate({ items = [], renderItem }) {
 }
 
 ListContainerSeparate.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func.isRequired,
+};
+
+/**
+ * Grid layout used for card-based content such as staffing stat cards.
+ */
+export function ListContainerGrid({ items = [], renderItem }) {
+  return (
+    <ul
+      role="list"
+      className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+    >
+      {items.map((item, i) => (
+        <li key={item.id || i}>{renderItem(item)}</li>
+      ))}
+    </ul>
+  );
+}
+
+ListContainerGrid.propTypes = {
   items: PropTypes.array,
   renderItem: PropTypes.func.isRequired,
 };

@@ -1,14 +1,14 @@
-export const facilityProfileTabsDescriptions = [
+export const profileTabsDescriptions = [
   {
-    name: 'Provider Highlights & Ownership',
+    name: 'Provider Highlights',
     displayTitle: 'Provider Highlights',
     href: '#',
   },
-  {
-    name: 'Deficiencies & Penalties',
-    displayTitle: 'Deficiencies from Inspection Reports',
-    href: '#',
-  },
+  // {
+  //   name: 'Deficiencies & Penalties',
+  //   displayTitle: 'Deficiencies from Inspection Reports',
+  //   href: '#',
+  // },
   {
     name: 'Clinical Quality Measures',
     displayTitle: 'Clinical Quality Measures',

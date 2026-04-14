@@ -9,7 +9,7 @@ export default function CMSRating({ stars = [] }) {
   return (
     <div>
       <div className="py-6">
-        <div className="text-heading-xs">CMS Ratings</div>
+        <h4 className="text-heading-xs">CMS Ratings</h4>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {stars.map((stars, i) => (
