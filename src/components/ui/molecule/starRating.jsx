@@ -28,6 +28,8 @@ export default function StarRating({
   className = '',
   size = 'h-8 w-8',
   ratingSize = 'base',
+  starColorClass = 'text-orange-500',
+  ratingTextClass = 'text-core-black',
 }) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
@@ -37,16 +39,16 @@ export default function StarRating({
 
   for (let i = 0; i < fullStars; i++) {
     stars.push(
-      <StarIcon key={`full-${i}`} className={`${size} text-orange-500`} />,
+      <StarIcon key={`full-${i}`} className={`${size} ${starColorClass}`} />,
     );
   }
 
   if (hasHalfStar) {
     stars.push(
       <span key="half" className={`relative ${size} `}>
-        <StarOutlineIcon className={`absolute ${size} text-orange-500`} />
+        <StarOutlineIcon className={`absolute ${size} ${starColorClass}`} />
         <StarIcon
-          className={`absolute ${size} text-orange-500`}
+          className={`absolute ${size} ${starColorClass}`}
           style={{ clipPath: 'inset(0 50% 0 0)' }}
         />
       </span>,
@@ -57,7 +59,7 @@ export default function StarRating({
     stars.push(
       <StarOutlineIcon
         key={`empty-${i}`}
-        className={`${size} text-orange-500`}
+        className={`${size} ${starColorClass}`}
       />,
     );
   }
@@ -78,7 +80,9 @@ export default function StarRating({
       </div>
       <div className="flex items-center" aria-hidden="true">
         {stars}
-        <span className={`${textSizeClasses[ratingSize]} px-2 pt-1 font-bold`}>
+        <span
+          className={`${textSizeClasses[ratingSize]} ${ratingTextClass} px-2 pt-1 font-bold`}
+        >
           {rating}
         </span>
       </div>
@@ -93,4 +97,6 @@ StarRating.propTypes = {
   className: PropTypes.string,
   size: PropTypes.string,
   ratingSize: PropTypes.string,
+  starColorClass: PropTypes.string,
+  ratingTextClass: PropTypes.string,
 };

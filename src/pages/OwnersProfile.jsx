@@ -11,6 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
+import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
@@ -37,6 +38,7 @@ export default function OwnersProfile() {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  console.log(slug);
 
   const navigate = useNavigate();
 
@@ -82,6 +84,7 @@ export default function OwnersProfile() {
           func={getBadgeColorOwnerProfile}
           onClick={handleResearchClick}
         />
+        <OwnersNetworkGraphLauncher ownerId={owner.id} />
         {/* Shared tab shell; active tab content is chosen in the render function below. */}
         <TabsShell
           tabsData={profileTabsDescriptions}
@@ -119,6 +122,7 @@ export default function OwnersProfile() {
         <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
           Facilities associated with {toTitleCase(owner.cms_ownership_name)}
         </Heading>
+
         <div className="pb-8">
           <ListContainer
             items={showAll ? relatedFacilities : relatedFacilities.slice(0, 20)}

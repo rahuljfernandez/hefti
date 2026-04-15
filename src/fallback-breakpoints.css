@@ -229,6 +229,9 @@
   .lg\:block {
     display: block;
   }
+  .lg\:w-\[300px\] {
+    width: 300px;
+  }
 }
 
 @media (min-width: 1280px) {
@@ -242,6 +245,9 @@
 
   .xl\:pl-8 {
     padding-left: calc(var(--spacing) * 8) /* 2rem = 32px */;
+  }
+  .xl\:w-\[375px\] {
+    width: 375px;
   }
 }
 

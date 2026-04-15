@@ -18,6 +18,8 @@
     "@fontsource-variable/inter": "^5.2.5",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@react-sigma/core": "^5.0.6",
+    "@react-sigma/layout-forceatlas2": "^5.0.6",
     "@tailwindcss/vite": "^4.1.7",
     "@visx/group": "^3.12.0",
     "@visx/responsive": "^3.12.0",
@@ -25,11 +27,15 @@
     "@visx/shape": "^3.12.0",
     "@visx/text": "^3.12.0",
     "clsx": "^2.1.1",
+    "deps": "^1.0.0",
     "framer-motion": "^12.12.1",
+    "graphology": "^0.26.0",
+    "graphology-layout-forceatlas2": "^0.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.6.1"
+    "react-router-dom": "^7.6.1",
+    "sigma": "^3.0.2"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",

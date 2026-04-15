@@ -13,6 +13,10 @@ import {
   getBadgeColorAboveBelow,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
+import LayoutCard from '../atom/layout-card';
+import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
+import { UserIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
 
 /**
  * Collection of reusable content components for ListContainer and related card layouts.
@@ -551,4 +555,56 @@ export function StaffingStatCard({ item }) {
 
 StaffingStatCard.propTypes = {
   item: PropTypes.object.isRequired,
+};
+
+//This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel.
+export function NetworkSidePanelList({ item, onSelectNode, variant }) {
+  const isMobile = variant === 'mobile';
+  return (
+    <button
+      type="button"
+      onClick={() => onSelectNode?.(item.ownerId)} // <-- THIS pins/selects Sigma node
+      className={clsx(
+        'flex w-full items-center gap-4 px-4 py-2 text-left text-sm hover:cursor-pointer',
+        isMobile ? 'bg-zinc-900' : 'bg-white hover:bg-gray-50',
+      )}
+    >
+      {/* Icon */}
+      {item.cms_ownership_type === 'Individual' ? (
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700">
+          <UserIcon className="h-5 w-5 text-white" />
+        </div>
+      ) : (
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-700">
+          <BuildingOffice2Icon className="h-5 w-5 text-white" />
+        </div>
+      )}
+      {/* Text block */}
+      <div className="flex min-w-0 flex-col">
+        <span
+          className={clsx(
+            'text-label-sm truncate font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.ownerName}
+        </span>
+
+        <span
+          className={clsx(
+            'text-label-xs',
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+          )}
+        >
+          {item.count} {item.count === 1 ? 'Link' : 'Links'}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+NetworkSidePanelList.propTypes = {
+  item: PropTypes.object.isRequired,
+  onSelectNode: PropTypes.func,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
