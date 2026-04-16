@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
 import NetworkFilter from './networkFilter';
 import NetworkGraph from './networkGraph';
-import OwnerNetworkSidePanel from './OwnerNetworkSidePanel';
+import OwnerNetworkSidePanel from './ownerNetworkSidePanel';
 
 /**
  * Desktop presentation shell for the Owner Network Graph modal.
