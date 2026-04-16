@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import useIsDesktop from '../../../hooks/useIsDesktop';
 import useOwnerNetworkSheet from '../../../hooks/useOwnerNetworkSheet';
 import useOwnerNetworkGraphController from '../../../hooks/useOwnerNetworkGraphController';
-import OwnerNetworkGraphDesktopLayout from './OwnerNetworkGraphDesktopLayout';
-import OwnerNetworkGraphMobileLayout from './OwnerNetworkGraphMobileLayout';
+import OwnerNetworkGraphDesktopLayout from './ownerNetworkGraphDesktopLayout';
+import OwnerNetworkGraphMobileLayout from './ownerNetworkGraphMobileLayout';
 
 /**
  * Controller component for the Owner Network Graph modal.

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import OwnerNetworkCtaBanner from './OwnerNetworkGraphCTA';
-import OwnerNetworkGraphModal from './OwnerNetworkGraphModal';
+import OwnerNetworkCtaBanner from './ownerNetworkGraphCTA';
+import OwnerNetworkGraphModal from './ownerNetworkGraphModal';
 /**
  * Small wrapper that owns the open/close state for the owner network graph.
  * Renders the CTA banner and the full-screen graph modal for the current owner.
