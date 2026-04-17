@@ -97,10 +97,16 @@ export default function OwnerNetworkContent({
             title="Clinical Quality Measures"
             variant={variant}
           >
-            <ClinicalQualityContent
-              metrics={metrics}
+            <TabbedMetricList
+              tabs={[
+                { value: 'long', label: 'Long Stay' },
+                { value: 'short', label: 'Short Stay' },
+              ]}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
+              items={metrics}
+              CardComponent={MetricCardShort}
+              variant={variant}
             />
           </NetworkSidePanelAccordion>
           <NetworkSidePanelAccordion title="Staffing" variant={variant}>
@@ -160,6 +166,20 @@ function TabbedMetricList({
     </div>
   );
 }
+
+TabbedMetricList.propTypes = {
+  tabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  items: PropTypes.array.isRequired,
+  CardComponent: PropTypes.elementType.isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
 
 OwnerNetworkContent.propTypes = {
   mode: PropTypes.oneOf(['hub', 'non-hub']).isRequired,
