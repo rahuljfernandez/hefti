@@ -513,6 +513,81 @@ MetricCardLong.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+export function MetricCardShort({ item, variant }) {
+  const isMobile = variant === 'mobile';
+  return (
+    <div className="grid grid-cols-3 bg-white px-4 py-2 hover:bg-gray-50">
+      {/** Title */}
+      <div className="col-span-2 self-center">
+        <p
+          className={clsx(
+            'text-label-sm font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.title}
+        </p>
+      </div>
+      {/** Value + details stacked right */}
+      <div className="flex flex-col items-end">
+        <p
+          className={clsx(
+            'text-label-lg font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.value} %
+        </p>
+        <p
+          className={clsx(
+            'text-label-xs',
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+          )}
+        >
+          {item.detail1?.replace('Median:', 'Med')} ·{' '}
+          {item.detail2?.replace('Std Dev:', 'SD')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function StaffingCardShort({ item, variant }) {
+  const isMobile = variant === 'mobile';
+  return (
+    <div className="grid grid-cols-3 bg-white px-4 py-2 hover:bg-gray-50">
+      <div className="col-span-2 self-center">
+        <p
+          className={clsx(
+            'text-label-sm font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.title}
+        </p>
+      </div>
+      <div className="flex flex-col items-end">
+        <p
+          className={clsx(
+            'text-label-lg font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.stat}
+        </p>
+        <p
+          className={clsx(
+            'text-label-xs',
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+          )}
+        >
+          {item.detail?.replace('Median:', 'Med')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Compact staffing metric card used in the Staffing tab grid.
  *

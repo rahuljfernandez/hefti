@@ -31,6 +31,8 @@ export default function OwnerNetworkSidePanel({
 
   if (!selectedNodeId || !selectedNode) return null;
 
+  console.log(data);
+
   return (
     <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
       {selectedNode.type === 'hub' ? (
@@ -61,7 +63,7 @@ function OwnerPanel({ selectedNode, variant }) {
         nonHub={nonHub}
         variant={variant}
       />
-      <OwnerNetworkContent mode={'non-hub'} variant={variant} />
+      <OwnerNetworkContent mode={'non-hub'} meta={selectedNode.meta} variant={variant} />
     </div>
   );
 }
@@ -86,6 +88,7 @@ function HubPanel({ selectedNode, onSelectNode, variant }) {
         shared={shared}
         onSelectNode={onSelectNode}
         mode={'hub'}
+        meta={selectedNode.meta}
         variant={variant}
       />
     </div>
