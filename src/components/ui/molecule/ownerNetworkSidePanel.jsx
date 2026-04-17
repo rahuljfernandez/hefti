@@ -34,7 +34,11 @@ export default function OwnerNetworkSidePanel({
   console.log(data);
 
   return (
-    <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
+    <div
+      role="complementary"
+      aria-label="Owner details"
+      className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]"
+    >
       {selectedNode.type === 'hub' ? (
         <HubPanel
           selectedNode={selectedNode}

@@ -539,6 +539,7 @@ export function MetricCardShort({ item, variant }) {
           {item.value} %
         </p>
         <p
+          aria-label={`${item.detail1}, ${item.detail2}`}
           className={clsx(
             'text-label-xs',
             isMobile ? 'text-content-tertiary' : 'text-content-secondary',
@@ -576,6 +577,7 @@ export function StaffingCardShort({ item, variant }) {
           {item.stat}
         </p>
         <p
+          aria-label={item.detail}
           className={clsx(
             'text-label-xs',
             isMobile ? 'text-content-tertiary' : 'text-content-secondary',

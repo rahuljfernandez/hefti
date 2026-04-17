@@ -39,91 +39,57 @@ export default function OwnerNetworkContent({
 
   return (
     <>
-      {isHub ? (
-        <>
-          <NetworkSidePanelAccordion
-            title="Ownership Relations Count"
-            defaultOpen
-            variant={variant}
-          >
-            {/**Children */}
-            <div className="max-h-64 overflow-y-auto">
-              <ul className="mt-2 rounded-lg">
-                {shared.map((owner) => (
-                  <li key={owner.ownerId}>
-                    <NetworkSidePanelList
-                      item={owner}
-                      onSelectNode={onSelectNode}
-                      variant={variant}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </NetworkSidePanelAccordion>
-          <NetworkSidePanelAccordion
-            title="Clinical Quality Measures"
-            variant={variant}
-          >
-            <TabbedMetricList
-              tabs={[
-                { value: 'long', label: 'Long Stay' },
-                { value: 'short', label: 'Short Stay' },
-              ]}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              items={metrics}
-              CardComponent={MetricCardShort}
-              variant={variant}
-            />
-          </NetworkSidePanelAccordion>
-          <NetworkSidePanelAccordion title="Staffing" variant={variant}>
-            <TabbedMetricList
-              tabs={[
-                { value: 'levels', label: 'Levels' },
-                { value: 'turnover', label: 'Turnover' },
-              ]}
-              activeTab={activeStaffingTab}
-              setActiveTab={setActiveStaffingTab}
-              items={staffingMetrics}
-              CardComponent={StaffingCardShort}
-              variant={variant}
-            />
-          </NetworkSidePanelAccordion>
-        </>
-      ) : (
-        <>
-          <NetworkSidePanelAccordion
-            title="Clinical Quality Measures"
-            variant={variant}
-          >
-            <TabbedMetricList
-              tabs={[
-                { value: 'long', label: 'Long Stay' },
-                { value: 'short', label: 'Short Stay' },
-              ]}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              items={metrics}
-              CardComponent={MetricCardShort}
-              variant={variant}
-            />
-          </NetworkSidePanelAccordion>
-          <NetworkSidePanelAccordion title="Staffing" variant={variant}>
-            <TabbedMetricList
-              tabs={[
-                { value: 'levels', label: 'Levels' },
-                { value: 'turnover', label: 'Turnover' },
-              ]}
-              activeTab={activeStaffingTab}
-              setActiveTab={setActiveStaffingTab}
-              items={staffingMetrics}
-              CardComponent={StaffingCardShort}
-              variant={variant}
-            />
-          </NetworkSidePanelAccordion>
-        </>
+      {isHub && (
+        <NetworkSidePanelAccordion
+          title="Ownership Relations Count"
+          defaultOpen
+          variant={variant}
+        >
+          <div className="max-h-64 overflow-y-auto">
+            <ul aria-label="Ownership relations" className="mt-2 rounded-lg">
+              {shared.map((owner) => (
+                <li key={owner.ownerId}>
+                  <NetworkSidePanelList
+                    item={owner}
+                    onSelectNode={onSelectNode}
+                    variant={variant}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </NetworkSidePanelAccordion>
       )}
+      <NetworkSidePanelAccordion
+        title="Clinical Quality Measures"
+        defaultOpen={!isHub}
+        variant={variant}
+      >
+        <TabbedMetricList
+          tabs={[
+            { value: 'long', label: 'Long Stay' },
+            { value: 'short', label: 'Short Stay' },
+          ]}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          items={metrics}
+          CardComponent={MetricCardShort}
+          variant={variant}
+        />
+      </NetworkSidePanelAccordion>
+      <NetworkSidePanelAccordion title="Staffing" variant={variant}>
+        <TabbedMetricList
+          tabs={[
+            { value: 'levels', label: 'Levels' },
+            { value: 'turnover', label: 'Turnover' },
+          ]}
+          activeTab={activeStaffingTab}
+          setActiveTab={setActiveStaffingTab}
+          items={staffingMetrics}
+          CardComponent={StaffingCardShort}
+          variant={variant}
+        />
+      </NetworkSidePanelAccordion>
     </>
   );
 }
@@ -136,12 +102,22 @@ function TabbedMetricList({
   CardComponent,
   variant,
 }) {
+  const panelId = `tabpanel-${tabs[0]?.value}-${activeTab}`;
+
   return (
     <div className="bg-white">
-      <div className="border-border-primary flex gap-2 border-b px-4 py-2">
+      <div
+        role="tablist"
+        aria-label="Metric category"
+        className="border-border-primary flex gap-2 border-b px-4 py-2"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.value}
+            role="tab"
+            aria-selected={activeTab === tab.value}
+            aria-controls={panelId}
+            tabIndex={activeTab === tab.value ? 0 : -1}
             onClick={() => setActiveTab(tab.value)}
             className={clsx(
               'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
@@ -154,8 +130,13 @@ function TabbedMetricList({
           </button>
         ))}
       </div>
-      <div className="max-h-64 overflow-y-auto">
-        <ul>
+      <div
+        id={panelId}
+        role="tabpanel"
+        aria-label={tabs.find((t) => t.value === activeTab)?.label}
+        className="max-h-64 overflow-y-auto"
+      >
+        <ul aria-label="Metrics">
           {items.map((item) => (
             <li key={item.id}>
               <CardComponent item={item} variant={variant} />
