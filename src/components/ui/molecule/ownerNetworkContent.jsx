@@ -14,6 +14,7 @@ import {
   buildOwnerStaffingTurnover,
 } from '../../../lib/staffingMetrics';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 
 export default function OwnerNetworkContent({
   mode,
@@ -65,7 +66,10 @@ export default function OwnerNetworkContent({
             variant={variant}
           >
             <TabbedMetricList
-              tabs={[{ value: 'long', label: 'Long Stay' }, { value: 'short', label: 'Short Stay' }]}
+              tabs={[
+                { value: 'long', label: 'Long Stay' },
+                { value: 'short', label: 'Short Stay' },
+              ]}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               items={metrics}
@@ -75,7 +79,10 @@ export default function OwnerNetworkContent({
           </NetworkSidePanelAccordion>
           <NetworkSidePanelAccordion title="Staffing" variant={variant}>
             <TabbedMetricList
-              tabs={[{ value: 'levels', label: 'Levels' }, { value: 'turnover', label: 'Turnover' }]}
+              tabs={[
+                { value: 'levels', label: 'Levels' },
+                { value: 'turnover', label: 'Turnover' },
+              ]}
               activeTab={activeStaffingTab}
               setActiveTab={setActiveStaffingTab}
               items={staffingMetrics}
@@ -98,7 +105,10 @@ export default function OwnerNetworkContent({
           </NetworkSidePanelAccordion>
           <NetworkSidePanelAccordion title="Staffing" variant={variant}>
             <TabbedMetricList
-              tabs={[{ value: 'levels', label: 'Levels' }, { value: 'turnover', label: 'Turnover' }]}
+              tabs={[
+                { value: 'levels', label: 'Levels' },
+                { value: 'turnover', label: 'Turnover' },
+              ]}
               activeTab={activeStaffingTab}
               setActiveTab={setActiveStaffingTab}
               items={staffingMetrics}
@@ -112,19 +122,27 @@ export default function OwnerNetworkContent({
   );
 }
 
-function TabbedMetricList({ tabs, activeTab, setActiveTab, items, CardComponent, variant }) {
+function TabbedMetricList({
+  tabs,
+  activeTab,
+  setActiveTab,
+  items,
+  CardComponent,
+  variant,
+}) {
   return (
-    <div>
-      <div className="flex border-b border-gray-200 px-4 pt-1 pb-2">
-        {tabs.map((tab, i) => (
+    <div className="bg-white">
+      <div className="border-border-primary flex gap-2 border-b px-4 py-2">
+        {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
-            className={`rounded px-3 py-1 text-sm font-medium ${i < tabs.length - 1 ? 'mr-2' : ''} ${
+            className={clsx(
+              'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
               activeTab === tab.value
-                ? 'bg-core-black text-core-white'
-                : 'text-content-secondary'
-            }`}
+                ? 'bg-zinc-200'
+                : 'bg-zinc-100 hover:bg-zinc-50',
+            )}
           >
             {tab.label}
           </button>
