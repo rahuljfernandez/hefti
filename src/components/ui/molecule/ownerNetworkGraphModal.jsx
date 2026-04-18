@@ -140,6 +140,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           sheetScrollRef={sheetScrollRef}
           selectedNode={effectiveSelectedNode}
           onSelectContentNode={handleSelectNode}
+          onClose={onClose}
         />
       )}
     </div>

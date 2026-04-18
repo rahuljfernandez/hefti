@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
 import NetworkSidePanelCardHeader from './networkSidePanelCardHeader';
@@ -43,6 +44,7 @@ export default function OwnerNetworkGraphMobileLayout({
   sheetScrollRef,
   selectedNode,
   onSelectContentNode,
+  onClose,
 }) {
   return (
     <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
@@ -83,7 +85,7 @@ export default function OwnerNetworkGraphMobileLayout({
         <div className="absolute inset-x-0 bottom-0 z-30">
           <div
             className={clsx(
-              'border-border-primary rounded-t-2xl border-t bg-zinc-900 shadow-xl',
+              'border-border-primary flex flex-col rounded-t-2xl border-t bg-zinc-900 shadow-xl',
               'overflow-hidden transition-[height] duration-300 ease-out',
               isDraggingSheet && 'transition-none',
             )}
@@ -93,13 +95,20 @@ export default function OwnerNetworkGraphMobileLayout({
             onPointerUp={onSheetPointerEnd}
             onPointerCancel={onSheetPointerEnd}
           >
-            <div className="flex touch-none justify-center pt-2 pb-2">
+            <div className="relative flex shrink-0 touch-none justify-center py-4">
               <div className="bg-content-inverse-primary h-1 w-10 rounded-full" />
+              <button
+                onClick={onClose}
+                aria-label="Close network graph"
+                className="text-content-tertiary hover:text-core-white absolute top-2 right-4"
+              >
+                <XMarkIcon className="h-7 w-7" />
+              </button>
             </div>
 
             <div
               ref={sheetScrollRef}
-              className="h-full overflow-y-auto px-4 pt-3 pb-4"
+              className="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-4"
             >
               <div className="px-3 pb-2">
                 <OwnerNetworkSearchBar
@@ -128,6 +137,7 @@ export default function OwnerNetworkGraphMobileLayout({
                 <OwnerNetworkContent
                   mode={selectedNode.type === 'hub' ? 'hub' : 'non-hub'}
                   shared={selectedNode?.meta?.sharedFacilities ?? []}
+                  meta={selectedNode.meta}
                   onSelectNode={onSelectContentNode}
                   variant="mobile"
                 />
@@ -164,4 +174,5 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   sheetScrollRef: PropTypes.shape({ current: PropTypes.any }),
   selectedNode: PropTypes.object,
   onSelectContentNode: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
