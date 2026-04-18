@@ -310,6 +310,7 @@ const ownerLongStayConfig = [
     valueKey: 'cms_owner_avg_ed_visits',
     medianKey: '1.8',
     stdDevKey: '.5',
+    isRate: true,
   },
   {
     id: 15,
@@ -318,6 +319,7 @@ const ownerLongStayConfig = [
     valueKey: 'cms_owner_avg_hospitalizations',
     medianKey: '1.8',
     stdDevKey: '.5',
+    isRate: true,
   },
 ];
 
@@ -355,6 +357,10 @@ const ownerShortStayConfig = [
     stdDevKey: '.5',
   },
 ];
+
+function appendSuffix(value, suffix) {
+  return value === 'N/A' ? value : `${value}${suffix}`;
+}
 
 // Facility builders add comparison labels and benchmark details for each metric card.
 export function buildFacilityLongStayStats(
@@ -414,23 +420,33 @@ export function buildFacilityShortStayStats(
 // Owner builders return the same card structure without facility-level comparison badges.
 // Placeholder benchmark values from the owner configs are surfaced here as detail text.
 export function buildOwnerLongStayStats(metricsSource) {
-  return ownerLongStayConfig.map((metric) => ({
-    id: metric.id,
-    title: metric.title,
-    subtitle: metric.subtitle,
-    value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    detail1: `Median: ${metric.medianKey}`,
-    detail2: `Std Dev: ${metric.stdDevKey}`,
-  }));
+  return ownerLongStayConfig.map((metric) => {
+    const value = formatMetricValue(metricsSource?.[metric.valueKey]);
+
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value,
+      displayValue: metric.isRate ? value : appendSuffix(value, '%'),
+      detail1: `Median: ${metric.medianKey}`,
+      detail2: `Std Dev: ${metric.stdDevKey}`,
+    };
+  });
 }
 
 export function buildOwnerShortStayStats(metricsSource) {
-  return ownerShortStayConfig.map((metric) => ({
-    id: metric.id,
-    title: metric.title,
-    subtitle: metric.subtitle,
-    value: formatMetricValue(metricsSource?.[metric.valueKey]),
-    detail1: `Median: ${metric.medianKey}`,
-    detail2: `Std Dev: ${metric.stdDevKey}`,
-  }));
+  return ownerShortStayConfig.map((metric) => {
+    const value = formatMetricValue(metricsSource?.[metric.valueKey]);
+
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value,
+      displayValue: appendSuffix(value, '%'),
+      detail1: `Median: ${metric.medianKey}`,
+      detail2: `Std Dev: ${metric.stdDevKey}`,
+    };
+  });
 }

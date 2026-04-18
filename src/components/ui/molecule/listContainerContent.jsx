@@ -536,7 +536,7 @@ export function MetricCardShort({ item, variant }) {
             isMobile ? 'text-core-white' : 'text-core-black',
           )}
         >
-          {item.value} %
+          {item.displayValue ?? item.value}
         </p>
         <p
           aria-label={`${item.detail1}, ${item.detail2}`}
@@ -574,7 +574,7 @@ export function StaffingCardShort({ item, variant }) {
             isMobile ? 'text-core-white' : 'text-core-black',
           )}
         >
-          {item.stat}
+          {item.displayStat ?? item.stat}
         </p>
         <p
           aria-label={item.detail}
@@ -589,6 +589,27 @@ export function StaffingCardShort({ item, variant }) {
     </div>
   );
 }
+
+MetricCardShort.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    displayValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    detail1: PropTypes.string,
+    detail2: PropTypes.string,
+  }).isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
+
+StaffingCardShort.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    displayStat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    detail: PropTypes.string,
+  }).isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
 
 /**
  * Compact staffing metric card used in the Staffing tab grid.

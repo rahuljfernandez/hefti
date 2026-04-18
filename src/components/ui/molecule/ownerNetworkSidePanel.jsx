@@ -31,8 +31,6 @@ export default function OwnerNetworkSidePanel({
 
   if (!selectedNodeId || !selectedNode) return null;
 
-  console.log(data);
-
   return (
     <div
       role="complementary"
@@ -67,7 +65,11 @@ function OwnerPanel({ selectedNode, variant }) {
         nonHub={nonHub}
         variant={variant}
       />
-      <OwnerNetworkContent mode={'non-hub'} meta={selectedNode.meta} variant={variant} />
+      <OwnerNetworkContent
+        mode={'non-hub'}
+        meta={selectedNode.meta}
+        variant={variant}
+      />
     </div>
   );
 }

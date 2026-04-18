@@ -13,8 +13,15 @@ import {
   buildOwnerStaffingLevels,
   buildOwnerStaffingTurnover,
 } from '../../../lib/staffingMetrics';
+import {
+  buildOwnerProfitStats,
+  buildOwnerRevenueStats,
+  buildOwnerExpensesStats,
+  buildOwnerLiquidityStats,
+} from '../../../lib/financialMetrics';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
 export default function OwnerNetworkContent({
   mode,
@@ -26,16 +33,24 @@ export default function OwnerNetworkContent({
   const isHub = mode === 'hub';
   const [activeTab, setActiveTab] = useState('long');
   const [activeStaffingTab, setActiveStaffingTab] = useState('levels');
+  const [activeFinancialTab, setActiveFinancialTab] = useState('profit');
 
-  const metrics =
-    activeTab === 'long'
-      ? buildOwnerLongStayStats(meta)
-      : buildOwnerShortStayStats(meta);
+  const metrics = {
+    long: buildOwnerLongStayStats(meta),
+    short: buildOwnerShortStayStats(meta),
+  }[activeTab];
 
-  const staffingMetrics =
-    activeStaffingTab === 'levels'
-      ? buildOwnerStaffingLevels(meta)
-      : buildOwnerStaffingTurnover(meta);
+  const staffingMetrics = {
+    levels: buildOwnerStaffingLevels(meta),
+    turnover: buildOwnerStaffingTurnover(meta),
+  }[activeStaffingTab];
+
+  const financialMetrics = {
+    profit: buildOwnerProfitStats(meta),
+    revenue: buildOwnerRevenueStats(meta),
+    expenses: buildOwnerExpensesStats(meta),
+    liquidity: buildOwnerLiquidityStats(meta),
+  }[activeFinancialTab];
 
   return (
     <>
@@ -90,6 +105,21 @@ export default function OwnerNetworkContent({
           variant={variant}
         />
       </NetworkSidePanelAccordion>
+      <NetworkSidePanelAccordion title="Financial Overview" variant={variant}>
+        <TabbedMetricList
+          tabs={[
+            { value: 'profit', label: 'Profit' },
+            { value: 'revenue', label: 'Revenue' },
+            { value: 'expenses', label: 'Expenses' },
+            { value: 'liquidity', label: 'Liquidity' },
+          ]}
+          activeTab={activeFinancialTab}
+          setActiveTab={setActiveFinancialTab}
+          items={financialMetrics}
+          CardComponent={MetricCardShort}
+          variant={variant}
+        />
+      </NetworkSidePanelAccordion>
     </>
   );
 }
@@ -103,6 +133,10 @@ function TabbedMetricList({
   variant,
 }) {
   const panelId = `tabpanel-${tabs[0]?.value}-${activeTab}`;
+  const { tabRefs, handleKeyDown } = useTabKeyNavigation(
+    tabs,
+    (nextTab) => setActiveTab(nextTab.value),
+  );
 
   return (
     <div className="bg-white">
@@ -111,14 +145,16 @@ function TabbedMetricList({
         aria-label="Metric category"
         className="border-border-primary flex gap-2 border-b px-4 py-2"
       >
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
           <button
             key={tab.value}
+            ref={(el) => { tabRefs.current[index] = el; }}
             role="tab"
             aria-selected={activeTab === tab.value}
             aria-controls={panelId}
             tabIndex={activeTab === tab.value ? 0 : -1}
             onClick={() => setActiveTab(tab.value)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
             className={clsx(
               'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
               activeTab === tab.value
@@ -134,6 +170,7 @@ function TabbedMetricList({
         id={panelId}
         role="tabpanel"
         aria-label={tabs.find((t) => t.value === activeTab)?.label}
+        tabIndex={0}
         className="max-h-64 overflow-y-auto"
       >
         <ul aria-label="Metrics">

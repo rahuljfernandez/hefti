@@ -206,6 +206,7 @@ const ownerProfitConfig = [
     valueKey: 'cms_owner_avg_operating_margin',
     medianKey: 'N/A',
     stdDevKey: 'N/A',
+    suffix: '%',
   },
   {
     id: 2,
@@ -215,6 +216,7 @@ const ownerProfitConfig = [
     valueKey: 'cms_owner_avg_total_margin',
     medianKey: 'N/A',
     stdDevKey: 'N/A',
+    suffix: '%',
   },
   {
     id: 3,
@@ -247,7 +249,7 @@ const ownerExpensesConfig = [
     title: 'Operating Expenses',
     subtitle:
       'Total costs incurred in running day-to-day facility operations. Higher values relative to revenue may indicate financial strain.',
-    valueKey: 'null',
+    valueKey: null,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     isCurrency: true,
@@ -280,6 +282,7 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_avg_related_to_total_exp',
     medianKey: 'N/A',
     stdDevKey: 'N/A',
+    suffix: '%',
   },
   {
     id: 5,
@@ -289,6 +292,7 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_avg_related_to_net_exp',
     medianKey: 'N/A',
     stdDevKey: 'N/A',
+    suffix: '%',
   },
 ];
 
@@ -319,16 +323,26 @@ function buildOwnerStats(config, metricsSource) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
-  return config.map((metric) => ({
-    id: metric.id,
-    title: metric.title,
-    subtitle: metric.subtitle,
-    value: metric.valueKey
+  const formatDisplayValue = (metric, value) => {
+    if (value === 'N/A') return value;
+    return metric.suffix ? `${value}${metric.suffix}` : value;
+  };
+
+  return config.map((metric) => {
+    const value = metric.valueKey
       ? format(metric, metricsSource?.[metric.valueKey])
-      : 'N/A',
-    detail1: `Median: ${metric.medianKey}`,
-    detail2: `Std Dev: ${metric.stdDevKey}`,
-  }));
+      : 'N/A';
+
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value,
+      displayValue: formatDisplayValue(metric, value),
+      detail1: `Median: ${metric.medianKey}`,
+      detail2: `Std Dev: ${metric.stdDevKey}`,
+    };
+  });
 }
 
 export function buildOwnerProfitStats(metricsSource) {
