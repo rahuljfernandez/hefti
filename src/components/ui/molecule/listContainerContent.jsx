@@ -513,13 +513,28 @@ MetricCardLong.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/**
+ * Compact metric row for the network graph side panel.
+ *
+ * Responsibilities:
+ * - Renders a single clinical quality or financial metric in a 3-column grid
+ * - Title spans 2 columns; value + detail stats are right-aligned in the third
+ * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
+ *
+ * Notes:
+ * - Prefers `displayValue` over `value` — builders attach the formatted suffix there.
+ * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" to fit the
+ *   narrow column; the full strings are preserved in the aria-label for screen readers.
+ */
 export function MetricCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
   return (
     <div
       className={clsx(
         'grid grid-cols-3 px-4 py-2',
-        isMobile ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white hover:bg-gray-50',
+        isMobile
+          ? 'bg-zinc-900 hover:bg-zinc-800'
+          : 'bg-core-white hover:bg-gray-50',
       )}
     >
       {/** Title */}
@@ -558,13 +573,39 @@ export function MetricCardShort({ item, variant }) {
   );
 }
 
+MetricCardShort.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    displayValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    detail1: PropTypes.string,
+    detail2: PropTypes.string,
+  }).isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
+
+/**
+ * Compact staffing row for the network graph side panel.
+ *
+ * Responsibilities:
+ * - Renders a single staffing metric (levels or turnover) in a 3-column grid
+ * - Title spans 2 columns; stat + median detail are right-aligned in the third
+ * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
+ *
+ * Notes:
+ * - Prefers `displayStat` over `stat` — builders attach the formatted suffix there.
+ * - "Median:" is abbreviated to "Med" at render time; the full string is kept in
+ *   aria-label so screen readers get the unabbreviated label.
+ */
 export function StaffingCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
   return (
     <div
       className={clsx(
         'grid grid-cols-3 px-4 py-2',
-        isMobile ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white hover:bg-gray-50',
+        isMobile
+          ? 'bg-zinc-900 hover:bg-zinc-800'
+          : 'bg-core-white hover:bg-gray-50',
       )}
     >
       <div className="col-span-2 self-center">
@@ -599,17 +640,6 @@ export function StaffingCardShort({ item, variant }) {
     </div>
   );
 }
-
-MetricCardShort.propTypes = {
-  item: PropTypes.shape({
-    title: PropTypes.string,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    displayValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    detail1: PropTypes.string,
-    detail2: PropTypes.string,
-  }).isRequired,
-  variant: PropTypes.oneOf(['desktop', 'mobile']),
-};
 
 StaffingCardShort.propTypes = {
   item: PropTypes.shape({

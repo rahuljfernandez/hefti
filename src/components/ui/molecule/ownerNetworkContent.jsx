@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import NetworkSidePanelAccordion from './networkSidePanelAccordion';
 import {
   MetricCardShort,
@@ -23,6 +23,21 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
+/**
+ * Scrollable content body for a selected owner node in the network graph.
+ *
+ * Responsibilities:
+ * - Renders Ownership Relations Count accordion for hub nodes only
+ * - Renders Clinical Quality Measures, Staffing, and Financial Overview
+ *   accordions for all nodes, each with tabbed sub-categories
+ * - Passes `variant` down so cards adapt between desktop and mobile styles
+ *
+ * Notes:
+ * - Hub nodes open the Ownership Relations accordion by default; non-hub nodes
+ *   open Clinical Quality Measures by default instead.
+ * - `meta` is the raw node metadata from the graph API; builders derive display
+ *   values from it. If `meta` is null all values render as N/A.
+ */
 export default function OwnerNetworkContent({
   mode,
   shared,
@@ -35,25 +50,27 @@ export default function OwnerNetworkContent({
   const [activeStaffingTab, setActiveStaffingTab] = useState('levels');
   const [activeFinancialTab, setActiveFinancialTab] = useState('profit');
 
-  const metrics = {
+  // Memoized by `meta` so builders don't re-run on unrelated re-renders.
+  const allMetrics = useMemo(() => ({
     long: buildOwnerLongStayStats(meta),
     short: buildOwnerShortStayStats(meta),
-  }[activeTab];
+  }), [meta]);
 
-  const staffingMetrics = {
+  const allStaffingMetrics = useMemo(() => ({
     levels: buildOwnerStaffingLevels(meta),
     turnover: buildOwnerStaffingTurnover(meta),
-  }[activeStaffingTab];
+  }), [meta]);
 
-  const financialMetrics = {
+  const allFinancialMetrics = useMemo(() => ({
     profit: buildOwnerProfitStats(meta),
     revenue: buildOwnerRevenueStats(meta),
     expenses: buildOwnerExpensesStats(meta),
     liquidity: buildOwnerLiquidityStats(meta),
-  }[activeFinancialTab];
+  }), [meta]);
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* Hub only: list of co-owned facilities shared with other operators. */}
       {isHub && (
         <NetworkSidePanelAccordion
           title="Ownership Relations Count"
@@ -75,6 +92,8 @@ export default function OwnerNetworkContent({
           </div>
         </NetworkSidePanelAccordion>
       )}
+
+      {/* Non-hub nodes open CQM by default; hub nodes collapse it to save space. */}
       <NetworkSidePanelAccordion
         title="Clinical Quality Measures"
         defaultOpen={!isHub}
@@ -87,11 +106,12 @@ export default function OwnerNetworkContent({
           ]}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          items={metrics}
+          items={allMetrics[activeTab]}
           CardComponent={MetricCardShort}
           variant={variant}
         />
       </NetworkSidePanelAccordion>
+
       <NetworkSidePanelAccordion title="Staffing" variant={variant}>
         <TabbedMetricList
           tabs={[
@@ -100,11 +120,12 @@ export default function OwnerNetworkContent({
           ]}
           activeTab={activeStaffingTab}
           setActiveTab={setActiveStaffingTab}
-          items={staffingMetrics}
+          items={allStaffingMetrics[activeStaffingTab]}
           CardComponent={StaffingCardShort}
           variant={variant}
         />
       </NetworkSidePanelAccordion>
+
       <NetworkSidePanelAccordion title="Financial Overview" variant={variant}>
         <TabbedMetricList
           tabs={[
@@ -115,7 +136,7 @@ export default function OwnerNetworkContent({
           ]}
           activeTab={activeFinancialTab}
           setActiveTab={setActiveFinancialTab}
-          items={financialMetrics}
+          items={allFinancialMetrics[activeFinancialTab]}
           CardComponent={MetricCardShort}
           variant={variant}
         />
@@ -124,6 +145,19 @@ export default function OwnerNetworkContent({
   );
 }
 
+/**
+ * Reusable tabbed list used by each metric accordion section.
+ *
+ * Responsibilities:
+ * - Renders a fully accessible ARIA tablist with roving tabindex keyboard nav
+ * - Swaps the visible card list when the active tab changes
+ * - Accepts a `CardComponent` prop so callers control the card layout
+ *
+ * Notes:
+ * - `panelId` is derived from the first tab's value so it stays stable across
+ *   tab switches — changing it would break the aria-controls association.
+ * - Keyboard navigation (Arrow keys, Home, End) is handled by useTabKeyNavigation.
+ */
 function TabbedMetricList({
   tabs,
   activeTab,
@@ -132,10 +166,10 @@ function TabbedMetricList({
   CardComponent,
   variant,
 }) {
-  const panelId = `tabpanel-${tabs[0]?.value}-${activeTab}`;
-  const { tabRefs, handleKeyDown } = useTabKeyNavigation(
-    tabs,
-    (nextTab) => setActiveTab(nextTab.value),
+  // Stable ID: must not include activeTab or it breaks aria-controls on every switch.
+  const panelId = `tabpanel-${tabs[0]?.value}`;
+  const { tabRefs, handleKeyDown } = useTabKeyNavigation(tabs, (nextTab) =>
+    setActiveTab(nextTab.value),
   );
 
   return (
@@ -148,7 +182,9 @@ function TabbedMetricList({
         {tabs.map((tab, index) => (
           <button
             key={tab.value}
-            ref={(el) => { tabRefs.current[index] = el; }}
+            ref={(el) => {
+              tabRefs.current[index] = el;
+            }}
             role="tab"
             aria-selected={activeTab === tab.value}
             aria-controls={panelId}
