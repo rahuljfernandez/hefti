@@ -139,7 +139,7 @@ function TabbedMetricList({
   );
 
   return (
-    <div className="bg-white">
+    <div className={variant === 'mobile' ? 'bg-zinc-900' : 'bg-white'}>
       <div
         role="tablist"
         aria-label="Metric category"

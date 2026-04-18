@@ -516,7 +516,12 @@ MetricCardLong.propTypes = {
 export function MetricCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
   return (
-    <div className="grid grid-cols-3 bg-white px-4 py-2 hover:bg-gray-50">
+    <div
+      className={clsx(
+        'grid grid-cols-3 px-4 py-2',
+        isMobile ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white hover:bg-gray-50',
+      )}
+    >
       {/** Title */}
       <div className="col-span-2 self-center">
         <p
@@ -556,7 +561,12 @@ export function MetricCardShort({ item, variant }) {
 export function StaffingCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
   return (
-    <div className="grid grid-cols-3 bg-white px-4 py-2 hover:bg-gray-50">
+    <div
+      className={clsx(
+        'grid grid-cols-3 px-4 py-2',
+        isMobile ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white hover:bg-gray-50',
+      )}
+    >
       <div className="col-span-2 self-center">
         <p
           className={clsx(
