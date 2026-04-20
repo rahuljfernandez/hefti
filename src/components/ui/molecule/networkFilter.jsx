@@ -80,14 +80,14 @@ export default function NetworkFilter({
               onClick={() => onSetSizeMetric('star')}
             />
             <NetworkFilterControl
-              value={'Quality'}
-              active={sizeMetric === 'quality'}
-              onClick={() => onSetSizeMetric('quality')}
+              value={'Op Margin'}
+              active={sizeMetric === 'opMargin'}
+              onClick={() => onSetSizeMetric('opMargin')}
             />
             <NetworkFilterControl
-              value={'Financial'}
-              active={sizeMetric === 'financial'}
-              onClick={() => onSetSizeMetric('financial')}
+              value={'RPTOE'}
+              active={sizeMetric === 'rptoe'}
+              onClick={() => onSetSizeMetric('rptoe')}
             />
           </div>
         </div>
@@ -100,6 +100,6 @@ NetworkFilter.propTypes = {
   onSetDepth: PropTypes.func.isRequired,
   depth: PropTypes.oneOf([1, 2]).isRequired,
   onSetSizeMetric: PropTypes.func.isRequired,
-  sizeMetric: PropTypes.oneOf(['default', 'star', 'quality', 'financial'])
+  sizeMetric: PropTypes.oneOf(['default', 'star', 'opMargin', 'rptoe'])
     .isRequired,
 };

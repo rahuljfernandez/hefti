@@ -25,6 +25,7 @@ import {
  * - Filters visible neighborhoods based on the active node
  * - Builds the search index that powers the modal search dropdown
  */
+
 const sigmaStyle = { height: '100%', width: '100%' };
 
 const sharedFacilityShape = PropTypes.shape({
@@ -90,6 +91,16 @@ function buildGraph(data) {
       meta: node.meta,
       starRating: Number.isFinite(Number(node?.meta.star_rating))
         ? Number(node.meta.star_rating)
+        : null,
+      opMargin: Number.isFinite(
+        Number(node?.meta.cms_owner_avg_operating_margin),
+      )
+        ? Number(node.meta.cms_owner_avg_operating_margin)
+        : null,
+      rptoe: Number.isFinite(
+        Number(node?.meta.cms_owner_avg_related_to_total_exp),
+      )
+        ? Number(node.meta.cms_owner_avg_related_to_total_exp)
         : null,
     });
   }
@@ -225,6 +236,21 @@ function InteractionLayer({
     return min + Math.pow(t, gamma) * (max - min);
   }, []);
 
+  // operating margin: percentage scale, ≤0 = min, cap at 25%
+  const opMarginToSize = useCallback((margin) => {
+    if (margin == null || Number.isNaN(margin)) return 5;
+    if (margin <= 0) return 5;
+    const t = Math.min(1, margin / 25);
+    return 5 + t * 15;
+  }, []);
+
+  // RPTOE: percentage scale, cap at 50%
+  const rptoeToSize = useCallback((ratio) => {
+    if (ratio == null || Number.isNaN(ratio)) return 5;
+    const t = Math.min(1, Math.max(0, ratio / 50));
+    return 5 + t * 15;
+  }, []);
+
   //Shared pin function used by click + search
   const pinNode = useCallback(
     (nodeId) => {
@@ -288,6 +314,10 @@ function InteractionLayer({
         // Base size by mode
         if (sizeMetric === 'star') {
           res.size = starToSize(data.starRating);
+        } else if (sizeMetric === 'opMargin') {
+          res.size = opMarginToSize(data.opMargin);
+        } else if (sizeMetric === 'rptoe') {
+          res.size = rptoeToSize(data.rptoe);
         } else {
           // keep what buildGraph set
           res.size = data.size ?? 8;
@@ -330,7 +360,16 @@ function InteractionLayer({
         return res;
       },
     });
-  }, [setSettings, graph, activeNode, neighborSet, starToSize, sizeMetric]);
+  }, [
+    setSettings,
+    graph,
+    activeNode,
+    neighborSet,
+    starToSize,
+    opMarginToSize,
+    rptoeToSize,
+    sizeMetric,
+  ]);
 
   return null;
 }
