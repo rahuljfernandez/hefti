@@ -40,6 +40,8 @@ const nodeShape = PropTypes.shape({
   meta: PropTypes.shape({
     cms_ownership_type: PropTypes.string,
     star_rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    cms_owner_avg_operating_margin: PropTypes.number,
+    cms_owner_avg_related_to_total_exp: PropTypes.number,
     sharedFacilities: PropTypes.arrayOf(sharedFacilityShape),
   }),
 });
@@ -89,17 +91,13 @@ function buildGraph(data) {
       y: 0,
       nodeType: node.type,
       meta: node.meta,
-      starRating: Number.isFinite(Number(node?.meta.star_rating))
+      starRating: Number.isFinite(Number(node?.meta?.star_rating))
         ? Number(node.meta.star_rating)
         : null,
-      opMargin: Number.isFinite(
-        Number(node?.meta.cms_owner_avg_operating_margin),
-      )
+      opMargin: Number.isFinite(Number(node?.meta?.cms_owner_avg_operating_margin))
         ? Number(node.meta.cms_owner_avg_operating_margin)
         : null,
-      rptoe: Number.isFinite(
-        Number(node?.meta.cms_owner_avg_related_to_total_exp),
-      )
+      rptoe: Number.isFinite(Number(node?.meta?.cms_owner_avg_related_to_total_exp))
         ? Number(node.meta.cms_owner_avg_related_to_total_exp)
         : null,
     });

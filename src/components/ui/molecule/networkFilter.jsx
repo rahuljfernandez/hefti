@@ -16,7 +16,7 @@ import NetworkFilterControl from '../atom/networkFilterControl';
  * -depth: tracks current depth of requested network (1 or 2)
  * -onSetDepth: used by buttons click to register a new selection in depth
  * -onSetSizeMetric:used by buttons in Node Size section to register new node size mode.
- * -sizeMetric: Tracks current node size viewing mode (default, star rating, quality,    financial) 3/2/26 the last two are hypothetical at this time
+ * -sizeMetric: Tracks current node size viewing mode (default, star, opMargin, rptoe)
  *
  * Notes:
  * - Rendered by `OwnerNetworkGraphModal`
@@ -63,7 +63,7 @@ export default function NetworkFilter({
           <div className="space-y-2">
             <div className="text-label-sm text-core-black flex items-center gap-2">
               <span>Node Size</span>
-              <InfoTooltip text="Determines how node size is scaled.  Choose between uniform sizing or scaling by Star Rating, Quality, or Financial metrics." />
+              <InfoTooltip text="Determines how node size is scaled. Choose between uniform sizing or scaling by Star Rating, Operating Margin, or Related Party to Total Operating Expenses." />
             </div>
           </div>
 
@@ -88,6 +88,7 @@ export default function NetworkFilter({
               value={'RPTOE'}
               active={sizeMetric === 'rptoe'}
               onClick={() => onSetSizeMetric('rptoe')}
+              ariaLabel="Related Party to Total Operating Expenses"
             />
           </div>
         </div>
