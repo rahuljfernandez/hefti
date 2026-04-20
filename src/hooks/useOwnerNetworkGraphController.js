@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  * - data fetch lifecycle (idle/loading/ready/error)
  * - selection + pin request coordination
  * - search query / search results state
- * - graph filter controls (depth, size metric)
+ * - graph filter controls (depth, node size metric)
  */
 export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
   const API_BASE_URL =
@@ -22,7 +22,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
   // Shared graph UI state.
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [depth, setDepth] = useState(2);
-  const [sizeMetric, setSizeMetric] = useState('default');
+  const [nodeSizeMetric, setNodeSizeMetric] = useState('default');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [pinRequestNodeId, setPinRequestNodeId] = useState(null);
@@ -117,7 +117,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     status,
     error,
     depth,
-    sizeMetric,
+    nodeSizeMetric,
     searchQuery,
     searchResults,
     pinRequestNodeId,
@@ -125,7 +125,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     effectiveSelectedNodeId,
     effectiveSelectedNode,
     setDepth,
-    setSizeMetric,
+    setNodeSizeMetric,
     setSearchQuery,
     setSearchResults,
     setSelectedNodeId,

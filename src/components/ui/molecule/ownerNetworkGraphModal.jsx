@@ -39,7 +39,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     status,
     error,
     depth,
-    sizeMetric,
+    nodeSizeMetric,
     searchQuery,
     searchResults,
     pinRequestNodeId,
@@ -47,7 +47,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     effectiveSelectedNodeId,
     effectiveSelectedNode,
     setDepth,
-    setSizeMetric,
+    setNodeSizeMetric,
     setSearchQuery,
     setSearchResults,
     setSelectedNodeId,
@@ -107,10 +107,10 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           pinRequestNodeId={pinRequestNodeId}
           onPinRequestConsumed={handlePinRequestConsumed}
           onSearchResults={setSearchResults}
-          sizeMetric={sizeMetric}
+          nodeSizeMetric={nodeSizeMetric}
           onSetDepth={setDepth}
           depth={depth}
-          onSetSizeMetric={setSizeMetric}
+          onSetNodeSizeMetric={setNodeSizeMetric}
           selectedNodeId={effectiveSelectedNodeId}
           onClearSelection={handleClearSelection}
           onSelectSidePanelNode={handleSelectNode}
@@ -125,7 +125,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           onPinRequestConsumed={handlePinRequestConsumed}
           searchQuery={searchQuery}
           onSearchResults={setSearchResults}
-          sizeMetric={sizeMetric}
+          nodeSizeMetric={nodeSizeMetric}
           isSearchOpen={isSearchOpen}
           onSetSearchQuery={setSearchQuery}
           searchResults={searchResults}
