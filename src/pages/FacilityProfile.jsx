@@ -16,6 +16,7 @@ import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTa
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import { Heading } from '../components/ui/atom/heading';
+import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import ListContainer, {
   ListContainerDivider,
 } from '../components/ui/organism/ListContainer';
@@ -65,17 +66,10 @@ export default function FacilityProfile() {
     fetchNationalBenchmarks();
   }, []);
 
-  if (loading) {
-    return (
-      <p role="status" aria-live="polite">
-        Loading facility details...
-      </p>
-    );
-  }
-  if (!facility) return <p role="alert">Facility not found.</p>;
+  if (!facility && !loading) return <p role="alert">Facility not found.</p>;
 
   // Relationship records used for stakeholders + ownership diagram sections.
-  const ownershipLinks = facility.facility_ownership_links || [];
+  const ownershipLinks = facility?.facility_ownership_links || [];
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
@@ -86,6 +80,7 @@ export default function FacilityProfile() {
     <main className="bg-background-secondary font-sans">
       <Breadcrumb />
       <LayoutPage>
+        {loading ? <ProfilePageSkeleton /> : <>
         <ProfileHeader
           title={facility.provider_name}
           ownershipType={facility.ownership_type}
@@ -166,6 +161,7 @@ export default function FacilityProfile() {
         <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
           <AdditionalInformation items={facility} />
         </div>
+        </>}
       </LayoutPage>
     </main>
   );

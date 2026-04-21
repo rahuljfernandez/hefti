@@ -11,6 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
+import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
@@ -49,18 +50,11 @@ export default function OwnersProfile() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) {
-    return (
-      <p role="status" aria-live="polite">
-        Loading owner details...
-      </p>
-    );
-  }
-  if (!owner) return <p role="alert">Owner not found.</p>;
+  if (!owner && !loading) return <p role="alert">Owner not found.</p>;
 
   // Use related facilities from API if available
   const relatedFacilities =
-    owner.facility_ownership_links?.map((link) => ({
+    owner?.facility_ownership_links?.map((link) => ({
       ...link.facility,
       cms_ownership_role: link.cms_ownership_role,
     })) || [];
@@ -77,6 +71,7 @@ export default function OwnersProfile() {
     <main className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
+        {loading ? <ProfilePageSkeleton /> : <>
         <ProfileHeader
           title={toTitleCase(owner.cms_ownership_name)}
           ownershipType={owner.cms_ownership_type}
@@ -142,6 +137,7 @@ export default function OwnersProfile() {
             </button>
           </div>
         )}
+        </>}
       </LayoutPage>
     </main>
   );
