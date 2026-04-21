@@ -95,8 +95,9 @@ export default function OwnersProfile() {
               case 'Provider Highlights':
                 return <ProviderHighlights items={owner} status="owner" />;
               //As of 3/16/26 we are holding off on deficiencies
-              // case 'Deficiencies & Penalties':
-              //   return <DeficienciesTab items={owner} />;
+              //4/17 Tyler requested tab be visible with coming soon
+              case 'Deficiencies & Penalties':
+                return <DeficienciesTab items={owner} />;
 
               case 'Clinical Quality Measures':
                 return (

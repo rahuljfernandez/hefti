@@ -105,8 +105,9 @@ export default function FacilityProfile() {
                   <ProviderHighlights items={facility} status="facility" />
                 );
               //As of 3/16/26 we are holding off on deficiencies
-              // case 'Deficiencies & Penalties':
-              //   return <DeficienciesTab items={facility} />;
+              //4/17 Tyler requested tab be visible with coming soon
+              case 'Deficiencies & Penalties':
+                return <DeficienciesTab items={facility} />;
 
               case 'Clinical Quality Measures':
                 return (

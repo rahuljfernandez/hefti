@@ -4,11 +4,11 @@ export const profileTabsDescriptions = [
     displayTitle: 'Provider Highlights',
     href: '#',
   },
-  // {
-  //   name: 'Deficiencies & Penalties',
-  //   displayTitle: 'Deficiencies from Inspection Reports',
-  //   href: '#',
-  // },
+  {
+    name: 'Deficiencies & Penalties',
+    displayTitle: 'Deficiencies from Inspection Reports',
+    href: '#',
+  },
   {
     name: 'Clinical Quality Measures',
     displayTitle: 'Clinical Quality Measures',

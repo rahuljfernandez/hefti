@@ -1,12 +1,14 @@
 import React from 'react';
 
-/**
- * Placeholder tab for deficiencies and penalties content.
- *
- * Responsibilities:
- * - Reserves the tab entry point while the data model and UI are still in progress
- * - Provides a stable component target for future deficiencies-specific rendering
- */
-export default function DeficienciesTab({ items }) {
-  return <div>deficiencies</div>;
+export default function DeficienciesTab() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <p className="text-heading-sm font-semibold text-foreground mb-2">
+        Coming Soon
+      </p>
+      <p className="text-paragraph-sm text-muted-foreground max-w-sm">
+        Deficiency and penalty data from inspection reports will be available here in a future update.
+      </p>
+    </div>
+  );
 }
