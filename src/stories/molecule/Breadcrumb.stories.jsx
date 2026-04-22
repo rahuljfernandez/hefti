@@ -12,7 +12,7 @@ export const Default = Template.bind({});
 Default.args = {
   pages: [
     { name: 'Home', to: '/', current: false },
-    { name: 'Previous Page', to: '#', current: false },
-    { name: 'Current Page', to: '#', current: true },
+    { name: 'Previous Page', to: '/previous', current: false },
+    { name: 'Current Page', to: '/current', current: true },
   ],
 };
