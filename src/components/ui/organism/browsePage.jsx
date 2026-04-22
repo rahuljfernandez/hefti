@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import BrowseListView from './browseListView';
 import PropTypes from 'prop-types';
+import { BrowseListSkeleton } from '../atom/skeletons.jsx';
 
 /**
  * This component controls fetching data and search suggestions
@@ -119,9 +120,7 @@ export default function BrowsePage({
             did not return any results.
           </p>
         ) : null}
-        {loading && (
-          <p className="text-sm text-gray-500">Loading new page...</p>
-        )}
+        {loading && <BrowseListSkeleton />}
         {error && <p>Error: {error.message}</p>}
       </BrowseListView>
     </div>

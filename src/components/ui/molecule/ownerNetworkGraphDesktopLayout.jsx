@@ -4,6 +4,10 @@ import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
 import NetworkFilter from './networkFilter';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSidePanel from './ownerNetworkSidePanel';
+import {
+  NetworkGraphSkeleton,
+  NetworkSidePanelSkeleton,
+} from '../atom/skeletons.jsx';
 
 /**
  * Desktop presentation shell for the Owner Network Graph modal.
@@ -63,8 +67,11 @@ export default function OwnerNetworkGraphDesktopLayout({
         </div>
 
         {status === 'loading' && (
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="text-sm text-gray-600">Loading graph...</div>
+          <div className="flex h-full min-h-0">
+            <div className="relative min-w-0 flex-1">
+              <NetworkGraphSkeleton />
+            </div>
+            <NetworkSidePanelSkeleton />
           </div>
         )}
 

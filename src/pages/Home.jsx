@@ -11,6 +11,7 @@ import {
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
+import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
@@ -115,18 +116,16 @@ export default function Home() {
           <Heading level={2} className="text-heading-lg my-6 text-center">
             State of the Nursing Home Industry
           </Heading>
-          {loading ? (
-            <p className="text-center text-gray-500">
-              Loading industry data...
-            </p>
-          ) : error ? (
-            <p className="text-center text-red-600">{error}</p>
-          ) : (
-            <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
-              <div>
-                <Heading level={3} className="mb-4">
-                  Top 10 Largest Chains
-                </Heading>
+          <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
+            <div>
+              <Heading level={3} className="mb-4">
+                Top 10 Largest Chains
+              </Heading>
+              {loading ? (
+                <IndustryListSkeleton />
+              ) : error ? (
+                <p className="text-red-600">{error}</p>
+              ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
                   {topChains.map((chain) => (
                     <li key={chain.name}>
@@ -145,11 +144,17 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div>
-                <Heading level={3} className="mb-4">
-                  Top 10 Largest Individual Owners
-                </Heading>
+              )}
+            </div>
+            <div>
+              <Heading level={3} className="mb-4">
+                Top 10 Largest Individual Owners
+              </Heading>
+              {loading ? (
+                <IndustryListSkeleton />
+              ) : error ? (
+                <p className="text-red-600">{error}</p>
+              ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
                   {topOwners.map((owner) => (
                     <Link
@@ -171,9 +176,9 @@ export default function Home() {
                     </Link>
                   ))}
                 </ul>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </section>
       {/* Barchart Graphic Section */}
