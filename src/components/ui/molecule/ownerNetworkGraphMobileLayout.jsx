@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
+import { NetworkGraphSkeleton } from '../atom/skeletons.jsx';
 import NetworkSidePanelCardHeader from './networkSidePanelCardHeader';
 import OwnerNetworkContent from './ownerNetworkContent';
 
@@ -47,11 +48,7 @@ export default function OwnerNetworkGraphMobileLayout({
   return (
     <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
       <div className="relative min-h-0 flex-1">
-        {status === 'loading' && (
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="text-sm text-gray-600">Loading graph...</div>
-          </div>
-        )}
+        {status === 'loading' && <NetworkGraphSkeleton />}
 
         {status === 'error' && (
           <div className="absolute inset-0 grid place-items-center px-6 text-center">
