@@ -203,6 +203,28 @@ export function NetworkSidePanelSkeleton() {
   );
 }
 
+// Used in: src/components/ui/organism/monthlyOwnershipChangeChart.jsx
+export function ChartSkeleton() {
+  const bars = [55, 72, 45, 88, 60, 95, 50, 78, 65, 83, 40, 70];
+  return (
+    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+      <div className="flex flex-col gap-4">
+        {bars.map((w, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <SkeletonBar className="h-4 w-16 shrink-0" />
+            <div className="relative h-7 flex-1">
+              <div
+                className="absolute inset-y-0 left-0 animate-pulse rounded bg-gray-200"
+                style={{ width: `${w}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Used in: src/pages/Home.jsx
 export function IndustryListSkeleton() {
   return (

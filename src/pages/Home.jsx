@@ -12,6 +12,8 @@ import {
 } from '@heroicons/react/24/outline';
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
+import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
+import { UnavailableBadge } from '../components/ui/atom/unavailableBadge.jsx';
 
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
@@ -23,6 +25,8 @@ export default function Home() {
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
 
+  // API_BASE_URL is derived from env at module load time and never changes — safe to omit from deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -34,7 +38,7 @@ export default function Home() {
         setTopOwners(owners);
         setError(null);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load industry data.');
       })
       .finally(() => setLoading(false));
@@ -118,13 +122,22 @@ export default function Home() {
           </Heading>
           <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
             <div>
-              <Heading level={3} className="mb-4">
-                Top 10 Largest Chains
-              </Heading>
+              <div className="mb-4 flex items-center justify-between">
+                <Heading level={3}>Top 10 Largest Chains</Heading>
+                {error && <UnavailableBadge />}
+              </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
-                <p className="text-red-600">{error}</p>
+                <>
+                  <div className="opacity-40 pointer-events-none select-none">
+                    <IndustryListSkeleton />
+                  </div>
+                  <ErrorBanner
+                    title="Failed to load"
+                    message="Industry data couldn't be retrieved. Try refreshing the page."
+                  />
+                </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
                   {topChains.map((chain) => (
@@ -147,13 +160,22 @@ export default function Home() {
               )}
             </div>
             <div>
-              <Heading level={3} className="mb-4">
-                Top 10 Largest Individual Owners
-              </Heading>
+              <div className="mb-4 flex items-center justify-between">
+                <Heading level={3}>Top 10 Largest Individual Owners</Heading>
+                {error && <UnavailableBadge />}
+              </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
-                <p className="text-red-600">{error}</p>
+                <>
+                  <div className="opacity-40 pointer-events-none select-none">
+                    <IndustryListSkeleton />
+                  </div>
+                  <ErrorBanner
+                    title="Failed to load"
+                    message="Industry data couldn't be retrieved. Try refreshing the page."
+                  />
+                </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
                   {topOwners.map((owner) => (
