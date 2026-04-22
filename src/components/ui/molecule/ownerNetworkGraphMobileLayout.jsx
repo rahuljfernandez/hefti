@@ -29,7 +29,7 @@ export default function OwnerNetworkGraphMobileLayout({
   onPinRequestConsumed,
   searchQuery,
   onSearchResults,
-  sizeMetric,
+  nodeSizeMetric,
   isSearchOpen,
   onSetSearchQuery,
   searchResults,
@@ -75,7 +75,7 @@ export default function OwnerNetworkGraphMobileLayout({
               onPinRequestConsumed={onPinRequestConsumed}
               searchQuery={searchQuery}
               onSearchResults={onSearchResults}
-              sizeMetric={sizeMetric}
+              nodeSizeMetric={nodeSizeMetric}
               isSearchOpen={isSearchOpen}
               showFullScreenControl={false}
             />
@@ -159,7 +159,12 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   onPinRequestConsumed: PropTypes.func.isRequired,
   searchQuery: PropTypes.string.isRequired,
   onSearchResults: PropTypes.func.isRequired,
-  sizeMetric: PropTypes.string.isRequired,
+  nodeSizeMetric: PropTypes.oneOf([
+    'default',
+    'starRating',
+    'operatingMargin',
+    'relatedPartyExpenseRatio',
+  ]).isRequired,
   isSearchOpen: PropTypes.bool.isRequired,
   onSetSearchQuery: PropTypes.func.isRequired,
   searchResults: PropTypes.array.isRequired,

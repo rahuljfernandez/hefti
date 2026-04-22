@@ -32,10 +32,10 @@ export default function OwnerNetworkGraphDesktopLayout({
   pinRequestNodeId,
   onPinRequestConsumed,
   onSearchResults,
-  sizeMetric,
+  nodeSizeMetric,
   onSetDepth,
   depth,
-  onSetSizeMetric,
+  onSetNodeSizeMetric,
   selectedNodeId,
   onClearSelection,
   onSelectSidePanelNode,
@@ -57,8 +57,8 @@ export default function OwnerNetworkGraphDesktopLayout({
           <NetworkFilter
             onSetDepth={onSetDepth}
             depth={depth}
-            onSetSizeMetric={onSetSizeMetric}
-            sizeMetric={sizeMetric}
+            onSetNodeSizeMetric={onSetNodeSizeMetric}
+            nodeSizeMetric={nodeSizeMetric}
           />
         </div>
 
@@ -89,7 +89,7 @@ export default function OwnerNetworkGraphDesktopLayout({
                 onPinRequestConsumed={onPinRequestConsumed}
                 searchQuery={searchQuery}
                 onSearchResults={onSearchResults}
-                sizeMetric={sizeMetric}
+                nodeSizeMetric={nodeSizeMetric}
                 isSearchOpen={isSearchOpen}
               />
             </div>
@@ -122,10 +122,15 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onPinRequestConsumed: PropTypes.func.isRequired,
   onSearchResults: PropTypes.func.isRequired,
-  sizeMetric: PropTypes.string.isRequired,
+  nodeSizeMetric: PropTypes.oneOf([
+    'default',
+    'starRating',
+    'operatingMargin',
+    'relatedPartyExpenseRatio',
+  ]).isRequired,
   onSetDepth: PropTypes.func.isRequired,
   depth: PropTypes.number.isRequired,
-  onSetSizeMetric: PropTypes.func.isRequired,
+  onSetNodeSizeMetric: PropTypes.func.isRequired,
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onClearSelection: PropTypes.func.isRequired,
   onSelectSidePanelNode: PropTypes.func.isRequired,

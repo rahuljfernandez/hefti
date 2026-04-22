@@ -25,6 +25,7 @@ import {
  * - Filters visible neighborhoods based on the active node
  * - Builds the search index that powers the modal search dropdown
  */
+
 const sigmaStyle = { height: '100%', width: '100%' };
 
 const sharedFacilityShape = PropTypes.shape({
@@ -39,6 +40,14 @@ const nodeShape = PropTypes.shape({
   meta: PropTypes.shape({
     cms_ownership_type: PropTypes.string,
     star_rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    cms_owner_avg_operating_margin: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+    cms_owner_avg_related_to_total_exp: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
     sharedFacilities: PropTypes.arrayOf(sharedFacilityShape),
   }),
 });
@@ -88,8 +97,18 @@ function buildGraph(data) {
       y: 0,
       nodeType: node.type,
       meta: node.meta,
-      starRating: Number.isFinite(Number(node?.meta.star_rating))
+      starRating: Number.isFinite(Number(node?.meta?.star_rating))
         ? Number(node.meta.star_rating)
+        : null,
+      operatingMargin: Number.isFinite(
+        Number(node?.meta?.cms_owner_avg_operating_margin),
+      )
+        ? Number(node.meta.cms_owner_avg_operating_margin)
+        : null,
+      relatedPartyExpenseRatio: Number.isFinite(
+        Number(node?.meta?.cms_owner_avg_related_to_total_exp),
+      )
+        ? Number(node.meta.cms_owner_avg_related_to_total_exp)
         : null,
     });
   }
@@ -183,13 +202,13 @@ ForceAtlasToggle.propTypes = {
  * - onPinnedChang: Called when the locked node selection changes
  * - pinRequestNodeId: Node id requested externally for pin/focus behavior
  * - onPinRequestConsumed: Clears the external pin request after it is handled
- * - sizeMetric: Controls whether nodes use default or star-based sizing
+ * - nodeSizeMetric: Controls which metric drives node sizing
  */
 function InteractionLayer({
   onPinnedChange,
   pinRequestNodeId,
   onPinRequestConsumed,
-  sizeMetric,
+  nodeSizeMetric,
 }) {
   const sigma = useSigma();
   const graph = sigma.getGraph();
@@ -210,8 +229,8 @@ function InteractionLayer({
     onPinnedChange?.(lockedNode);
   }, [lockedNode, onPinnedChange]);
 
-  //calculating star ratingto size
-  const starToSize = useCallback((star) => {
+  //calculating star rating to size
+  const starRatingToSize = useCallback((star) => {
     // fallback for unknown ratings
     if (star == null || Number.isNaN(star)) return 7;
 
@@ -223,6 +242,21 @@ function InteractionLayer({
 
     const gamma = 2.2; // higher = more dramatic
     return min + Math.pow(t, gamma) * (max - min);
+  }, []);
+
+  // operating margin: percentage scale, ≤0 = min, cap at 25%
+  const operatingMarginToSize = useCallback((margin) => {
+    if (margin == null || Number.isNaN(margin)) return 5;
+    if (margin <= 0) return 5;
+    const t = Math.min(1, margin / 25);
+    return 5 + t * 15;
+  }, []);
+
+  // RPTOE: percentage scale, cap at 50%
+  const relatedPartyExpenseRatioToSize = useCallback((ratio) => {
+    if (ratio == null || Number.isNaN(ratio)) return 5;
+    const t = Math.min(1, Math.max(0, ratio / 50));
+    return 5 + t * 15;
   }, []);
 
   //Shared pin function used by click + search
@@ -276,7 +310,7 @@ function InteractionLayer({
     return () => {
       if (container) container.style.cursor = 'default';
     };
-  }, [registerEvents, sigma, lockedNode]);
+  }, [registerEvents, sigma, lockedNode, pinNode]);
 
   // reducers: show only active + neighbors
   useEffect(() => {
@@ -286,8 +320,14 @@ function InteractionLayer({
         const res = { ...data };
 
         // Base size by mode
-        if (sizeMetric === 'star') {
-          res.size = starToSize(data.starRating);
+        if (nodeSizeMetric === 'starRating') {
+          res.size = starRatingToSize(data.starRating);
+        } else if (nodeSizeMetric === 'operatingMargin') {
+          res.size = operatingMarginToSize(data.operatingMargin);
+        } else if (nodeSizeMetric === 'relatedPartyExpenseRatio') {
+          res.size = relatedPartyExpenseRatioToSize(
+            data.relatedPartyExpenseRatio,
+          );
         } else {
           // keep what buildGraph set
           res.size = data.size ?? 8;
@@ -330,7 +370,16 @@ function InteractionLayer({
         return res;
       },
     });
-  }, [setSettings, graph, activeNode, neighborSet, starToSize, sizeMetric]);
+  }, [
+    setSettings,
+    graph,
+    activeNode,
+    neighborSet,
+    starRatingToSize,
+    operatingMarginToSize,
+    relatedPartyExpenseRatioToSize,
+    nodeSizeMetric,
+  ]);
 
   return null;
 }
@@ -339,7 +388,12 @@ InteractionLayer.propTypes = {
   onPinnedChange: PropTypes.func,
   pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onPinRequestConsumed: PropTypes.func,
-  sizeMetric: PropTypes.string,
+  nodeSizeMetric: PropTypes.oneOf([
+    'default',
+    'starRating',
+    'operatingMargin',
+    'relatedPartyExpenseRatio',
+  ]),
 };
 
 /**
@@ -471,7 +525,7 @@ GraphSearchController.propTypes = {
  * - onSearchResults: Receives search suggestions generated from graph data
  * - pinRequestNodeId: External node id to pin from search or panel actions
  * - onPinRequestConsumed: Clears the pin request after it has been handled
- * - sizeMetric: Controls the node sizing mode
+ * - nodeSizeMetric: Controls the node sizing mode
  * - isSearchOpen: Whether the search dropdown is open
  */
 export default function NetworkGraph({
@@ -481,12 +535,12 @@ export default function NetworkGraph({
   onSearchResults,
   pinRequestNodeId,
   onPinRequestConsumed,
-  sizeMetric,
+  nodeSizeMetric,
   isSearchOpen,
   showFullScreenControl = true,
 }) {
   //fallback for setting node size mode
-  const effectiveSizeMetric = sizeMetric ?? 'default';
+  const effectiveNodeSizeMetric = nodeSizeMetric ?? 'default';
   //if you need to set the background color of the graph it is done in tailwind.css
   return (
     <SigmaContainer
@@ -501,7 +555,7 @@ export default function NetworkGraph({
         onPinnedChange={onSelectNode}
         pinRequestNodeId={pinRequestNodeId}
         onPinRequestConsumed={onPinRequestConsumed}
-        sizeMetric={effectiveSizeMetric}
+        nodeSizeMetric={effectiveNodeSizeMetric}
       />
       <GraphSearchController
         searchQuery={searchQuery}
@@ -523,7 +577,12 @@ NetworkGraph.propTypes = {
   onSearchResults: PropTypes.func,
   pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onPinRequestConsumed: PropTypes.func,
-  sizeMetric: PropTypes.string,
+  nodeSizeMetric: PropTypes.oneOf([
+    'default',
+    'starRating',
+    'operatingMargin',
+    'relatedPartyExpenseRatio',
+  ]),
   isSearchOpen: PropTypes.bool,
   showFullScreenControl: PropTypes.bool,
 };
