@@ -5,35 +5,34 @@ import BreadcrumbLayoutCard from '../atom/breadcrumbLayoutCard';
 import { Link, useNavigate } from 'react-router-dom';
 
 /**
- * Component is sourced from Application UI
- * Removed extra stock code and added code for button
- * Wrapped in a custom layout card to apply spacing
- * Could be design issues with very long page names in the Li's, especially if there are 3-4 li's
- * Applied flex wrap to Ol to mitigate this and simple "Go back" option for mobile.
+ * Breadcrumb navigation component.
+ * Sourced from Application UI and customized for Hefti.
  *
- * NOTE:For alpha we have simplified to just use Go back link and removed the Report Builder button.  The desktop version and button are commented out for alpha
+ * - Mobile: renders a "Go back" button using navigate(-1).
+ * - Desktop (sm+): renders the full breadcrumb trail as a linked list.
+ *   The current page renders as plain text; all ancestors render as links.
+ * - Wrapped in BreadcrumbLayoutCard for consistent spacing across pages.
+ * - Page definitions are centralised in src/lib/breadcrumbPages.js.
+ * - flex-wrap on the ol handles long page names without overflow.
  */
 
-const defaultPages = [
-  { name: 'Home Page', to: '/', current: false },
-  { name: 'Previous Page', to: '#', current: false },
-  { name: 'Current Page', to: '#', current: true },
-];
-//Ask Nick about hover color, leaving stock for now
-//Note: defaultPages is for Storybook
-export default function Breadcrumb({ pages = defaultPages }) {
+export default function Breadcrumb({ pages }) {
   const navigate = useNavigate();
   return (
-    <BreadcrumbLayoutCard className="bg-zinc-200">
+    <BreadcrumbLayoutCard className="bg-background-primary">
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl">
         <div className="flex w-full items-center justify-between xl:px-6">
           <div>
             {/* Mobile: Go Back */}
             <div className="flex items-center sm:hidden">
-              <ChevronLeftIcon className="size-5 shrink-0 text-blue-700" />
+              <ChevronLeftIcon
+                aria-hidden="true"
+                className="size-5 shrink-0 text-blue-700"
+              />
               <button
+                type="button"
                 onClick={() => navigate(-1)}
-                className="text-paragraph-sm font-medium text-blue-700 hover:underline"
+                className="text-paragraph-sm font-medium text-blue-700 hover:underline focus:outline-none focus-visible:underline focus-visible:ring-2 focus-visible:ring-blue-700"
               >
                 Go back
               </button>
@@ -41,12 +40,12 @@ export default function Breadcrumb({ pages = defaultPages }) {
             {/* Desktop */}
             <ol
               role="list"
-              className="hidden items-center sm:flex sm:flex-wrap"
+              className="hidden items-center gap-x-1 sm:flex sm:flex-wrap"
             >
-              {pages.map((page, index) => {
-                const isFirst = index === 0;
+              {pages.map((page, i) => {
+                const isFirst = i === 0;
                 return (
-                  <li key={page.name + index}>
+                  <li key={page.to}>
                     <div className="flex items-center">
                       {!isFirst && (
                         <ChevronRightIcon
@@ -64,7 +63,7 @@ export default function Breadcrumb({ pages = defaultPages }) {
                       ) : (
                         <Link
                           to={page.to}
-                          className="text-paragraph-sm text-core-black hover:text-gray-700"
+                          className="text-paragraph-sm text-core-black rounded-sm hover:text-content-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
                         >
                           {page.name}
                         </Link>
