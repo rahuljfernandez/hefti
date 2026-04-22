@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import BreadcrumbLayoutCard from '../atom/breadcrumbLayoutCard';
-import { Button } from '../atom/button';
 import { Link, useNavigate } from 'react-router-dom';
 
 /**
@@ -16,9 +15,9 @@ import { Link, useNavigate } from 'react-router-dom';
  */
 
 const defaultPages = [
-  { name: 'Home Page', href: '#', current: false },
-  { name: 'Previous Page', href: '#', current: false },
-  { name: 'Current Page', href: '#', current: true },
+  { name: 'Home Page', to: '/', current: false },
+  { name: 'Previous Page', to: '#', current: false },
+  { name: 'Current Page', to: '#', current: true },
 ];
 //Ask Nick about hover color, leaving stock for now
 //Note: defaultPages is for Storybook
@@ -29,8 +28,8 @@ export default function Breadcrumb({ pages = defaultPages }) {
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl">
         <div className="flex w-full items-center justify-between xl:px-6">
           <div>
-            {/* Mobile: Go Back link sm:hidden removed for alpha */}
-            <div className="flex items-center justify-between">
+            {/* Mobile: Go Back */}
+            <div className="flex items-center sm:hidden">
               <ChevronLeftIcon className="size-5 shrink-0 text-blue-700" />
               <button
                 onClick={() => navigate(-1)}
@@ -40,44 +39,42 @@ export default function Breadcrumb({ pages = defaultPages }) {
               </button>
             </div>
             {/* Desktop */}
-            {/* <ol
+            <ol
               role="list"
               className="hidden items-center sm:flex sm:flex-wrap"
             >
               {pages.map((page, index) => {
                 const isFirst = index === 0;
-
                 return (
                   <li key={page.name + index}>
                     <div className="flex items-center">
                       {!isFirst && (
                         <ChevronRightIcon
                           aria-hidden="true"
-                          className={`text-core-black size-5 shrink-0 ${page.current ? 'font-semibold' : ''}`}
+                          className="text-core-black size-5 shrink-0"
                         />
                       )}
-                      <Link
-                        to={page.to}
-                        aria-current={page.current ? 'page' : undefined}
-                        className={`text-paragraph-sm text-core-black hover:text-gray-700 ${page.current ? 'font-semibold' : ''}`}
-                      >
-                        {page.name}
-                      </Link>
+                      {page.current ? (
+                        <span
+                          aria-current="page"
+                          className="text-paragraph-sm text-core-black font-semibold"
+                        >
+                          {page.name}
+                        </span>
+                      ) : (
+                        <Link
+                          to={page.to}
+                          className="text-paragraph-sm text-core-black hover:text-gray-700"
+                        >
+                          {page.name}
+                        </Link>
+                      )}
                     </div>
                   </li>
                 );
               })}
-            </ol> */}
+            </ol>
           </div>
-          {/* Report Builder*/}
-          {/* <div className="">
-            <Button
-              href="#"
-              className="text-label-base bg-background-inverse-primary border-border-inverse-primary inline-flex h-10 items-center border whitespace-nowrap"
-            >
-              Report Builder
-            </Button>
-          </div> */}
         </div>
       </nav>
     </BreadcrumbLayoutCard>
@@ -88,7 +85,7 @@ Breadcrumb.propTypes = {
   pages: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      href: PropTypes.string.isRequired,
+      to: PropTypes.string.isRequired,
       current: PropTypes.bool,
     }),
   ).isRequired,

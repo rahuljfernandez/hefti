@@ -5,6 +5,7 @@ import ListContainer, {
 import { BrowseOwners } from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
+import { ownerListPages } from '../lib/breadcrumbPages';
 /**
  * Main page for browsing owners.
  *
@@ -26,7 +27,7 @@ const API_BASE_URL =
 export default function Owners() {
   return (
     <>
-      <Breadcrumb />
+      <Breadcrumb pages={ownerListPages} />
       <BrowsePage
         apiEndpoint={`${API_BASE_URL}/owners`}
         title="Owners"

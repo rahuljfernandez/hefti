@@ -5,6 +5,7 @@ import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
+import { getFacilityProfilePages } from '../lib/breadcrumbPages';
 
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
@@ -76,9 +77,12 @@ export default function FacilityProfile() {
     navigate(`/facilities/${slug}/research`);
   };
 
+  // Builds the Home > All Nursing Homes > [Facility Name] trail; facility name falls back to '...' while loading.
+  const breadcrumbPages = getFacilityProfilePages(slug, facility?.provider_name);
+
   return (
     <main className="bg-background-secondary font-sans">
-      <Breadcrumb />
+      <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? <ProfilePageSkeleton /> : <>
         <ProfileHeader
