@@ -1,9 +1,22 @@
 import React from 'react';
 
+/**
+ * Skeleton loading components for data-dependent UI sections.
+ *
+ * Each skeleton mirrors the layout of its target component so the page
+ * structure stays stable while data is in flight. All skeletons use
+ * Tailwind's animate-pulse utility for the shimmer effect, with the
+ * exception of the network graph which uses a custom SVG pulse animation
+ * to better communicate that a graph is loading.
+ *
+ * Add new skeletons here and include a comment indicating where each is used.
+ */
+
 function SkeletonBar({ className = '' }) {
   return <div className={`animate-pulse rounded bg-gray-200 ${className}`} />;
 }
 
+// Used in: src/components/ui/organism/browsePage.jsx
 export function BrowseListSkeleton({ count = 10 }) {
   return (
     <ul>
@@ -29,6 +42,7 @@ export function BrowseListSkeleton({ count = 10 }) {
   );
 }
 
+// Used in: src/pages/FacilityProfile.jsx, src/pages/OwnersProfile.jsx
 export function ProfilePageSkeleton() {
   return (
     <div className="animate-pulse font-sans">
@@ -77,20 +91,26 @@ export function ProfilePageSkeleton() {
 // as percentages of the SVG viewBox (0 0 400 300) so it scales to any canvas.
 const GRAPH_NODES = [
   { id: 'hub', cx: 200, cy: 150, r: 14 },
-  { id: 'a',   cx: 310, cy:  80, r:  8 },
-  { id: 'b',   cx: 340, cy: 175, r:  8 },
-  { id: 'c',   cx: 270, cy: 255, r:  8 },
-  { id: 'd',   cx: 130, cy: 255, r:  8 },
-  { id: 'e',   cx:  90, cy: 165, r:  8 },
-  { id: 'f',   cx: 140, cy:  75, r:  8 },
-  { id: 'g',   cx: 310, cy: 220, r:  6 },
-  { id: 'h',   cx:  95, cy: 100, r:  6 },
+  { id: 'a', cx: 310, cy: 80, r: 8 },
+  { id: 'b', cx: 340, cy: 175, r: 8 },
+  { id: 'c', cx: 270, cy: 255, r: 8 },
+  { id: 'd', cx: 130, cy: 255, r: 8 },
+  { id: 'e', cx: 90, cy: 165, r: 8 },
+  { id: 'f', cx: 140, cy: 75, r: 8 },
+  { id: 'g', cx: 310, cy: 220, r: 6 },
+  { id: 'h', cx: 95, cy: 100, r: 6 },
 ];
 
 const GRAPH_EDGES = [
-  ['hub', 'a'], ['hub', 'b'], ['hub', 'c'],
-  ['hub', 'd'], ['hub', 'e'], ['hub', 'f'],
-  ['b',   'g'], ['e',   'h'], ['a',   'f'],
+  ['hub', 'a'],
+  ['hub', 'b'],
+  ['hub', 'c'],
+  ['hub', 'd'],
+  ['hub', 'e'],
+  ['hub', 'f'],
+  ['b', 'g'],
+  ['e', 'h'],
+  ['a', 'f'],
 ];
 
 function nodePos(id) {
@@ -115,15 +135,23 @@ function GraphSVG({ className = '' }) {
         return (
           <line
             key={`${from}-${to}`}
-            x1={s.cx} y1={s.cy} x2={t.cx} y2={t.cy}
-            stroke="#D1D5DB" strokeWidth="1.5" className="gp-edge"
+            x1={s.cx}
+            y1={s.cy}
+            x2={t.cx}
+            y2={t.cy}
+            stroke="#D1D5DB"
+            strokeWidth="1.5"
+            className="gp-edge"
             style={{ animationDelay: `${Math.random() * 0.8}s` }}
           />
         );
       })}
       {GRAPH_NODES.map((n) => (
         <circle
-          key={n.id} cx={n.cx} cy={n.cy} r={n.r}
+          key={n.id}
+          cx={n.cx}
+          cy={n.cy}
+          r={n.r}
           fill={n.id === 'hub' ? '#FCD34D' : '#9CA3AF'}
           className={n.id === 'hub' ? 'gp-node-hub' : 'gp-node'}
           style={{ animationDelay: `${Math.random() * 0.8}s` }}
@@ -133,15 +161,19 @@ function GraphSVG({ className = '' }) {
   );
 }
 
+// Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx, src/components/ui/molecule/ownerNetworkGraphMobileLayout.jsx
 export function NetworkGraphSkeleton() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50">
-      <GraphSVG className="w-[520px] opacity-50" />
-      <p className="animate-pulse text-base text-gray-500" role="status">Loading network...</p>
+      <GraphSVG className="w-[280px] opacity-50 sm:w-[520px]" />
+      <p className="animate-pulse text-base text-gray-500" role="status">
+        Loading network...
+      </p>
     </div>
   );
 }
 
+// Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx
 export function NetworkSidePanelSkeleton() {
   return (
     <div className="border-border-primary flex h-full w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
@@ -171,6 +203,7 @@ export function NetworkSidePanelSkeleton() {
   );
 }
 
+// Used in: src/pages/Home.jsx
 export function IndustryListSkeleton() {
   return (
     <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80">
