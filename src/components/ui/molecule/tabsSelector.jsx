@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
+import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -25,45 +26,14 @@ export default function TabsSelector({
   panelId,
   getTabId,
 }) {
-  const tabRefs = useRef([]);
+  const { tabRefs, handleKeyDown } = useTabKeyNavigation(
+    tabsData,
+    (nextTab) => onTabChange?.(nextTab),
+  );
 
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
-    if (newActive) {
-      onTabChange?.(newActive);
-    }
-  };
-
-  const handleKeyDown = (event, currentIndex) => {
-    if (!tabsData.length) return;
-
-    let nextIndex = null;
-
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        nextIndex = (currentIndex + 1) % tabsData.length;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        nextIndex = (currentIndex - 1 + tabsData.length) % tabsData.length;
-        break;
-      case 'Home':
-        nextIndex = 0;
-        break;
-      case 'End':
-        nextIndex = tabsData.length - 1;
-        break;
-      default:
-        return;
-    }
-
-    event.preventDefault();
-    const nextTab = tabsData[nextIndex];
-    onTabChange?.(nextTab);
-    requestAnimationFrame(() => {
-      tabRefs.current[nextIndex]?.focus();
-    });
+    if (newActive) onTabChange?.(newActive);
   };
 
   return (

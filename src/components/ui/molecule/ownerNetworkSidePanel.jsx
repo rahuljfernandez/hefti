@@ -32,7 +32,11 @@ export default function OwnerNetworkSidePanel({
   if (!selectedNodeId || !selectedNode) return null;
 
   return (
-    <div className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
+    <div
+      role="complementary"
+      aria-label="Owner details"
+      className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]"
+    >
       {selectedNode.type === 'hub' ? (
         <HubPanel
           selectedNode={selectedNode}
@@ -53,15 +57,18 @@ export default function OwnerNetworkSidePanel({
  * selectedNode: The resolved non-hub node to display in the panel header
  */
 function OwnerPanel({ selectedNode, variant }) {
-  const nonHub = true;
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <NetworkSidePanelCardHeader
         selectedNode={selectedNode}
-        nonHub={nonHub}
+        nonHub
         variant={variant}
       />
-      <OwnerNetworkContent mode={'non-hub'} variant={variant} />
+      <OwnerNetworkContent
+        mode={'non-hub'}
+        meta={selectedNode.meta}
+        variant={variant}
+      />
     </div>
   );
 }
@@ -86,6 +93,7 @@ function HubPanel({ selectedNode, onSelectNode, variant }) {
         shared={shared}
         onSelectNode={onSelectNode}
         mode={'hub'}
+        meta={selectedNode.meta}
         variant={variant}
       />
     </div>

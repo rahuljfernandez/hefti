@@ -514,6 +514,144 @@ MetricCardLong.propTypes = {
 };
 
 /**
+ * Compact metric row for the network graph side panel.
+ *
+ * Responsibilities:
+ * - Renders a single clinical quality or financial metric in a 3-column grid
+ * - Title spans 2 columns; value + detail stats are right-aligned in the third
+ * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
+ *
+ * Notes:
+ * - Prefers `displayValue` over `value` — builders attach the formatted suffix there.
+ * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" to fit the
+ *   narrow column; the full strings are preserved in the aria-label for screen readers.
+ */
+export function MetricCardShort({ item, variant }) {
+  const isMobile = variant === 'mobile';
+  return (
+    <div
+      className={clsx(
+        'grid grid-cols-3 px-4 py-2',
+        isMobile
+          ? 'bg-zinc-900 hover:bg-zinc-800'
+          : 'bg-core-white hover:bg-gray-50',
+      )}
+    >
+      {/** Title */}
+      <div className="col-span-2 self-center">
+        <p
+          className={clsx(
+            'text-label-sm font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.title}
+        </p>
+      </div>
+      {/** Value + details stacked right */}
+      <div className="flex flex-col items-end">
+        <p
+          className={clsx(
+            'text-label-lg font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.displayValue ?? item.value}
+        </p>
+        <p
+          aria-label={`${item.detail1}, ${item.detail2}`}
+          className={clsx(
+            'text-label-xs',
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+          )}
+        >
+          {item.detail1?.replace('Median:', 'Med')} ·{' '}
+          {item.detail2?.replace('Std Dev:', 'SD')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+MetricCardShort.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    displayValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    detail1: PropTypes.string,
+    detail2: PropTypes.string,
+  }).isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
+
+/**
+ * Compact staffing row for the network graph side panel.
+ *
+ * Responsibilities:
+ * - Renders a single staffing metric (levels or turnover) in a 3-column grid
+ * - Title spans 2 columns; stat + median detail are right-aligned in the third
+ * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
+ *
+ * Notes:
+ * - Prefers `displayStat` over `stat` — builders attach the formatted suffix there.
+ * - "Median:" is abbreviated to "Med" at render time; the full string is kept in
+ *   aria-label so screen readers get the unabbreviated label.
+ */
+export function StaffingCardShort({ item, variant }) {
+  const isMobile = variant === 'mobile';
+  return (
+    <div
+      className={clsx(
+        'grid grid-cols-3 px-4 py-2',
+        isMobile
+          ? 'bg-zinc-900 hover:bg-zinc-800'
+          : 'bg-core-white hover:bg-gray-50',
+      )}
+    >
+      <div className="col-span-2 self-center">
+        <p
+          className={clsx(
+            'text-label-sm font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.title}
+        </p>
+      </div>
+      <div className="flex flex-col items-end">
+        <p
+          className={clsx(
+            'text-label-lg font-medium',
+            isMobile ? 'text-core-white' : 'text-core-black',
+          )}
+        >
+          {item.displayStat ?? item.stat}
+        </p>
+        <p
+          aria-label={item.detail}
+          className={clsx(
+            'text-label-xs',
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+          )}
+        >
+          {item.detail?.replace('Median:', 'Med')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+StaffingCardShort.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    displayStat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    detail: PropTypes.string,
+  }).isRequired,
+  variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
+
+/**
  * Compact staffing metric card used in the Staffing tab grid.
  *
  * Expected item shape:
