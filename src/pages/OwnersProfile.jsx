@@ -40,18 +40,31 @@ export default function OwnersProfile() {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
   console.log(slug);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
+    setOwner(null);
+    setError(null);
+    setNotFound(false);
+
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => {
+        if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
-      .then((data) => setOwner(data))
+      .then((data) => {
+        if (!data) {
+          setNotFound(true);
+          return;
+        }
+        setOwner(data);
+      })
       .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
   }, [slug]);
@@ -88,11 +101,16 @@ export default function OwnersProfile() {
               <ProfilePageSkeleton error />
             </div>
           </>
-        ) : !owner ? (
-          <ErrorBanner
-            title="Owner not found"
-            message="We couldn't find an owner matching this URL."
-          />
+        ) : notFound ? (
+          <>
+            <ErrorBanner
+              title="Owner not found"
+              message="We couldn't find an owner matching this URL."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ProfilePageSkeleton error />
+            </div>
+          </>
         ) : (
           <>
         <ProfileHeader
