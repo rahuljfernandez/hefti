@@ -5,6 +5,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
+import { getResearchPages } from '../lib/breadcrumbPages';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -33,14 +34,17 @@ console.log(API_BASE_URL);
 export default function HeftiResearch() {
   const { slug } = useParams();
   const { pathname } = useLocation();
+  // Derived from the URL rather than a prop because this page is shared by both owner and facility research routes.
   const contextType = pathname.includes('/owners/') ? 'owner' : 'facility';
+
+  // Calls getResearchPages with the slug and contextType to build the correct breadcrumb trail for this entity.
+  const researchPages = getResearchPages(slug, contextType);
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
-
   const hasStarted = messages.length > 0;
 
   // Tracks the height of the scroll container so we can give the incoming assistant
@@ -177,7 +181,7 @@ export default function HeftiResearch() {
 
   return (
     <>
-      <Breadcrumb />
+      <Breadcrumb pages={researchPages} />
 
       <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-2">
         {/**Left-Panel Text and Input */}

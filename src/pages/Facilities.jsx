@@ -5,6 +5,7 @@ import ListContainer, {
 import { BrowseNursingHomes } from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
+import { facilityListPages } from '../lib/breadcrumbPages';
 import { useSearchParams } from 'react-router-dom';
 import { toTitleCase } from '../lib/toTitleCase';
 
@@ -31,7 +32,7 @@ function Facilities() {
   const chain = searchParams.get('chain');
   return (
     <>
-      <Breadcrumb />
+      <Breadcrumb pages={facilityListPages} />
       <BrowsePage
         apiEndpoint={`${API_BASE_URL}/facilities`}
         title="Nursing Homes"

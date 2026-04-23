@@ -11,7 +11,8 @@ const Template = (args) => <Breadcrumb {...args} />;
 export const Default = Template.bind({});
 Default.args = {
   pages: [
-    { name: 'Previous Page', href: '#', current: false },
-    { name: 'Current Page', href: '#', current: true },
+    { name: 'Home', to: '/', current: false },
+    { name: 'Previous Page', to: '/previous', current: false },
+    { name: 'Current Page', to: '/current', current: true },
   ],
 };

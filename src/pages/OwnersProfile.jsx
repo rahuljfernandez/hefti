@@ -11,6 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
+import { getOwnerProfilePages } from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
@@ -42,7 +43,6 @@ export default function OwnersProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  console.log(slug);
 
   const navigate = useNavigate();
 
@@ -85,9 +85,15 @@ export default function OwnersProfile() {
   // Use the first facility's freshness as a proxy for the owner-level data freshness.
   const freshness = relatedFacilities[0]?.data_freshness;
 
+  // Builds the Home > All Owners > [Owner Name] trail; owner name falls back to '...' while loading. Passed into Breadcrumb component
+  const breadcrumbPages = getOwnerProfilePages(
+    slug,
+    owner && toTitleCase(owner.cms_ownership_name),
+  );
+
   return (
     <main className="bg-background-secondary">
-      <Breadcrumb />
+      <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
           <ProfilePageSkeleton />
@@ -135,51 +141,58 @@ export default function OwnersProfile() {
               case 'Deficiencies & Penalties':
                 return <DeficienciesTab items={owner} />;
 
-              case 'Clinical Quality Measures':
-                return (
-                  <ClinicalQualityTab metricsSource={owner} status={'owner'} />
-                );
+                  case 'Clinical Quality Measures':
+                    return (
+                      <ClinicalQualityTab
+                        metricsSource={owner}
+                        status={'owner'}
+                      />
+                    );
 
-              case 'Staffing':
-                return <StaffingTab items={owner} status={'owner'} />;
+                  case 'Staffing':
+                    return <StaffingTab items={owner} status={'owner'} />;
 
-              case 'Financial Overview':
-                return <FinancialOverviewTab items={owner} status={'owner'} />;
+                  case 'Financial Overview':
+                    return (
+                      <FinancialOverviewTab items={owner} status={'owner'} />
+                    );
 
-              default:
-                return (
-                  <p className="text-muted-foreground text-sm">
-                    This section is under development.
-                  </p>
-                );
-            }
-          }}
-        </TabsShell>
+                  default:
+                    return (
+                      <p className="text-muted-foreground text-sm">
+                        This section is under development.
+                      </p>
+                    );
+                }
+              }}
+            </TabsShell>
 
-        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-          Facilities associated with {toTitleCase(owner.cms_ownership_name)}
-        </Heading>
+            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
+              Facilities associated with {toTitleCase(owner.cms_ownership_name)}
+            </Heading>
 
-        <div className="pb-8">
-          <ListContainer
-            items={showAll ? relatedFacilities : relatedFacilities.slice(0, 20)}
-            LayoutSelector={ListContainerDivider}
-            ListContent={RelatedFacilities}
-          />
-        </div>
-        {!showAll && relatedFacilities.length > 20 && (
-          <div className="pb-8 text-center">
-            <button
-              onClick={() => setShowAll(true)}
-              className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
-              aria-label={`Show all ${relatedFacilities.length} facilities`}
-              aria-expanded={showAll}
-            >
-              Load All Facilities
-            </button>
-          </div>
-        )}
-        </>
+            <div className="pb-8">
+              <ListContainer
+                items={
+                  showAll ? relatedFacilities : relatedFacilities.slice(0, 20)
+                }
+                LayoutSelector={ListContainerDivider}
+                ListContent={RelatedFacilities}
+              />
+            </div>
+            {!showAll && relatedFacilities.length > 20 && (
+              <div className="pb-8 text-center">
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+                  aria-label={`Show all ${relatedFacilities.length} facilities`}
+                  aria-expanded={showAll}
+                >
+                  Load All Facilities
+                </button>
+              </div>
+            )}
+          </>
         )}
       </LayoutPage>
     </main>
