@@ -17,6 +17,7 @@ import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
+import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ListContainer, {
   ListContainerDivider,
 } from '../components/ui/organism/ListContainer';
@@ -40,6 +41,7 @@ export default function FacilityProfile() {
   const { slug } = useParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
 
   const navigate = useNavigate();
@@ -47,8 +49,12 @@ export default function FacilityProfile() {
   useEffect(() => {
     // Reload facility details whenever the URL slug changes.
     fetch(`${API_BASE_URL}/facilities/${slug}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
       .then((data) => setFacility(data))
+      .catch(() => setError('Failed to load facility data.'))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -66,7 +72,6 @@ export default function FacilityProfile() {
     fetchNationalBenchmarks();
   }, []);
 
-  if (!facility && !loading) return <p role="alert">Facility not found.</p>;
 
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility?.facility_ownership_links || [];
@@ -80,7 +85,25 @@ export default function FacilityProfile() {
     <main className="bg-background-secondary font-sans">
       <Breadcrumb />
       <LayoutPage>
-        {loading ? <ProfilePageSkeleton /> : <>
+        {loading ? (
+          <ProfilePageSkeleton />
+        ) : error ? (
+          <>
+            <ErrorBanner
+              title="Failed to load"
+              message="Facility data couldn't be retrieved. Try refreshing the page."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ProfilePageSkeleton error />
+            </div>
+          </>
+        ) : !facility ? (
+          <ErrorBanner
+            title="Facility not found"
+            message="We couldn't find a facility matching this URL."
+          />
+        ) : (
+          <>
         <ProfileHeader
           title={facility.provider_name}
           ownershipType={facility.ownership_type}
@@ -162,7 +185,8 @@ export default function FacilityProfile() {
         <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
           <AdditionalInformation items={facility} />
         </div>
-        </>}
+        </>
+        )}
       </LayoutPage>
     </main>
   );

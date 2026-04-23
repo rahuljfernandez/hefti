@@ -12,6 +12,7 @@ import { RelatedFacilities } from '../components/ui/molecule/listContainerConten
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
+import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
@@ -38,6 +39,7 @@ export default function OwnersProfile() {
   const { slug } = useParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
   console.log(slug);
 
@@ -45,12 +47,15 @@ export default function OwnersProfile() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
       .then((data) => setOwner(data))
+      .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (!owner && !loading) return <p role="alert">Owner not found.</p>;
 
   // Use related facilities from API if available
   const relatedFacilities =
@@ -71,7 +76,25 @@ export default function OwnersProfile() {
     <main className="bg-background-secondary">
       <Breadcrumb />
       <LayoutPage>
-        {loading ? <ProfilePageSkeleton /> : <>
+        {loading ? (
+          <ProfilePageSkeleton />
+        ) : error ? (
+          <>
+            <ErrorBanner
+              title="Failed to load"
+              message="Owner data couldn't be retrieved. Try refreshing the page."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ProfilePageSkeleton error />
+            </div>
+          </>
+        ) : !owner ? (
+          <ErrorBanner
+            title="Owner not found"
+            message="We couldn't find an owner matching this URL."
+          />
+        ) : (
+          <>
         <ProfileHeader
           title={toTitleCase(owner.cms_ownership_name)}
           ownershipType={owner.cms_ownership_type}
@@ -138,7 +161,8 @@ export default function OwnersProfile() {
             </button>
           </div>
         )}
-        </>}
+        </>
+        )}
       </LayoutPage>
     </main>
   );

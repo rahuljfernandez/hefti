@@ -30,8 +30,13 @@ ErrorBanner.propTypes = {
 
 export function NoResultsBanner({ term, className = '' }) {
   return (
-    <div className={`flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 ${className}`}>
-      <ExclamationCircleIcon className="mt-0.5 size-5 shrink-0 text-amber-500" aria-hidden="true" />
+    <div
+      className={`flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 ${className}`}
+    >
+      <ExclamationCircleIcon
+        className="mt-0.5 size-5 shrink-0 text-amber-500"
+        aria-hidden="true"
+      />
       <div>
         <p className="text-label-sm text-amber-800">No results found</p>
         {term && (
@@ -47,5 +52,4 @@ export function NoResultsBanner({ term, className = '' }) {
 
 NoResultsBanner.propTypes = {
   term: PropTypes.string,
-  className: PropTypes.string,
 };

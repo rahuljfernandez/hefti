@@ -13,7 +13,7 @@ import React from 'react';
  */
 
 function SkeletonBar({ className = '', error = false }) {
-  return <div className={`animate-pulse rounded ${error ? 'bg-red-100' : 'bg-gray-200'} ${className}`} />;
+  return <div className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`} />;
 }
 
 // Used in: src/components/ui/organism/browsePage.jsx
@@ -43,24 +43,24 @@ export function BrowseListSkeleton({ count = 10, error = false }) {
 }
 
 // Used in: src/pages/FacilityProfile.jsx, src/pages/OwnersProfile.jsx
-export function ProfilePageSkeleton() {
+export function ProfilePageSkeleton({ error = false }) {
   return (
-    <div className="animate-pulse font-sans">
+    <div className={`font-sans ${error ? '' : 'animate-pulse'}`}>
       {/* ProfileHeader */}
       <div className="my-6 flex flex-wrap justify-between">
         <div>
-          <SkeletonBar className="h-9 w-80" />
+          <SkeletonBar className="h-9 w-80" error={error} />
           <div className="mt-4">
-            <SkeletonBar className="h-6 w-32 rounded-full" />
+            <SkeletonBar className="h-6 w-32 rounded-full" error={error} />
           </div>
-          <SkeletonBar className="mt-4 h-4 w-48" />
+          <SkeletonBar className="mt-4 h-4 w-48" error={error} />
         </div>
-        <SkeletonBar className="h-10 w-36 rounded-lg" />
+        <SkeletonBar className="h-10 w-36 rounded-lg" error={error} />
       </div>
       {/* Tab nav */}
       <div className="mt-6 flex gap-4 border-b border-gray-200 pb-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonBar key={i} className="h-5 w-28" />
+          <SkeletonBar key={i} className="h-5 w-28" error={error} />
         ))}
       </div>
       {/* Tab content area */}
@@ -71,16 +71,16 @@ export function ProfilePageSkeleton() {
               key={i}
               className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
             >
-              <SkeletonBar className="h-4 w-1/2" />
-              <SkeletonBar className="h-8 w-1/3" />
-              <SkeletonBar className="h-3 w-3/4" />
+              <SkeletonBar className="h-4 w-1/2" error={error} />
+              <SkeletonBar className="h-8 w-1/3" error={error} />
+              <SkeletonBar className="h-3 w-3/4" error={error} />
             </div>
           ))}
         </div>
         <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <SkeletonBar className="h-4 w-1/4" />
-          <SkeletonBar className="h-4 w-full" />
-          <SkeletonBar className="h-4 w-5/6" />
+          <SkeletonBar className="h-4 w-1/4" error={error} />
+          <SkeletonBar className="h-4 w-full" error={error} />
+          <SkeletonBar className="h-4 w-5/6" error={error} />
         </div>
       </div>
     </div>
