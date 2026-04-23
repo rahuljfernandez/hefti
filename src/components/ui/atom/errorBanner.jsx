@@ -50,7 +50,8 @@ export function NoResultsBanner({ term, className = '' }) {
         <p className="text-label-sm text-amber-800">No results found</p>
         {term && (
           <p className="text-paragraph-xs text-amber-700">
-            No listings matched <span className="font-semibold">"{term}"</span>.
+            No listings matched{' '}
+            <span className="font-semibold">&quot;{term}&quot;</span>.
             Try a different search or filter.
           </p>
         )}

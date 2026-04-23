@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Skeleton loading components for data-dependent UI sections.
@@ -15,6 +16,11 @@ import React from 'react';
 function SkeletonBar({ className = '', error = false }) {
   return <div className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`} />;
 }
+
+SkeletonBar.propTypes = {
+  className: PropTypes.string,
+  error: PropTypes.bool,
+};
 
 // Used in: src/components/ui/organism/browsePage.jsx
 export function BrowseListSkeleton({ count = 10, error = false }) {
@@ -41,6 +47,11 @@ export function BrowseListSkeleton({ count = 10, error = false }) {
     </ul>
   );
 }
+
+BrowseListSkeleton.propTypes = {
+  count: PropTypes.number,
+  error: PropTypes.bool,
+};
 
 // Used in: src/pages/FacilityProfile.jsx, src/pages/OwnersProfile.jsx
 export function ProfilePageSkeleton({ error = false }) {
@@ -86,6 +97,10 @@ export function ProfilePageSkeleton({ error = false }) {
     </div>
   );
 }
+
+ProfilePageSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
 
 // Nodes and edges for the animated graph placeholder. Positions are expressed
 // as percentages of the SVG viewBox (0 0 400 300) so it scales to any canvas.
@@ -163,6 +178,11 @@ function GraphSVG({ className = '', error = false }) {
   );
 }
 
+GraphSVG.propTypes = {
+  className: PropTypes.string,
+  error: PropTypes.bool,
+};
+
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx, src/components/ui/molecule/ownerNetworkGraphMobileLayout.jsx
 export function NetworkGraphSkeleton({ error = false }) {
   return (
@@ -176,6 +196,10 @@ export function NetworkGraphSkeleton({ error = false }) {
     </div>
   );
 }
+
+NetworkGraphSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
 
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx
 export function NetworkSidePanelSkeleton({ error = false }) {
@@ -207,6 +231,10 @@ export function NetworkSidePanelSkeleton({ error = false }) {
   );
 }
 
+NetworkSidePanelSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
 // Used in: src/components/ui/organism/monthlyOwnershipChangeChart.jsx
 export function ChartSkeleton({ error = false }) {
   const bars = [55, 72, 45, 88, 60, 95, 50, 78, 65, 83, 40, 70];
@@ -230,6 +258,10 @@ export function ChartSkeleton({ error = false }) {
   );
 }
 
+ChartSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
 // Used in: src/pages/Home.jsx
 export function IndustryListSkeleton({ count = 10, error = false }) {
   return (
@@ -243,3 +275,8 @@ export function IndustryListSkeleton({ count = 10, error = false }) {
     </ul>
   );
 }
+
+IndustryListSkeleton.propTypes = {
+  count: PropTypes.number,
+  error: PropTypes.bool,
+};

@@ -16,7 +16,7 @@ export default function NetworkErrorCard({ onRetry }) {
         <div className="text-center">
           <ExclamationTriangleIcon className="mx-auto mb-3 size-8 text-red-400" aria-hidden="true" />
           <p className="text-label-sm text-red-700">Unable to load graph</p>
-          <p className="text-paragraph-xs mt-1 text-red-600">Network data couldn't be retrieved.</p>
+          <p className="text-paragraph-xs mt-1 text-red-600">Network data could not be retrieved.</p>
           <button
             type="button"
             onClick={onRetry}
