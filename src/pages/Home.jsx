@@ -33,13 +33,17 @@ export default function Home() {
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
 
-  // API_BASE_URL is derived from env at module load time and never changes — safe to omit from deps.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${API_BASE_URL}/top-chains`).then((res) => res.json()),
-      fetch(`${API_BASE_URL}/top-owners`).then((res) => res.json()),
+      fetch(`${API_BASE_URL}/top-chains`).then((res) => {
+        if (!res.ok) throw new Error('Failed to load top chains');
+        return res.json();
+      }),
+      fetch(`${API_BASE_URL}/top-owners`).then((res) => {
+        if (!res.ok) throw new Error('Failed to load top owners');
+        return res.json();
+      }),
     ])
       .then(([chains, owners]) => {
         setTopChains(chains);
@@ -50,7 +54,7 @@ export default function Home() {
         setError('Failed to load industry data.');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [API_BASE_URL]);
 
   // bg-[radial-gradient(circle_at_top_left,_#BFDBFE_15%,_#EFF6FF_25%)] 2xl:bg-[radial-gradient(circle_at_top_left,_#BFDBFE_18%,_#EFF6FF_30%)]
   return (

@@ -37,7 +37,6 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
   const {
     data,
     status,
-    error,
     depth,
     nodeSizeMetric,
     searchQuery,
@@ -102,7 +101,6 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           onSetIsSearchOpen={setIsSearchOpen}
           onSelectSearchResult={handleSelectSearchResult}
           status={status}
-          error={error}
           data={data}
           onSelectNode={setSelectedNodeId}
           pinRequestNodeId={pinRequestNodeId}
@@ -120,7 +118,6 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
       ) : (
         <OwnerNetworkGraphMobileLayout
           status={status}
-          error={error}
           data={data}
           onSelectNode={setSelectedNodeId}
           pinRequestNodeId={pinRequestNodeId}

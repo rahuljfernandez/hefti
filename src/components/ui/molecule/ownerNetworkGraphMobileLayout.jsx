@@ -24,7 +24,6 @@ import OwnerNetworkContent from './ownerNetworkContent';
  */
 export default function OwnerNetworkGraphMobileLayout({
   status,
-  error,
   data,
   onSelectNode,
   pinRequestNodeId,
@@ -151,7 +150,6 @@ export default function OwnerNetworkGraphMobileLayout({
 
 OwnerNetworkGraphMobileLayout.propTypes = {
   status: PropTypes.oneOf(['idle', 'loading', 'ready', 'error']).isRequired,
-  error: PropTypes.string,
   data: PropTypes.object,
   onSelectNode: PropTypes.func.isRequired,
   pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
