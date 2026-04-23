@@ -99,7 +99,7 @@ export default function FacilityProfile() {
   const breadcrumbPages = getFacilityProfilePages(slug, facility?.provider_name);
 
   return (
-    <main className="bg-background-secondary font-sans">
+    <div className="bg-background-secondary font-sans">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
@@ -210,6 +210,6 @@ export default function FacilityProfile() {
         </>
         )}
       </LayoutPage>
-    </main>
+    </div>
   );
 }

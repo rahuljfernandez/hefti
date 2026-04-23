@@ -6,12 +6,11 @@ import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
 import { getResearchPages } from '../lib/breadcrumbPages';
+import { Heading } from '../components/ui/atom/heading';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
-
-console.log(API_BASE_URL);
 /**
  * HeftiResearch
  *
@@ -182,6 +181,9 @@ export default function HeftiResearch() {
   return (
     <>
       <Breadcrumb pages={researchPages} />
+      <Heading level={1} className="sr-only">
+        Hefti Researcher
+      </Heading>
 
       <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
@@ -246,9 +248,9 @@ export default function HeftiResearch() {
             ) : (
               <div className="flex flex-1 flex-col items-center justify-center gap-6">
                 <div className="text-center">
-                  <h1 className="text-heading-lg text-core-black mb-2">
+                  <Heading level={2} className="text-heading-lg mb-2">
                     Hefti Researcher
-                  </h1>
+                  </Heading>
                   <p className="text-paragraph-lg text-content-secondary">
                     Ask a question about facilities, owners, or quality data.
                   </p>

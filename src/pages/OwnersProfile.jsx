@@ -92,7 +92,7 @@ export default function OwnersProfile() {
   );
 
   return (
-    <main className="bg-background-secondary">
+    <div className="bg-background-secondary">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
@@ -195,6 +195,6 @@ export default function OwnersProfile() {
           </>
         )}
       </LayoutPage>
-    </main>
+    </div>
   );
 }

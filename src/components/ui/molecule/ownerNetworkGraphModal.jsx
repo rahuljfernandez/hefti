@@ -14,8 +14,9 @@ import OwnerNetworkGraphMobileLayout from './ownerNetworkGraphMobileLayout';
  * Responsibilities:
  * - Fetches network data for the selected owner + depth
  * - Owns shared graph state (selection, search, pin requests, sizing/filter controls)
-  * - Handles mobile bottom-sheet snap + drag behavior
+ * - Handles mobile bottom-sheet snap + drag behavior
  * - Applies dialog semantics and shared modal accessibility behavior
+ * - Portals the modal to `document.body` for reliable overlay layering
  * - Routes rendering to desktop/mobile layout shells
  *
  * Composition:
@@ -27,7 +28,7 @@ import OwnerNetworkGraphMobileLayout from './ownerNetworkGraphMobileLayout';
  * - `useOwnerNetworkGraphController`: owns shared feature state + graph data fetch
  * - `useOwnerNetworkSheet`: owns mobile bottom-sheet snap + drag behavior
  * - `useAccessibleModal`: owns focus entry/restore, Escape handling, scroll lock,
- *   and focus trapping for the custom modal shell
+ *   background inerting, and focus trapping for the custom modal shell
  *
  * Notes:
  * - `restoreFocusRef` points to the launcher trigger so focus returns there on close

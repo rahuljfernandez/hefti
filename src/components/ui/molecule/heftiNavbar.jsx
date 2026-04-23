@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Navbar,
   NavbarDivider,
@@ -16,18 +16,24 @@ import {
 } from '@headlessui/react';
 
 /**
- * This component is based on Application UI Navbars Simple and customized for design.
+ * Primary site header and navigation.
+ *
+ * Source:
+ * - Adapted from an Application UI navbar pattern and customized for HEFTI
+ *
+ * Responsibilities:
+ * - Renders the HEFTI home link and primary navigation links
+ * - Exposes a mobile disclosure menu for small screens
+ * - Marks the current mobile route with `aria-current="page"`
+ *
+ * Notes:
+ * - Custom SVG icons are used to control fill behavior in the mobile menu toggle
  */
-/**
- *  Svg's are used to get control of fill property that is out of reach when using Heroicons
- */
-
-/*TODO setup links to pages from nav*/
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'About', href: '#', current: false },
-  { name: 'Contact Us', href: '#', current: false },
+  { name: 'Home', to: '/' },
+  { name: 'About', to: '/about' },
+  { name: 'Contact Us', to: '/contact-us' },
 ];
 
 function classNames(...classes) {
@@ -35,11 +41,13 @@ function classNames(...classes) {
 }
 
 export default function HeftiNavbar() {
+  const location = useLocation();
+
   return (
-    <div className="bg-background-navbar">
+    <header className="bg-background-navbar">
       <div className="mx-auto max-w-7xl">
         <Disclosure>
-          <Navbar className="">
+          <Navbar aria-label="Primary" className="">
             <Link to="/" aria-label="Home">
               <div className="flex items-center px-6">
                 <Logo className="block h-full" />
@@ -108,11 +116,11 @@ export default function HeftiNavbar() {
               {navigation.map((item) => (
                 <DisclosureButton
                   key={item.name}
-                  as="a"
-                  href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
+                  as={Link}
+                  to={item.to}
+                  aria-current={location.pathname === item.to ? 'page' : undefined}
                   className={classNames(
-                    item.current
+                    location.pathname === item.to
                       ? 'text-core-white bg-zinc-800'
                       : 'hover:text-core-white text-gray-300 hover:bg-zinc-700',
                     'text-label-base block rounded-md px-3 py-2',
@@ -125,6 +133,6 @@ export default function HeftiNavbar() {
           </DisclosurePanel>
         </Disclosure>
       </div>
-    </div>
+    </header>
   );
 }
