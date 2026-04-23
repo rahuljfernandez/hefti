@@ -57,6 +57,32 @@
   background-color: #ffffff !important;
 }
 
+/* HeftiResearcherCTA spinning gradient border — static linear-gradient as fallback,
+   animated conic-gradient for browsers that support @property + conic-gradient. */
+@property --hefti-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes hefti-spin {
+  to { --hefti-angle: 360deg; }
+}
+.hefti-cta-border {
+  background: linear-gradient(135deg, #2563EB, #60A5FA, #67E8F9);
+}
+@supports (background: conic-gradient(from 1deg, red, blue)) {
+  .hefti-cta-border {
+    animation: hefti-spin 4s linear infinite;
+    background: conic-gradient(
+      from var(--hefti-angle),
+      #2563EB,
+      #60A5FA,
+      #67E8F9,
+      #2563EB
+    );
+  }
+}
+
 /*Fallback Overrides for Older Browsers */
 @supports not (color: oklch(0% 0 0)) {
   @import './fallback-legacy.css';
