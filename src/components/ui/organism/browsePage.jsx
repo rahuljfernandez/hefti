@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import BrowseListView from './browseListView';
 import PropTypes from 'prop-types';
 import { BrowseListSkeleton } from '../atom/skeletons.jsx';
-import { ErrorBanner } from '../atom/errorBanner.jsx';
+import { ErrorBanner, NoResultsBanner } from '../atom/errorBanner.jsx';
 
 /**
  * This component controls fetching data and search suggestions
@@ -127,12 +127,9 @@ export default function BrowsePage({
           <BrowseListSkeleton />
         ) : data.length > 0 ? (
           renderList(data)
-        ) : (
-          <p className="text-paragraph-base text-core-black mt-4 text-center">
-            <span className="font-bold">&quot;{search || state}&quot; </span>
-            did not return any results.
-          </p>
-        )}
+        ) : !search ? (
+          <NoResultsBanner term={state} />
+        ) : null}
       </BrowseListView>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { NoResultsBanner } from '../atom/errorBanner';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from 'react-router-dom';
 import { toTitleCase } from '../../../lib/toTitleCase';
@@ -121,9 +122,8 @@ export default function SearchMenu({
           ) : (
             hasFetchedSuggestions &&
             suggestions.length === 0 && (
-              <li className="text-paragraph-base text-core-black px-4 py-6">
-                <span className="font-bold">&quot;{query}&quot; </span>did not
-                match any auto-suggestions.
+              <li className="px-3 py-3">
+                <NoResultsBanner term={query} />
               </li>
             )
           )}
@@ -172,9 +172,8 @@ export default function SearchMenu({
             ) : (
               hasFetchedSuggestions &&
               suggestions.length === 0 && (
-                <li className="text-paragraph-base text-core-black px-4 py-6">
-                  <span className="font-bold">&quot;{query}&quot; </span>did not
-                  match any auto-suggestions.
+                <li className="px-3 py-3">
+                  <NoResultsBanner term={query} />
                 </li>
               )
             )}
