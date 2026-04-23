@@ -127,9 +127,9 @@ export default function BrowsePage({
           <BrowseListSkeleton />
         ) : data.length > 0 ? (
           renderList(data)
-        ) : !search ? (
-          <NoResultsBanner term={state} />
-        ) : null}
+        ) : (
+          <NoResultsBanner term={search || state} />
+        )}
       </BrowseListView>
     </div>
   );
