@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -26,11 +25,6 @@ export default function TabsSelector({
   panelId,
   getTabId,
 }) {
-  const { tabRefs, handleKeyDown } = useTabKeyNavigation(
-    tabsData,
-    (nextTab) => onTabChange?.(nextTab),
-  );
-
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
     if (newActive) onTabChange?.(newActive);
@@ -64,20 +58,16 @@ export default function TabsSelector({
             aria-label="Tabs"
             className="-mb-px flex space-x-8"
           >
-            {tabsData.map((tab, index) => (
+            {tabsData.map((tab) => (
               <button
                 type="button"
                 key={tab.name}
-                ref={(element) => {
-                  tabRefs.current[index] = element;
-                }}
                 id={getTabId?.(tab.name)}
                 role="tab"
                 aria-selected={activeTab?.name === tab.name}
                 aria-controls={panelId}
-                tabIndex={activeTab?.name === tab.name ? 0 : -1}
+                tabIndex={0}
                 onClick={() => handleClick(tab.name)}
-                onKeyDown={(event) => handleKeyDown(event, index)}
                 className={classNames(
                   activeTab?.name === tab.name
                     ? 'border-blue-700 font-bold text-blue-700'

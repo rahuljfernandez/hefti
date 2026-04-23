@@ -21,7 +21,6 @@ import {
 } from '../../../lib/financialMetrics';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
 /**
  * Scrollable content body for a selected owner node in the network graph.
@@ -146,17 +145,12 @@ export default function OwnerNetworkContent({
 }
 
 /**
- * Reusable tabbed list used by each metric accordion section.
+ * Reusable pill switcher used by each metric accordion section.
  *
  * Responsibilities:
- * - Renders a fully accessible ARIA tablist with roving tabindex keyboard nav
- * - Swaps the visible card list when the active tab changes
+ * - Renders a grouped set of metric-category buttons
+ * - Swaps the visible card list when the active button changes
  * - Accepts a `CardComponent` prop so callers control the card layout
- *
- * Notes:
- * - `panelId` is derived from the first tab's value so it stays stable across
- *   tab switches — changing it would break the aria-controls association.
- * - Keyboard navigation (Arrow keys, Home, End) is handled by useTabKeyNavigation.
  */
 function TabbedMetricList({
   tabs,
@@ -166,31 +160,19 @@ function TabbedMetricList({
   CardComponent,
   variant,
 }) {
-  // Stable ID: must not include activeTab or it breaks aria-controls on every switch.
-  const panelId = `tabpanel-${tabs[0]?.value}`;
-  const { tabRefs, handleKeyDown } = useTabKeyNavigation(tabs, (nextTab) =>
-    setActiveTab(nextTab.value),
-  );
-
   return (
     <div className={variant === 'mobile' ? 'bg-zinc-900' : 'bg-white'}>
       <div
-        role="tablist"
         aria-label="Metric category"
         className="border-border-primary flex gap-2 border-b px-4 py-2"
       >
-        {tabs.map((tab, index) => (
+        {tabs.map((tab) => (
           <button
+            type="button"
             key={tab.value}
-            ref={(el) => {
-              tabRefs.current[index] = el;
-            }}
-            role="tab"
-            aria-selected={activeTab === tab.value}
-            aria-controls={panelId}
-            tabIndex={activeTab === tab.value ? 0 : -1}
+            aria-pressed={activeTab === tab.value}
+            tabIndex={0}
             onClick={() => setActiveTab(tab.value)}
-            onKeyDown={(e) => handleKeyDown(e, index)}
             className={clsx(
               'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
               activeTab === tab.value
@@ -203,10 +185,7 @@ function TabbedMetricList({
         ))}
       </div>
       <div
-        id={panelId}
-        role="tabpanel"
         aria-label={tabs.find((t) => t.value === activeTab)?.label}
-        tabIndex={0}
         className="max-h-64 overflow-y-auto"
       >
         <ul aria-label="Metrics">
