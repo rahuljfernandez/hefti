@@ -3,6 +3,12 @@ import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import LayoutCard from './layout-card';
 
+/**
+ * Centered retry card for owner network graph fetch failures.
+ *
+ * Used inside desktop and mobile graph layouts to keep the retry action
+ * visually anchored over the muted error-state skeleton.
+ */
 export default function NetworkErrorCard({ onRetry }) {
   return (
     <div role="alert">

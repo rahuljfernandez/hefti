@@ -5,6 +5,13 @@ import {
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 
+/**
+ * Inline status and error banners for empty, failed, and unavailable UI states.
+ *
+ * Exports:
+ * - `ErrorBanner`: assertive alert styling for load failures and blocking errors
+ * - `NoResultsBanner`: polite status styling for empty search/list results
+ */
 export function ErrorBanner({ title, message }) {
   return (
     <div
@@ -31,6 +38,8 @@ ErrorBanner.propTypes = {
 export function NoResultsBanner({ term, className = '' }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={`flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 ${className}`}
     >
       <ExclamationCircleIcon
@@ -52,4 +61,5 @@ export function NoResultsBanner({ term, className = '' }) {
 
 NoResultsBanner.propTypes = {
   term: PropTypes.string,
+  className: PropTypes.string,
 };

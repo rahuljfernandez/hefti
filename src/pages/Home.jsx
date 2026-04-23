@@ -14,6 +14,15 @@ import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwners
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 
+/**
+ * Home page
+ *
+ * Responsibilities:
+ * - Loads top chains and top individual owners
+ * - Renders key navigation entry points into owner and facility browse flows
+ * - Shows the monthly ownership-change chart section
+ * - Displays loading and error states for the industry summary lists
+ */
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
   const [topOwners, setTopOwners] = useState([]);
@@ -123,7 +132,6 @@ export default function Home() {
             <div>
               <div className="mb-4">
                 <Heading level={3}>Top 10 Largest Chains</Heading>
-  
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -133,7 +141,7 @@ export default function Home() {
                     title="Failed to load"
                     message="Industry data couldn't be retrieved. Try refreshing the page."
                   />
-                  <div className="opacity-60 pointer-events-none select-none mt-4">
+                  <div className="pointer-events-none mt-4 opacity-60 select-none">
                     <IndustryListSkeleton count={5} error />
                   </div>
                 </>
@@ -161,7 +169,6 @@ export default function Home() {
             <div>
               <div className="mb-4">
                 <Heading level={3}>Top 10 Largest Individual Owners</Heading>
-  
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -171,7 +178,7 @@ export default function Home() {
                     title="Failed to load"
                     message="Industry data couldn't be retrieved. Try refreshing the page."
                   />
-                  <div className="opacity-60 pointer-events-none select-none mt-4">
+                  <div className="pointer-events-none mt-4 opacity-60 select-none">
                     <IndustryListSkeleton count={5} error />
                   </div>
                 </>

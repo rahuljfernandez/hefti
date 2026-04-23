@@ -9,14 +9,13 @@ import { Heading } from '../atom/heading';
 import { useDebouncedValue } from '../../../hooks/useDebounceValue';
 
 /**
+ * Search input with debounced query updates, autosuggestion dropdowns, and mobile search-sheet support.
  *
- * Search input component with debounced value handling, suggesiton dropdown, and mobile modal support
- *
- * @param {string} placeholder - Placeholder text for the input field.
- * @param {string} search - The current search query from the parent state.
- * @param {function} onSearchChange - Callback to update the parent search query.
- * @param {Array<{ id: string|number, label: string }>} suggestions - List of search suggestion results.
- * @param {boolean} hasFetchedSuggestions - Flag indicating if suggestions were already fetched.
+ * Responsibilities:
+ * - Debounces user input before syncing the parent search state
+ * - Renders desktop and mobile suggestion lists
+ * - Routes selected suggestions to owner or facility detail pages
+ * - Displays a no-results status when suggestions are fetched but empty
  */
 
 export default function SearchMenu({
