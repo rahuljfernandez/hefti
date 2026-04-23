@@ -3,12 +3,21 @@ import PropTypes from 'prop-types';
 import LayoutCard from '../atom/layout-card';
 import networkGraphSvg from '../../../assets/networkGraph.svg';
 
-export default function OwnerNetworkCtaBanner({ onOpen }) {
+/**
+ * CTA button that launches the owner network graph modal.
+ *
+ * Notes:
+ * - Rendered as a real button so it is keyboard accessible
+ * - Accepts a forwarded trigger ref so focus can return here when the modal closes
+ */
+export default function OwnerNetworkCtaBanner({ onOpen, triggerRef }) {
   return (
     <LayoutCard>
-      <div
+      <button
+        ref={triggerRef}
+        type="button"
         onClick={onOpen}
-        className="flex cursor-pointer flex-col sm:flex-row sm:justify-between"
+        className="flex w-full cursor-pointer flex-col text-left sm:flex-row sm:justify-between"
       >
         <div className="sm:max-w-2/3">
           <h3 className="text-core-black text-2xl sm:text-[40px]">
@@ -26,11 +35,12 @@ export default function OwnerNetworkCtaBanner({ onOpen }) {
           alt="Network graph preview"
           className="w-48 sm:w-auto"
         />
-      </div>
+      </button>
     </LayoutCard>
   );
 }
 
 OwnerNetworkCtaBanner.propTypes = {
   onOpen: PropTypes.func.isRequired,
+  triggerRef: PropTypes.shape({ current: PropTypes.any }),
 };
