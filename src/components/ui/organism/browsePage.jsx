@@ -48,7 +48,19 @@ export default function BrowsePage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const activeQuery = search || state || chain;
+  const resultAnnouncement = error
+    ? 'Results failed to load.'
+    : loading
+      ? 'Loading results.'
+      : data.length > 0
+        ? `${data.length} results${activeQuery ? ` for ${activeQuery}` : ''}.`
+        : `No results${activeQuery ? ` for ${activeQuery}` : ''}.`;
+
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     const params = new URLSearchParams({ page, sort, state });
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
@@ -99,6 +111,9 @@ export default function BrowsePage({
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <div aria-live="polite" className="sr-only">
+        {resultAnnouncement}
+      </div>
       <BrowseListView
         currentPage={page}
         totalPages={pageCount}
