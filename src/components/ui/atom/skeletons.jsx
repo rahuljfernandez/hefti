@@ -12,12 +12,12 @@ import React from 'react';
  * Add new skeletons here and include a comment indicating where each is used.
  */
 
-function SkeletonBar({ className = '' }) {
-  return <div className={`animate-pulse rounded bg-gray-200 ${className}`} />;
+function SkeletonBar({ className = '', error = false }) {
+  return <div className={`animate-pulse rounded ${error ? 'bg-red-100' : 'bg-gray-200'} ${className}`} />;
 }
 
 // Used in: src/components/ui/organism/browsePage.jsx
-export function BrowseListSkeleton({ count = 10 }) {
+export function BrowseListSkeleton({ count = 10, error = false }) {
   return (
     <ul>
       {Array.from({ length: count }).map((_, i) => (
@@ -27,13 +27,13 @@ export function BrowseListSkeleton({ count = 10 }) {
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2 md:col-span-2">
-              <SkeletonBar className="h-5 w-3/4" />
-              <SkeletonBar className="h-4 w-1/2" />
-              <SkeletonBar className="h-4 w-2/5" />
+              <SkeletonBar className="h-5 w-3/4" error={error} />
+              <SkeletonBar className="h-4 w-1/2" error={error} />
+              <SkeletonBar className="h-4 w-2/5" error={error} />
             </div>
             <div className="space-y-2">
-              <SkeletonBar className="h-4 w-full" />
-              <SkeletonBar className="h-4 w-3/4" />
+              <SkeletonBar className="h-4 w-full" error={error} />
+              <SkeletonBar className="h-4 w-3/4" error={error} />
             </div>
           </div>
         </li>
@@ -204,17 +204,18 @@ export function NetworkSidePanelSkeleton() {
 }
 
 // Used in: src/components/ui/organism/monthlyOwnershipChangeChart.jsx
-export function ChartSkeleton() {
+export function ChartSkeleton({ error = false }) {
   const bars = [55, 72, 45, 88, 60, 95, 50, 78, 65, 83, 40, 70];
+  const barColor = error ? 'bg-red-100' : 'bg-gray-200';
   return (
     <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4">
         {bars.map((w, i) => (
           <div key={i} className="flex items-center gap-4">
-            <SkeletonBar className="h-4 w-16 shrink-0" />
+            <SkeletonBar className="h-4 w-16 shrink-0" error={error} />
             <div className="relative h-7 flex-1">
               <div
-                className="absolute inset-y-0 left-0 animate-pulse rounded bg-gray-200"
+                className={`absolute inset-y-0 left-0 animate-pulse rounded ${barColor}`}
                 style={{ width: `${w}%` }}
               />
             </div>
@@ -226,13 +227,13 @@ export function ChartSkeleton() {
 }
 
 // Used in: src/pages/Home.jsx
-export function IndustryListSkeleton() {
+export function IndustryListSkeleton({ count = 10, error = false }) {
   return (
     <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80">
-      {Array.from({ length: 10 }).map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <li key={i} className="flex items-center justify-between px-6 py-6">
-          <SkeletonBar className="h-4 w-40" />
-          <SkeletonBar className="h-4 w-20" />
+          <SkeletonBar className="h-4 w-40" error={error} />
+          <SkeletonBar className="h-4 w-20" error={error} />
         </li>
       ))}
     </ul>

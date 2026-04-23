@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import BrowseListView from './browseListView';
 import PropTypes from 'prop-types';
 import { BrowseListSkeleton } from '../atom/skeletons.jsx';
+import { ErrorBanner } from '../atom/errorBanner.jsx';
 
 /**
  * This component controls fetching data and search suggestions
@@ -112,16 +113,26 @@ export default function BrowsePage({
         searchPlaceholder={searchPlaceholder}
         type={type}
       >
-        {data.length > 0 ? (
+        {error ? (
+          <>
+            <ErrorBanner
+              title="Failed to load"
+              message="Listings couldn't be retrieved. Try refreshing the page."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <BrowseListSkeleton count={3} error />
+            </div>
+          </>
+        ) : loading ? (
+          <BrowseListSkeleton />
+        ) : data.length > 0 ? (
           renderList(data)
-        ) : !loading ? (
+        ) : (
           <p className="text-paragraph-base text-core-black mt-4 text-center">
             <span className="font-bold">&quot;{search || state}&quot; </span>
             did not return any results.
           </p>
-        ) : null}
-        {loading && <BrowseListSkeleton />}
-        {error && <p>Error: {error.message}</p>}
+        )}
       </BrowseListView>
     </div>
   );

@@ -8,7 +8,6 @@ import { Text } from '@visx/text';
 import { ParentSize } from '@visx/responsive';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
-import { UnavailableBadge } from '../atom/unavailableBadge';
 
 /**
  * This file contains two components.  First is MonthlyOwnershipChangeChart which serves as the container for the section.
@@ -63,24 +62,24 @@ export default function MonthlyOwnershipChangeChart() {
   return (
     <section aria-labelledby={headingId}>
       <div>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <Heading id={headingId} level={3}>
             Monthly SNF Ownership Change Volume (2024-2025)
           </Heading>
-          {error && <UnavailableBadge />}
+
         </div>
 
         {loading ? (
           <ChartSkeleton />
         ) : error ? (
           <>
-            <div className="pointer-events-none select-none opacity-40">
-              <ChartSkeleton />
-            </div>
             <ErrorBanner
               title="Chart data unavailable"
               message="Ownership change data couldn't be fetched. Try refreshing the page."
             />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ChartSkeleton error />
+            </div>
           </>
         ) : (
           <ParentSize>

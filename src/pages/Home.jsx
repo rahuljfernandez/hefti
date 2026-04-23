@@ -13,7 +13,6 @@ import {
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
-import { UnavailableBadge } from '../components/ui/atom/unavailableBadge.jsx';
 
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
@@ -122,21 +121,21 @@ export default function Home() {
           </Heading>
           <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
             <div>
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4">
                 <Heading level={3}>Top 10 Largest Chains</Heading>
-                {error && <UnavailableBadge />}
+  
               </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
                 <>
-                  <div className="opacity-40 pointer-events-none select-none">
-                    <IndustryListSkeleton />
-                  </div>
                   <ErrorBanner
                     title="Failed to load"
                     message="Industry data couldn't be retrieved. Try refreshing the page."
                   />
+                  <div className="opacity-60 pointer-events-none select-none mt-4">
+                    <IndustryListSkeleton count={5} error />
+                  </div>
                 </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
@@ -160,21 +159,21 @@ export default function Home() {
               )}
             </div>
             <div>
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4">
                 <Heading level={3}>Top 10 Largest Individual Owners</Heading>
-                {error && <UnavailableBadge />}
+  
               </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
                 <>
-                  <div className="opacity-40 pointer-events-none select-none">
-                    <IndustryListSkeleton />
-                  </div>
                   <ErrorBanner
                     title="Failed to load"
                     message="Industry data couldn't be retrieved. Try refreshing the page."
                   />
+                  <div className="opacity-60 pointer-events-none select-none mt-4">
+                    <IndustryListSkeleton count={5} error />
+                  </div>
                 </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
