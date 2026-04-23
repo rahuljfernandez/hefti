@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Skeleton loading components for data-dependent UI sections.
@@ -12,12 +13,17 @@ import React from 'react';
  * Add new skeletons here and include a comment indicating where each is used.
  */
 
-function SkeletonBar({ className = '' }) {
-  return <div className={`animate-pulse rounded bg-gray-200 ${className}`} />;
+function SkeletonBar({ className = '', error = false }) {
+  return <div className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`} />;
 }
 
+SkeletonBar.propTypes = {
+  className: PropTypes.string,
+  error: PropTypes.bool,
+};
+
 // Used in: src/components/ui/organism/browsePage.jsx
-export function BrowseListSkeleton({ count = 10 }) {
+export function BrowseListSkeleton({ count = 10, error = false }) {
   return (
     <ul>
       {Array.from({ length: count }).map((_, i) => (
@@ -27,13 +33,13 @@ export function BrowseListSkeleton({ count = 10 }) {
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2 md:col-span-2">
-              <SkeletonBar className="h-5 w-3/4" />
-              <SkeletonBar className="h-4 w-1/2" />
-              <SkeletonBar className="h-4 w-2/5" />
+              <SkeletonBar className="h-5 w-3/4" error={error} />
+              <SkeletonBar className="h-4 w-1/2" error={error} />
+              <SkeletonBar className="h-4 w-2/5" error={error} />
             </div>
             <div className="space-y-2">
-              <SkeletonBar className="h-4 w-full" />
-              <SkeletonBar className="h-4 w-3/4" />
+              <SkeletonBar className="h-4 w-full" error={error} />
+              <SkeletonBar className="h-4 w-3/4" error={error} />
             </div>
           </div>
         </li>
@@ -42,25 +48,30 @@ export function BrowseListSkeleton({ count = 10 }) {
   );
 }
 
+BrowseListSkeleton.propTypes = {
+  count: PropTypes.number,
+  error: PropTypes.bool,
+};
+
 // Used in: src/pages/FacilityProfile.jsx, src/pages/OwnersProfile.jsx
-export function ProfilePageSkeleton() {
+export function ProfilePageSkeleton({ error = false }) {
   return (
-    <div className="animate-pulse font-sans">
+    <div className={`font-sans ${error ? '' : 'animate-pulse'}`}>
       {/* ProfileHeader */}
       <div className="my-6 flex flex-wrap justify-between">
         <div>
-          <SkeletonBar className="h-9 w-80" />
+          <SkeletonBar className="h-9 w-80" error={error} />
           <div className="mt-4">
-            <SkeletonBar className="h-6 w-32 rounded-full" />
+            <SkeletonBar className="h-6 w-32 rounded-full" error={error} />
           </div>
-          <SkeletonBar className="mt-4 h-4 w-48" />
+          <SkeletonBar className="mt-4 h-4 w-48" error={error} />
         </div>
-        <SkeletonBar className="h-10 w-36 rounded-lg" />
+        <SkeletonBar className="h-10 w-36 rounded-lg" error={error} />
       </div>
       {/* Tab nav */}
       <div className="mt-6 flex gap-4 border-b border-gray-200 pb-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonBar key={i} className="h-5 w-28" />
+          <SkeletonBar key={i} className="h-5 w-28" error={error} />
         ))}
       </div>
       {/* Tab content area */}
@@ -71,21 +82,25 @@ export function ProfilePageSkeleton() {
               key={i}
               className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
             >
-              <SkeletonBar className="h-4 w-1/2" />
-              <SkeletonBar className="h-8 w-1/3" />
-              <SkeletonBar className="h-3 w-3/4" />
+              <SkeletonBar className="h-4 w-1/2" error={error} />
+              <SkeletonBar className="h-8 w-1/3" error={error} />
+              <SkeletonBar className="h-3 w-3/4" error={error} />
             </div>
           ))}
         </div>
         <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <SkeletonBar className="h-4 w-1/4" />
-          <SkeletonBar className="h-4 w-full" />
-          <SkeletonBar className="h-4 w-5/6" />
+          <SkeletonBar className="h-4 w-1/4" error={error} />
+          <SkeletonBar className="h-4 w-full" error={error} />
+          <SkeletonBar className="h-4 w-5/6" error={error} />
         </div>
       </div>
     </div>
   );
 }
+
+ProfilePageSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
 
 // Nodes and edges for the animated graph placeholder. Positions are expressed
 // as percentages of the SVG viewBox (0 0 400 300) so it scales to any canvas.
@@ -117,18 +132,20 @@ function nodePos(id) {
   return GRAPH_NODES.find((n) => n.id === id);
 }
 
-function GraphSVG({ className = '' }) {
+function GraphSVG({ className = '', error = false }) {
   return (
     <svg viewBox="0 0 400 300" className={className} aria-hidden="true">
-      <style>{`
-        @keyframes graphPulse {
-          0%, 100% { opacity: 0.3; }
-          50%       { opacity: 0.9; }
-        }
-        .gp-edge     { animation: graphPulse 2s ease-in-out infinite; }
-        .gp-node     { animation: graphPulse 2s ease-in-out infinite; }
-        .gp-node-hub { animation: graphPulse 1.6s ease-in-out infinite; }
-      `}</style>
+      {!error && (
+        <style>{`
+          @keyframes graphPulse {
+            0%, 100% { opacity: 0.3; }
+            50%       { opacity: 0.9; }
+          }
+          .gp-edge     { animation: graphPulse 2s ease-in-out infinite; }
+          .gp-node     { animation: graphPulse 2s ease-in-out infinite; }
+          .gp-node-hub { animation: graphPulse 1.6s ease-in-out infinite; }
+        `}</style>
+      )}
       {GRAPH_EDGES.map(([from, to]) => {
         const s = nodePos(from);
         const t = nodePos(to);
@@ -139,10 +156,10 @@ function GraphSVG({ className = '' }) {
             y1={s.cy}
             x2={t.cx}
             y2={t.cy}
-            stroke="#D1D5DB"
+            stroke={error ? '#FECACA' : '#D1D5DB'}
             strokeWidth="1.5"
-            className="gp-edge"
-            style={{ animationDelay: `${Math.random() * 0.8}s` }}
+            className={error ? undefined : 'gp-edge'}
+            style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
           />
         );
       })}
@@ -152,50 +169,61 @@ function GraphSVG({ className = '' }) {
           cx={n.cx}
           cy={n.cy}
           r={n.r}
-          fill={n.id === 'hub' ? '#FCD34D' : '#9CA3AF'}
-          className={n.id === 'hub' ? 'gp-node-hub' : 'gp-node'}
-          style={{ animationDelay: `${Math.random() * 0.8}s` }}
+          fill={error ? '#FCA5A5' : n.id === 'hub' ? '#FCD34D' : '#9CA3AF'}
+          className={error ? undefined : n.id === 'hub' ? 'gp-node-hub' : 'gp-node'}
+          style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
         />
       ))}
     </svg>
   );
 }
 
+GraphSVG.propTypes = {
+  className: PropTypes.string,
+  error: PropTypes.bool,
+};
+
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx, src/components/ui/molecule/ownerNetworkGraphMobileLayout.jsx
-export function NetworkGraphSkeleton() {
+export function NetworkGraphSkeleton({ error = false }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50">
-      <GraphSVG className="w-[280px] opacity-50 sm:w-[520px]" />
-      <p className="animate-pulse text-base text-gray-500" role="status">
-        Loading network...
-      </p>
+    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${error ? 'bg-red-50' : 'bg-gray-50'}`}>
+      <GraphSVG className="w-[280px] opacity-50 sm:w-[520px]" error={error} />
+      {!error && (
+        <p className="animate-pulse text-base text-gray-500" role="status">
+          Loading network...
+        </p>
+      )}
     </div>
   );
 }
 
+NetworkGraphSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx
-export function NetworkSidePanelSkeleton() {
+export function NetworkSidePanelSkeleton({ error = false }) {
   return (
     <div className="border-border-primary flex h-full w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]">
       {/* Header bar */}
       <div className="bg-border-secondary border-border-primary flex h-14 items-center justify-between border-b px-4">
-        <SkeletonBar className="h-4 w-24" />
-        <SkeletonBar className="h-5 w-20 rounded-full" />
+        <SkeletonBar className="h-4 w-24" error={error} />
+        <SkeletonBar className="h-5 w-20 rounded-full" error={error} />
       </div>
       {/* Name + meta */}
       <div className="space-y-2 px-4 pt-3 pb-2">
-        <SkeletonBar className="h-5 w-3/4" />
-        <SkeletonBar className="h-3 w-1/3" />
+        <SkeletonBar className="h-5 w-3/4" error={error} />
+        <SkeletonBar className="h-3 w-1/3" error={error} />
         <div className="border-t border-gray-200 pt-2">
-          <SkeletonBar className="h-4 w-28" />
+          <SkeletonBar className="h-4 w-28" error={error} />
         </div>
       </div>
       {/* Content rows */}
       <div className="flex-1 space-y-3 px-4 pt-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center justify-between">
-            <SkeletonBar className="h-4 w-2/3" />
-            <SkeletonBar className="h-4 w-10" />
+            <SkeletonBar className="h-4 w-2/3" error={error} />
+            <SkeletonBar className="h-4 w-10" error={error} />
           </div>
         ))}
       </div>
@@ -203,16 +231,52 @@ export function NetworkSidePanelSkeleton() {
   );
 }
 
+NetworkSidePanelSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
+// Used in: src/components/ui/organism/monthlyOwnershipChangeChart.jsx
+export function ChartSkeleton({ error = false }) {
+  const bars = [55, 72, 45, 88, 60, 95, 50, 78, 65, 83, 40, 70];
+  const barColor = error ? 'bg-red-100' : 'bg-gray-200';
+  return (
+    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+      <div className="flex flex-col gap-4">
+        {bars.map((w, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <SkeletonBar className="h-4 w-16 shrink-0" error={error} />
+            <div className="relative h-7 flex-1">
+              <div
+                className={`absolute inset-y-0 left-0 animate-pulse rounded ${barColor}`}
+                style={{ width: `${w}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ChartSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
 // Used in: src/pages/Home.jsx
-export function IndustryListSkeleton() {
+export function IndustryListSkeleton({ count = 10, error = false }) {
   return (
     <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80">
-      {Array.from({ length: 10 }).map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <li key={i} className="flex items-center justify-between px-6 py-6">
-          <SkeletonBar className="h-4 w-40" />
-          <SkeletonBar className="h-4 w-20" />
+          <SkeletonBar className="h-4 w-40" error={error} />
+          <SkeletonBar className="h-4 w-20" error={error} />
         </li>
       ))}
     </ul>
   );
 }
+
+IndustryListSkeleton.propTypes = {
+  count: PropTypes.number,
+  error: PropTypes.bool,
+};

@@ -8,6 +8,7 @@ import {
   NetworkGraphSkeleton,
   NetworkSidePanelSkeleton,
 } from '../atom/skeletons.jsx';
+import NetworkErrorCard from '../atom/networkErrorCard';
 
 /**
  * Desktop presentation shell for the Owner Network Graph modal.
@@ -30,7 +31,6 @@ export default function OwnerNetworkGraphDesktopLayout({
   onSetIsSearchOpen,
   onSelectSearchResult,
   status,
-  error,
   data,
   onSelectNode,
   pinRequestNodeId,
@@ -43,6 +43,7 @@ export default function OwnerNetworkGraphDesktopLayout({
   selectedNodeId,
   onClearSelection,
   onSelectSidePanelNode,
+  onRetry,
 }) {
   return (
     <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
@@ -76,12 +77,17 @@ export default function OwnerNetworkGraphDesktopLayout({
         )}
 
         {status === 'error' && (
-          <div className="absolute inset-0 grid place-items-center px-6 text-center">
-            <div>
-              <div className="text-sm font-semibold text-gray-900">
-                Unable to load graph
+          <div className="flex h-full min-h-0">
+            <div className="relative min-w-0 flex-1">
+              <div className="pointer-events-none absolute inset-0 opacity-60 select-none">
+                <NetworkGraphSkeleton error />
               </div>
-              <div className="mt-1 text-sm text-gray-600">{error}</div>
+              <div className="absolute inset-0 z-10 grid place-items-center px-6">
+                <NetworkErrorCard onRetry={onRetry} />
+              </div>
+            </div>
+            <div className="pointer-events-none opacity-60 select-none">
+              <NetworkSidePanelSkeleton error />
             </div>
           </div>
         )}
@@ -123,7 +129,6 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   onSetIsSearchOpen: PropTypes.func.isRequired,
   onSelectSearchResult: PropTypes.func.isRequired,
   status: PropTypes.oneOf(['idle', 'loading', 'ready', 'error']).isRequired,
-  error: PropTypes.string,
   data: PropTypes.object,
   onSelectNode: PropTypes.func.isRequired,
   pinRequestNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -141,4 +146,5 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onClearSelection: PropTypes.func.isRequired,
   onSelectSidePanelNode: PropTypes.func.isRequired,
+  onRetry: PropTypes.func.isRequired,
 };

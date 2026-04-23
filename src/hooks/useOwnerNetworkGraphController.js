@@ -18,6 +18,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Shared graph UI state.
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -60,7 +61,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     })();
 
     return () => controller.abort();
-  }, [isOpen, endpoint, ownerId]);
+  }, [isOpen, endpoint, ownerId, retryCount]);
 
   // On successful graph load, default selection to the hub owner.
   useEffect(() => {
@@ -102,6 +103,8 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     setPinRequestNodeId(null);
   }, []);
 
+  const handleRetry = useCallback(() => setRetryCount((c) => c + 1), []);
+
   // Reset graph UI when modal context changes.
   useEffect(() => {
     if (!isOpen) return;
@@ -134,5 +137,6 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     handleSelectNode,
     handleClearSelection,
     handlePinRequestConsumed,
+    handleRetry,
   };
 }

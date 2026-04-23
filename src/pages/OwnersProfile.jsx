@@ -13,6 +13,7 @@ import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
 import { getOwnerProfilePages } from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
+import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { profileTabsDescriptions } from '../lib/tabDescriptions';
@@ -39,18 +40,35 @@ export default function OwnersProfile() {
   const { slug } = useParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
+    setOwner(null);
+    setError(null);
+    setNotFound(false);
+
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
-      .then((res) => res.json())
-      .then((data) => setOwner(data))
+      .then((res) => {
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
+      .then((data) => {
+        if (!data) {
+          setNotFound(true);
+          return;
+        }
+        setOwner(data);
+      })
+      .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (!owner && !loading) return <p role="alert">Owner not found.</p>;
 
   // Use related facilities from API if available
   const relatedFacilities =
@@ -79,29 +97,49 @@ export default function OwnersProfile() {
       <LayoutPage>
         {loading ? (
           <ProfilePageSkeleton />
+        ) : error ? (
+          <>
+            <ErrorBanner
+              title="Failed to load"
+              message="Owner data couldn't be retrieved. Try refreshing the page."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ProfilePageSkeleton error />
+            </div>
+          </>
+        ) : notFound ? (
+          <>
+            <ErrorBanner
+              title="Owner not found"
+              message="We couldn't find an owner matching this URL."
+            />
+            <div className="pointer-events-none select-none opacity-60 mt-4">
+              <ProfilePageSkeleton error />
+            </div>
+          </>
         ) : (
           <>
-            <ProfileHeader
-              title={toTitleCase(owner.cms_ownership_name)}
-              ownershipType={owner.cms_ownership_type}
-              freshness={freshness}
-              func={getBadgeColorOwnerProfile}
-              onClick={handleResearchClick}
-            />
-            <OwnersNetworkGraphLauncher ownerId={owner.id} />
-            {/* Shared tab shell; active tab content is chosen in the render function below. */}
-            <TabsShell
-              tabsData={profileTabsDescriptions}
-              defaultTabName={'Provider Highlights'}
-            >
-              {(activeTab) => {
-                switch (activeTab.name) {
-                  case 'Provider Highlights':
-                    return <ProviderHighlights items={owner} status="owner" />;
-                  //As of 3/16/26 we are holding off on deficiencies
-                  //4/17 Tyler requested tab be visible with coming soon
-                  case 'Deficiencies & Penalties':
-                    return <DeficienciesTab items={owner} />;
+        <ProfileHeader
+          title={toTitleCase(owner.cms_ownership_name)}
+          ownershipType={owner.cms_ownership_type}
+          freshness={freshness}
+          func={getBadgeColorOwnerProfile}
+          onClick={handleResearchClick}
+        />
+        <OwnersNetworkGraphLauncher ownerId={owner.id} />
+        {/* Shared tab shell; active tab content is chosen in the render function below. */}
+        <TabsShell
+          tabsData={profileTabsDescriptions}
+          defaultTabName={'Provider Highlights'}
+        >
+          {(activeTab) => {
+            switch (activeTab.name) {
+              case 'Provider Highlights':
+                return <ProviderHighlights items={owner} status="owner" />;
+              //As of 3/16/26 we are holding off on deficiencies
+              //4/17 Tyler requested tab be visible with coming soon
+              case 'Deficiencies & Penalties':
+                return <DeficienciesTab items={owner} />;
 
                   case 'Clinical Quality Measures':
                     return (

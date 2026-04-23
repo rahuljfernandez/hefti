@@ -12,7 +12,17 @@ import {
 } from '@heroicons/react/24/outline';
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
+import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 
+/**
+ * Home page
+ *
+ * Responsibilities:
+ * - Loads top chains and top individual owners
+ * - Renders key navigation entry points into owner and facility browse flows
+ * - Shows the monthly ownership-change chart section
+ * - Displays loading and error states for the industry summary lists
+ */
 export default function Home() {
   const [topChains, setTopChains] = useState([]);
   const [topOwners, setTopOwners] = useState([]);
@@ -26,19 +36,25 @@ export default function Home() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${API_BASE_URL}/top-chains`).then((res) => res.json()),
-      fetch(`${API_BASE_URL}/top-owners`).then((res) => res.json()),
+      fetch(`${API_BASE_URL}/top-chains`).then((res) => {
+        if (!res.ok) throw new Error('Failed to load top chains');
+        return res.json();
+      }),
+      fetch(`${API_BASE_URL}/top-owners`).then((res) => {
+        if (!res.ok) throw new Error('Failed to load top owners');
+        return res.json();
+      }),
     ])
       .then(([chains, owners]) => {
         setTopChains(chains);
         setTopOwners(owners);
         setError(null);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load industry data.');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [API_BASE_URL]);
 
   // bg-[radial-gradient(circle_at_top_left,_#BFDBFE_15%,_#EFF6FF_25%)] 2xl:bg-[radial-gradient(circle_at_top_left,_#BFDBFE_18%,_#EFF6FF_30%)]
   return (
@@ -118,13 +134,21 @@ export default function Home() {
           </Heading>
           <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
             <div>
-              <Heading level={3} className="mb-4">
-                Top 10 Largest Chains
-              </Heading>
+              <div className="mb-4">
+                <Heading level={3}>Top 10 Largest Chains</Heading>
+              </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
-                <p className="text-red-600">{error}</p>
+                <>
+                  <ErrorBanner
+                    title="Failed to load"
+                    message="Industry data couldn't be retrieved. Try refreshing the page."
+                  />
+                  <div className="pointer-events-none mt-4 opacity-60 select-none">
+                    <IndustryListSkeleton count={5} error />
+                  </div>
+                </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
                   {topChains.map((chain) => (
@@ -147,13 +171,21 @@ export default function Home() {
               )}
             </div>
             <div>
-              <Heading level={3} className="mb-4">
-                Top 10 Largest Individual Owners
-              </Heading>
+              <div className="mb-4">
+                <Heading level={3}>Top 10 Largest Individual Owners</Heading>
+              </div>
               {loading ? (
                 <IndustryListSkeleton />
               ) : error ? (
-                <p className="text-red-600">{error}</p>
+                <>
+                  <ErrorBanner
+                    title="Failed to load"
+                    message="Industry data couldn't be retrieved. Try refreshing the page."
+                  />
+                  <div className="pointer-events-none mt-4 opacity-60 select-none">
+                    <IndustryListSkeleton count={5} error />
+                  </div>
+                </>
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
                   {topOwners.map((owner) => (
