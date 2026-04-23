@@ -5,6 +5,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import NetworkGraph from './networkGraph';
 import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
 import { NetworkGraphSkeleton } from '../atom/skeletons.jsx';
+import NetworkErrorCard from '../atom/networkErrorCard';
 import NetworkSidePanelCardHeader from './networkSidePanelCardHeader';
 import OwnerNetworkContent from './ownerNetworkContent';
 
@@ -46,6 +47,7 @@ export default function OwnerNetworkGraphMobileLayout({
   selectedNode,
   onSelectContentNode,
   onClose,
+  onRetry,
 }) {
   return (
     <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
@@ -53,14 +55,14 @@ export default function OwnerNetworkGraphMobileLayout({
         {status === 'loading' && <NetworkGraphSkeleton />}
 
         {status === 'error' && (
-          <div className="absolute inset-0 grid place-items-center px-6 text-center">
-            <div>
-              <div className="text-sm font-semibold text-gray-900">
-                Unable to load graph
-              </div>
-              <div className="mt-1 text-sm text-gray-600">{error}</div>
+          <>
+            <div className="pointer-events-none absolute inset-0 select-none opacity-60">
+              <NetworkGraphSkeleton error />
             </div>
-          </div>
+            <div className="absolute inset-0 z-10 grid place-items-center px-6">
+              <NetworkErrorCard onRetry={onRetry} />
+            </div>
+          </>
         )}
 
         {status === 'ready' && data && (
@@ -177,4 +179,5 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   selectedNode: PropTypes.object,
   onSelectContentNode: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  onRetry: PropTypes.func.isRequired,
 };

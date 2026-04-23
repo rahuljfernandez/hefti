@@ -56,6 +56,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
     handleSelectNode,
     handleClearSelection,
     handlePinRequestConsumed,
+    handleRetry,
   } = useOwnerNetworkGraphController({
     isOpen,
     ownerId,
@@ -114,6 +115,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           selectedNodeId={effectiveSelectedNodeId}
           onClearSelection={handleClearSelection}
           onSelectSidePanelNode={handleSelectNode}
+          onRetry={handleRetry}
         />
       ) : (
         <OwnerNetworkGraphMobileLayout
@@ -141,6 +143,7 @@ export default function OwnerNetworkGraphModal({ isOpen, onClose, ownerId }) {
           selectedNode={effectiveSelectedNode}
           onSelectContentNode={handleSelectNode}
           onClose={onClose}
+          onRetry={handleRetry}
         />
       )}
     </div>
