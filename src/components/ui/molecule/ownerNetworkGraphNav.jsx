@@ -4,19 +4,19 @@ import PropTypes from 'prop-types';
 import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
 
 /**
- *  Simple toolbar fixed atop the Owner Network Modal
+ * Simple toolbar fixed atop the Owner Network modal.
  *
- *  Purpose:
- * -Hefti logo, search bar with dropdown, close button to exit modal
+ * Purpose:
+ * - Displays the HEFTI logo, graph-node search bar, and close button
  *
  * Props:
- * -onClose: used in the close button to close the modal
- * -SearchQuery: tracks what the user is typing in the searchbar
- * -onSetSearchQuery: setter for the search query
- * -SearchResults: Array of related owners [{id, label, count}].  Built Inside networkGraph.jsx, GraphSearchController gets the Sigma graph instance with const graph = sigma.getGraph(), builds an index
- * -onSelectSearchResult: Sets the search results when the user clicks on an item inside the search dropdown.
- * isSearchOpen:  Tracks whether dropdown is open or closed
- * onSetSearchOpen: toggles search dropdown
+ * - onClose: used in the close button to dismiss the modal
+ * - searchQuery: tracks what the user is typing in the search bar
+ * - onSetSearchQuery: setter for the current search query
+ * - searchResults: array of related owners [{ id, label, count }] built by GraphSearchController
+ * - onSelectSearchResult: selects a node from the search dropdown
+ * - isSearchOpen: tracks whether the dropdown is open or closed
+ * - onSetIsSearchOpen: toggles the search dropdown
  */
 
 export default function OwnerNetworkGraphNav({
@@ -29,7 +29,7 @@ export default function OwnerNetworkGraphNav({
   onSetIsSearchOpen,
 }) {
   return (
-    <div className="w-full border-b bg-black">
+    <div className="w-full border-b bg-black" role="toolbar" aria-label="Network graph controls">
       <div className="mx-auto px-4">
         <div className="flex min-h-[72px] justify-between">
           {/* LEFT */}

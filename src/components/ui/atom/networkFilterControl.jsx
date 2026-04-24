@@ -3,25 +3,28 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 
 /**
- * Reusable component for the buttons/controls inthe network filter
+ * Reusable component for the buttons/controls in the network filter.
  *
- * props:
- * -value: either a number/string that describes what filter is applied
- * -active: boolean value determined by state managment
- * -onClick: sets the state
- * -ariaLabel: optional accessible label for abbreviated button text (e.g. "RPTOE")
+ * Props:
+ * - value: either a number/string that describes what filter is applied
+ * - active: boolean value determined by state management
+ * - onClick: sets the selected filter state
+ * - ariaLabel: optional accessible label for abbreviated button text (e.g. "RPTOE")
  *
- * Example usage {
- *  <SegmentButton
-    value={1}
-    active={depth === 1}
-    onClick={() => onSetDepth(1)}
-    />
- * }
- *  Future:  Add color props etc
+ * Example usage:
+ * <NetworkFilterControl
+ *   value={1}
+ *   active={depth === 1}
+ *   onClick={() => onSetDepth(1)}
+ * />
  */
 
-export default function NetworkFilterControl({ value, active, onClick, ariaLabel }) {
+export default function NetworkFilterControl({
+  value,
+  active,
+  onClick,
+  ariaLabel,
+}) {
   return (
     <button
       type="button"
