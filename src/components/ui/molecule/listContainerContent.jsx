@@ -226,21 +226,31 @@ Penalties.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
-//facilty name is probably a link?
+/**
+ * Related facility card used on the owner profile page.
+ *
+ * Responsibilities:
+ * - Renders one associated facility as a single interactive card
+ * - Shows the facility name, location, CMS rating, and owner-role label
+ * - Uses one outer link so keyboard users tab through the list one card at a time
+ */
 export function RelatedFacilities({ item }) {
   const roleKey = item.cms_ownership_role || 'N/A';
   const roleLabel = ownerRoleMap[roleKey]?.label;
+  const facilityHref = `/facilities/${item.slug}`;
+  const facilityName = toTitleCase(item.provider_name);
   return (
-    <>
+    <Link
+      to={facilityHref}
+      className="block rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      aria-label={`View profile for ${facilityName}`}
+    >
       <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
         {/* Name + Address */}
         <div className="md:col-span-2">
-          <Link
-            to={`/facilities/${item.slug}`}
-            className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none"
-          >
-            {toTitleCase(item.provider_name)}
-          </Link>
+          <span className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
+            {facilityName}
+          </span>
           <div className="text-paragraph-base text-content-secondary order-2 md:order-none">
             {`${toTitleCase(item.street_address)}, ${toTitleCase(item.city)}, ${item.state} ${
               item.zip_code
@@ -249,12 +259,9 @@ export function RelatedFacilities({ item }) {
         </div>
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
-          <Link
-            to={`/facilities/${item.slug}`}
-            className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-          >
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
             View Profile
-          </Link>
+          </span>
         </div>
 
         {/* Divider */}
@@ -284,7 +291,7 @@ export function RelatedFacilities({ item }) {
           </div>
         </div>
       </div>
-    </>
+    </Link>
   );
 }
 
