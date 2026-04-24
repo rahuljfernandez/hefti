@@ -33,39 +33,40 @@ export default function ListContainer({
   ListContent,
   variant = 'static',
 }) {
+  const renderListItem = (item) => {
+    if (variant === 'static') {
+      return <ListContent item={item} />;
+    }
+
+    return (
+      <Disclosure as="div">
+        {({ open }) => (
+          <>
+            <DisclosureButton className="w-full text-left">
+              <ListContent item={item} />
+              <ChevronDownIcon
+                className={`ml-2 h-5 w-5 transition-transform duration-200 ${
+                  open ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
+            </DisclosureButton>
+
+            <DisclosurePanel className="text-sm text-gray-700">
+              <div className="flex flex-row justify-items-center gap-6 space-y-1 px-2 pt-2 pb-3">
+                <p>Address: {item.address || '123 Placeholder Ave'}</p>
+                <p>Contact: {item.contact || 'Not provided'}</p>
+              </div>
+            </DisclosurePanel>
+          </>
+        )}
+      </Disclosure>
+    );
+  };
+
   return (
     <div>
-      <LayoutSelector
-        items={items}
-        renderItem={(item) => (
-          <Disclosure as="div" defaultOpen={variant === 'static'}>
-            {(open) => (
-              <>
-                <DisclosureButton className="w-full text-left">
-                  <ListContent item={item} />
-                  {variant === 'expandable' && (
-                    <ChevronDownIcon
-                      className={`ml-2 h-5 w-5 transition-transform duration-200 ${
-                        open ? 'rotate-180' : ''
-                      }`}
-                      aria-hidden="true"
-                    />
-                  )}
-                </DisclosureButton>
-
-                {variant === 'expandable' && (
-                  <DisclosurePanel className="text-sm text-gray-700">
-                    <div className="flex flex-row justify-items-center gap-6 space-y-1 px-2 pt-2 pb-3">
-                      <p>Address: {item.address || '123 Placeholder Ave'}</p>
-                      <p>Contact: {item.contact || 'Not provided'}</p>
-                    </div>
-                  </DisclosurePanel>
-                )}
-              </>
-            )}
-          </Disclosure>
-        )}
-      />
+      <LayoutSelector items={items} renderItem={renderListItem} />
     </div>
   );
 }
