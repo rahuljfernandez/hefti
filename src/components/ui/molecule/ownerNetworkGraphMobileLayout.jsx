@@ -96,9 +96,10 @@ export default function OwnerNetworkGraphMobileLayout({
             <div className="relative flex shrink-0 touch-none justify-center py-4">
               <div className="bg-content-inverse-primary h-1 w-10 rounded-full" />
               <button
+                type="button"
                 onClick={onClose}
                 aria-label="Close network graph"
-                className="text-content-tertiary hover:text-core-white absolute top-2 right-4"
+                className="focus-ring-dark text-content-tertiary hover:text-core-white absolute top-2 right-4 rounded-md"
               >
                 <XMarkIcon className="h-7 w-7" />
               </button>

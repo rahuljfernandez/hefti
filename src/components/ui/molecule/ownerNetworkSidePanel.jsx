@@ -13,7 +13,6 @@ import OwnerNetworkContent from './ownerNetworkContent';
  * Props:
  * - data: Network payload containing the graph nodes used to resolve the selection
  * - selectedNodeId: Active node id from graph interactions or search
- 
  * - onSelectNode: Selects a related node from the hub panel list
  */
 export default function OwnerNetworkSidePanel({

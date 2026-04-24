@@ -52,7 +52,12 @@ export default function NetworkSidePanelCardHeader({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open ${selectedNode?.label} owner profile in a new tab`}
-              className="text-content-secondary hover:text-core-black inline-flex items-center"
+              className={clsx(
+                'inline-flex items-center rounded-sm',
+                isMobile
+                  ? 'focus-ring-dark text-content-tertiary hover:text-core-white'
+                  : 'focus-ring-light text-content-secondary hover:text-core-black',
+              )}
             >
               <ArrowTopRightOnSquareIcon className="h-4 w-4" />
             </a>

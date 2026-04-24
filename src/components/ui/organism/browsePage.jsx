@@ -22,7 +22,6 @@ BrowsePage.propTypes = {
   title: PropTypes.string.isRequired,
   searchPlaceholder: PropTypes.string,
   renderList: PropTypes.func.isRequired,
-  mapSuggestions: PropTypes.func.isRequired,
   type: PropTypes.oneOf(['facilities', 'owners']),
 };
 
@@ -48,7 +47,19 @@ export default function BrowsePage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const activeQuery = search || state || chain;
+  const resultAnnouncement = error
+    ? 'Results failed to load.'
+    : loading
+      ? 'Loading results.'
+      : data.length > 0
+        ? `${data.length} results${activeQuery ? ` for ${activeQuery}` : ''}.`
+        : `No results${activeQuery ? ` for ${activeQuery}` : ''}.`;
+
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     const params = new URLSearchParams({ page, sort, state });
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
@@ -99,6 +110,9 @@ export default function BrowsePage({
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <div aria-live="polite" className="sr-only">
+        {resultAnnouncement}
+      </div>
       <BrowseListView
         currentPage={page}
         totalPages={pageCount}
@@ -119,7 +133,7 @@ export default function BrowsePage({
               title="Failed to load"
               message="Listings couldn't be retrieved. Try refreshing the page."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <BrowseListSkeleton count={3} error />
             </div>
           </>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Navbar,
   NavbarDivider,
@@ -16,18 +16,24 @@ import {
 } from '@headlessui/react';
 
 /**
- * This component is based on Application UI Navbars Simple and customized for design.
+ * Primary site header and navigation.
+ *
+ * Source:
+ * - Adapted from an Application UI navbar pattern and customized for HEFTI
+ *
+ * Responsibilities:
+ * - Renders the HEFTI home link and primary navigation links
+ * - Exposes a mobile disclosure menu for small screens
+ * - Marks the current mobile route with `aria-current="page"`
+ *
+ * Notes:
+ * - Custom SVG icons are used to control fill behavior in the mobile menu toggle
  */
-/**
- *  Svg's are used to get control of fill property that is out of reach when using Heroicons
- */
-
-/*TODO setup links to pages from nav*/
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'About', href: '#', current: false },
-  { name: 'Contact Us', href: '#', current: false },
+  { name: 'Home', to: '/' },
+  { name: 'About', to: '/about' },
+  { name: 'Contact Us', to: '/contact-us' },
 ];
 
 function classNames(...classes) {
@@ -35,12 +41,18 @@ function classNames(...classes) {
 }
 
 export default function HeftiNavbar() {
+  const location = useLocation();
+
   return (
-    <div className="bg-background-navbar">
+    <header className="bg-background-navbar">
       <div className="mx-auto max-w-7xl">
         <Disclosure>
-          <Navbar className="">
-            <Link to="/" aria-label="Home">
+          <Navbar aria-label="Primary" className="">
+            <Link
+              to="/"
+              aria-label="Home"
+              className="focus-ring-shell-dark rounded-lg"
+            >
               <div className="flex items-center px-6">
                 <Logo className="block h-full" />
                 <span className="text-core-white ml-2 hidden text-xs leading-3.5 font-semibold tracking-widest italic md:block">
@@ -52,7 +64,7 @@ export default function HeftiNavbar() {
             <NavbarSpacer />
             <NavbarSection className="p-5">
               <div className="p-1 leading-none md:hidden">
-                <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
+                <DisclosureButton className="focus-ring-shell-dark group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
                   <span className="sr-only">Open main menu</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +99,7 @@ export default function HeftiNavbar() {
               <NavbarItem
                 href="/about"
                 aria-label="About"
-                className="text-core-white hidden md:block md:p-0.75"
+                className="focus-ring-shell-dark text-core-white hidden md:block md:p-0.75"
               >
                 About
               </NavbarItem>
@@ -95,7 +107,7 @@ export default function HeftiNavbar() {
               <NavbarItem
                 href="/contact-us"
                 aria-label="Contact Us"
-                className="text-core-white hidden md:block md:p-0.75"
+                className="focus-ring-shell-dark text-core-white hidden md:block md:p-0.75"
               >
                 Contact Us
               </NavbarItem>
@@ -108,14 +120,14 @@ export default function HeftiNavbar() {
               {navigation.map((item) => (
                 <DisclosureButton
                   key={item.name}
-                  as="a"
-                  href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
+                  as={Link}
+                  to={item.to}
+                  aria-current={location.pathname === item.to ? 'page' : undefined}
                   className={classNames(
-                    item.current
+                    location.pathname === item.to
                       ? 'text-core-white bg-zinc-800'
                       : 'hover:text-core-white text-gray-300 hover:bg-zinc-700',
-                    'text-label-base block rounded-md px-3 py-2',
+                    'focus-ring-shell-dark text-label-base block rounded-md px-3 py-2',
                   )}
                 >
                   {item.name}
@@ -125,6 +137,6 @@ export default function HeftiNavbar() {
           </DisclosurePanel>
         </Disclosure>
       </div>
-    </div>
+    </header>
   );
 }

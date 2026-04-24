@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId } from 'react';
 import PropTypes from 'prop-types';
 import LayoutPage from '../atom/layout-page';
 import { Heading } from '../atom/heading';
@@ -7,8 +7,12 @@ import SelectMenu from '../molecule/selectMenu';
 import SearchMenu from '../molecule/searchMenu';
 
 /**
- * Reusable layout component for displaying a list of items with search, sort, filter, and pagination controls.
- * Note: It accepts children prop that is intended to be the list items for nursing home browse and/or owners browse
+ * Reusable layout shell for browse pages.
+ *
+ * Responsibilities:
+ * - Renders the page heading plus search, sort, and filter controls
+ * - Wraps the supplied list content in a named results region
+ * - Displays pagination below the results when needed
  */
 export default function BrowseListView({
   title,
@@ -25,6 +29,9 @@ export default function BrowseListView({
   hasFetchedSuggestions,
   type,
 }) {
+  const searchHeadingId = useId();
+  const resultsHeadingId = useId();
+
   return (
     <LayoutPage>
       <section className="pt-4 pb-16">
@@ -34,13 +41,14 @@ export default function BrowseListView({
 
         {/*Search Bar */}
         <div className="py-8">
-          <Heading level={4} className="text-label-lg">
+          <Heading id={searchHeadingId} level={2} className="text-label-lg">
             {' '}
             Search by name
           </Heading>
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <div className="w-full md:flex-[2]">
               <SearchMenu
+                accessibleLabel="Search by name"
                 type={type}
                 placeholder={searchPlaceholder}
                 search={search}
@@ -50,14 +58,27 @@ export default function BrowseListView({
               />
             </div>
             <div className="flex w-full gap-2 md:flex-[1] md:flex-row">
-              <SelectMenu variant="sort" onSortChange={onSortChange} />
-              <SelectMenu variant="filter" onStateChange={onStateChange} />
+              <SelectMenu
+                variant="sort"
+                onSortChange={onSortChange}
+                accessibleLabel="Sort results"
+              />
+              <SelectMenu
+                variant="filter"
+                onStateChange={onStateChange}
+                accessibleLabel="Filter by state"
+              />
             </div>
           </div>
         </div>
 
         {/*List items */}
-        {children}
+        <div role="region" aria-labelledby={resultsHeadingId}>
+          <Heading id={resultsHeadingId} level={2} className="sr-only">
+            Results
+          </Heading>
+          {children}
+        </div>
 
         {/*Pagination Scroll */}
         {totalPages > 1 && (
@@ -87,6 +108,5 @@ BrowseListView.propTypes = {
   hasFetchedSuggestions: PropTypes.bool,
   onSortChange: PropTypes.func,
   onStateChange: PropTypes.func,
-  onFilterChange: PropTypes.func,
   type: PropTypes.string,
 };

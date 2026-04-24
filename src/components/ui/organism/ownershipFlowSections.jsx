@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import OwnershipFlowCard from '../molecule/ownershipFlowCard';
 import { OwnershipBox } from '../molecule/ownershipFlowBox';
-import { ArrowLeftIcon, ArrowUpIcon } from '@heroicons/react/16/solid';
+import { ArrowUpIcon } from '@heroicons/react/16/solid';
 import { toTitleCase } from '../../../lib/toTitleCase';
 
 /**
- * This file contains 4 components that make up the OwnershipFlowDiagram.
- * Currently hardcoded and will have to be reviewed when working with real data
- * Each component is wrapped in an OwnershipFlowCard to set consistent style and the individual title and bg color for that section.
- * Each component will have different rendering of the OwnershipBox to display information relavent to the its section.
+ * Visual section building blocks for the facility ownership flow diagram.
+ *
+ * Responsibilities:
+ * - Group ownership records by role-specific categories
+ * - Render consistent section cards for indirect owners, direct owners,
+ *   corporate management, facility details, and operators
+ * - Handle small conditional behaviors like load-more affordances and arrows
  */
 
 export function IndirectOwnersFlowSection({ items }) {
@@ -43,8 +46,9 @@ export function IndirectOwnersFlowSection({ items }) {
         {!showAll && indirectOwner.length > 10 && (
           <div className="mt-4 w-full text-center">
             <button
+              type="button"
               onClick={() => setShowAll(true)}
-              className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+              className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
             >
               Load {indirectOwner.length - 10} More
             </button>
@@ -178,8 +182,6 @@ CorporateFlowSection.propTypes = {
     }),
   ).isRequired,
 };
-//When we get real data will have to inspect the conditional render here.
-
 export function FacilityFlowSection({ items, facility, hasOperator }) {
   const { provider_name, reit_name } = facility;
   const managingEmployee = items

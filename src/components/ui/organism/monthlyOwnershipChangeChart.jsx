@@ -10,10 +10,13 @@ import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
 
 /**
- * This file contains two components.  First is MonthlyOwnershipChangeChart which serves as the container for the section.
- * The Chart component contains all the details within the barchart. The barchart is build with the visix component library https://visx.airbnb.tech/bars
+ * Monthly ownership-change chart section.
  *
- * The API call is located in this MonthyOwnershipChangeChart component, so the chart can be placed wherever needed.
+ * Responsibilities:
+ * - Fetches monthly ownership-change volume data
+ * - Renders a responsive horizontal bar chart with accessible SVG labeling
+ * - Provides a text-equivalent table for non-visual access
+ * - Displays loading and error states for the chart section
  */
 
 export default function MonthlyOwnershipChangeChart() {
@@ -56,9 +59,6 @@ export default function MonthlyOwnershipChangeChart() {
     return () => controller.abort();
   }, [API_BASE_URL]);
 
-  /**
-   * Contains section title. ParentSize is a Visix component that allows for responsiveness and it is wrapping the Chart component and passing it a dynamic width to Chart.
-   */
   return (
     <section aria-labelledby={headingId}>
       <div>
@@ -66,7 +66,6 @@ export default function MonthlyOwnershipChangeChart() {
           <Heading id={headingId} level={3}>
             Monthly SNF Ownership Change Volume (2024-2025)
           </Heading>
-
         </div>
 
         {loading ? (
@@ -113,6 +112,8 @@ function Chart({ width, height, data }) {
   //X axis positioning of bars
   const barXListItems = isMobile ? -20 : 20;
   const isPeakOrLowestX = isMobile ? 10 : 30;
+  const peakMonth = data.find((d) => d.indicator === 'PEAK');
+  const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
 
   // Scales
   const yScale = scaleBand({
@@ -129,17 +130,24 @@ function Chart({ width, height, data }) {
 
   return (
     <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+      <p id={descId} className="sr-only">
+        Horizontal bar chart showing monthly counts of facilities with
+        ownership changes in 2024 and 2025.
+        {peakMonth
+          ? ` Peak month: ${peakMonth.month} with ${peakMonth.count} ownership changes.`
+          : ''}
+        {lowestMonth
+          ? ` Lowest month: ${lowestMonth.month} with ${lowestMonth.count} ownership changes.`
+          : ''}
+      </p>
       <svg
         width={width}
         height={height}
         role="img"
-        aria-labelledby={`${titleId} ${descId}`}
+        aria-labelledby={titleId}
+        aria-describedby={descId}
       >
         <title id={titleId}>Monthly SNF ownership change volume chart</title>
-        <desc id={descId}>
-          Horizontal bar chart showing monthly counts of facilities with
-          ownership changes. Peak and lowest months are labeled when present.
-        </desc>
 
         {/* Header and labels above chart */}
         <Text
@@ -235,7 +243,7 @@ function Chart({ width, height, data }) {
                     fontWeight={600}
                     fill="#000"
                   >
-                    🡰 PEAK
+                    PEAK
                   </Text>
                 )}
                 {/*Lowest Marker*/}
@@ -249,7 +257,7 @@ function Chart({ width, height, data }) {
                     fontWeight={600}
                     fill="#000"
                   >
-                    🡰 LOWEST
+                    LOWEST
                   </Text>
                 )}
               </Group>
@@ -257,6 +265,28 @@ function Chart({ width, height, data }) {
           })}
         </Group>
       </svg>
+
+      <div className="sr-only">
+        <table>
+          <caption>Monthly ownership change counts</caption>
+          <thead>
+            <tr>
+              <th scope="col">Month</th>
+              <th scope="col">Ownership changes</th>
+              <th scope="col">Indicator</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.month}>
+                <th scope="row">{row.month}</th>
+                <td>{row.count}</td>
+                <td>{row.indicator || 'None'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

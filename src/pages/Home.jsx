@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/atom/button';
 import { Heading } from '../components/ui/atom/heading';
 import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';
 import UserGroupCircle from '../assets/userGroupCircle.jsx';
-import {
-  BuildingOffice2Icon,
-  UserGroupIcon,
-} from '@heroicons/react/24/outline';
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
@@ -32,6 +27,9 @@ export default function Home() {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
+
+  const heroCtaClasses =
+    'focus-ring-light inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800';
 
   useEffect(() => {
     setLoading(true);
@@ -90,13 +88,8 @@ export default function Home() {
                 <span>View nursing home profile pages</span>
               </li>
             </ul>
-            <Link to="/facilities" className="w-full">
-              <Button
-                color="darkZincOutline"
-                className="text-label-base w-full rounded-lg py-3 font-semibold"
-              >
-                Browse Nursing Homes
-              </Button>
+            <Link to="/facilities" className={heroCtaClasses}>
+              Browse Nursing Homes
             </Link>
           </div>
           <div className="border-content-tertiary flex flex-1 flex-col items-center rounded-xl border bg-[radial-gradient(circle_at_top_right,_#E9D5FF_20%,_#FAF5FF_60%)] p-5 shadow-sm">
@@ -114,13 +107,8 @@ export default function Home() {
                 <span>View profile pages for owners</span>
               </li>
             </ul>
-            <Link to="/owners" className="w-full">
-              <Button
-                color="darkZincOutline"
-                className="text-label-base w-full rounded-lg py-3 font-semibold"
-              >
-                Browse Owners
-              </Button>
+            <Link to="/owners" className={heroCtaClasses}>
+              Browse Owners
             </Link>
           </div>
         </div>
@@ -155,7 +143,7 @@ export default function Home() {
                     <li key={chain.name}>
                       <Link
                         to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
-                        className="flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40"
                         style={{ textDecoration: 'none' }}
                       >
                         <span className="text-paragraph-base font-bold text-blue-700 underline">
@@ -189,23 +177,24 @@ export default function Home() {
               ) : (
                 <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
                   {topOwners.map((owner) => (
-                    <Link
-                      key={owner.name}
-                      to={
-                        owner.slug
-                          ? `/owners/${owner.slug}`
-                          : `/owners/${slugify(owner.name)}`
-                      }
-                      className="flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40 focus:ring-2 focus:ring-purple-300 focus:outline-none"
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <span className="text-paragraph-base font-bold text-blue-700 underline">
-                        {toTitleCase(owner.name)}
-                      </span>
-                      <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
-                        {owner.count} facilities
-                      </span>
-                    </Link>
+                    <li key={owner.name}>
+                      <Link
+                        to={
+                          owner.slug
+                            ? `/owners/${owner.slug}`
+                            : `/owners/${slugify(owner.name)}`
+                        }
+                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <span className="text-paragraph-base font-bold text-blue-700 underline">
+                          {toTitleCase(owner.name)}
+                        </span>
+                        <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
+                          {owner.count} facilities
+                        </span>
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               )}

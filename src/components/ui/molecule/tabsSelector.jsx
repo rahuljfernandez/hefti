@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import useTabKeyNavigation from '../../../hooks/useTabKeyNavigation';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -26,11 +25,6 @@ export default function TabsSelector({
   panelId,
   getTabId,
 }) {
-  const { tabRefs, handleKeyDown } = useTabKeyNavigation(
-    tabsData,
-    (nextTab) => onTabChange?.(nextTab),
-  );
-
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
     if (newActive) onTabChange?.(newActive);
@@ -45,7 +39,7 @@ export default function TabsSelector({
           onChange={(e) => handleClick(e.target.value)}
           value={activeTab?.name}
           aria-label="Select a tab"
-          className="text-paragraph-sm col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-700"
+          className="focus-ring-light text-paragraph-sm col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-gray-900 outline-1 -outline-offset-1 outline-gray-300"
         >
           {tabsData.map((tab) => (
             <option key={tab.name}>{tab.name}</option>
@@ -64,25 +58,21 @@ export default function TabsSelector({
             aria-label="Tabs"
             className="-mb-px flex space-x-8"
           >
-            {tabsData.map((tab, index) => (
+            {tabsData.map((tab) => (
               <button
                 type="button"
                 key={tab.name}
-                ref={(element) => {
-                  tabRefs.current[index] = element;
-                }}
                 id={getTabId?.(tab.name)}
                 role="tab"
                 aria-selected={activeTab?.name === tab.name}
                 aria-controls={panelId}
-                tabIndex={activeTab?.name === tab.name ? 0 : -1}
+                tabIndex={0}
                 onClick={() => handleClick(tab.name)}
-                onKeyDown={(event) => handleKeyDown(event, index)}
                 className={classNames(
                   activeTab?.name === tab.name
                     ? 'border-blue-700 font-bold text-blue-700'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                  'text-paragraph-sm focus-visible:outline-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer border-b-2 px-1 py-4 whitespace-nowrap',
+                  'focus-ring-light text-paragraph-sm cursor-pointer rounded-sm border-b-2 px-1 py-4 whitespace-nowrap',
                 )}
               >
                 {tab.name}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Graph from 'graphology';
 import {
@@ -199,7 +199,7 @@ ForceAtlasToggle.propTypes = {
  * - Handles search-driven pin requests from outside the graph
  *
  * Props:
- * - onPinnedChang: Called when the locked node selection changes
+ * - onPinnedChange: Called when the locked node selection changes
  * - pinRequestNodeId: Node id requested externally for pin/focus behavior
  * - onPinRequestConsumed: Clears the external pin request after it is handled
  * - nodeSizeMetric: Controls which metric drives node sizing
@@ -539,34 +539,59 @@ export default function NetworkGraph({
   isSearchOpen,
   showFullScreenControl = true,
 }) {
+  const graphRegionId = useId();
+  const titleId = `${graphRegionId}-title`;
+  const descId = `${graphRegionId}-desc`;
   //fallback for setting node size mode
   const effectiveNodeSizeMetric = nodeSizeMetric ?? 'default';
+  const hubNode =
+    data?.nodes?.find((node) => String(node.id) === String(data?.hubId)) ?? null;
+  const nodeCount = Array.isArray(data?.nodes) ? data.nodes.length : 0;
+  const linkCount = Array.isArray(data?.links) ? data.links.length : 0;
   //if you need to set the background color of the graph it is done in tailwind.css
   return (
-    <SigmaContainer
-      style={sigmaStyle}
-      settings={{
-        autoRescale: false,
-      }}
+    <div
+      role="region"
+      aria-labelledby={titleId}
+      aria-describedby={descId}
+      className="h-full w-full"
     >
-      <LoadNetwork data={data} />
-      <ForceAtlasToggle startOnMount />
-      <InteractionLayer
-        onPinnedChange={onSelectNode}
-        pinRequestNodeId={pinRequestNodeId}
-        onPinRequestConsumed={onPinRequestConsumed}
-        nodeSizeMetric={effectiveNodeSizeMetric}
-      />
-      <GraphSearchController
-        searchQuery={searchQuery}
-        onSearchResults={onSearchResults}
-        isSearchOpen={isSearchOpen}
-      />
-      <ControlsContainer position="top-right">
-        <ZoomControl />
-        {showFullScreenControl && <FullScreenControl />}
-      </ControlsContainer>
-    </SigmaContainer>
+      <div className="sr-only">
+        <h3 id={titleId}>Owner network graph</h3>
+        <p id={descId}>
+          Interactive network visualization showing ownership relationships.
+          {hubNode?.label ? ` Hub owner: ${hubNode.label}.` : ''}
+          {` ${nodeCount} nodes and ${linkCount} links are displayed.`}
+          Use the search field to find a node directly, or select items from the
+          side panel to inspect details when available.
+        </p>
+      </div>
+
+      <SigmaContainer
+        style={sigmaStyle}
+        settings={{
+          autoRescale: false,
+        }}
+      >
+        <LoadNetwork data={data} />
+        <ForceAtlasToggle startOnMount />
+        <InteractionLayer
+          onPinnedChange={onSelectNode}
+          pinRequestNodeId={pinRequestNodeId}
+          onPinRequestConsumed={onPinRequestConsumed}
+          nodeSizeMetric={effectiveNodeSizeMetric}
+        />
+        <GraphSearchController
+          searchQuery={searchQuery}
+          onSearchResults={onSearchResults}
+          isSearchOpen={isSearchOpen}
+        />
+        <ControlsContainer position="top-right">
+          <ZoomControl />
+          {showFullScreenControl && <FullScreenControl />}
+        </ControlsContainer>
+      </SigmaContainer>
+    </div>
   );
 }
 

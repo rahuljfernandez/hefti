@@ -41,7 +41,12 @@ export default function NetworkSidePanelAccordion({
               : 'bg-border-secondary border-border-primary',
           )}
         >
-          <DisclosureButton className="flex w-full items-center justify-between px-4 py-3 text-left hover:cursor-pointer">
+          <DisclosureButton
+            className={clsx(
+              'flex w-full items-center justify-between px-4 py-3 text-left hover:cursor-pointer',
+              isMobile ? 'focus-panel-dark' : 'focus-panel-light',
+            )}
+          >
             <span
               className={clsx(
                 'text-paragraph-base flex items-center gap-1',

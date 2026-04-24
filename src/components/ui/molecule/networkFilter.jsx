@@ -8,14 +8,15 @@ import NetworkFilterControl from '../atom/networkFilterControl';
 /**
  * Overlay filter panel for the network graph modal.
  *
- * This component groups graph controls that should appear above the graph canvas
- * instead of inside the top navigation or right-side details panel.
+ * Purpose:
+ * - Groups graph controls that should appear above the graph canvas
+ *   instead of inside the top navigation or right-side details panel.
  *
  * Props:
- * -depth: tracks current depth of requested network (1 or 2)
- * -onSetDepth: used by buttons click to register a new selection in depth
- * -onSetNodeSizeMetric: used by buttons in Node Size section to register a node size mode.
- * -nodeSizeMetric: Tracks current node size viewing mode.
+ * - depth: tracks current depth of requested network (1 or 2)
+ * - onSetDepth: used by button clicks to register a new depth selection
+ * - onSetNodeSizeMetric: used by buttons in the Node Size section to register a node size mode
+ * - nodeSizeMetric: tracks current node size viewing mode
  *
  * Notes:
  * - Rendered by `OwnerNetworkGraphModal`
@@ -44,7 +45,7 @@ export default function NetworkFilter({
               <InfoTooltip text="Controls how many relationship layers are shown in the graph. Depth 1 shows direct connections. Depth 2 shows secondary relationships." />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label="Network depth">
               <NetworkFilterControl
                 value={1}
                 active={depth === 1}
@@ -67,7 +68,7 @@ export default function NetworkFilter({
           </div>
 
           {/* Metric buttons */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Node size metric">
             <NetworkFilterControl
               value={'Default'}
               active={nodeSizeMetric === 'default'}

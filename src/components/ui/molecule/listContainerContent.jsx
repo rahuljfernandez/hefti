@@ -6,10 +6,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
-import { slugify } from '../../../lib/slugify';
 import {
   badgeConfig,
-  getCmprColor,
   getBadgeColorAboveBelow,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
@@ -53,7 +51,7 @@ export function OwnershipAndStakeholders({ item }) {
         </p>
         <Link
           to={`/owners/${item.ownership_entity.slug}`}
-          className="text-heading-xs font-bold text-blue-600 underline"
+          className="focus-ring-light text-heading-xs rounded-sm font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
             textUnderlineOffset: '2px',
@@ -228,21 +226,31 @@ Penalties.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
-//facilty name is probably a link?
+/**
+ * Related facility card used on the owner profile page.
+ *
+ * Responsibilities:
+ * - Renders one associated facility as a single interactive card
+ * - Shows the facility name, location, CMS rating, and owner-role label
+ * - Uses one outer link so keyboard users tab through the list one card at a time
+ */
 export function RelatedFacilities({ item }) {
   const roleKey = item.cms_ownership_role || 'N/A';
   const roleLabel = ownerRoleMap[roleKey]?.label;
+  const facilityHref = `/facilities/${item.slug}`;
+  const facilityName = toTitleCase(item.provider_name);
   return (
-    <>
+    <Link
+      to={facilityHref}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}`}
+    >
       <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
         {/* Name + Address */}
         <div className="md:col-span-2">
-          <Link
-            to={`/facilities/${item.slug}`}
-            className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none"
-          >
-            {toTitleCase(item.provider_name)}
-          </Link>
+          <span className="text-paragraph-base order-1 font-bold text-blue-700 underline sm:order-none">
+            {facilityName}
+          </span>
           <div className="text-paragraph-base text-content-secondary order-2 md:order-none">
             {`${toTitleCase(item.street_address)}, ${toTitleCase(item.city)}, ${item.state} ${
               item.zip_code
@@ -251,12 +259,9 @@ export function RelatedFacilities({ item }) {
         </div>
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
-          <Link
-            to={`/facilities/${item.slug}`}
-            className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-          >
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
             View Profile
-          </Link>
+          </span>
         </div>
 
         {/* Divider */}
@@ -286,7 +291,7 @@ export function RelatedFacilities({ item }) {
           </div>
         </div>
       </div>
-    </>
+    </Link>
   );
 }
 
@@ -316,21 +321,27 @@ export function BrowseNursingHomes({ item }) {
 
   // Get the first ownership entity for display (or handle multiple)
   const primaryOwnership = item.facility_ownership_links?.[0]?.ownership_entity;
+  const facilityHref = `/facilities/${item.slug}`;
+  const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Link
+      to={facilityHref}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}`}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
       <div className="md:col-span-2">
-        <Link
-          to={`/facilities/${item.slug}`}
+        <span
           className="text-heading-xs font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
             textUnderlineOffset: '2px',
           }}
         >
-          {toTitleCase(item.provider_name || 'Unknown Facility')}
-        </Link>
+          {facilityName}
+        </span>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
           {item.street_address && item.city && item.state
             ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
@@ -340,12 +351,9 @@ export function BrowseNursingHomes({ item }) {
 
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <Link
-          to={`/facilities/${item.slug}`}
-          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-        >
+        <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
           View Profile
-        </Link>
+        </span>
       </div>
 
       {/* Divider */}
@@ -375,7 +383,8 @@ export function BrowseNursingHomes({ item }) {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 }
 
@@ -399,20 +408,26 @@ export function BrowseOwners({ item }) {
 
   // Get the first facility for display (or handle multiple)
   const primaryFacility = item.facility_ownership_links?.[0]?.facility;
+  const ownerHref = `/owners/${item.slug}`;
+  const ownerName = toTitleCase(item.cms_ownership_name || 'Unknown Owner');
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Link
+      to={ownerHref}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${ownerName}`}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Name + Address */}
       <div className="md:col-span-2">
-        <Link
-          to={`/owners/${item.slug}`}
+        <span
           className="text-heading-xs font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
             textUnderlineOffset: '2px',
           }}
         >
-          {toTitleCase(item.cms_ownership_name || 'Unknown Owner')}
-        </Link>
+          {ownerName}
+        </span>
         <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
           {primaryFacility &&
           primaryFacility.street_address &&
@@ -425,12 +440,9 @@ export function BrowseOwners({ item }) {
 
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <Link
-          to={`/owners/${item.slug}`}
-          className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto"
-        >
+        <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
           View Profile
-        </Link>
+        </span>
       </div>
 
       {/* Divider */}
@@ -458,9 +470,28 @@ export function BrowseOwners({ item }) {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 }
+
+BrowseOwners.propTypes = {
+  item: PropTypes.shape({
+    slug: PropTypes.string,
+    cms_ownership_name: PropTypes.string,
+    cms_owner_total_facilities: PropTypes.number,
+    cms_ownership_type: PropTypes.string,
+    facility_ownership_links: PropTypes.arrayOf(
+      PropTypes.shape({
+        facility: PropTypes.shape({
+          street_address: PropTypes.string,
+          city: PropTypes.string,
+          state: PropTypes.string,
+        }),
+      }),
+    ),
+  }).isRequired,
+};
 
 /**
  * Long-form metric card used in tab sections such as Clinical Quality and Financial Overview.
@@ -703,7 +734,8 @@ export function NetworkSidePanelList({ item, onSelectNode, variant }) {
       type="button"
       onClick={() => onSelectNode?.(item.ownerId)} // <-- THIS pins/selects Sigma node
       className={clsx(
-        'flex w-full items-center gap-4 px-4 py-2 text-left text-sm hover:cursor-pointer',
+        variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
+        'flex w-full items-center gap-4 rounded-md px-4 py-2 text-left text-sm hover:cursor-pointer',
         isMobile ? 'bg-zinc-900' : 'bg-white hover:bg-gray-50',
       )}
     >
