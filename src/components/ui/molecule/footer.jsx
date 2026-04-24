@@ -12,12 +12,12 @@ import { useIsMobile } from '../../../hooks/useIsMobile';
 
 const navigation = {
   solutions: [
-    { name: 'CMS Data', updated: 'Updated on May 5 2025', href: '#' },
-    { name: 'HEFTI Data', updated: 'Updated on May 5 2025', href: '#' },
+    { name: 'CMS Data', updated: 'Updated on May 5 2025' },
+    { name: 'HEFTI Data', updated: 'Updated on May 5 2025' },
   ],
   legal: [
-    { name: 'Terms of service', href: '#' },
-    { name: 'Public Disclosures', href: '#' },
+    { name: 'Terms of service' },
+    { name: 'Public Disclosures' },
   ],
 };
 
@@ -53,13 +53,10 @@ export default function Footer() {
                 <ul role="list" className="mt-6 space-y-4 md:mt-4">
                   {navigation.solutions.map((item) => (
                     <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-paragraph-base text-content-tertiary hover:text-core-white"
-                      >
+                      <span className="text-paragraph-base text-content-tertiary">
                         {item.name} <br />
                         <span className="italic"> {item.updated}</span>
-                      </a>
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -73,12 +70,9 @@ export default function Footer() {
                 <ul role="list" className="mt-6 space-y-4 md:mt-4">
                   {navigation.legal.map((item) => (
                     <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-paragraph-base text-content-tertiary hover:text-core-white"
-                      >
+                      <span className="text-paragraph-base text-content-tertiary">
                         {item.name}
-                      </a>
+                      </span>
                     </li>
                   ))}
                 </ul>
