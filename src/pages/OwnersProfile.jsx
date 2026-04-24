@@ -124,6 +124,7 @@ export default function OwnersProfile() {
               freshness={freshness}
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
+              subjectType="owner"
             />
             <OwnersNetworkGraphLauncher ownerId={owner.id} />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}

@@ -13,6 +13,7 @@ export default function ProfileHeader({
   freshness,
   func,
   onClick,
+  subjectType = 'owner',
 }) {
   return (
     <div className="bg-background-secondary my-6 flex flex-wrap font-sans lg:flex-row lg:justify-between">
@@ -30,7 +31,7 @@ export default function ProfileHeader({
         )}
       </div>
       <div>
-        <HeftiResearcherCTA onClick={onClick} />
+        <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />
       </div>
     </div>
   );
@@ -42,4 +43,5 @@ ProfileHeader.propTypes = {
   freshness: PropTypes.node,
   func: PropTypes.func,
   onClick: PropTypes.func,
+  subjectType: PropTypes.oneOf(['owner', 'facility']),
 };

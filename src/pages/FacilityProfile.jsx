@@ -131,6 +131,7 @@ export default function FacilityProfile() {
               freshness={facility.data_freshness}
               func={getBadgeColorOwnershipType}
               onClick={handleResearchClick}
+              subjectType="facility"
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell

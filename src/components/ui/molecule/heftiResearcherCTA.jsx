@@ -7,14 +7,20 @@ import { SparklesIcon } from '@heroicons/react/20/solid';
  * The gradient border is a background on the outer button with padding acting as border thickness.
  * Animation and fallback styles live in tailwind.css under `.hefti-cta-border`.
  */
-export default function HeftiResearcherCTA({ onClick }) {
+export default function HeftiResearcherCTA({
+  onClick,
+  subjectType = 'owner',
+}) {
+  const subjectLabel = subjectType === 'facility' ? 'facility' : 'owner';
+
   return (
     // Outer element is the visible gradient border — padding = border thickness.
     // focus-visible ring only shows on keyboard nav, not mouse click.
     <button
+      type="button"
       onClick={onClick}
       className="hefti-cta-border group max-w-[270px] rounded-xl p-[2.5px] transition-all duration-200 ease-out hover:-translate-y-px hover:cursor-pointer hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-      aria-label="Open HEFTI Researcher AI chat"
+      aria-label={`Open HEFTI Researcher AI chat for this ${subjectLabel}`}
     >
       {/* Inner div sits on top of the gradient background, creating the border illusion */}
       <div className="flex gap-2 rounded-[10.5px] bg-white p-2 text-left transition-colors duration-200 group-hover:bg-[#f8fbff]">
@@ -25,7 +31,7 @@ export default function HeftiResearcherCTA({ onClick }) {
         <p className="text-label-xs text-core-black">
           HEFTI Researcher{' '}
           <span className="text-xs font-normal">
-            can help you construct charts based on this owner.
+            can help you construct charts based on this {subjectLabel}.
           </span>
         </p>
       </div>
@@ -35,4 +41,5 @@ export default function HeftiResearcherCTA({ onClick }) {
 
 HeftiResearcherCTA.propTypes = {
   onClick: PropTypes.func.isRequired,
+  subjectType: PropTypes.oneOf(['owner', 'facility']),
 };
