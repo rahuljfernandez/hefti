@@ -32,7 +32,7 @@ export default function Breadcrumb({ pages }) {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="text-paragraph-sm font-medium text-blue-700 hover:underline focus:outline-none focus-visible:underline focus-visible:ring-2 focus-visible:ring-blue-700"
+                className="focus-ring-light text-paragraph-sm rounded-sm font-medium text-blue-700 hover:underline focus-visible:underline"
               >
                 Go back
               </button>
@@ -63,7 +63,7 @@ export default function Breadcrumb({ pages }) {
                       ) : (
                         <Link
                           to={page.to}
-                          className="text-paragraph-sm text-core-black rounded-sm hover:text-content-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+                          className="focus-ring-light text-paragraph-sm text-core-black rounded-sm hover:text-content-secondary"
                         >
                           {page.name}
                         </Link>

@@ -127,7 +127,7 @@ export default function SelectMenu({
           value={selected?.value ?? ''}
           onChange={handleDesktopChange}
           aria-label={accessibleLabel ?? `${label} options`}
-          className="text-label-sm text-content-secondary h-14 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          className="focus-ring-light text-label-sm text-content-secondary h-14 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6"
         >
           <option value="">{label}</option>
           {options.map((option) => (
@@ -147,7 +147,7 @@ export default function SelectMenu({
           ref={mobileTriggerRef}
           type="button"
           onClick={() => handleOpen()}
-          className="text-label-sm text-content-secondary col-start-1 row-start-1 h-14 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 h-14 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6"
         >
           {selected !== null ? `${label} selected` : label}
         </button>

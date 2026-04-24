@@ -204,7 +204,7 @@ export default function SearchMenu({
           activeSuggestion ? `${listboxId}-option-${activeSuggestion.id}` : undefined
         }
         aria-label={accessibleLabel}
-        className="text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-400 sm:text-sm/6"
+        className="focus-ring-light text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6"
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -310,7 +310,7 @@ export default function SearchMenu({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleMobileKeyDown}
               placeholder={placeholder}
-              className="text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-400 sm:text-sm/6"
+              className="focus-ring-light text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6"
             />
             <MagnifyingGlassIcon
               className="pointer-events-none absolute top-1/2 left-3 z-15 size-5 -translate-y-1/2 text-gray-400"
