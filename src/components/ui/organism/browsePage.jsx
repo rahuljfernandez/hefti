@@ -22,7 +22,6 @@ BrowsePage.propTypes = {
   title: PropTypes.string.isRequired,
   searchPlaceholder: PropTypes.string,
   renderList: PropTypes.func.isRequired,
-  mapSuggestions: PropTypes.func.isRequired,
   type: PropTypes.oneOf(['facilities', 'owners']),
 };
 
@@ -134,7 +133,7 @@ export default function BrowsePage({
               title="Failed to load"
               message="Listings couldn't be retrieved. Try refreshing the page."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <BrowseListSkeleton count={3} error />
             </div>
           </>

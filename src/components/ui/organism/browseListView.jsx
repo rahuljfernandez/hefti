@@ -41,7 +41,7 @@ export default function BrowseListView({
 
         {/*Search Bar */}
         <div className="py-8">
-          <Heading id={searchHeadingId} level={4} className="text-label-lg">
+          <Heading id={searchHeadingId} level={2} className="text-label-lg">
             {' '}
             Search by name
           </Heading>
@@ -108,6 +108,5 @@ BrowseListView.propTypes = {
   hasFetchedSuggestions: PropTypes.bool,
   onSortChange: PropTypes.func,
   onStateChange: PropTypes.func,
-  onFilterChange: PropTypes.func,
   type: PropTypes.string,
 };
