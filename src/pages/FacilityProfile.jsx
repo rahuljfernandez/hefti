@@ -86,7 +86,6 @@ export default function FacilityProfile() {
     fetchNationalBenchmarks();
   }, []);
 
-
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility?.facility_ownership_links || [];
 
@@ -126,88 +125,94 @@ export default function FacilityProfile() {
           </>
         ) : (
           <>
-        <ProfileHeader
-          title={facility.provider_name}
-          ownershipType={facility.ownership_type}
-          freshness={facility.data_freshness}
-          func={getBadgeColorOwnershipType}
-          onClick={handleResearchClick}
-        />
-        {/* Shared tab shell; active tab content is chosen in the render function below. */}
-        <TabsShell
-          tabsData={profileTabsDescriptions}
-          defaultTabName={'Provider Highlights'}
-        >
-          {(activeTab) => {
-            switch (activeTab.name) {
-              case 'Provider Highlights':
-                return (
-                  <ProviderHighlights items={facility} status="facility" />
-                );
-              //As of 3/16/26 we are holding off on deficiencies
-              //4/17 Tyler requested tab be visible with coming soon
-              case 'Deficiencies & Penalties':
-                return <DeficienciesTab items={facility} />;
-
-              case 'Clinical Quality Measures':
-                return (
-                  <ClinicalQualityTab
-                    metricsSource={facility}
-                    status={'facility'}
-                    nationalBenchmarks={nationalBenchmarks}
-                  />
-                );
-
-              case 'Staffing':
-                return <StaffingTab items={facility} status={'facility'} />;
-
-              case 'Financial Overview':
-                return (
-                  <FinancialOverviewTab
-                    items={facility}
-                    status={'facility'}
-                    nationalBenchmarks={nationalBenchmarks}
-                  />
-                );
-
-              default:
-                return (
-                  <p className="text-muted-foreground text-sm">
-                    This section is under development.
-                  </p>
-                );
-            }
-          }}
-        </TabsShell>
-
-        {/* Ownership details are shown only when linked ownership records exist. */}
-        {ownershipLinks.length > 0 && (
-          <>
-            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-              Ownership and Stakeholders
-            </Heading>
-            <ListContainer
-              items={ownershipLinks}
-              LayoutSelector={ListContainerDivider}
-              ListContent={OwnershipAndStakeholders}
+            <ProfileHeader
+              title={facility.provider_name}
+              ownershipType={facility.ownership_type}
+              freshness={facility.data_freshness}
+              func={getBadgeColorOwnershipType}
+              onClick={handleResearchClick}
             />
-            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-              Ownership Diagram
-            </Heading>
-            <div className="pb-8">
-              <OwnershipFlowDiagram
-                items={ownershipLinks}
-                facility={facility}
-              />
+            {/* Shared tab shell; active tab content is chosen in the render function below. */}
+            <TabsShell
+              tabsData={profileTabsDescriptions}
+              defaultTabName={'Provider Highlights'}
+            >
+              {(activeTab) => {
+                switch (activeTab.name) {
+                  case 'Provider Highlights':
+                    return (
+                      <ProviderHighlights items={facility} status="facility" />
+                    );
+                  //As of 3/16/26 we are holding off on deficiencies
+                  //4/17 Tyler requested tab be visible with coming soon
+                  case 'Deficiencies & Penalties':
+                    return <DeficienciesTab items={facility} />;
+
+                  case 'Clinical Quality Measures':
+                    return (
+                      <ClinicalQualityTab
+                        metricsSource={facility}
+                        status={'facility'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
+
+                  case 'Staffing':
+                    return <StaffingTab items={facility} status={'facility'} />;
+
+                  case 'Financial Overview':
+                    return (
+                      <FinancialOverviewTab
+                        items={facility}
+                        status={'facility'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
+
+                  default:
+                    return (
+                      <p className="text-muted-foreground text-sm">
+                        This section is under development.
+                      </p>
+                    );
+                }
+              }}
+            </TabsShell>
+
+            {/* Ownership details are shown only when linked ownership records exist. */}
+            {ownershipLinks.length > 0 && (
+              <>
+                <Heading
+                  level={3}
+                  className="text-heading-sm mt-8 mb-4 font-bold"
+                >
+                  Ownership and Stakeholders
+                </Heading>
+                <ListContainer
+                  items={ownershipLinks}
+                  LayoutSelector={ListContainerDivider}
+                  ListContent={OwnershipAndStakeholders}
+                />
+                <Heading
+                  level={3}
+                  className="text-heading-sm mt-8 mb-4 font-bold"
+                >
+                  Ownership Diagram
+                </Heading>
+                <div className="pb-8">
+                  <OwnershipFlowDiagram
+                    items={ownershipLinks}
+                    facility={facility}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Bottom metadata panel for facility-level additional fields. */}
+            <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
+              <AdditionalInformation items={facility} />
             </div>
           </>
-        )}
-
-        {/* Bottom metadata panel for facility-level additional fields. */}
-        <div className={ownershipLinks.length > 0 ? 'pb-8' : 'pt-8 pb-8'}>
-          <AdditionalInformation items={facility} />
-        </div>
-        </>
         )}
       </LayoutPage>
     </div>

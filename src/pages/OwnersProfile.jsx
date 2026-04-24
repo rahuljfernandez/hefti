@@ -69,7 +69,6 @@ export default function OwnersProfile() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-
   // Use related facilities from API if available
   const relatedFacilities =
     owner?.facility_ownership_links?.map((link) => ({
@@ -119,27 +118,27 @@ export default function OwnersProfile() {
           </>
         ) : (
           <>
-        <ProfileHeader
-          title={toTitleCase(owner.cms_ownership_name)}
-          ownershipType={owner.cms_ownership_type}
-          freshness={freshness}
-          func={getBadgeColorOwnerProfile}
-          onClick={handleResearchClick}
-        />
-        <OwnersNetworkGraphLauncher ownerId={owner.id} />
-        {/* Shared tab shell; active tab content is chosen in the render function below. */}
-        <TabsShell
-          tabsData={profileTabsDescriptions}
-          defaultTabName={'Provider Highlights'}
-        >
-          {(activeTab) => {
-            switch (activeTab.name) {
-              case 'Provider Highlights':
-                return <ProviderHighlights items={owner} status="owner" />;
-              //As of 3/16/26 we are holding off on deficiencies
-              //4/17 Tyler requested tab be visible with coming soon
-              case 'Deficiencies & Penalties':
-                return <DeficienciesTab items={owner} />;
+            <ProfileHeader
+              title={toTitleCase(owner.cms_ownership_name)}
+              ownershipType={owner.cms_ownership_type}
+              freshness={freshness}
+              func={getBadgeColorOwnerProfile}
+              onClick={handleResearchClick}
+            />
+            <OwnersNetworkGraphLauncher ownerId={owner.id} />
+            {/* Shared tab shell; active tab content is chosen in the render function below. */}
+            <TabsShell
+              tabsData={profileTabsDescriptions}
+              defaultTabName={'Provider Highlights'}
+            >
+              {(activeTab) => {
+                switch (activeTab.name) {
+                  case 'Provider Highlights':
+                    return <ProviderHighlights items={owner} status="owner" />;
+                  //As of 3/16/26 we are holding off on deficiencies
+                  //4/17 Tyler requested tab be visible with coming soon
+                  case 'Deficiencies & Penalties':
+                    return <DeficienciesTab items={owner} />;
 
                   case 'Clinical Quality Measures':
                     return (
