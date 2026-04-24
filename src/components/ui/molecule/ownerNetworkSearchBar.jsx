@@ -129,9 +129,8 @@ export default function OwnerNetworkSearchBar({
         onKeyDown={handleKeyDown}
         placeholder="Search nodes..."
         className={clsx(
-          'text-label-base text-content-tertiary bg-background-inverse-secondary rounded-full border px-3 py-1.5',
+          'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary rounded-full border px-3 py-1.5',
           'placeholder:text-content-tertiary border-border-inverse-primary pl-9',
-          'focus:ring-2 focus:ring-orange-400 focus:outline-none',
           isMobile ? 'w-full' : 'w-[280px]',
         )}
       />

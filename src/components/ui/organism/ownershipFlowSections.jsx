@@ -46,8 +46,9 @@ export function IndirectOwnersFlowSection({ items }) {
         {!showAll && indirectOwner.length > 10 && (
           <div className="mt-4 w-full text-center">
             <button
+              type="button"
               onClick={() => setShowAll(true)}
-              className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+              className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
             >
               Load {indirectOwner.length - 10} More
             </button>

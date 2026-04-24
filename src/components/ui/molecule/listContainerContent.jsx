@@ -51,7 +51,7 @@ export function OwnershipAndStakeholders({ item }) {
         </p>
         <Link
           to={`/owners/${item.ownership_entity.slug}`}
-          className="text-heading-xs font-bold text-blue-600 underline"
+          className="focus-ring-light text-heading-xs rounded-sm font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
             textUnderlineOffset: '2px',

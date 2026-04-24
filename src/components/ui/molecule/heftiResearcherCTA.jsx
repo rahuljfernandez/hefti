@@ -19,7 +19,7 @@ export default function HeftiResearcherCTA({
     <button
       type="button"
       onClick={onClick}
-      className="hefti-cta-border group max-w-[270px] rounded-xl p-[2.5px] transition-all duration-200 ease-out hover:-translate-y-px hover:cursor-pointer hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      className="focus-ring-light hefti-cta-border group max-w-[270px] rounded-xl p-[2.5px] transition-all duration-200 ease-out hover:-translate-y-px hover:cursor-pointer hover:shadow-sm"
       aria-label={`Open HEFTI Researcher AI chat for this ${subjectLabel}`}
     >
       {/* Inner div sits on top of the gradient background, creating the border illusion */}
