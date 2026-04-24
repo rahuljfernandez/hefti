@@ -242,7 +242,7 @@ export function RelatedFacilities({ item }) {
   return (
     <Link
       to={facilityHref}
-      className="block rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${facilityName}`}
     >
       <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
@@ -327,7 +327,7 @@ export function BrowseNursingHomes({ item }) {
   return (
     <Link
       to={facilityHref}
-      className="block rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${facilityName}`}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -413,7 +413,7 @@ export function BrowseOwners({ item }) {
   return (
     <Link
       to={ownerHref}
-      className="block rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${ownerName}`}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

@@ -17,7 +17,7 @@ export default function OwnerNetworkCtaBanner({ onOpen, triggerRef }) {
         ref={triggerRef}
         type="button"
         onClick={onOpen}
-        className="flex w-full cursor-pointer flex-col rounded-lg text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:flex-row sm:justify-between"
+        className="focus-ring-light flex w-full cursor-pointer flex-col rounded-lg text-left sm:flex-row sm:justify-between"
       >
         <div className="sm:max-w-2/3">
           <h3 className="text-core-black text-2xl sm:text-[40px]">

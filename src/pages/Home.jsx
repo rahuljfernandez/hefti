@@ -29,7 +29,7 @@ export default function Home() {
     'http://hefti-data-api.ddev.site:3000/api';
 
   const heroCtaClasses =
-    'inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
+    'focus-ring-light inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800';
 
   useEffect(() => {
     setLoading(true);
@@ -143,7 +143,7 @@ export default function Home() {
                     <li key={chain.name}>
                       <Link
                         to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
-                        className="flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40"
                         style={{ textDecoration: 'none' }}
                       >
                         <span className="text-paragraph-base font-bold text-blue-700 underline">
@@ -184,7 +184,7 @@ export default function Home() {
                             ? `/owners/${owner.slug}`
                             : `/owners/${slugify(owner.name)}`
                         }
-                        className="flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40 focus:ring-2 focus:ring-purple-300 focus:outline-none"
+                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40"
                         style={{ textDecoration: 'none' }}
                       >
                         <span className="text-paragraph-base font-bold text-blue-700 underline">

@@ -40,6 +40,16 @@
   }
 }
 
+@layer utilities {
+  .focus-ring-light {
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  .focus-ring-dark {
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black;
+  }
+}
+
 /*Need to remove display:block for Sigma's controller container */
 .react-sigma-control button svg {
   display: inline-block;

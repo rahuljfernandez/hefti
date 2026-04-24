@@ -48,7 +48,7 @@ export default function HeftiNavbar() {
       <div className="mx-auto max-w-7xl">
         <Disclosure>
           <Navbar aria-label="Primary" className="">
-            <Link to="/" aria-label="Home">
+            <Link to="/" aria-label="Home" className="focus-ring-light rounded-lg">
               <div className="flex items-center px-6">
                 <Logo className="block h-full" />
                 <span className="text-core-white ml-2 hidden text-xs leading-3.5 font-semibold tracking-widest italic md:block">
@@ -60,7 +60,7 @@ export default function HeftiNavbar() {
             <NavbarSpacer />
             <NavbarSection className="p-5">
               <div className="p-1 leading-none md:hidden">
-                <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
+                <DisclosureButton className="focus-ring-light group relative inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white">
                   <span className="sr-only">Open main menu</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -95,7 +95,7 @@ export default function HeftiNavbar() {
               <NavbarItem
                 href="/about"
                 aria-label="About"
-                className="text-core-white hidden md:block md:p-0.75"
+                className="focus-ring-light text-core-white hidden md:block md:p-0.75"
               >
                 About
               </NavbarItem>
@@ -103,7 +103,7 @@ export default function HeftiNavbar() {
               <NavbarItem
                 href="/contact-us"
                 aria-label="Contact Us"
-                className="text-core-white hidden md:block md:p-0.75"
+                className="focus-ring-light text-core-white hidden md:block md:p-0.75"
               >
                 Contact Us
               </NavbarItem>
@@ -123,7 +123,7 @@ export default function HeftiNavbar() {
                     location.pathname === item.to
                       ? 'text-core-white bg-zinc-800'
                       : 'hover:text-core-white text-gray-300 hover:bg-zinc-700',
-                    'text-label-base block rounded-md px-3 py-2',
+                    'focus-ring-light text-label-base block rounded-md px-3 py-2',
                   )}
                 >
                   {item.name}
