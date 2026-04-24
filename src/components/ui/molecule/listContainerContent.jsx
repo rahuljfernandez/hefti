@@ -734,7 +734,8 @@ export function NetworkSidePanelList({ item, onSelectNode, variant }) {
       type="button"
       onClick={() => onSelectNode?.(item.ownerId)} // <-- THIS pins/selects Sigma node
       className={clsx(
-        'flex w-full items-center gap-4 px-4 py-2 text-left text-sm hover:cursor-pointer',
+        variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
+        'flex w-full items-center gap-4 rounded-md px-4 py-2 text-left text-sm hover:cursor-pointer',
         isMobile ? 'bg-zinc-900' : 'bg-white hover:bg-gray-50',
       )}
     >

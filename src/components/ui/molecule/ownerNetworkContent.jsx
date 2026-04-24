@@ -174,6 +174,7 @@ function TabbedMetricList({
             tabIndex={0}
             onClick={() => setActiveTab(tab.value)}
             className={clsx(
+              variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
               'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
               activeTab === tab.value
                 ? 'bg-zinc-200'

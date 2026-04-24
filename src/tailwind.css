@@ -48,6 +48,18 @@
   .focus-ring-dark {
     @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black;
   }
+
+  .focus-ring-shell-dark {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/85;
+  }
+
+  .focus-panel-light {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/80;
+  }
+
+  .focus-panel-dark {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400/80;
+  }
 }
 
 /*Need to remove display:block for Sigma's controller container */
@@ -62,6 +74,10 @@
 }
 .react-sigma .react-sigma-control > button:hover {
   background-color: #f4f4f5 !important;
+}
+.react-sigma .react-sigma-control > button:focus-visible {
+  outline: none !important;
+  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.8) !important;
 }
 .sigma-container {
   background-color: #ffffff !important;

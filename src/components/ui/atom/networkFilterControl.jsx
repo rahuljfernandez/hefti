@@ -32,7 +32,7 @@ export default function NetworkFilterControl({
       aria-pressed={active ?? false}
       aria-label={ariaLabel}
       className={clsx(
-        'text-label-xs text-core-black border-border-primary h-10 rounded-md border transition hover:cursor-pointer',
+        'focus-panel-light text-label-xs text-core-black border-border-primary h-10 rounded-md border transition hover:cursor-pointer',
         active ? 'bg-zinc-200' : 'bg-zinc-100 hover:bg-zinc-50',
       )}
     >

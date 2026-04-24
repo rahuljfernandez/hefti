@@ -28,7 +28,11 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-4 lg:grid-cols-5">
           <div className="md:col-span-2 md:grid">
-            <Link to="/" aria-label="Home" className="focus-ring-light rounded-lg">
+            <Link
+              to="/"
+              aria-label="Home"
+              className="focus-ring-shell-dark rounded-lg"
+            >
               <div className="flex items-center">
                 {isMobile ? (
                   <Logo className="block h-full" />
