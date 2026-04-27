@@ -778,3 +778,33 @@ NetworkSidePanelList.propTypes = {
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
+
+/**
+ * Single row for the state ranking tables.
+ *
+ * Expected item shape:
+ * - rank: number (1-based position)
+ * - name: state name string
+ */
+export function RankingTableRow({ item }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <span className="text-paragraph-base text-content-secondary w-4 text-right">
+          {item.rank}
+        </span>
+        <span className="text-paragraph-base text-core-black font-semibold">
+          {item.name}
+        </span>
+      </div>
+      <Badge color={item.badgeColor || 'green'}>#{item.rank}</Badge>
+    </div>
+  );
+}
+
+RankingTableRow.propTypes = {
+  item: PropTypes.shape({
+    rank: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+};

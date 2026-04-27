@@ -8,6 +8,7 @@ import UserGroupCircle from '../assets/userGroupCircle.jsx';
 import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
+import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
 
 /**
  * Home page
@@ -201,6 +202,10 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+      {/*State Ranking Data Table Visuals */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <StateRankingsHiLowViz />
       </section>
       {/* Barchart Graphic Section */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
