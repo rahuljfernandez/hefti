@@ -262,6 +262,48 @@ ChartSkeleton.propTypes = {
   error: PropTypes.bool,
 };
 
+// Used in: src/components/ui/molecule/rankingTables.jsx
+export function RankingTablesSkeleton({ error = false }) {
+  return (
+    <div className={`bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6 ${error ? '' : 'animate-pulse'}`}>
+      {/* Title / Toggle */}
+      <div className="mb-4 flex items-center justify-between">
+        <SkeletonBar className="h-5 w-36" error={error} />
+        <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
+      </div>
+      {/* Rows */}
+      <ul className="divide-y divide-gray-200">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <li key={i} className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-4">
+              <SkeletonBar className="h-4 w-4" error={error} />
+              <SkeletonBar className="h-4 w-32" error={error} />
+            </div>
+            <SkeletonBar className="h-6 w-10 rounded-full" error={error} />
+          </li>
+        ))}
+      </ul>
+      {/* Pagination */}
+      <div className="border-border-primary mt-3 flex items-center justify-between border-t pt-3">
+        <SkeletonBar className="h-4 w-32" error={error} />
+        <div className="flex gap-3">
+          <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
+          <SkeletonBar className="h-8 w-20 rounded-md" error={error} />
+        </div>
+      </div>
+      {error && (
+        <p className="text-paragraph-base mt-3 text-red-600" role="alert">
+          Failed to load ranking data. Please try again.
+        </p>
+      )}
+    </div>
+  );
+}
+
+RankingTablesSkeleton.propTypes = {
+  error: PropTypes.bool,
+};
+
 // Used in: src/pages/Home.jsx
 export function IndustryListSkeleton({ count = 10, error = false }) {
   return (

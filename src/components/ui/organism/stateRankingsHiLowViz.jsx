@@ -6,9 +6,14 @@ export default function StateRankingsHiLowViz() {
   return (
     <div className="mx-auto max-w-5xl">
       {/*Title/Subtile */}
-      <div>
-        <Heading level={3}>State Rankings</Heading>
-        <p className="text-paragraph-base">
+      <div className="mb-2">
+        <Heading
+          level={2}
+          className="text-heading-lg mb-2 text-center font-semibold"
+        >
+          State Rankings
+        </Heading>
+        <p className="text-paragraph-lg text-center">
           Rankings based on CMS nursing home data across all 53 states and
           territories
         </p>

@@ -799,7 +799,9 @@ export function RankingTableRow({ item }) {
         >
           {item.rank}
         </span>
-        <span className="text-paragraph-base text-core-black">{item.name}</span>
+        <span className="text-paragraph-base text-core-black font-medium">
+          {item.name}
+        </span>
       </div>
       <Badge color={item.badgeColor || 'green'} aria-hidden="true">
         #{item.rank}

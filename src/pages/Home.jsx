@@ -118,7 +118,7 @@ export default function Home() {
       {/* Bottom (lists) section with gray background */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <div className="mx-auto max-w-5xl">
-          <Heading level={2} className="text-heading-lg my-6 text-center">
+          <Heading level={2} className="text-heading-lg my-6 font-semibold text-center">
             State of the Nursing Home Industry
           </Heading>
           <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">

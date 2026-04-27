@@ -5,6 +5,7 @@ import LayoutCard from '../atom/layout-card';
 import { Heading } from '../atom/heading';
 import SimplePagination from './simplePagination';
 import { RankingTableRow } from './listContainerContent';
+import { RankingTablesSkeleton } from '../atom/skeletons';
 
 const STATES = [
   {
@@ -418,9 +419,11 @@ RankingTablesToggle.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default function RankingTables({ title, metric = 'overall_rank' }) {
+export default function RankingTables({ title, metric = 'overall_rank', isLoading = false, error = false }) {
   const [toggle, setToggle] = useState('best');
   const [currentPage, setCurrentPage] = useState(1);
+
+  if (isLoading || error) return <RankingTablesSkeleton error={error} />;
 
   const handleToggle = (val) => {
     setToggle(val);
@@ -482,4 +485,6 @@ RankingTables.propTypes = {
     'rank_staffing',
     'rank_outcomes',
   ]),
+  isLoading: PropTypes.bool,
+  error: PropTypes.bool,
 };
