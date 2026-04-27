@@ -15,13 +15,13 @@ export default function StateRankingsHiLowViz() {
       </div>
 
       {/*Table Visuals*/}
-      {/*Overall Rank*/}
+      {/*Overall Rank - full width*/}
       <RankingTables title={'Overall Rank'} metric="overall_rank" />
-      {/*Financial Rank*/}
-      <RankingTables title={'Financial Rank'} metric="rank_financial" />
-      {/*Staffing Rank*/}
-      <RankingTables title={'Staffing Rank'} metric="rank_staffing" />
-      {/*Health Outcome Rank*/}
+      {/*Sub-rankings - 2 column grid*/}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <RankingTables title={'Financial Rank'} metric="rank_financial" />
+        <RankingTables title={'Staffing Rank'} metric="rank_staffing" />
+      </div>
       <RankingTables title={'Health Outcomes Rank'} metric="rank_outcomes" />
     </div>
   );
