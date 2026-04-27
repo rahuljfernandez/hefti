@@ -24,8 +24,10 @@ export default function SimplePagination({ currentPage, totalItems, pageSize, on
           type="button"
           onClick={onPrev}
           disabled={isFirst}
+          aria-label="Go to previous page"
+          aria-disabled={isFirst}
           className={clsx(
-            'text-paragraph-base text-content-secondary relative inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
+            'focus-ring-light text-paragraph-base text-content-secondary relative inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
             isFirst ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 hover:cursor-pointer',
           )}
         >
@@ -35,8 +37,10 @@ export default function SimplePagination({ currentPage, totalItems, pageSize, on
           type="button"
           onClick={onNext}
           disabled={isLast}
+          aria-label="Go to next page"
+          aria-disabled={isLast}
           className={clsx(
-            'text-paragraph-base text-content-secondary relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
+            'focus-ring-light text-paragraph-base text-content-secondary relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
             isLast ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 hover:cursor-pointer',
           )}
         >

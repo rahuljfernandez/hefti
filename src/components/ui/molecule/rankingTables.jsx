@@ -385,7 +385,11 @@ const PAGE_SIZE = 5;
 export function RankingTablesToggle({ value, onChange }) {
   const options = ['Best', 'Worst'];
   return (
-    <div className="text-label-sm border-border-primary flex overflow-hidden rounded-md border shadow-sm">
+    <div
+      role="group"
+      aria-label="Sort order"
+      className="text-label-sm border-border-primary flex overflow-hidden rounded-md border shadow-sm"
+    >
       {options.map((option) => {
         const active = value === option.toLowerCase();
         return (
@@ -393,8 +397,9 @@ export function RankingTablesToggle({ value, onChange }) {
             key={option}
             type="button"
             onClick={() => onChange(option.toLowerCase())}
+            aria-pressed={active}
             className={clsx(
-              'text-core-black px-3 py-1.5 transition-colors hover:cursor-pointer',
+              'focus-panel-light text-core-black px-3 py-1.5 transition-colors hover:cursor-pointer',
               active
                 ? 'bg-background-primary'
                 : 'bg-background-tertiary hover:bg-white',
@@ -445,7 +450,7 @@ export default function RankingTables({ title, metric = 'overall_rank' }) {
           <RankingTablesToggle value={toggle} onChange={handleToggle} />
         </div>
         {/*Table */}
-        <ul className="divide-y divide-gray-200">
+        <ul role="list" aria-label={`${title} results`} className="divide-y divide-gray-200">
           {pageItems.map((item) => (
             <li key={item.id} className="py-3">
               <RankingTableRow item={item} />

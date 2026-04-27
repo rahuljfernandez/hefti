@@ -788,16 +788,22 @@ NetworkSidePanelList.propTypes = {
  */
 export function RankingTableRow({ item }) {
   return (
-    <div className="flex items-center justify-between">
+    <div
+      className="flex items-center justify-between"
+      aria-label={`${item.name}, ranked number ${item.rank}`}
+    >
       <div className="flex items-center gap-4">
-        <span className="text-paragraph-base text-content-secondary text-right">
+        <span
+          className="text-paragraph-base text-content-secondary text-right"
+          aria-hidden="true"
+        >
           {item.rank}
         </span>
-        <span className="text-paragraph-base text-core-black font-semibold">
-          {item.name}
-        </span>
+        <span className="text-paragraph-base text-core-black">{item.name}</span>
       </div>
-      <Badge color={item.badgeColor || 'green'}>#{item.rank}</Badge>
+      <Badge color={item.badgeColor || 'green'} aria-hidden="true">
+        #{item.rank}
+      </Badge>
     </div>
   );
 }
@@ -806,5 +812,6 @@ RankingTableRow.propTypes = {
   item: PropTypes.shape({
     rank: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
+    badgeColor: PropTypes.string,
   }).isRequired,
 };
