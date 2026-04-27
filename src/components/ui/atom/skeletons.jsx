@@ -262,7 +262,12 @@ ChartSkeleton.propTypes = {
   error: PropTypes.bool,
 };
 
-// Used in: src/components/ui/molecule/rankingTables.jsx
+/**
+ * Skeleton for RankingTables — mirrors the header, 5-row list, and pagination layout.
+ * Pass error={true} to swap the pulse animation for static red bars and an error message.
+ *
+ * Used in: src/components/ui/molecule/rankingTables.jsx
+ */
 export function RankingTablesSkeleton({ error = false }) {
   return (
     <div className={`bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6 ${error ? '' : 'animate-pulse'}`}>

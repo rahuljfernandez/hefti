@@ -2,6 +2,16 @@ import React from 'react';
 import { Heading } from '../atom/heading';
 import RankingTables from '../molecule/rankingTables';
 
+/**
+ * State Rankings section for the home page.
+ *
+ * Renders four RankingTables (Overall, Financial, Staffing, Health Outcomes)
+ * using hardcoded CMS state data. Overall and Health Outcomes span full width;
+ * Financial and Staffing sit side-by-side in a two-column grid.
+ *
+ * When the backend ranking endpoint is ready, data should be lifted here and
+ * passed down to each RankingTables via props.
+ */
 export default function StateRankingsHiLowViz() {
   return (
     <div className="mx-auto max-w-5xl">

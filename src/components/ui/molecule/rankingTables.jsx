@@ -383,6 +383,10 @@ const STATES = [
 
 const PAGE_SIZE = 5;
 
+/**
+ * Segmented Best / Worst toggle for ranking tables.
+ * Announces the active selection to screen readers via aria-pressed.
+ */
 export function RankingTablesToggle({ value, onChange }) {
   const options = ['Best', 'Worst'];
   return (
@@ -419,6 +423,19 @@ RankingTablesToggle.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
+/**
+ * Paginated state ranking table with Best / Worst toggle.
+ *
+ * Data is hardcoded in STATES until the backend endpoint is ready.
+ * When the API lands, replace STATES with the fetched payload and drive
+ * isLoading / error from the query state.
+ *
+ * Props:
+ * - title:     heading shown above the list
+ * - metric:    which ranking column to sort by (overall_rank | rank_financial | rank_staffing | rank_outcomes)
+ * - isLoading: renders the skeleton while data is in flight
+ * - error:     renders the error skeleton if the fetch fails
+ */
 export default function RankingTables({ title, metric = 'overall_rank', isLoading = false, error = false }) {
   const [toggle, setToggle] = useState('best');
   const [currentPage, setCurrentPage] = useState(1);
