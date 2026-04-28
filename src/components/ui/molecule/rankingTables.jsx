@@ -137,7 +137,7 @@ const STATES = [
   {
     state: 'Maine',
     overall_rank: 6,
-    rank_financial: 7,
+    rank_financial: 4,
     rank_staffing: 5,
     rank_outcomes: 6,
   },
@@ -436,7 +436,12 @@ RankingTablesToggle.propTypes = {
  * - isLoading: renders the skeleton while data is in flight
  * - error:     renders the error skeleton if the fetch fails
  */
-export default function RankingTables({ title, metric = 'overall_rank', isLoading = false, error = false }) {
+export default function RankingTables({
+  title,
+  metric = 'overall_rank',
+  isLoading = false,
+  error = false,
+}) {
   const [toggle, setToggle] = useState('best');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -458,7 +463,12 @@ export default function RankingTables({ title, metric = 'overall_rank', isLoadin
       id: s.state,
       rank: s[metric],
       name: s.state,
-      badgeColor: s[metric] <= 10 ? 'green' : s[metric] > STATES.length - 10 ? 'red' : 'zinc',
+      badgeColor:
+        s[metric] <= 10
+          ? 'green'
+          : s[metric] > STATES.length - 10
+            ? 'red'
+            : 'zinc',
     }));
 
   return (
@@ -470,7 +480,11 @@ export default function RankingTables({ title, metric = 'overall_rank', isLoadin
           <RankingTablesToggle value={toggle} onChange={handleToggle} />
         </div>
         {/*Table */}
-        <ul role="list" aria-label={`${title} results`} className="divide-y divide-gray-200">
+        <ul
+          role="list"
+          aria-label={`${title} results`}
+          className="divide-y divide-gray-200"
+        >
           {pageItems.map((item) => (
             <li key={item.id} className="py-3">
               <RankingTableRow item={item} />
