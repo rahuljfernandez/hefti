@@ -331,58 +331,58 @@ export function BrowseNursingHomes({ item }) {
       aria-label={`View profile for ${facilityName}`}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {/* Name + Address */}
-      <div className="md:col-span-2">
-        <span
-          className="text-heading-xs font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {facilityName}
-        </span>
-        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {item.street_address && item.city && item.state
-            ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
-            : 'Address not available'}
-        </p>
-      </div>
-
-      {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
-          View Profile
-        </span>
-      </div>
-
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
-
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="md:flex md:flex-row md:pr-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Owned by:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {primaryOwnership?.cms_ownership_name
-              ? toTitleCase(primaryOwnership.cms_ownership_name)
-              : primaryOwnership?.parent_company_name
-                ? toTitleCase(primaryOwnership.parent_company_name)
-                : 'N/A'}
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {facilityName}
+          </span>
+          <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+            {item.street_address && item.city && item.state
+              ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
+              : 'Address not available'}
           </p>
         </div>
 
-        <div className="md:flex md:flex-row">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Ownership Type:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.ownership_type || 'N/A')}
-          </p>
+        {/* Button — Top right on desktop, bottom on mobile */}
+        <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Profile
+          </span>
         </div>
-      </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
+
+        {/* Bottom Row */}
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+          <div className="md:flex md:flex-row md:pr-6">
+            <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+              Owned by:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {primaryOwnership?.cms_ownership_name
+                ? toTitleCase(primaryOwnership.cms_ownership_name)
+                : primaryOwnership?.parent_company_name
+                  ? toTitleCase(primaryOwnership.parent_company_name)
+                  : 'N/A'}
+            </p>
+          </div>
+
+          <div className="md:flex md:flex-row">
+            <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+              Ownership Type:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {toTitleCase(item.ownership_type || 'N/A')}
+            </p>
+          </div>
+        </div>
       </div>
     </Link>
   );
@@ -417,59 +417,59 @@ export function BrowseOwners({ item }) {
       aria-label={`View profile for ${ownerName}`}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {/* Name + Address */}
-      <div className="md:col-span-2">
-        <span
-          className="text-heading-xs font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {ownerName}
-        </span>
-        <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-          {primaryFacility &&
-          primaryFacility.street_address &&
-          primaryFacility.city &&
-          primaryFacility.state
-            ? `${toTitleCase(primaryFacility.street_address)}, ${toTitleCase(primaryFacility.city)}, ${primaryFacility.state}`
-            : 'Multiple locations'}
-        </p>
-      </div>
-
-      {/* Button — Top right on desktop, bottom on mobile */}
-      <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
-          View Profile
-        </span>
-      </div>
-
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
-
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="md:flex md:flex-row md:pr-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Total Facilities:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {item.cms_owner_total_facilities ||
-              item.facility_ownership_links?.length ||
-              0}
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {ownerName}
+          </span>
+          <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+            {primaryFacility &&
+            primaryFacility.street_address &&
+            primaryFacility.city &&
+            primaryFacility.state
+              ? `${toTitleCase(primaryFacility.street_address)}, ${toTitleCase(primaryFacility.city)}, ${primaryFacility.state}`
+              : 'Multiple locations'}
           </p>
         </div>
 
-        <div className="md:flex md:flex-row">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            Ownership Type:
-          </p>
-          <p className="text-paragraph-base text-core-black font-semibold">
-            {toTitleCase(item.cms_ownership_type || 'N/A')}
-          </p>
+        {/* Button — Top right on desktop, bottom on mobile */}
+        <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Profile
+          </span>
         </div>
-      </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
+
+        {/* Bottom Row */}
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+          <div className="md:flex md:flex-row md:pr-6">
+            <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+              Total Facilities:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {item.cms_owner_total_facilities ||
+                item.facility_ownership_links?.length ||
+                0}
+            </p>
+          </div>
+
+          <div className="md:flex md:flex-row">
+            <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+              Ownership Type:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {toTitleCase(item.cms_ownership_type || 'N/A')}
+            </p>
+          </div>
+        </div>
       </div>
     </Link>
   );
@@ -777,4 +777,43 @@ NetworkSidePanelList.propTypes = {
   item: PropTypes.object.isRequired,
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+};
+
+/**
+ * Single row for the state ranking tables.
+ *
+ * Expected item shape:
+ * - rank: number (1-based position)
+ * - name: state name string
+ */
+export function RankingTableRow({ item }) {
+  return (
+    <div
+      className="flex items-center justify-between"
+      aria-label={`${item.name}, ranked number ${item.rank}`}
+    >
+      <div className="flex items-center gap-4">
+        <span
+          className="text-paragraph-base text-content-secondary text-right"
+          aria-hidden="true"
+        >
+          {item.rank}
+        </span>
+        <span className="text-paragraph-base text-core-black font-medium">
+          {item.name}
+        </span>
+      </div>
+      <Badge color={item.badgeColor || 'green'} aria-hidden="true">
+        #{item.rank}
+      </Badge>
+    </div>
+  );
+}
+
+RankingTableRow.propTypes = {
+  item: PropTypes.shape({
+    rank: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    badgeColor: PropTypes.string,
+  }).isRequired,
 };
