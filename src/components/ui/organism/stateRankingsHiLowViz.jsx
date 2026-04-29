@@ -24,8 +24,8 @@ export default function StateRankingsHiLowViz() {
           State Rankings
         </Heading>
         <p className="text-paragraph-lg text-center">
-          Rankings based on CMS nursing home data across all 53 states and
-          territories
+          Rankings based on cohorts of CMS measures including financial,
+          staffing, and health outcomes.
         </p>
       </div>
 
