@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
 import { getResearchPages } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
+import ResearchChart from '../components/ui/molecule/ResearchChart';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -144,6 +145,8 @@ export default function HeftiResearch() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+      let finalText = '';
+      const finalCharts = [];
 
       while (true) {
         const { done, value } = await reader.read();
@@ -166,6 +169,7 @@ export default function HeftiResearch() {
           }
 
           if (text) {
+            finalText += text;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantMessage.id
@@ -176,10 +180,13 @@ export default function HeftiResearch() {
           }
 
           if (chart) {
+            finalCharts.push(chart);
             setCharts((prev) => [...prev, chart]);
           }
         }
       }
+
+      console.log('[researcher] final response:', { text: finalText, charts: finalCharts });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     }
@@ -276,15 +283,7 @@ export default function HeftiResearch() {
         <section className="flex min-h-0 flex-col bg-white">
           <div className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4">
             {charts.map((chart, i) => (
-              <div key={i} className="rounded-xl border border-zinc-200 p-4">
-                <p className="text-paragraph-sm font-semibold text-core-black">{chart.title}</p>
-                {chart.description && (
-                  <p className="text-paragraph-sm text-content-secondary mt-1">{chart.description}</p>
-                )}
-                <pre className="mt-3 overflow-x-auto rounded bg-zinc-50 p-3 text-xs text-zinc-600">
-                  {JSON.stringify(chart.data, null, 2)}
-                </pre>
-              </div>
+              <ResearchChart key={i} chart={chart} />
             ))}
           </div>
         </section>
