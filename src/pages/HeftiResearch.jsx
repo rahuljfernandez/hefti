@@ -41,6 +41,7 @@ export default function HeftiResearch() {
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
+  const [charts, setCharts] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
@@ -84,6 +85,8 @@ export default function HeftiResearch() {
       content: '',
       isError: false,
     };
+
+    setCharts([]);
 
     // flushSync forces React to commit the new messages to the DOM synchronously
     // before we proceed. Without this, the requestAnimationFrame below would run
@@ -155,7 +158,7 @@ export default function HeftiResearch() {
           const payload = line.slice(6);
           if (payload === '[DONE]') break;
 
-          const { text, error } = JSON.parse(payload);
+          const { text, error, chart } = JSON.parse(payload);
 
           if (error) {
             setError(error);
@@ -170,6 +173,10 @@ export default function HeftiResearch() {
                   : m,
               ),
             );
+          }
+
+          if (chart) {
+            setCharts((prev) => [...prev, chart]);
           }
         }
       }
@@ -265,9 +272,21 @@ export default function HeftiResearch() {
           </div>
         </section>
 
-        {/**Right-Panel Images and Export */}
+        {/* Right panel — chart output */}
         <section className="flex min-h-0 flex-col bg-white">
-          <div className="mr-auto flex h-full w-full max-w-[600px] flex-col"></div>
+          <div className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4">
+            {charts.map((chart, i) => (
+              <div key={i} className="rounded-xl border border-zinc-200 p-4">
+                <p className="text-paragraph-sm font-semibold text-core-black">{chart.title}</p>
+                {chart.description && (
+                  <p className="text-paragraph-sm text-content-secondary mt-1">{chart.description}</p>
+                )}
+                <pre className="mt-3 overflow-x-auto rounded bg-zinc-50 p-3 text-xs text-zinc-600">
+                  {JSON.stringify(chart.data, null, 2)}
+                </pre>
+              </div>
+            ))}
+          </div>
         </section>
       </div>
     </>
