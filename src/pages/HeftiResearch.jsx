@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
 import { getResearchPages } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
+import ResearchChart from '../components/ui/molecule/ResearchChart';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -41,6 +42,7 @@ export default function HeftiResearch() {
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
+  const [charts, setCharts] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
@@ -84,6 +86,8 @@ export default function HeftiResearch() {
       content: '',
       isError: false,
     };
+
+    setCharts([]);
 
     // flushSync forces React to commit the new messages to the DOM synchronously
     // before we proceed. Without this, the requestAnimationFrame below would run
@@ -141,28 +145,39 @@ export default function HeftiResearch() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+      let finalText = '';
+      const finalCharts = [];
+      let lineBuffer = '';
+      let done = false;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      while (!done) {
+        const { done: streamDone, value } = await reader.read();
+        done = streamDone;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk
-          .split('\n')
-          .filter((line) => line.startsWith('data: '));
+        // Accumulate into a line buffer so SSE lines split across TCP chunks are
+        // reassembled before parsing. Without this, large chart payloads cause
+        // JSON.parse failures when the chunk boundary falls mid-line.
+        lineBuffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+        const lines = lineBuffer.split('\n');
+        // Keep the last (potentially incomplete) segment in the buffer
+        lineBuffer = lines.pop();
 
         for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6);
-          if (payload === '[DONE]') break;
+          if (payload === '[DONE]') { done = true; break; }
 
-          const { text, error } = JSON.parse(payload);
+          const { text, error, chart } = JSON.parse(payload);
 
           if (error) {
             setError(error);
+            done = true;
             break;
           }
 
           if (text) {
+            finalText += text;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantMessage.id
@@ -171,8 +186,15 @@ export default function HeftiResearch() {
               ),
             );
           }
+
+          if (chart) {
+            finalCharts.push(chart);
+            setCharts((prev) => [...prev, chart]);
+          }
         }
       }
+
+      console.log('[researcher] final response:', { text: finalText, charts: finalCharts });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     }
@@ -265,9 +287,13 @@ export default function HeftiResearch() {
           </div>
         </section>
 
-        {/**Right-Panel Images and Export */}
+        {/* Right panel — chart output */}
         <section className="flex min-h-0 flex-col bg-white">
-          <div className="mr-auto flex h-full w-full max-w-[600px] flex-col"></div>
+          <div className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4">
+            {charts.map((chart, i) => (
+              <ResearchChart key={i} chart={chart} />
+            ))}
+          </div>
         </section>
       </div>
     </>
