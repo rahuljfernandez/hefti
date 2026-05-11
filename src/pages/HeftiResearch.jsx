@@ -147,24 +147,32 @@ export default function HeftiResearch() {
       const decoder = new TextDecoder();
       let finalText = '';
       const finalCharts = [];
+      let lineBuffer = '';
+      let done = false;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      while (!done) {
+        const { done: streamDone, value } = await reader.read();
+        done = streamDone;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk
-          .split('\n')
-          .filter((line) => line.startsWith('data: '));
+        // Accumulate into a line buffer so SSE lines split across TCP chunks are
+        // reassembled before parsing. Without this, large chart payloads cause
+        // JSON.parse failures when the chunk boundary falls mid-line.
+        lineBuffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+        const lines = lineBuffer.split('\n');
+        // Keep the last (potentially incomplete) segment in the buffer
+        lineBuffer = lines.pop();
 
         for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6);
-          if (payload === '[DONE]') break;
+          if (payload === '[DONE]') { done = true; break; }
 
           const { text, error, chart } = JSON.parse(payload);
 
           if (error) {
             setError(error);
+            done = true;
             break;
           }
 
