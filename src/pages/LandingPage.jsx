@@ -84,22 +84,77 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 2. STATS BAR ── */}
+      {/* ── 2. WHY HEFTI ── */}
+      <section
+        id="why"
+        aria-labelledby="why-heading"
+        className="bg-white py-20"
+      >
+        <div className="mx-auto max-w-[1160px] px-6">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+            {/* Left 1/3 — title */}
+            <div>
+              <p className="text-label-sm text-content-secondary mb-3 tracking-widest uppercase">
+                Why HEFTI
+              </p>
+              <h2
+                id="why-heading"
+                className="text-core-black font-serif text-3xl leading-snug font-bold"
+              >
+                The data is public.
+                <br />
+                <span className="text-blue-400 italic">
+                  Now it&rsquo;s usable.
+                </span>
+              </h2>
+            </div>
+
+            {/* Right 2/3 — body */}
+            <div className="space-y-5 md:col-span-2">
+              <p className="text-paragraph-lg text-content-secondary">
+                Federal nursing home data is public — but it is buried across
+                dozens of CMS files, formatted for compliance rather than
+                research, and nearly impossible to query without a dedicated
+                data team.{' '}
+                <strong className="text-content-primary font-semibold">
+                  HEFTI changes that.
+                </strong>
+              </p>
+              <p className="text-paragraph-lg text-content-secondary">
+                We&rsquo;ve aggregated, linked, and structured ownership,
+                financial, and quality records across every Medicare and
+                Medicaid-certified facility in the United States — so
+                researchers, policymakers, and journalists can focus on the
+                questions, not the plumbing.
+              </p>
+              <p className="text-paragraph-lg text-content-secondary">
+                Nursing home ownership is often opaque. Corporate structures
+                obscure who is ultimately responsible for the quality of care
+                residents receive. HEFTI makes those connections visible — from
+                the individual owner to the private equity-backed chain spanning
+                dozens of states.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. STATS BAR ── */}
       <section id="stats" className="bg-background-inverse-primary py-12">
         {/* 15,000 / 51,000 / 139,000 / 50 */}
       </section>
 
-      {/* ── 3. FEATURES GRID ── */}
+      {/* ── 4. FEATURES GRID ── */}
       <section id="features" className="bg-background-primary py-20">
         {/* "Everything you need to understand a facility at a glance" + 6 cards */}
       </section>
 
-      {/* ── 4. CTA / Q&A ── */}
+      {/* ── 5. CTA / Q&A ── */}
       <section id="cta" className="bg-background-secondary py-20">
         {/* "Ask hard questions. Get direct answers." */}
       </section>
 
-      {/* ── 5. RESEARCH ── */}
+      {/* ── 6. RESEARCH ── */}
       <section id="research" className="bg-background-primary py-20">
         {/* "Rigorous research. Accessible data." */}
       </section>
