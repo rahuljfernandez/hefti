@@ -140,8 +140,43 @@ export default function LandingPage() {
       </section>
 
       {/* ── 3. STATS BAR ── */}
-      <section id="stats" className="bg-background-inverse-primary py-12">
-        {/* 15,000 / 51,000 / 139,000 / 50 */}
+      <section
+        id="stats"
+        aria-label="Platform statistics"
+        className="bg-slate-900 py-14"
+      >
+        <div className="mx-auto max-w-[1160px] px-6">
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
+            {[
+              {
+                stat: '15,000+',
+                label: 'Certified nursing facilities tracked nationwide',
+              },
+              {
+                stat: '51,000+',
+                label: 'Distinct ownership entities in the database',
+              },
+              {
+                stat: '159,000+',
+                label: 'Ownership linkages mapped across facilities',
+              },
+              {
+                stat: '50+',
+                label: 'States with full facility and ownership coverage',
+              },
+            ].map(({ stat, label }) => (
+              <div key={stat} className="bg-slate-900 px-6 py-8">
+                <dd className="font-serif text-5xl font-bold tracking-tight text-white">
+                  {stat.replace('+', '')}
+                  <span className="align-super text-3xl text-blue-400">+</span>
+                </dd>
+                <dt className="text-paragraph-sm mt-3 text-slate-400">
+                  {label}
+                </dt>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
 
       {/* ── 4. FEATURES GRID ── */}
