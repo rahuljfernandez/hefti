@@ -12,6 +12,7 @@ export default function LandingPage() {
 
       <section
         id="hero"
+        aria-labelledby="hero-heading"
         style={{
           backgroundImage: 'url(/src/assets/smokeyLayer.png)',
           backgroundSize: 'cover',
@@ -20,13 +21,16 @@ export default function LandingPage() {
         className="relative overflow-hidden bg-white py-28 text-center"
       >
         <div className="relative z-10 mx-auto max-w-[1160px] px-6">
-          {/* Eyebrow */}
-          <p className="text-label-sm text-content-tertiary mb-6 uppercase">
+          {/* Eyebrow — zinc-600 ensures 4.5:1 contrast on white */}
+          <p className="text-label-sm text-content-secondary mb-6 uppercase">
             Health Economics Financing &amp; Transparency Initiative
           </p>
 
           {/* Headline */}
-          <h1 className="text-core-black mx-auto mb-6 max-w-4xl font-serif text-5xl leading-tight font-bold tracking-tight md:text-6xl">
+          <h1
+            id="hero-heading"
+            className="text-core-black mx-auto mb-6 max-w-4xl font-serif text-5xl leading-tight font-bold tracking-tight md:text-6xl"
+          >
             Fostering <span className="text-blue-400 italic">ownership</span>
             <br />
             <span className="text-blue-400 italic">transparency</span> in
@@ -46,9 +50,10 @@ export default function LandingPage() {
             Led by{' '}
             <a
               href="https://vivo.weill.cornell.edu/display/cwid-rtb2003"
-              className="text-blue-700 underline hover:text-blue-600"
+              className="focus-ring-light rounded-sm text-blue-700 underline hover:text-blue-600"
               target="_blank"
               rel="noreferrer"
+              aria-label="Dr. Robert Tyler Braun (opens in new tab)"
             >
               Dr. Robert Tyler Braun
             </a>
@@ -57,8 +62,11 @@ export default function LandingPage() {
 
           {/* CTA button */}
           <div className="flex justify-center">
-            <Link to="/" className={heroCtaClasses}>
-              <CircleStackIcon className="h-8 w-8 shrink-0 text-blue-400" />
+            <Link to="/" className={`${heroCtaClasses} focus-ring-dark`}>
+              <CircleStackIcon
+                aria-hidden="true"
+                className="h-8 w-8 shrink-0 text-blue-400"
+              />
               <span className="text-left">
                 <span className="text-paragraph-base block">
                   Explore the HEFTI Platform
@@ -67,7 +75,10 @@ export default function LandingPage() {
                   15,000+ facilities &amp; 51,000+ owners
                 </span>
               </span>
-              <ArrowRightIcon className="text-content-secondary h-8 w-8 shrink-0" />
+              <ArrowRightIcon
+                aria-hidden="true"
+                className="text-content-inverse-secondary h-8 w-8 shrink-0"
+              />
             </Link>
           </div>
         </div>
