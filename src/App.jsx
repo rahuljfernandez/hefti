@@ -10,6 +10,7 @@ import Owners from './pages/Owners';
 import OwnersProfile from './pages/OwnersProfile';
 import FacilityProfile from './pages/FacilityProfile';
 import HeftiResearch from './pages/HeftiResearch';
+import LandingPage from './pages/LandingPage';
 import ScrollToTop from './components/ui/molecule/scrollToTop';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/facilities/:slug" element={<FacilityProfile />} />
           <Route path="/owners/:slug/research" element={<HeftiResearch />} />
           <Route path="/facilities/:slug/research" element={<HeftiResearch />} />
+          <Route path="landing" element={<LandingPage />} />
         </Route>
       </Routes>
     </>
