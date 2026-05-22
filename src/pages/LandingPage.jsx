@@ -27,7 +27,7 @@ export default function LandingPage() {
         }}
         className="relative overflow-hidden bg-white py-28 text-center"
       >
-        <div className="relative z-10 mx-auto max-w-[1160px] px-6">
+        <div className="relative z-10 mx-auto max-w-[1160px]">
           {/* Eyebrow — zinc-600 ensures 4.5:1 contrast on white */}
           <p className="text-label-sm text-content-secondary mb-6 uppercase">
             Health Economics Financing &amp; Transparency Initiative
@@ -46,7 +46,7 @@ export default function LandingPage() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-heading-xs text-content-secondary mb-4">
+          <p className="text-heading-xs text-content-secondary mb-4 px-16">
             Ownership, financial, and quality data for every certified nursing
             home in the U.S.&nbsp; Built to support informed decisions and
             stronger accountability.
@@ -153,7 +153,7 @@ export default function LandingPage() {
         className="bg-slate-900 py-14"
       >
         <div className="mx-auto max-w-[1160px]">
-          <dl className="bg-content-secondary grid grid-cols-1 gap-px overflow-hidden rounded-lg md:grid-cols-4">
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
             {[
               {
                 stat: '15,000+',
@@ -173,13 +173,13 @@ export default function LandingPage() {
               },
             ].map(({ stat, label }) => (
               <div key={stat} className="bg-slate-900 px-6 py-8">
-                <dd className="font-serif text-5xl font-bold tracking-tight text-white">
+                <dt className="text-paragraph-base text-content-tertiary">
+                  {label}
+                </dt>
+                <dd className="mt-2 font-serif text-5xl font-bold tracking-tight text-white">
                   {stat.replace('+', '')}
                   <span className="align-super text-3xl text-blue-400">+</span>
                 </dd>
-                <dt className="text-paragraph-base text-content-tertiary mt-3">
-                  {label}
-                </dt>
               </div>
             ))}
           </dl>
@@ -211,7 +211,7 @@ export default function LandingPage() {
           </div>
 
           {/* Cards grid */}
-          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 md:grid-cols-3">
             {[
               {
                 num: '01',
@@ -244,10 +244,7 @@ export default function LandingPage() {
                 body: 'An interactive graph view of ownership relationships between facilities and their owners. Click any node to explore quality, finance, and staffing metrics across connected entities.',
               },
             ].map(({ num, title, body }) => (
-              <div
-                key={num}
-                className="bg-core-white hover:bg-background-secondary px-8 py-8 transition-colors"
-              >
+              <div key={num} className="bg-white px-8 py-8">
                 <p className="text-label-xs text-content-tertiary mb-3">
                   {num}
                 </p>
@@ -317,8 +314,8 @@ export default function LandingPage() {
                   body: 'Open from any facility or owner profile and it already knows the entity in scope.',
                 },
               ].map(({ icon: Icon, title, body }) => (
-                <div key={title} className="flex gap-4">
-                  <div className="shrink-0">
+                <div key={title} className="flex items-start gap-4">
+                  <div className="mt-1 shrink-0">
                     <Icon
                       aria-hidden="true"
                       className="text-content-primary h-6 w-6"
@@ -338,8 +335,126 @@ export default function LandingPage() {
       </section>
 
       {/* ── 6. RESEARCH ── */}
-      <section id="research" className="bg-background-primary py-20">
-        {/* "Rigorous research. Accessible data." */}
+      <section
+        id="research"
+        aria-labelledby="research-heading"
+        className="bg-background-secondary py-20"
+      >
+        <div className="mx-auto max-w-[1160px] px-6">
+          <div className="grid grid-cols-1 gap-16 md:grid-cols-3">
+            {/* Left 2/3 — content */}
+            <div className="space-y-5 md:col-span-2">
+              <p className="text-label-sm text-content-secondary mb-3 uppercase">
+                About the initiative
+              </p>
+              <h2
+                id="research-heading"
+                className="font-serif text-4xl leading-tight font-bold text-zinc-900"
+              >
+                Rigorous research.
+                <br />
+                <span className="text-blue-400 italic">Accessible data.</span>
+              </h2>
+              <p className="text-paragraph-lg text-content-secondary">
+                The Health Economics Financing and Transparency Initiative
+                (HEFTI) is dedicated to fostering ownership transparency and
+                informed decision-making in healthcare by offering a
+                comprehensive suite of resources for a wide range of users.
+              </p>
+              <p className="text-paragraph-lg text-content-secondary">
+                HEFTI provides ownership, financial, and quality data for all
+                long-term care organizations — including those that are publicly
+                traded and private equity owned — in the United States. The
+                initiative also leads learning initiatives, creates quarterly
+                reports summarizing mergers and acquisition trends, and
+                disseminates empirical research.
+              </p>
+              <p className="text-paragraph-lg text-content-secondary">
+                The platform and its datasets are accessible to researchers,
+                policymakers, and the general audience through
+                easy-to-understand data visualizations and tools. Methodology
+                documentation is available for research and citation purposes.
+              </p>
+              <p className="text-paragraph-lg text-content-secondary">
+                HEFTI is led by Dr. Robert Tyler Braun, assistant professor of
+                population health sciences at Weill Cornell Medicine, and the
+                HEFTI research team.
+              </p>
+            </div>
+
+            {/* Right 1/3 — contact card */}
+            <div>
+              <LayoutCard>
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-label-sm text-content-secondary mb-3 uppercase">
+                      Initiative Lead
+                    </p>
+                    <p className="text-label-base font-semibold text-zinc-900">
+                      Dr. Robert Tyler Braun
+                    </p>
+                    <p className="text-paragraph-sm text-content-secondary">
+                      Assistant Professor, Population Health Sciences Weill
+                      Cornell Medicine
+                    </p>
+                  </div>
+
+                  <hr className="border-border-primary" />
+
+                  <div>
+                    <p className="text-label-sm text-content-secondary mb-3 uppercase">
+                      Contact
+                    </p>
+                    <address className="not-italic">
+                      <p className="text-paragraph-sm text-content-secondary">
+                        Cornell Health Policy Center
+                        <br />
+                        Population Health Sciences
+                        <br />
+                        575 Lexington Ave | 425 E. 61st Street
+                        <br />
+                        3rd Floor, New York, NY 10022
+                      </p>
+                      <p className="text-paragraph-sm text-content-secondary mt-3">
+                        <a
+                          href="tel:+16469628001"
+                          className="focus-ring-light rounded-sm hover:text-blue-600"
+                          aria-label="Call (646) 962-8001"
+                        >
+                          (646) 962-8001
+                        </a>
+                        <br />
+                        <a
+                          href="mailto:hefti@med.cornell.edu"
+                          className="focus-ring-light rounded-sm text-blue-700 underline hover:text-blue-600"
+                        >
+                          hefti@med.cornell.edu
+                        </a>
+                      </p>
+                    </address>
+                  </div>
+
+                  <hr className="border-border-primary" />
+
+                  <div>
+                    <p className="text-label-sm text-content-secondary mb-3 uppercase">
+                      Funding
+                    </p>
+                    <a
+                      href="https://arnoldventures.org"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="focus-ring-light text-paragraph-sm rounded-sm text-blue-700 underline hover:text-blue-600"
+                      aria-label="Arnold Ventures (opens in new tab)"
+                    >
+                      Arnold Ventures
+                    </a>
+                  </div>
+                </div>
+              </LayoutCard>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
