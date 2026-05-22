@@ -1,6 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CircleStackIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import LayoutCard from '../components/ui/atom/layout-card';
+import {
+  CircleStackIcon,
+  ArrowRightIcon,
+  LightBulbIcon,
+  PresentationChartBarIcon,
+  TableCellsIcon,
+} from '@heroicons/react/24/outline';
 
 const heroCtaClasses =
   'inline-flex items-center gap-3 rounded-xl bg-slate-900 px-6 py-4 text-white shadow-lg transition hover:bg-gray-800';
@@ -88,13 +95,13 @@ export default function LandingPage() {
       <section
         id="why"
         aria-labelledby="why-heading"
-        className="bg-white py-20"
+        className="bg-background-secondary py-20"
       >
         <div className="mx-auto max-w-[1160px] px-6">
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {/* Left 1/3 — title */}
             <div>
-              <p className="text-label-sm text-content-secondary mb-3 tracking-widest uppercase">
+              <p className="text-label-sm text-content-secondary mb-3 uppercase">
                 Why HEFTI
               </p>
               <h2
@@ -145,8 +152,8 @@ export default function LandingPage() {
         aria-label="Platform statistics"
         className="bg-slate-900 py-14"
       >
-        <div className="mx-auto max-w-[1160px] px-6">
-          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
+        <div className="mx-auto max-w-[1160px]">
+          <dl className="bg-content-secondary grid grid-cols-1 gap-px overflow-hidden rounded-lg md:grid-cols-4">
             {[
               {
                 stat: '15,000+',
@@ -170,7 +177,7 @@ export default function LandingPage() {
                   {stat.replace('+', '')}
                   <span className="align-super text-3xl text-blue-400">+</span>
                 </dd>
-                <dt className="text-paragraph-sm mt-3 text-slate-400">
+                <dt className="text-paragraph-base text-content-tertiary mt-3">
                   {label}
                 </dt>
               </div>
@@ -180,13 +187,154 @@ export default function LandingPage() {
       </section>
 
       {/* ── 4. FEATURES GRID ── */}
-      <section id="features" className="bg-background-primary py-20">
-        {/* "Everything you need to understand a facility at a glance" + 6 cards */}
+      <section
+        id="features"
+        aria-labelledby="features-heading"
+        className="bg-background-secondary py-20"
+      >
+        <div className="mx-auto max-w-[1160px] px-6">
+          {/* Section header */}
+          <div className="mb-12 max-w-3xl">
+            <p className="text-label-sm text-content-secondary mb-3 uppercase">
+              What you can explore
+            </p>
+            <h2
+              id="features-heading"
+              className="text-core-black font-serif text-3xl leading-snug font-bold"
+            >
+              Everything you need to understand a facility
+              <br />
+              <span className="text-blue-400 italic">
+                or a corporate ownership network.
+              </span>
+            </h2>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg sm:grid-cols-2 md:grid-cols-3">
+            {[
+              {
+                num: '01',
+                title: 'Ownership Networks',
+                body: 'Trace direct and indirect ownership relationships across facilities. Map corporate structures, identify chains, and understand who ultimately controls a nursing home — including private equity and REIT interests.',
+              },
+              {
+                num: '02',
+                title: 'Quality & Compliance',
+                body: 'CMS star ratings, health inspection scores, staffing hours per resident day, and full deficiency and civil money penalty records — benchmarked against state and national averages.',
+              },
+              {
+                num: '03',
+                title: 'Financial Performance',
+                body: 'Operating margins, total revenue, related-party transactions, and staffing costs from Medicare Cost Reports — aggregated to the owner level to surface financial patterns across portfolios.',
+              },
+              {
+                num: '04',
+                title: 'Staffing Data',
+                body: 'RN, LPN, and CNA hours per resident day from Payroll-Based Journal data — with turnover rates and workforce composition at the facility level, comparable to state and national peers.',
+              },
+              {
+                num: '05',
+                title: 'State Rankings',
+                body: 'Compare states on financial performance, staffing levels, and health outcomes. Drill down to see which facilities are driving performance in any state on any measure.',
+              },
+              {
+                num: '06',
+                title: 'Network Visualization',
+                body: 'An interactive graph view of ownership relationships between facilities and their owners. Click any node to explore quality, finance, and staffing metrics across connected entities.',
+              },
+            ].map(({ num, title, body }) => (
+              <div
+                key={num}
+                className="bg-core-white hover:bg-background-secondary px-8 py-8 transition-colors"
+              >
+                <p className="text-label-xs text-content-tertiary mb-3">
+                  {num}
+                </p>
+                <h3 className="text-heading-xs text-core-black mb-3">
+                  {title}
+                </h3>
+                <p className="text-paragraph-base text-content-secondary">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── 5. CTA / Q&A ── */}
-      <section id="cta" className="bg-background-secondary py-20">
-        {/* "Ask hard questions. Get direct answers." */}
+      {/* ── 5. HEFTI RESEARCHER ── */}
+      <section
+        id="cta"
+        aria-labelledby="cta-heading"
+        className="bg-blue-50 py-20"
+      >
+        <div className="mx-auto max-w-[1160px] px-6">
+          <div className="grid grid-cols-1 gap-16 md:grid-cols-2">
+            {/* Left — title + description */}
+            <div>
+              <p className="text-label-sm text-content-secondary mb-3 uppercase">
+                HEFTI Researcher
+              </p>
+              <h2
+                id="cta-heading"
+                className="text-core-black font-serif text-3xl leading-snug font-bold"
+              >
+                Ask hard questions.
+                <br />
+                <span className="text-blue-400 italic">
+                  Get data-grounded answers.
+                </span>
+              </h2>
+              <p className="text-paragraph-lg text-content-secondary mt-5">
+                An AI assistant built specifically for nursing home data.
+                Domain-aware, schema-aware, and grounded in actual CMS records —
+                no SQL required.
+              </p>
+            </div>
+
+            {/* Right — feature list */}
+            <div className="space-y-6">
+              {[
+                {
+                  icon: LightBulbIcon,
+                  title: 'Domain-aware AI',
+                  body: 'Knows CMS schema, ownership roles, and data definitions. No need to explain the context.',
+                },
+                {
+                  icon: CircleStackIcon,
+                  title: 'Grounded in real records',
+                  body: 'Every response is backed by actual database queries.',
+                },
+                {
+                  icon: PresentationChartBarIcon,
+                  title: 'Charts alongside answers',
+                  body: 'Ranking and comparison queries render live charts ready to export or share.',
+                },
+                {
+                  icon: TableCellsIcon,
+                  title: 'Context-aware conversations',
+                  body: 'Open from any facility or owner profile and it already knows the entity in scope.',
+                },
+              ].map(({ icon: Icon, title, body }) => (
+                <div key={title} className="flex gap-4">
+                  <div className="shrink-0">
+                    <Icon
+                      aria-hidden="true"
+                      className="text-content-primary h-6 w-6"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-label-lg text-core-black">{title}</p>
+                    <p className="text-paragraph-base text-content-secondary mt-1">
+                      {body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── 6. RESEARCH ── */}
