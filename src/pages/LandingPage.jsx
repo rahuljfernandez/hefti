@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const heroCtaClasses =
-  'inline-flex items-center gap-3 rounded-xl bg-slate-900 px-6 py-4 text-white shadow-lg transition hover:bg-gray-800';
+  'inline-flex items-center gap-3 rounded-xl bg-zinc-900 px-6 py-4 text-white shadow-lg transition hover:bg-zinc-800';
 
 export default function LandingPage() {
   return (
@@ -69,7 +69,10 @@ export default function LandingPage() {
 
           {/* CTA button */}
           <div className="flex justify-center">
-            <Link to="/" className={`${heroCtaClasses} focus-ring-dark`}>
+            <Link
+              to="/"
+              className="focus-ring-dark inline-flex items-center gap-3 rounded-xl bg-zinc-900 px-6 py-4 text-white shadow-lg transition hover:bg-zinc-800"
+            >
               <CircleStackIcon
                 aria-hidden="true"
                 className="h-8 w-8 shrink-0 text-blue-400"
