@@ -1,17 +1,33 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import LayoutCard from '../components/ui/atom/layout-card';
+import { CircleStackIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import React from 'react';
 import {
-  CircleStackIcon,
-  ArrowRightIcon,
-  LightBulbIcon,
-  PresentationChartBarIcon,
-  TableCellsIcon,
-} from '@heroicons/react/24/outline';
+  landingStats,
+  landingFeatures,
+  researcherFeatures,
+  contactCard,
+} from '../lib/landingPageData';
 
-const heroCtaClasses =
-  'inline-flex items-center gap-3 rounded-xl bg-zinc-900 px-6 py-4 text-white shadow-lg transition hover:bg-zinc-800';
+/**
+ * Marketing landing page for the HEFTI platform, accessible at `/landing`.
+ *
+ * Sections (top → bottom):
+ * 1. **Hero** — headline, subtitle, attribution, and CTA link to the platform home.
+ *    Background uses `smokeyLayer.png`; swap the `backgroundImage` style to change it.
+ * 2. **Why HEFTI** — 1/3 title + 2/3 body copy explaining the data problem HEFTI solves.
+ * 3. **Stats Bar** — four key platform statistics rendered as a `<dl>` grid on `bg-slate-900`.
+ * 4. **Features Grid** — six feature cards in a 1→2→3 column responsive grid.
+ * 5. **HEFTI Researcher** — 50/50 split: left copy + right icon-feature list on `bg-blue-50`.
+ * 6. **Research / Contact** — 2/3 initiative copy + 1/3 `<LayoutCard>` contact card.
+ *
+ * @returns {JSX.Element}
+ */
 
+// TODO: Await final directions on hero credibility attributions.
+//  - Tyler link (vivo.weill.cornell.edu) confirmed good; copy confirmed accurate.
+//  - Funder nod (Arnold Ventures, arnoldventures.org): confirm link destination or swap for a specific grant/program page.
+//  - Confirm what the public-facing HEFTI URL should be.
 export default function LandingPage() {
   return (
     <div className="min-h-screen w-full font-sans">
@@ -157,30 +173,13 @@ export default function LandingPage() {
       >
         <div className="mx-auto max-w-[1160px]">
           <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
-            {[
-              {
-                stat: '15,000+',
-                label: 'Certified nursing facilities tracked nationwide',
-              },
-              {
-                stat: '51,000+',
-                label: 'Distinct ownership entities in the database',
-              },
-              {
-                stat: '159,000+',
-                label: 'Ownership linkages mapped across facilities',
-              },
-              {
-                stat: '50+',
-                label: 'States with full facility and ownership coverage',
-              },
-            ].map(({ stat, label }) => (
+            {landingStats.map(({ stat, label }) => (
               <div key={stat} className="bg-slate-900 px-6 py-8">
                 <dt className="text-paragraph-base text-content-tertiary">
                   {label}
                 </dt>
                 <dd className="mt-2 font-serif text-5xl font-bold tracking-tight text-white">
-                  {stat.replace('+', '')}
+                  {stat}
                   <span className="align-super text-3xl text-blue-400">+</span>
                 </dd>
               </div>
@@ -215,38 +214,7 @@ export default function LandingPage() {
 
           {/* Cards grid */}
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 md:grid-cols-3">
-            {[
-              {
-                num: '01',
-                title: 'Ownership Networks',
-                body: 'Trace direct and indirect ownership relationships across facilities. Map corporate structures, identify chains, and understand who ultimately controls a nursing home — including private equity and REIT interests.',
-              },
-              {
-                num: '02',
-                title: 'Quality & Compliance',
-                body: 'CMS star ratings, health inspection scores, staffing hours per resident day, and full deficiency and civil money penalty records — benchmarked against state and national averages.',
-              },
-              {
-                num: '03',
-                title: 'Financial Performance',
-                body: 'Operating margins, total revenue, related-party transactions, and staffing costs from Medicare Cost Reports — aggregated to the owner level to surface financial patterns across portfolios.',
-              },
-              {
-                num: '04',
-                title: 'Staffing Data',
-                body: 'RN, LPN, and CNA hours per resident day from Payroll-Based Journal data — with turnover rates and workforce composition at the facility level, comparable to state and national peers.',
-              },
-              {
-                num: '05',
-                title: 'State Rankings',
-                body: 'Compare states on financial performance, staffing levels, and health outcomes. Drill down to see which facilities are driving performance in any state on any measure.',
-              },
-              {
-                num: '06',
-                title: 'Network Visualization',
-                body: 'An interactive graph view of ownership relationships between facilities and their owners. Click any node to explore quality, finance, and staffing metrics across connected entities.',
-              },
-            ].map(({ num, title, body }) => (
+            {landingFeatures.map(({ num, title, body }) => (
               <div key={num} className="bg-white px-8 py-8">
                 <p className="text-label-xs text-content-tertiary mb-3">
                   {num}
@@ -295,28 +263,7 @@ export default function LandingPage() {
 
             {/* Right — feature list */}
             <div className="space-y-6">
-              {[
-                {
-                  icon: LightBulbIcon,
-                  title: 'Domain-aware AI',
-                  body: 'Knows CMS schema, ownership roles, and data definitions. No need to explain the context.',
-                },
-                {
-                  icon: CircleStackIcon,
-                  title: 'Grounded in real records',
-                  body: 'Every response is backed by actual database queries.',
-                },
-                {
-                  icon: PresentationChartBarIcon,
-                  title: 'Charts alongside answers',
-                  body: 'Ranking and comparison queries render live charts ready to export or share.',
-                },
-                {
-                  icon: TableCellsIcon,
-                  title: 'Context-aware conversations',
-                  body: 'Open from any facility or owner profile and it already knows the entity in scope.',
-                },
-              ].map(({ icon: Icon, title, body }) => (
+              {researcherFeatures.map(({ icon: Icon, title, body }) => (
                 <div key={title} className="flex items-start gap-4">
                   <div className="mt-1 shrink-0">
                     <Icon
@@ -394,11 +341,10 @@ export default function LandingPage() {
                       Initiative Lead
                     </p>
                     <p className="text-label-base font-semibold text-zinc-900">
-                      Dr. Robert Tyler Braun
+                      {contactCard.lead.name}
                     </p>
                     <p className="text-paragraph-sm text-content-secondary">
-                      Assistant Professor, Population Health Sciences Weill
-                      Cornell Medicine
+                      {contactCard.lead.title}
                     </p>
                   </div>
 
@@ -410,28 +356,26 @@ export default function LandingPage() {
                     </p>
                     <address className="not-italic">
                       <p className="text-paragraph-sm text-content-secondary">
-                        Cornell Health Policy Center
-                        <br />
-                        Population Health Sciences
-                        <br />
-                        575 Lexington Ave | 425 E. 61st Street
-                        <br />
-                        3rd Floor, New York, NY 10022
+                        {contactCard.address.map((line, i) => (
+                          <span key={i} className="block">
+                            {line}
+                          </span>
+                        ))}
                       </p>
                       <p className="text-paragraph-sm text-content-secondary mt-3">
                         <a
-                          href="tel:+16469628001"
+                          href={contactCard.phone.href}
                           className="focus-ring-light rounded-sm hover:text-blue-600"
-                          aria-label="Call (646) 962-8001"
+                          aria-label={`Call ${contactCard.phone.display}`}
                         >
-                          (646) 962-8001
+                          {contactCard.phone.display}
                         </a>
                         <br />
                         <a
-                          href="mailto:hefti@med.cornell.edu"
+                          href={`mailto:${contactCard.email}`}
                           className="focus-ring-light rounded-sm text-blue-700 underline hover:text-blue-600"
                         >
-                          hefti@med.cornell.edu
+                          {contactCard.email}
                         </a>
                       </p>
                     </address>
@@ -444,13 +388,13 @@ export default function LandingPage() {
                       Funding
                     </p>
                     <a
-                      href="https://arnoldventures.org"
+                      href={contactCard.funder.href}
                       target="_blank"
                       rel="noreferrer"
                       className="focus-ring-light text-paragraph-sm rounded-sm text-blue-700 underline hover:text-blue-600"
-                      aria-label="Arnold Ventures (opens in new tab)"
+                      aria-label={`${contactCard.funder.name} (opens in new tab)`}
                     >
-                      Arnold Ventures
+                      {contactCard.funder.name}
                     </a>
                   </div>
                 </div>
