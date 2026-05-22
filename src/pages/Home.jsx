@@ -139,24 +139,34 @@ export default function Home() {
                   </div>
                 </>
               ) : (
-                <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
-                  {topChains.map((chain) => (
-                    <li key={chain.name}>
-                      <Link
-                        to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
-                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <span className="text-paragraph-base font-bold text-blue-700 underline">
-                          {toTitleCase(chain.name)}
-                        </span>
-                        <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
-                          {chain.count} facilities
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(59,130,246,0.07)]">
+                    {topChains.map((chain) => (
+                      <li key={chain.name}>
+                        <Link
+                          to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
+                          className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <span className="text-paragraph-base font-bold text-blue-700 underline">
+                            {toTitleCase(chain.name)}
+                          </span>
+                          <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
+                            {chain.count} facilities
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pb-8 pt-3 text-center">
+                    <Link
+                      to="/facilities"
+                      className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+                    >
+                      See full list
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
             <div>
@@ -176,28 +186,38 @@ export default function Home() {
                   </div>
                 </>
               ) : (
-                <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
-                  {topOwners.map((owner) => (
-                    <li key={owner.name}>
-                      <Link
-                        to={
-                          owner.slug
-                            ? `/owners/${owner.slug}`
-                            : `/owners/${slugify(owner.name)}`
-                        }
-                        className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <span className="text-paragraph-base font-bold text-blue-700 underline">
-                          {toTitleCase(owner.name)}
-                        </span>
-                        <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
-                          {owner.count} facilities
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="divide-y divide-gray-200 rounded-xl border border-l-2 border-gray-200 bg-white/80 shadow-[0_1px_6px_0_rgba(168,85,247,0.07)]">
+                    {topOwners.map((owner) => (
+                      <li key={owner.name}>
+                        <Link
+                          to={
+                            owner.slug
+                              ? `/owners/${owner.slug}`
+                              : `/owners/${slugify(owner.name)}`
+                          }
+                          className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <span className="text-paragraph-base font-bold text-blue-700 underline">
+                            {toTitleCase(owner.name)}
+                          </span>
+                          <span className="text-paragraph-base text-core-black min-w-[80px] text-right">
+                            {owner.count} facilities
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pb-8 pt-3 text-center">
+                    <Link
+                      to="/owners"
+                      className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+                    >
+                      See full list
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
           </div>
