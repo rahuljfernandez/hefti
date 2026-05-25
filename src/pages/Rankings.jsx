@@ -1,6 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
+import { rankingsListPages } from '../lib/breadcrumbPages';
+import BrowsePage from '../components/ui/organism/browsePage';
+import ListContainer, { ListContainerSeparate } from '../components/ui/organism/ListContainer';
+import { BrowseOwners } from '../components/ui/molecule/listContainerContent';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
 
 const RANKING_TITLES = {
   'top-chains': 'Top Chains',
@@ -11,21 +18,26 @@ const RANKING_TITLES = {
   'state-health-outcomes': 'State Rankings — Health Outcomes',
 };
 
-const breadcrumbPages = [
-  { name: 'Home', href: '/', current: false },
-  { name: 'Rankings', href: '/rankings', current: true },
-];
-
 export default function Rankings() {
   const { type } = useParams();
   const title = RANKING_TITLES[type] ?? 'Rankings';
 
   return (
     <>
-      <Breadcrumb pages={breadcrumbPages} />
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 xl:px-0">
-        <h1 className="text-heading-lg font-semibold">{title}</h1>
-      </div>
+      <Breadcrumb pages={rankingsListPages} />
+      <BrowsePage
+        apiEndpoint={`${API_BASE_URL}/rankings/${type}`}
+        title={title}
+        searchPlaceholder="Search..."
+        type="rankings"
+        renderList={(items) => (
+          <ListContainer
+            items={items}
+            LayoutSelector={ListContainerSeparate}
+            ListContent={BrowseOwners}
+          />
+        )}
+      />
     </>
   );
 }

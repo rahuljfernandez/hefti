@@ -15,6 +15,12 @@ export const facilityListPages = [
   { name: 'All Nursing Homes', to: '/facilities', current: true },
 ];
 
+// Home > Rankings
+export const rankingsListPages = [
+  { name: 'Home', to: '/', current: false },
+  { name: 'Rankings', to: '/rankings', current: true },
+];
+
 // Home > All Owners
 export const ownerListPages = [
   { name: 'Home', to: '/', current: false },
