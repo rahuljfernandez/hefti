@@ -15,8 +15,8 @@ import {
  * Sections (top → bottom):
  * 1. **Hero** — headline, subtitle, attribution, and CTA link to the platform home.
  *    Background uses `smokeyLayer.png`; swap the `backgroundImage` style to change it.
- * 2. **Why HEFTI** — 1/3 title + 2/3 body copy explaining the data problem HEFTI solves.
- * 3. **Stats Bar** — four key platform statistics rendered as a `<dl>` grid on `bg-slate-900`.
+ * 2. **Stats Bar** — four key platform statistics rendered as a `<dl>` grid on `bg-slate-900`.
+ * 3. **Why HEFTI** — 1/3 title + 2/3 body copy explaining the data problem HEFTI solves.
  * 4. **Features Grid** — six feature cards in a 1→2→3 column responsive grid.
  * 5. **HEFTI Researcher** — 50/50 split: left copy + right icon-feature list on `bg-blue-50`.
  * 6. **Research / Contact** — 2/3 initiative copy + 1/3 `<LayoutCard>` contact card.
@@ -110,7 +110,30 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 2. WHY HEFTI ── */}
+      {/* ── 2. STATS BAR ── */}
+      <section
+        id="stats"
+        aria-label="Platform statistics"
+        className="bg-slate-900 py-14"
+      >
+        <div className="mx-auto max-w-[1160px]">
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
+            {landingStats.map(({ stat, label }) => (
+              <div key={stat} className="bg-slate-900 px-6 py-8">
+                <dt className="text-paragraph-base text-content-tertiary">
+                  {label}
+                </dt>
+                <dd className="mt-2 font-serif text-5xl font-bold tracking-tight text-white">
+                  {stat}
+                  <span className="align-super text-3xl text-blue-400">+</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* ── 3. WHY HEFTI ── */}
       <section
         id="why"
         aria-labelledby="why-heading"
@@ -162,29 +185,6 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── 3. STATS BAR ── */}
-      <section
-        id="stats"
-        aria-label="Platform statistics"
-        className="bg-slate-900 py-14"
-      >
-        <div className="mx-auto max-w-[1160px]">
-          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
-            {landingStats.map(({ stat, label }) => (
-              <div key={stat} className="bg-slate-900 px-6 py-8">
-                <dt className="text-paragraph-base text-content-tertiary">
-                  {label}
-                </dt>
-                <dd className="mt-2 font-serif text-5xl font-bold tracking-tight text-white">
-                  {stat}
-                  <span className="align-super text-3xl text-blue-400">+</span>
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
       </section>
 
@@ -385,7 +385,7 @@ export default function LandingPage() {
 
                   <div>
                     <p className="text-label-sm text-content-secondary mb-3 uppercase">
-                      Funding
+                      Sponsored by
                     </p>
                     <a
                       href={contactCard.funder.href}
