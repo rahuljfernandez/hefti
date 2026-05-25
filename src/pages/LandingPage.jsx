@@ -120,13 +120,13 @@ export default function LandingPage() {
           <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-slate-700 md:grid-cols-4">
             {landingStats.map(({ stat, label }) => (
               <div key={stat} className="bg-slate-900 px-6 py-8">
-                <dt className="text-paragraph-base text-content-tertiary">
-                  {label}
-                </dt>
-                <dd className="mt-2 font-serif text-5xl font-bold tracking-tight text-white">
+                <dd className="font-serif text-5xl font-bold tracking-tight text-white">
                   {stat}
                   <span className="align-super text-3xl text-blue-400">+</span>
                 </dd>
+                <dt className="mt-2 text-paragraph-base text-content-tertiary">
+                  {label}
+                </dt>
               </div>
             ))}
           </dl>
