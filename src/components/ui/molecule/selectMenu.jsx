@@ -81,6 +81,8 @@ export default function SelectMenu({
   onSortChange,
   onStateChange,
   accessibleLabel,
+  sortOptions,
+  filterOptions,
 }) {
   const [selected, setSelected] = useState(null); // Stores the current selection for desktop and mobile UIs.
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
@@ -88,7 +90,10 @@ export default function SelectMenu({
   const mobileTriggerRef = useRef(null);
 
   const label = variant.charAt(0).toUpperCase() + variant.slice(1);
-  const options = OPTIONS[variant] || [];
+  const options =
+    variant === 'sort' && sortOptions ? sortOptions :
+    variant === 'filter' && filterOptions ? filterOptions :
+    OPTIONS[variant] || [];
 
   // Applies the selected sort/filter option, or clears back to the default state.
   function handleSelect(option) {
@@ -252,4 +257,6 @@ SelectMenu.propTypes = {
   onFilterChange: PropTypes.func,
   onStateChange: PropTypes.func,
   accessibleLabel: PropTypes.string,
+  sortOptions: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
+  filterOptions: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
 };

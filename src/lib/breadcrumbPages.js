@@ -27,6 +27,22 @@ export const ownerListPages = [
   { name: 'All Owners', to: '/owners', current: true },
 ];
 
+// Home > Rankings > All Nursing Homes (when arriving from rankings/chains)
+export const rankingsFacilityListPages = [
+  { name: 'Home', to: '/', current: false },
+  { name: 'Rankings', to: '/rankings/chains', current: false },
+  { name: 'All Nursing Homes', to: '/facilities', current: true },
+];
+
+// Home > Rankings > [Owner Name] (when arriving from rankings/individual-owners)
+export function getRankingsOwnerProfilePages(slug, ownerName) {
+  return [
+    { name: 'Home', to: '/', current: false },
+    { name: 'Rankings', to: '/rankings/individual-owners', current: false },
+    { name: ownerName || '...', to: `/owners/${slug}`, current: true },
+  ];
+}
+
 // Home > All Nursing Homes > [Facility Name]
 // facilityName falls back to '...' while the API response is still loading.
 export function getFacilityProfilePages(slug, facilityName) {
@@ -44,6 +60,17 @@ export function getOwnerProfilePages(slug, ownerName) {
     { name: 'Home', to: '/', current: false },
     { name: 'All Owners', to: '/owners', current: false },
     { name: ownerName || '...', to: `/owners/${slug}`, current: true },
+  ];
+}
+
+// Home > Rankings > [Owner Name] > Researcher (when arriving via rankings)
+export function getRankingsResearchPages(slug, contextType) {
+  const isOwner = contextType === 'owner';
+  return [
+    { name: 'Home', to: '/', current: false },
+    { name: 'Rankings', to: isOwner ? '/rankings/individual-owners' : '/rankings/chains', current: false },
+    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/owners/${slug}` : `/facilities/${slug}`, current: false },
+    { name: 'Researcher', to: '#', current: true },
   ];
 }
 

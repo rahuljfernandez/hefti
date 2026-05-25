@@ -19,24 +19,36 @@ import { ErrorBanner, NoResultsBanner } from '../atom/errorBanner.jsx';
 
 BrowsePage.propTypes = {
   apiEndpoint: PropTypes.string.isRequired,
+  suggestionsEndpoint: PropTypes.string,
   title: PropTypes.string.isRequired,
   searchPlaceholder: PropTypes.string,
   renderList: PropTypes.func.isRequired,
-  type: PropTypes.oneOf(['facilities', 'owners']),
+  type: PropTypes.oneOf(['facilities', 'owners', 'rankings']),
+  sortOptions: PropTypes.array,
+  defaultSort: PropTypes.oneOf(['asc', 'desc']),
+  filterOptions: PropTypes.array,
+  onFilterChange: PropTypes.func,
+  onSuggestionPick: PropTypes.func,
 };
 
 export default function BrowsePage({
   apiEndpoint,
+  suggestionsEndpoint,
   title,
   searchPlaceholder,
   renderList,
   type,
+  sortOptions,
+  filterOptions,
+  onFilterChange,
+  onSuggestionPick,
+  defaultSort = 'asc',
 }) {
   // // --- URL Params ---
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page')) || 1;
   const search = searchParams.get('search') || '';
-  const sort = searchParams.get('sort') || 'asc';
+  const sort = searchParams.get('sort') || defaultSort;
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
   // // --- UI State ---
@@ -86,13 +98,13 @@ export default function BrowsePage({
       return;
     }
 
-    fetch(`${apiEndpoint}/suggestions?search=${search}`)
+    fetch(`${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`)
       .then((res) => res.json())
       .then((resData) => {
         setSuggestions(resData);
         setHasFetchedSuggestions(true);
       });
-  }, [search, apiEndpoint]);
+  }, [search, apiEndpoint, suggestionsEndpoint]);
 
   //update the url parameters
   const updateParam = useCallback(
@@ -119,13 +131,17 @@ export default function BrowsePage({
         onPageChange={(newPage) => updateParam('page', newPage)}
         search={search}
         onSearchChange={(val) => updateParam('search', val)}
-        onSortChange={(val) => updateParam('sort', val)}
+        onSortChange={(val) => val && updateParam('sort', val)}
         onStateChange={(val) => updateParam('state', val)}
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}
         title={title}
         searchPlaceholder={searchPlaceholder}
         type={type}
+        sortOptions={sortOptions}
+        filterOptions={filterOptions}
+        onFilterChange={onFilterChange}
+        onSuggestionPick={onSuggestionPick}
       >
         {error ? (
           <>

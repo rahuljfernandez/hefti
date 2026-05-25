@@ -28,6 +28,10 @@ export default function BrowseListView({
   suggestions,
   hasFetchedSuggestions,
   type,
+  sortOptions,
+  filterOptions,
+  onFilterChange,
+  onSuggestionPick,
 }) {
   const searchHeadingId = useId();
   const resultsHeadingId = useId();
@@ -55,6 +59,7 @@ export default function BrowseListView({
                 onSearchChange={onSearchChange}
                 suggestions={suggestions}
                 hasFetchedSuggestions={hasFetchedSuggestions}
+                onSuggestionPick={onSuggestionPick}
               />
             </div>
             <div className="flex w-full gap-2 md:flex-[1] md:flex-row">
@@ -62,11 +67,13 @@ export default function BrowseListView({
                 variant="sort"
                 onSortChange={onSortChange}
                 accessibleLabel="Sort results"
+                sortOptions={sortOptions}
               />
               <SelectMenu
                 variant="filter"
-                onStateChange={onStateChange}
+                onStateChange={onFilterChange ?? onStateChange}
                 accessibleLabel="Filter by state"
+                filterOptions={filterOptions}
               />
             </div>
           </div>
@@ -109,4 +116,8 @@ BrowseListView.propTypes = {
   onSortChange: PropTypes.func,
   onStateChange: PropTypes.func,
   type: PropTypes.string,
+  sortOptions: PropTypes.array,
+  filterOptions: PropTypes.array,
+  onFilterChange: PropTypes.func,
+  onSuggestionPick: PropTypes.func,
 };

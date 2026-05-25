@@ -396,6 +396,7 @@ export function BrowseChains({ item }) {
   return (
     <Link
       to={`/facilities?chain=${encodeURIComponent(item.slug)}`}
+      state={{ from: 'rankings' }}
       className="focus-ring-light flex items-center justify-between px-6 py-5 transition-colors hover:bg-gray-50"
       style={{ textDecoration: 'none' }}
     >
@@ -417,7 +418,7 @@ BrowseChains.propTypes = {
   }).isRequired,
 };
 
-export function BrowseOwners({ item }) {
+export function BrowseOwners({ item, linkState }) {
   // Add error handling for missing or malformed data
   if (!item) {
     return (
@@ -438,6 +439,7 @@ export function BrowseOwners({ item }) {
   return (
     <Link
       to={ownerHref}
+      state={linkState}
       className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${ownerName}`}
     >
