@@ -10,8 +10,8 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
 
 const RANKING_TITLES = {
-  'top-chains': 'Top Chains',
-  'top-owners': 'Top Individual Owners',
+  'chains': 'Top Chains',
+  'individual-owners': 'Top Individual Owners',
   'state-overall': 'State Rankings — Overall Rating',
   'state-financial': 'State Rankings — Financial',
   'state-staffing': 'State Rankings — Staffing',
@@ -26,7 +26,7 @@ export default function Rankings() {
     <>
       <Breadcrumb pages={rankingsListPages} />
       <BrowsePage
-        apiEndpoint={`${API_BASE_URL}/rankings/${type}`}
+        apiEndpoint={`${API_BASE_URL}/${type}`}
         title={title}
         searchPlaceholder="Search..."
         type="rankings"
