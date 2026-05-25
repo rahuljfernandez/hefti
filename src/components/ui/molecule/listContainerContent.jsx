@@ -392,6 +392,31 @@ BrowseNursingHomes.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+export function BrowseChains({ item }) {
+  return (
+    <Link
+      to={`/facilities?chain=${encodeURIComponent(item.slug)}`}
+      className="focus-ring-light flex items-center justify-between px-6 py-5 transition-colors hover:bg-gray-50"
+      style={{ textDecoration: 'none' }}
+    >
+      <span className="text-paragraph-base font-bold text-blue-700">
+        {toTitleCase(item.name)}
+      </span>
+      <span className="text-paragraph-base text-core-black min-w-[100px] text-right font-semibold">
+        {item.count} facilities
+      </span>
+    </Link>
+  );
+}
+
+BrowseChains.propTypes = {
+  item: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    count: PropTypes.number.isRequired,
+    slug: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
 export function BrowseOwners({ item }) {
   // Add error handling for missing or malformed data
   if (!item) {

@@ -4,7 +4,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import { rankingsListPages } from '../lib/breadcrumbPages';
 import BrowsePage from '../components/ui/organism/browsePage';
 import ListContainer, { ListContainerSeparate } from '../components/ui/organism/ListContainer';
-import { BrowseOwners } from '../components/ui/molecule/listContainerContent';
+import { BrowseChains, BrowseOwners } from '../components/ui/molecule/listContainerContent';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
@@ -34,7 +34,7 @@ export default function Rankings() {
           <ListContainer
             items={items}
             LayoutSelector={ListContainerSeparate}
-            ListContent={BrowseOwners}
+            ListContent={type === 'chains' ? BrowseChains : BrowseOwners}
           />
         )}
       />
