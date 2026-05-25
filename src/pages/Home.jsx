@@ -160,7 +160,7 @@ export default function Home() {
                   </ul>
                   <div className="pb-8 pt-3 text-center">
                     <Link
-                      to="/facilities"
+                      to="/rankings/top-chains"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
                     >
                       See full list
@@ -211,7 +211,7 @@ export default function Home() {
                   </ul>
                   <div className="pb-8 pt-3 text-center">
                     <Link
-                      to="/owners"
+                      to="/rankings/top-owners"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
                     >
                       See full list
