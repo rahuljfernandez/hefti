@@ -215,7 +215,7 @@ export default function LandingPage() {
           {/* Cards grid */}
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 md:grid-cols-3">
             {landingFeatures.map(({ num, title, body }) => (
-              <div key={num} className="bg-white px-8 py-8">
+              <div key={num} className="bg-white px-8 py-8 transition-colors hover:bg-background-secondary">
                 <p className="text-label-xs text-content-tertiary mb-3">
                   {num}
                 </p>
