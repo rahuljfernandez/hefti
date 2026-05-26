@@ -30,6 +30,7 @@ export default function BrowseListView({
   type,
   sortOptions,
   filterOptions,
+  filterAccessibleLabel,
   onFilterChange,
   onSuggestionPick,
 }) {
@@ -69,10 +70,11 @@ export default function BrowseListView({
                 accessibleLabel="Sort results"
                 sortOptions={sortOptions}
               />
+              {/* onFilterChange replaces onStateChange when provided (rankings context only) */}
               <SelectMenu
                 variant="filter"
                 onStateChange={onFilterChange ?? onStateChange}
-                accessibleLabel="Filter by state"
+                accessibleLabel={filterAccessibleLabel ?? 'Filter by state'}
                 filterOptions={filterOptions}
               />
             </div>
@@ -118,6 +120,7 @@ BrowseListView.propTypes = {
   type: PropTypes.string,
   sortOptions: PropTypes.array,
   filterOptions: PropTypes.array,
+  filterAccessibleLabel: PropTypes.string,
   onFilterChange: PropTypes.func,
   onSuggestionPick: PropTypes.func,
 };

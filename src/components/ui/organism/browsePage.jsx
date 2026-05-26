@@ -10,11 +10,23 @@ import { ErrorBanner, NoResultsBanner } from '../atom/errorBanner.jsx';
  * Managing pagination, search, sort, and state filter URL params
  * Passing data and UI state to BrowseListView
  *
- * It receives props from Owners or Facilities pages to customize:
+ * It receives props from Owners, Facilities, or Rankings pages to customize:
  * API endpoints
  * Display titles
  * Search placeholders
  * Routing behavior
+ *
+ * Rankings-only props (not used by Facilities or Owners):
+ * - suggestionsEndpoint: overrides the default `${apiEndpoint}/suggestions` fetch URL.
+ *   Used by Rankings to point individual-owners suggestions at /api/owners/suggestions.
+ * - defaultSort: overrides the default sort direction ('asc'). Rankings defaults to 'desc'.
+ * - sortOptions: custom sort labels/values passed to SelectMenu. Rankings uses Descending/Ascending.
+ * - filterOptions: custom filter options passed to SelectMenu. Rankings uses ranking type switcher.
+ * - filterAccessibleLabel: overrides the default "Filter by state" aria-label on the filter control.
+ * - onFilterChange: when provided, replaces the default state-param filter behavior.
+ *   Rankings uses this to navigate between ranking types instead of filtering by state.
+ * - onSuggestionPick: when provided, overrides SearchMenu's default profile-page navigation.
+ *   Rankings uses this to route chains to a filtered facility list and owners to their profile.
  */
 
 BrowsePage.propTypes = {
@@ -27,6 +39,7 @@ BrowsePage.propTypes = {
   sortOptions: PropTypes.array,
   defaultSort: PropTypes.oneOf(['asc', 'desc']),
   filterOptions: PropTypes.array,
+  filterAccessibleLabel: PropTypes.string,
   onFilterChange: PropTypes.func,
   onSuggestionPick: PropTypes.func,
 };
@@ -40,6 +53,7 @@ export default function BrowsePage({
   type,
   sortOptions,
   filterOptions,
+  filterAccessibleLabel,
   onFilterChange,
   onSuggestionPick,
   defaultSort = 'asc',
@@ -140,6 +154,7 @@ export default function BrowsePage({
         type={type}
         sortOptions={sortOptions}
         filterOptions={filterOptions}
+        filterAccessibleLabel={filterAccessibleLabel}
         onFilterChange={onFilterChange}
         onSuggestionPick={onSuggestionPick}
       >
