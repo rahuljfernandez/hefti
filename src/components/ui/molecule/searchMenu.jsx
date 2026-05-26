@@ -27,6 +27,7 @@ export default function SearchMenu({
   hasFetchedSuggestions,
   type,
   accessibleLabel = 'Search by name',
+  onSuggestionPick,
 }) {
   const [isActive, setIsActive] = useState(false); // Tracks whether the desktop suggestion popover is active.
   const [query, setQuery] = useState(search || '');
@@ -88,6 +89,10 @@ export default function SearchMenu({
 
   // Navigate to a facility/owner detail page when a suggestion is selected
   function handlePick(suggestion) {
+    if (onSuggestionPick) {
+      onSuggestionPick(suggestion);
+      return;
+    }
     if (type === 'owners') {
       navigate(`/owners/${suggestion.slug}`);
     } else {
@@ -362,6 +367,7 @@ SearchMenu.propTypes = {
     }),
   ).isRequired,
   hasFetchedSuggestions: PropTypes.bool.isRequired,
-  type: PropTypes.oneOf(['facilities', 'owners']).isRequired,
+  type: PropTypes.oneOf(['facilities', 'owners', 'rankings']).isRequired,
   accessibleLabel: PropTypes.string,
+  onSuggestionPick: PropTypes.func,
 };

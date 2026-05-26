@@ -5,7 +5,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
-import { getResearchPages } from '../lib/breadcrumbPages';
+import { getResearchPages, getRankingsResearchPages } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
 import ResearchChart from '../components/ui/molecule/ResearchChart';
 
@@ -33,12 +33,14 @@ const API_BASE_URL =
  */
 export default function HeftiResearch() {
   const { slug } = useParams();
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   // Derived from the URL rather than a prop because this page is shared by both owner and facility research routes.
   const contextType = pathname.includes('/owners/') ? 'owner' : 'facility';
 
-  // Calls getResearchPages with the slug and contextType to build the correct breadcrumb trail for this entity.
-  const researchPages = getResearchPages(slug, contextType);
+  // Swaps in rankings breadcrumb trail when arriving via the rankings page.
+  const researchPages = state?.from === 'rankings'
+    ? getRankingsResearchPages(slug, contextType)
+    : getResearchPages(slug, contextType);
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);

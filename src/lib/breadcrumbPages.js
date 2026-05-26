@@ -3,6 +3,7 @@
  *
  * Static arrays are used for list pages whose trail never changes.
  * Factory functions are used for pages that need runtime data (slug, entity name, context type).
+ * Rankings factory functions accept contextType ('owner' | 'facility') to branch between owner and facility trails.
  * Each item shape: { name: string, to: string, current: boolean }
  * The item with current: true renders as plain text; all others render as links.
  */
@@ -15,11 +16,43 @@ export const facilityListPages = [
   { name: 'All Nursing Homes', to: '/facilities', current: true },
 ];
 
+// Home > Rankings
+export const rankingsListPages = [
+  { name: 'Home', to: '/', current: false },
+  { name: 'Rankings', to: '/rankings', current: true },
+];
+
 // Home > All Owners
 export const ownerListPages = [
   { name: 'Home', to: '/', current: false },
   { name: 'All Owners', to: '/owners', current: true },
 ];
+
+// Home > Rankings > All Nursing Homes (when arriving from rankings/chains)
+export const rankingsFacilityListPages = [
+  { name: 'Home', to: '/', current: false },
+  { name: 'Rankings', to: '/rankings/chains', current: false },
+  { name: 'All Nursing Homes', to: '/facilities', current: true },
+];
+
+// Home > Rankings > [Owner Name] (when arriving from rankings/individual-owners)
+export function getRankingsOwnerProfilePages(slug, ownerName) {
+  return [
+    { name: 'Home', to: '/', current: false },
+    { name: 'Rankings', to: '/rankings/individual-owners', current: false },
+    { name: ownerName || '...', to: `/owners/${slug}`, current: true },
+  ];
+}
+
+// Home > Rankings > All Nursing Homes > [Facility Name] (when arriving from rankings/chains)
+export function getRankingsFacilityProfilePages(slug, facilityName) {
+  return [
+    { name: 'Home', to: '/', current: false },
+    { name: 'Rankings', to: '/rankings/chains', current: false },
+    { name: 'All Nursing Homes', to: '/facilities', current: false },
+    { name: facilityName || '...', to: `/facilities/${slug}`, current: true },
+  ];
+}
 
 // Home > All Nursing Homes > [Facility Name]
 // facilityName falls back to '...' while the API response is still loading.
@@ -39,6 +72,24 @@ export function getOwnerProfilePages(slug, ownerName) {
     { name: 'All Owners', to: '/owners', current: false },
     { name: ownerName || '...', to: `/owners/${slug}`, current: true },
   ];
+}
+
+// Home > Rankings > [All Nursing Homes >] [Entity Name] > Researcher (when arriving via rankings)
+// Facility trail includes the "All Nursing Homes" list step; owner trail goes directly to the profile.
+export function getRankingsResearchPages(slug, contextType) {
+  const isOwner = contextType === 'owner';
+  const base = [
+    { name: 'Home', to: '/', current: false },
+    { name: 'Rankings', to: isOwner ? '/rankings/individual-owners' : '/rankings/chains', current: false },
+  ];
+  if (!isOwner) {
+    base.push({ name: 'All Nursing Homes', to: '/facilities', current: false });
+  }
+  base.push(
+    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/owners/${slug}` : `/facilities/${slug}`, current: false },
+    { name: 'Researcher', to: '#', current: true },
+  );
+  return base;
 }
 
 // Home > [All Owners | All Nursing Homes] > [Entity Name] > Researcher

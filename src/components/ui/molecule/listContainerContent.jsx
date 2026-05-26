@@ -305,7 +305,7 @@ RelatedFacilities.propTypes = {
  *  link needs to be working
  */
 
-export function BrowseNursingHomes({ item }) {
+export function BrowseNursingHomes({ item, linkState }) {
   // Add error handling for missing or malformed data
   if (!item) {
     return (
@@ -327,6 +327,7 @@ export function BrowseNursingHomes({ item }) {
   return (
     <Link
       to={facilityHref}
+      state={linkState}
       className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${facilityName}`}
     >
@@ -390,9 +391,36 @@ export function BrowseNursingHomes({ item }) {
 
 BrowseNursingHomes.propTypes = {
   item: PropTypes.object.isRequired,
+  linkState: PropTypes.object,
 };
 
-export function BrowseOwners({ item }) {
+export function BrowseChains({ item }) {
+  return (
+    <Link
+      to={`/facilities?chain=${encodeURIComponent(item.slug)}`}
+      state={{ from: 'rankings' }}
+      className="focus-ring-light flex items-center justify-between px-6 py-5 transition-colors hover:bg-gray-50"
+      style={{ textDecoration: 'none' }}
+    >
+      <span className="text-paragraph-base font-bold text-blue-700">
+        {toTitleCase(item.name)}
+      </span>
+      <span className="text-paragraph-base text-core-black min-w-[100px] text-right font-semibold">
+        {item.count} facilities
+      </span>
+    </Link>
+  );
+}
+
+BrowseChains.propTypes = {
+  item: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    count: PropTypes.number.isRequired,
+    slug: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+export function BrowseOwners({ item, linkState }) {
   // Add error handling for missing or malformed data
   if (!item) {
     return (
@@ -413,6 +441,7 @@ export function BrowseOwners({ item }) {
   return (
     <Link
       to={ownerHref}
+      state={linkState}
       className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${ownerName}`}
     >

@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -11,7 +11,7 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
-import { getOwnerProfilePages } from '../lib/breadcrumbPages';
+import { getOwnerProfilePages, getRankingsOwnerProfilePages } from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
@@ -38,6 +38,7 @@ const API_BASE_URL =
 
 export default function OwnersProfile() {
   const { slug } = useParams();
+  const { state } = useLocation();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -78,17 +79,17 @@ export default function OwnersProfile() {
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
-    navigate(`/owners/${slug}/research`);
+    navigate(`/owners/${slug}/research`, state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined);
   };
 
   // Use the first facility's freshness as a proxy for the owner-level data freshness.
   const freshness = relatedFacilities[0]?.data_freshness;
 
-  // Builds the Home > All Owners > [Owner Name] trail; owner name falls back to '...' while loading. Passed into Breadcrumb component
-  const breadcrumbPages = getOwnerProfilePages(
-    slug,
-    owner && toTitleCase(owner.cms_ownership_name),
-  );
+  // Builds breadcrumb trail; swaps in rankings context when arriving from the rankings page.
+  const ownerName = owner && toTitleCase(owner.cms_ownership_name);
+  const breadcrumbPages = state?.from === 'rankings'
+    ? getRankingsOwnerProfilePages(slug, ownerName)
+    : getOwnerProfilePages(slug, ownerName);
 
   return (
     <div className="bg-background-secondary">
