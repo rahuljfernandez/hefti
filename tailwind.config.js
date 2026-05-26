@@ -3,6 +3,7 @@ export default {
   theme: {
     fontFamily: {
       sans: ['Inter Variable', 'sans-serif'],
+      serif: ['Playfair Display Variable', 'Georgia', 'serif'],
     },
     extend: {
       colors: {
