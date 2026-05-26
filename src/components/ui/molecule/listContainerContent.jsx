@@ -305,7 +305,7 @@ RelatedFacilities.propTypes = {
  *  link needs to be working
  */
 
-export function BrowseNursingHomes({ item }) {
+export function BrowseNursingHomes({ item, linkState }) {
   // Add error handling for missing or malformed data
   if (!item) {
     return (
@@ -327,6 +327,7 @@ export function BrowseNursingHomes({ item }) {
   return (
     <Link
       to={facilityHref}
+      state={linkState}
       className="focus-ring-light block rounded-lg"
       aria-label={`View profile for ${facilityName}`}
     >
@@ -390,6 +391,7 @@ export function BrowseNursingHomes({ item }) {
 
 BrowseNursingHomes.propTypes = {
   item: PropTypes.object.isRequired,
+  linkState: PropTypes.object,
 };
 
 export function BrowseChains({ item }) {

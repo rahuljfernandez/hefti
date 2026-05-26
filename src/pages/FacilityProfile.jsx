@@ -1,11 +1,11 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
-import { getFacilityProfilePages } from '../lib/breadcrumbPages';
+import { getFacilityProfilePages, getRankingsFacilityProfilePages } from '../lib/breadcrumbPages';
 
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
@@ -40,6 +40,7 @@ const API_BASE_URL =
  */
 export default function FacilityProfile() {
   const { slug } = useParams();
+  const { state } = useLocation();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -91,11 +92,13 @@ export default function FacilityProfile() {
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
-    navigate(`/facilities/${slug}/research`);
+    navigate(`/facilities/${slug}/research`, state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined);
   };
 
-  // Builds the Home > All Nursing Homes > [Facility Name] trail; facility name falls back to '...' while loading.
-  const breadcrumbPages = getFacilityProfilePages(slug, facility?.provider_name);
+  // Builds breadcrumb trail; swaps in rankings context when arriving from the rankings page.
+  const breadcrumbPages = state?.from === 'rankings'
+    ? getRankingsFacilityProfilePages(slug, facility?.provider_name)
+    : getFacilityProfilePages(slug, facility?.provider_name);
 
   return (
     <div className="bg-background-secondary font-sans">

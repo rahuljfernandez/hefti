@@ -19,6 +19,7 @@ import { BrowseChains, BrowseOwners } from '../components/ui/molecule/listContai
  * - onFilterChange: navigates to /rankings/:type instead of filtering by state
  * - onSuggestionPick: routes chains to a filtered facility list, owners to their profile page
  * - suggestionsEndpoint: individual-owners reuses /api/owners/suggestions
+ * - filterAccessibleLabel: overrides the default "Filter by state" aria-label to "Filter by ranking type"
  *
  * ListContent is selected conditionally by type (BrowseChains vs BrowseOwners) and will
  * need to expand as state ranking types are added.
@@ -30,16 +31,19 @@ import { BrowseChains, BrowseOwners } from '../components/ui/molecule/listContai
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
 
+// Ranking type switcher options — navigates to /rankings/:type on change instead of filtering by state.
 const RANKINGS_FILTER_OPTIONS = [
   { label: 'Top Chains', value: 'chains' },
   { label: 'Top Individual Owners', value: 'individual-owners' },
 ];
 
+// Sort by count (desc/asc) rather than alphabetically, since rankings are count-based.
 const RANKINGS_SORT_OPTIONS = [
   { label: 'Descending', value: 'desc' },
   { label: 'Ascending', value: 'asc' },
 ];
 
+// Maps each ranking type URL param to its display title; includes future state types pending backend.
 const RANKING_TITLES = {
   'chains': 'Top Chains',
   'individual-owners': 'Top Individual Owners',

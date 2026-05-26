@@ -52,7 +52,7 @@ function Facilities() {
             <ListContainer
               items={items}
               LayoutSelector={ListContainerSeparate}
-              ListContent={BrowseNursingHomes}
+              ListContent={state?.from === 'rankings' ? (props) => <BrowseNursingHomes {...props} linkState={{ from: 'rankings' }} /> : BrowseNursingHomes}
             />
           </>
         )}
