@@ -1,24 +1,228 @@
 import React, { useEffect, useState, useId } from 'react';
 import PropTypes from 'prop-types';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  LabelList,
+} from 'recharts';
 import { Heading } from '../atom/heading';
-import { scaleBand, scaleLinear } from '@visx/scale';
-import { Bar } from '@visx/shape';
-import { Group } from '@visx/group';
-import { Text } from '@visx/text';
-import { ParentSize } from '@visx/responsive';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
 
 /**
- * Monthly ownership-change chart section.
+ * @fileoverview Monthly SNF Ownership Change Volume chart.
  *
- * Responsibilities:
- * - Fetches monthly ownership-change volume data
- * - Renders a responsive horizontal bar chart with accessible SVG labeling
- * - Provides a text-equivalent table for non-visual access
- * - Displays loading and error states for the chart section
+ * Fetches ownership-change-volume data from the API and renders a horizontal
+ * bar chart with accessible fallbacks: a visually-hidden description paragraph,
+ * a screen-reader-only data table, and ARIA roles on the SVG wrapper.
  */
 
+const Y_AXIS_WIDTH = 130;
+const CHART_MARGIN = { top: 0, right: 120, bottom: 20, left: 10 };
+
+const dataItemShape = PropTypes.shape({
+  month: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+  indicator: PropTypes.string,
+});
+
+/**
+ * Custom Y-axis tick that renders the month label on the left and its count
+ * value flush-right, aligned with the bar start.
+ *
+ * @param {object} props
+ * @param {number} props.x - SVG x coordinate provided by Recharts.
+ * @param {number} props.y - SVG y coordinate provided by Recharts.
+ * @param {{ value: string }} props.payload - Tick payload from Recharts (month string).
+ * @param {Array<{month: string, count: number}>} props.data - Full chart dataset used to look up the count.
+ */
+function CustomYAxisTick({ x, y, payload, data: chartData }) {
+  const entry = chartData?.find((d) => d.month === payload.value);
+  return (
+    <g>
+      <text
+        x={x - Y_AXIS_WIDTH + 5}
+        y={y}
+        textAnchor="start"
+        dominantBaseline="middle"
+        fontSize={13}
+        fontWeight={500}
+        fill="#000"
+      >
+        {payload.value}
+      </text>
+      <text
+        x={x - 8}
+        y={y}
+        textAnchor="end"
+        dominantBaseline="middle"
+        fontSize={13}
+        fontWeight={500}
+        fill="#000"
+      >
+        {entry?.count ?? ''}
+      </text>
+    </g>
+  );
+}
+
+CustomYAxisTick.propTypes = {
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  payload: PropTypes.shape({ value: PropTypes.string }).isRequired,
+  data: PropTypes.arrayOf(dataItemShape).isRequired,
+};
+
+/**
+ * SVG label rendered to the right of a bar when a data point is flagged as
+ * PEAK or LOWEST. Hidden from assistive technology because the indicator is
+ * already conveyed via the sr-only description and data table.
+ *
+ * @param {object} props - Injected by Recharts LabelList.
+ * @param {number} props.x - Bar x position.
+ * @param {number} props.y - Bar y position.
+ * @param {number} props.width - Bar width.
+ * @param {number} props.height - Bar height.
+ * @param {string} [props.value] - Label text ("PEAK" | "LOWEST"), or falsy to render nothing.
+ */
+function PeakLowestLabel({ x, y, width, height, value }) {
+  if (!value) return null;
+  return (
+    <text
+      aria-hidden="true"
+      x={x + width + 8}
+      y={y + height / 2}
+      dominantBaseline="middle"
+      textAnchor="start"
+      fontSize={13}
+      fontWeight={600}
+      fill="#000"
+    >
+      {value}
+    </text>
+  );
+}
+
+PeakLowestLabel.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  value: PropTypes.string,
+};
+
+/**
+ * Accessible horizontal bar chart container. Wraps the Recharts BarChart with:
+ * - A visually-hidden prose description (peak/lowest callouts).
+ * - An aria-hidden visual column header row.
+ * - A sr-only data table so screen readers can navigate individual values.
+ *
+ * @param {object} props
+ * @param {Array<{month: string, count: number, indicator?: string}>} props.data - Sorted monthly data points.
+ */
+function Chart({ data }) {
+  const chartId = useId();
+  const descId = `${chartId}-desc`;
+  const peakMonth = data.find((d) => d.indicator === 'PEAK');
+  const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
+
+  return (
+    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+      <p id={descId} className="sr-only">
+        Horizontal bar chart showing monthly counts of facilities with ownership
+        changes in recent months.
+        {peakMonth
+          ? ` Peak month: ${peakMonth.month} with ${peakMonth.count} ownership changes.`
+          : ''}
+        {lowestMonth
+          ? ` Lowest month: ${lowestMonth.month} with ${lowestMonth.count} ownership changes.`
+          : ''}
+      </p>
+
+      {/* Column headers — widths mirror chart axis areas for alignment */}
+      <div aria-hidden="true" className="flex items-baseline border-b-[3px] border-black pb-1 text-sm font-semibold">
+        <div style={{ width: Y_AXIS_WIDTH, flexShrink: 0, paddingLeft: 5 }}>
+          Month
+        </div>
+        <div>Facilities with Ownership Changes</div>
+      </div>
+
+      <div role="img" aria-describedby={descId}>
+        <ResponsiveContainer width="100%" height={580}>
+          <BarChart
+            layout="vertical"
+            data={data}
+            margin={CHART_MARGIN}
+            barCategoryGap="25%"
+          >
+            <XAxis type="number" hide domain={[0, 'dataMax']} />
+            <YAxis
+              type="category"
+              dataKey="month"
+              width={Y_AXIS_WIDTH}
+              tick={(tickProps) => (
+                <CustomYAxisTick {...tickProps} data={data} />
+              )}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Bar
+              dataKey="count"
+              fill="#1f2937"
+              radius={4}
+              isAnimationActive={false}
+            >
+              <LabelList dataKey="indicator" content={PeakLowestLabel} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="sr-only">
+        <table>
+          <caption>Monthly ownership change counts</caption>
+          <thead>
+            <tr>
+              <th scope="col">Month</th>
+              <th scope="col">Ownership changes</th>
+              <th scope="col">Indicator</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.month}>
+                <th scope="row">{row.month}</th>
+                <td>{row.count}</td>
+                <td>{row.indicator || 'None'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+Chart.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      month: PropTypes.string.isRequired,
+      count: PropTypes.number.isRequired,
+      indicator: PropTypes.string,
+    }),
+  ).isRequired,
+};
+
+/**
+ * Top-level data-fetching component for the monthly ownership change chart.
+ * Manages fetch lifecycle (loading / error / success) and renders the
+ * appropriate state: skeleton, error banner, or the Chart.
+ *
+ * @returns {JSX.Element}
+ */
 export default function MonthlyOwnershipChangeChart() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +259,6 @@ export default function MonthlyOwnershipChangeChart() {
     }
 
     load();
-
     return () => controller.abort();
   }, [API_BASE_URL]);
 
@@ -64,7 +267,7 @@ export default function MonthlyOwnershipChangeChart() {
       <div>
         <div className="mb-4">
           <Heading id={headingId} level={3}>
-            Monthly SNF Ownership Change Volume (2024-2025)
+            Monthly SNF Ownership Change Volume
           </Heading>
         </div>
 
@@ -76,229 +279,14 @@ export default function MonthlyOwnershipChangeChart() {
               title="Chart data unavailable"
               message="Ownership change data couldn't be fetched. Try refreshing the page."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <ChartSkeleton error />
             </div>
           </>
         ) : (
-          <ParentSize>
-            {({ width }) => <Chart width={width} height={600} data={data} />}
-          </ParentSize>
+          <Chart data={data} />
         )}
       </div>
     </section>
   );
 }
-
-function Chart({ width, height, data }) {
-  const margin = { top: 20, right: 120, bottom: 20, left: 100 };
-  const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
-  const chartId = useId();
-  const titleId = `${chartId}-title`;
-  const descId = `${chartId}-desc`;
-
-  //Responsive settings for SVG
-  const isMobile = width < 800;
-  //Font size
-  const responsiveFontSize = isMobile ? 12 : 16;
-  //X axis positioning of month label
-  const monthXLabel = isMobile ? 62 : 50;
-  //X axis positioning of facilities ownership change label
-  const textXLabel = isMobile ? -20 : 20;
-  const lineXlabel2 = isMobile ? width - 35 : 500;
-  //X axis positioning of specific month column list items
-  const monthXListItems = isMobile ? -35 : -10;
-  //X axis positioning of bars
-  const barXListItems = isMobile ? -20 : 20;
-  const isPeakOrLowestX = isMobile ? 10 : 30;
-  const peakMonth = data.find((d) => d.indicator === 'PEAK');
-  const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
-
-  // Scales
-  const yScale = scaleBand({
-    domain: data.map((d) => d.month),
-    padding: 0.25,
-    range: [0, innerHeight],
-  });
-
-  const xScale = scaleLinear({
-    domain: [0, Math.max(0, ...data.map((d) => d.count))],
-    range: [0, innerWidth],
-    nice: true,
-  });
-
-  return (
-    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
-      <p id={descId} className="sr-only">
-        Horizontal bar chart showing monthly counts of facilities with
-        ownership changes in 2024 and 2025.
-        {peakMonth
-          ? ` Peak month: ${peakMonth.month} with ${peakMonth.count} ownership changes.`
-          : ''}
-        {lowestMonth
-          ? ` Lowest month: ${lowestMonth.month} with ${lowestMonth.count} ownership changes.`
-          : ''}
-      </p>
-      <svg
-        width={width}
-        height={height}
-        role="img"
-        aria-labelledby={titleId}
-        aria-describedby={descId}
-      >
-        <title id={titleId}>Monthly SNF ownership change volume chart</title>
-
-        {/* Header and labels above chart */}
-        <Text
-          x={margin.left - monthXLabel}
-          y={margin.top}
-          textAnchor="end"
-          fontSize={responsiveFontSize}
-          fontWeight={500}
-          fill="#000"
-        >
-          Month
-        </Text>
-        <Text
-          x={margin.left + textXLabel}
-          y={margin.top}
-          textAnchor="start"
-          fontSize={responsiveFontSize}
-          fontWeight={500}
-          fill="#000"
-        >
-          Facilities with Ownership Changes
-        </Text>
-        {/* Horizontal line */}
-        <line
-          x1={0}
-          x2={lineXlabel2}
-          y1={margin.top + 20}
-          y2={margin.top + 20}
-          stroke="#000"
-          strokeWidth={3}
-        />
-        <Group top={margin.top + 30} left={margin.left}>
-          {data.map((d) => {
-            const barWidth = xScale(d.count);
-            const barY = yScale(d.month);
-            const barHeight = yScale.bandwidth();
-            const isPeak = d.indicator === 'PEAK';
-            const isLowest = d.indicator === 'LOWEST';
-            const barchartWidth = isMobile ? barWidth + 20 : barWidth;
-
-            return (
-              <Group key={d.month}>
-                <title>
-                  {`${d.month}: ${d.count} facilities${
-                    isPeak ? ', peak month' : ''
-                  }${isLowest ? ', lowest month' : ''}`}
-                </title>
-
-                {/* Bar */}
-                <Bar
-                  x={barXListItems}
-                  y={barY}
-                  width={barchartWidth}
-                  height={barHeight}
-                  fill="#1f2937" // Tailwind gray-800
-                  rx={4}
-                />
-
-                {/* Value Text */}
-                <Text
-                  x={monthXListItems}
-                  y={barY + barHeight / 2}
-                  verticalAnchor="middle"
-                  textAnchor="end"
-                  fontSize={responsiveFontSize}
-                  fontWeight={500}
-                  fill="#000"
-                >
-                  {d.count}
-                </Text>
-
-                {/* Month label (left side) */}
-                <Text
-                  x={-100}
-                  y={barY + barHeight / 2}
-                  verticalAnchor="middle"
-                  textAnchor="start"
-                  fontSize={responsiveFontSize}
-                  fontWeight={500}
-                  fill="#000"
-                >
-                  {d.month}
-                </Text>
-
-                {/*Peak Marker*/}
-                {isPeak && (
-                  <Text
-                    x={barWidth + isPeakOrLowestX}
-                    y={barY + barHeight / 2}
-                    verticalAnchor="middle"
-                    textAnchor="start"
-                    fontSize={responsiveFontSize}
-                    fontWeight={600}
-                    fill="#000"
-                  >
-                    PEAK
-                  </Text>
-                )}
-                {/*Lowest Marker*/}
-                {isLowest && (
-                  <Text
-                    x={barWidth + isPeakOrLowestX}
-                    y={barY + barHeight / 2}
-                    verticalAnchor="middle"
-                    textAnchor="start"
-                    fontSize={responsiveFontSize}
-                    fontWeight={600}
-                    fill="#000"
-                  >
-                    LOWEST
-                  </Text>
-                )}
-              </Group>
-            );
-          })}
-        </Group>
-      </svg>
-
-      <div className="sr-only">
-        <table>
-          <caption>Monthly ownership change counts</caption>
-          <thead>
-            <tr>
-              <th scope="col">Month</th>
-              <th scope="col">Ownership changes</th>
-              <th scope="col">Indicator</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row) => (
-              <tr key={row.month}>
-                <th scope="row">{row.month}</th>
-                <td>{row.count}</td>
-                <td>{row.indicator || 'None'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-Chart.propTypes = {
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      month: PropTypes.string.isRequired,
-      count: PropTypes.number.isRequired,
-      indicator: PropTypes.string,
-    }),
-  ).isRequired,
-};
