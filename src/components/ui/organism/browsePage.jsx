@@ -63,6 +63,7 @@ export default function BrowsePage({
   const page = parseInt(searchParams.get('page')) || 1;
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || defaultSort;
+  const sortBy = searchParams.get('sortBy') || '';
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
   // // --- UI State ---
@@ -90,6 +91,8 @@ export default function BrowsePage({
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
     if (chain.trim() !== '') params.set('chain', chain);
+    // sortBy is only set when a field-based sort option is selected (e.g. overall_rating)
+    if (sortBy) params.set('sortBy', sortBy);
 
     fetch(`${apiEndpoint}?${params}`)
       .then((res) => {
@@ -102,7 +105,7 @@ export default function BrowsePage({
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page, search, sort, state, chain, apiEndpoint]);
+  }, [page, search, sort, sortBy, state, chain, apiEndpoint]);
 
   //Fetch suggestions when user types in the search box
   useEffect(() => {
@@ -145,7 +148,27 @@ export default function BrowsePage({
         onPageChange={(newPage) => updateParam('page', newPage)}
         search={search}
         onSearchChange={(val) => updateParam('search', val)}
-        onSortChange={(val) => val && updateParam('sort', val)}
+        onSortChange={(val) => {
+          setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set('page', 1);
+            if (!val) {
+              // Clear button: reset both sort params to defaults
+              params.delete('sort');
+              params.delete('sortBy');
+            } else if (val.includes(':')) {
+              // Compound value like "overall_rating:desc" — split into field + direction
+              const [field, dir] = val.split(':');
+              params.set('sortBy', field);
+              params.set('sort', dir);
+            } else {
+              // Plain direction value ("asc"/"desc") — name sort, clear sortBy
+              params.set('sort', val);
+              params.delete('sortBy');
+            }
+            return params;
+          });
+        }}
         onStateChange={(val) => updateParam('state', val)}
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}

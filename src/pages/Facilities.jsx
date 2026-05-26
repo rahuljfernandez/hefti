@@ -27,6 +27,21 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+/**
+ * Sort options for the facilities browse page.
+ * Rating fields use a compound "field:direction" value so browsePage can split
+ * them into separate `sortBy` and `sort` URL params for the API.
+ * Plain "asc"/"desc" values fall back to the default name-based sort.
+ */
+const FACILITY_SORT_OPTIONS = [
+  { label: 'Overall Rating', value: 'overall_rating:desc' },
+  { label: 'Staffing Rating', value: 'staffing_rating:desc' },
+  { label: 'Health Inspection', value: 'health_inspection_rating:desc' },
+  { label: 'Operating Margin', value: 'operating_margin:desc' },
+  { label: 'Name (A–Z)', value: 'asc' },
+  { label: 'Name (Z–A)', value: 'desc' },
+];
+
 function Facilities() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
@@ -40,6 +55,7 @@ function Facilities() {
         title="Nursing Homes"
         searchPlaceholder="Nursing home name..."
         type="facilities"
+        sortOptions={FACILITY_SORT_OPTIONS}
         renderList={(items) => (
           <>
             {chain && (
