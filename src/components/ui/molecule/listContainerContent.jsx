@@ -402,11 +402,19 @@ BrowseNursingHomes.propTypes = {
  *
  * The top section (name, address, View Profile) is identical to BrowseNursingHomes.
  * The bottom row replaces ownership info with four stat blocks:
- * Overall, Health Insp., Staffing, and Financial.
+ * - Overall, Health Insp., Staffing: star rating display
+ * - Financial: operating margin percentage + comparison badge (Above/Below avg.)
+ *   sourced from cmpr_operating_margin. Higher is better, so above avg. = green,
+ *   below avg. = red. The financial block always carries a border to visually
+ *   group its denser two-row layout, even when it is not the active sort metric.
+ *
+ * The active stat block (matching activeMetric) receives a highlighted background
+ * in addition to its border.
  *
  * Props:
  * - item: facility data object
- * - linkState: optional router state passed through to the facility profile link (e.g. { from: 'rankings' })
+ * - linkState: optional router state passed through to the facility profile link
+ *   (e.g. { from: 'rankings' } to preserve the breadcrumb trail)
  * - activeMetric: which stat block to visually highlight — matches the active sortBy field
  *   ('overall_rating' | 'health_inspection_rating' | 'staffing_rating' | 'operating_margin')
  */
@@ -502,6 +510,8 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
                   'flex flex-1 gap-1 rounded-md px-3 py-2 md:flex-col',
                   isActive
                     ? 'bg-background-secondary border-border-primary border'
+                    // Financial always gets a border (inactive) to visually group
+                    // its two-row layout; active state upgrades it with a background.
                     : stat.type === 'financial' &&
                         'border-border-primary border',
                 )}
