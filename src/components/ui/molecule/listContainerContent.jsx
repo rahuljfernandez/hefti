@@ -832,7 +832,7 @@ export function RankingTableRow({ item, to }) {
           <Link
             to={to}
             state={{ from: 'rankings' }}
-            className="text-paragraph-base font-medium text-blue-600 underline hover:text-blue-800"
+            className="text-paragraph-base font-medium text-blue-700 underline hover:text-blue-800"
           >
             {item.name}
           </Link>

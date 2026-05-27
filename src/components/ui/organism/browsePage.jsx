@@ -106,7 +106,6 @@ export default function BrowsePage({
         return res.json();
       })
       .then((resData) => {
-        console.log('[BrowsePage] first facility item:', resData.data?.[0]);
         setData(resData.data);
         setPageCount(resData.pageCount);
       })
@@ -122,7 +121,9 @@ export default function BrowsePage({
       return;
     }
 
-    fetch(`${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`)
+    fetch(
+      `${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`,
+    )
       .then((res) => res.json())
       .then((resData) => {
         setSuggestions(resData);
@@ -157,6 +158,12 @@ export default function BrowsePage({
         onSearchChange={(val) => updateParam('search', val)}
         sortValue={currentSortValue}
         stateValue={state}
+        // Sort option values follow a "field:direction" encoding convention defined in
+        // FACILITY_SORT_OPTIONS (Facilities.jsx). Field-based sorts use compound values
+        // like "overall_rating:desc", which are split here into separate `sortBy` and
+        // `sort` URL params for the API. Plain "asc"/"desc" values indicate a name sort
+        // and pass through as `sort` only. Any new sort options added to a page that
+        // uses this handler must follow the same convention.
         onSortChange={(val) => {
           setSearchParams((prev) => {
             const params = new URLSearchParams(prev);

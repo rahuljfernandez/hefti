@@ -451,6 +451,9 @@ RankingTablesToggle.propTypes = {
 /**
  * Paginated state ranking table with Best / Worst toggle.
  *
+ * Each state row links to the facilities browse page pre-filtered by that state
+ * and sorted by the corresponding metric (via METRIC_TO_SORT).
+ *
  * Data is hardcoded in STATES until the backend endpoint is ready.
  * When the API lands, replace STATES with the fetched payload and drive
  * isLoading / error from the query state.

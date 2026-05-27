@@ -9,7 +9,7 @@ import { CheckIcon } from '@heroicons/react/20/solid';
  * Reusable sort/filter control for browse pages.
  *
  * Variants:
- * - `sort`: allows sorting by name (A-Z / Z-A)
+ * - `sort`: sorts by name (A-Z / Z-A) by default; accepts custom sortOptions for field-based sorts
  * - `filter`: allows filtering by state
  *
  * Behavior:
