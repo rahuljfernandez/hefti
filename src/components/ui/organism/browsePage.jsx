@@ -100,6 +100,7 @@ export default function BrowsePage({
         return res.json();
       })
       .then((resData) => {
+        console.log('[BrowsePage] first facility item:', resData.data?.[0]);
         setData(resData.data);
         setPageCount(resData.pageCount);
       })

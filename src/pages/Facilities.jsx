@@ -34,12 +34,16 @@ const API_BASE_URL =
  * Plain "asc"/"desc" values fall back to the default name-based sort.
  */
 const FACILITY_SORT_OPTIONS = [
-  { label: 'Overall Rating', value: 'overall_rating:desc' },
-  { label: 'Staffing Rating', value: 'staffing_rating:desc' },
-  { label: 'Health Inspection', value: 'health_inspection_rating:desc' },
-  { label: 'Operating Margin', value: 'operating_margin:desc' },
   { label: 'Name (A–Z)', value: 'asc' },
   { label: 'Name (Z–A)', value: 'desc' },
+  { label: 'Overall Rating (High–Low)', value: 'overall_rating:desc' },
+  { label: 'Overall Rating (Low–High)', value: 'overall_rating:asc' },
+  { label: 'Staffing Rating (High–Low)', value: 'staffing_rating:desc' },
+  { label: 'Staffing Rating (Low–High)', value: 'staffing_rating:asc' },
+  { label: 'Health Inspection (High–Low)', value: 'health_inspection_rating:desc' },
+  { label: 'Health Inspection (Low–High)', value: 'health_inspection_rating:asc' },
+  { label: 'Financial (High–Low)', value: 'operating_margin:desc' },
+  { label: 'Financial (Low–High)', value: 'operating_margin:asc' },
 ];
 
 function Facilities() {
