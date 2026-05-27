@@ -394,6 +394,127 @@ BrowseNursingHomes.propTypes = {
   linkState: PropTypes.object,
 };
 
+/**
+ * Facility browse card variant that surfaces rating metrics in the bottom row.
+ * Used on the facilities browse page when a field-based sort is active
+ * (overall rating, staffing, health inspection, or financial).
+ *
+ * The top section (name, address, View Profile) is identical to BrowseNursingHomes.
+ * The bottom row replaces ownership info with four stat blocks:
+ * Overall, Health Insp., Staffing, and Financial.
+ *
+ * Props:
+ * - item: facility data object
+ * - linkState: optional router state passed through to the facility profile link (e.g. { from: 'rankings' })
+ * - activeMetric: which stat block to visually highlight — matches the active sortBy field
+ *   ('overall_rating' | 'health_inspection_rating' | 'staffing_rating' | 'operating_margin')
+ */
+export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
+  if (!item) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="md:col-span-3">
+          <p className="text-paragraph-base text-red-600">
+            Error: Invalid facility data
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const facilityHref = `/facilities/${item.slug}`;
+  const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
+
+  // TODO: replace placeholder values with real field names once confirmed from API response
+  const stats = [
+    { key: 'overall_rating', label: 'Overall', value: item.overall_rating ?? '—', type: 'stars' },
+    { key: 'health_inspection_rating', label: 'Health insp.', value: item.health_inspection_rating ?? '—', type: 'stars' },
+    { key: 'staffing_rating', label: 'Staffing', value: item.staffing_rating ?? '—', type: 'stars' },
+    { key: 'operating_margin', label: 'Financial', value: item.operating_margin ?? '—', type: 'financial' },
+  ];
+
+  return (
+    <Link
+      to={facilityHref}
+      state={linkState}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}`}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {facilityName}
+          </span>
+          <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+            {item.street_address && item.city && item.state
+              ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
+              : 'Address not available'}
+          </p>
+        </div>
+
+        {/* Button — Top right on desktop, bottom on mobile */}
+        <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Profile
+          </span>
+        </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
+
+        {/* Bottom Row — rating stats */}
+        <div className="order-2 md:order-none md:col-span-3 flex flex-row gap-2">
+          {stats.map((stat) => {
+            const isActive = stat.key === activeMetric;
+            return (
+              <div
+                key={stat.key}
+                className={clsx(
+                  'flex flex-col gap-1 rounded-md px-3 py-2',
+                  isActive && 'bg-gray-100',
+                )}
+              >
+                <p className="text-paragraph-sm text-content-secondary">{stat.label}</p>
+                {stat.type === 'stars' ? (
+                  <div className="flex items-center gap-1">
+                    <StarRating rating={typeof stat.value === 'number' ? stat.value : 0} />
+                    <span className="text-paragraph-base font-bold">{stat.value}</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col">
+                    <span className="text-paragraph-base font-bold">
+                      {typeof stat.value === 'number' ? `${(stat.value * 100).toFixed(1)}%` : stat.value}
+                    </span>
+                    <span className="text-paragraph-sm text-content-secondary">op. margin</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+BrowseNursingHomesRatings.propTypes = {
+  item: PropTypes.object.isRequired,
+  linkState: PropTypes.object,
+  activeMetric: PropTypes.oneOf([
+    'overall_rating',
+    'health_inspection_rating',
+    'staffing_rating',
+    'operating_margin',
+  ]),
+};
+
 export function BrowseChains({ item }) {
   return (
     <Link
