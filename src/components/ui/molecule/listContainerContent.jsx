@@ -425,12 +425,31 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
   const facilityHref = `/facilities/${item.slug}`;
   const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
 
-  // TODO: replace placeholder values with real field names once confirmed from API response
   const stats = [
-    { key: 'overall_rating', label: 'Overall', value: item.overall_rating ?? '—', type: 'stars' },
-    { key: 'health_inspection_rating', label: 'Health insp.', value: item.health_inspection_rating ?? '—', type: 'stars' },
-    { key: 'staffing_rating', label: 'Staffing', value: item.staffing_rating ?? '—', type: 'stars' },
-    { key: 'operating_margin', label: 'Financial', value: item.operating_margin ?? '—', type: 'financial' },
+    {
+      key: 'overall_rating',
+      label: 'Overall',
+      value: item.overall_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'health_inspection_rating',
+      label: 'Health insp.',
+      value: item.health_inspection_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'staffing_rating',
+      label: 'Staffing',
+      value: item.staffing_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'operating_margin',
+      label: 'Financial',
+      value: item.operating_margin ?? '—',
+      type: 'financial',
+    },
   ];
 
   return (
@@ -469,30 +488,40 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
         {/* Divider */}
         <Divider className="order-2 md:order-none md:col-span-3" />
 
-        {/* Bottom Row — rating stats */}
-        <div className="order-2 md:order-none md:col-span-3 flex flex-row gap-2">
+        {/* Bottom Row — rating stats. cursor-default prevents the pointer cursor
+            on hover, signalling these blocks are informational, not interactive. */}
+        <div className="order-2 flex cursor-default flex-col gap-2 md:order-none md:col-span-3 md:flex-row">
           {stats.map((stat) => {
             const isActive = stat.key === activeMetric;
             return (
               <div
                 key={stat.key}
                 className={clsx(
-                  'flex flex-col gap-1 rounded-md px-3 py-2',
-                  isActive && 'bg-gray-100',
+                  'flex flex-1 gap-1 rounded-md px-3 py-2 md:flex-col',
+                  isActive &&
+                    'bg-background-secondary border-border-primary border',
                 )}
               >
-                <p className="text-paragraph-sm text-content-secondary">{stat.label}</p>
+                <p className="text-paragraph-sm text-content-secondary">
+                  {stat.label}
+                </p>
                 {stat.type === 'stars' ? (
-                  <div className="flex items-center gap-1">
-                    <StarRating rating={typeof stat.value === 'number' ? stat.value : 0} />
-                    <span className="text-paragraph-base font-bold">{stat.value}</span>
-                  </div>
+                  <StarRating
+                    title=""
+                    rating={typeof stat.value === 'number' ? stat.value : 0}
+                    size="h-4 w-4"
+                    ratingSize="sm"
+                  />
                 ) : (
                   <div className="flex flex-col">
                     <span className="text-paragraph-base font-bold">
-                      {typeof stat.value === 'number' ? `${(stat.value * 100).toFixed(1)}%` : stat.value}
+                      {typeof stat.value === 'number'
+                        ? `${stat.value.toFixed(1)}%`
+                        : stat.value}
                     </span>
-                    <span className="text-paragraph-sm text-content-secondary">op. margin</span>
+                    <span className="text-paragraph-sm text-content-secondary">
+                      op. margin
+                    </span>
                   </div>
                 )}
               </div>
