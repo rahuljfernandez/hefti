@@ -9,6 +9,7 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import {
   badgeConfig,
   getBadgeColorAboveBelow,
+  getCmprColor,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
@@ -448,10 +449,11 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
       key: 'operating_margin',
       label: 'Financial',
       value: item.operating_margin ?? '—',
+      comparison: item.cmpr_operating_margin ?? null,
+      comparisonColor: getCmprColor(item.cmpr_operating_margin, true),
       type: 'financial',
     },
   ];
-
   return (
     <Link
       to={facilityHref}
@@ -498,32 +500,55 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
                 key={stat.key}
                 className={clsx(
                   'flex flex-1 gap-1 rounded-md px-3 py-2 md:flex-col',
-                  isActive &&
-                    'bg-background-secondary border-border-primary border',
+                  isActive
+                    ? 'bg-background-secondary border-border-primary border'
+                    : stat.type === 'financial' &&
+                        'border-border-primary border',
                 )}
               >
-                <p className="text-paragraph-sm text-content-secondary">
-                  {stat.label}
-                </p>
-                {stat.type === 'stars' ? (
-                  <StarRating
-                    title=""
-                    rating={typeof stat.value === 'number' ? stat.value : 0}
-                    size="h-4 w-4"
-                    ratingSize="sm"
-                  />
-                ) : (
-                  <div className="flex flex-col">
-                    <span className="text-paragraph-base font-bold">
-                      {typeof stat.value === 'number'
-                        ? `${stat.value.toFixed(1)}%`
-                        : stat.value}
-                    </span>
-                    <span className="text-paragraph-sm text-content-secondary">
-                      op. margin
-                    </span>
+                {stat.type === 'financial' ? (
+                  // Financial block: row1 = label + badge, row2 = op. margin + value
+                  // flex-col + w-full ensures two-row layout even when parent is flex-row (mobile)
+                  <div className="flex w-full flex-col">
+                    <div className="flex items-center justify-between">
+                      <p className="text-paragraph-sm text-content-secondary">
+                        {stat.label}
+                      </p>
+                      {stat.comparison && (
+                        <Badge color={stat.comparisonColor || 'zinc'}>
+                          {stat.comparison.toLowerCase().includes('above')
+                            ? 'Above avg.'
+                            : stat.comparison.toLowerCase().includes('below')
+                              ? 'Below avg.'
+                              : 'Avg.'}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-paragraph-sm text-content-tertiary">
+                        op. margin
+                      </span>
+                      <span className="text-paragraph-base font-bold">
+                        {typeof stat.value === 'number'
+                          ? `${stat.value.toFixed(1)}%`
+                          : stat.value}
+                      </span>
+                    </div>
                   </div>
-                )}
+                ) : stat.type === 'stars' ? (
+                  // Mobile: label left, stars right. Desktop: label top, stars below.
+                  <div className="flex w-full items-center justify-between md:flex-col md:items-start">
+                    <p className="text-paragraph-sm text-content-secondary">
+                      {stat.label}
+                    </p>
+                    <StarRating
+                      title=""
+                      rating={typeof stat.value === 'number' ? stat.value : 0}
+                      size="h-4 w-4"
+                      ratingSize="sm"
+                    />
+                  </div>
+                ) : null}
               </div>
             );
           })}
@@ -670,6 +695,7 @@ BrowseOwners.propTypes = {
       }),
     ),
   }).isRequired,
+  linkState: PropTypes.object,
 };
 
 /**
