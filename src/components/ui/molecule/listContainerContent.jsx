@@ -814,6 +814,12 @@ NetworkSidePanelList.propTypes = {
  * Expected item shape:
  * - rank: number (1-based position)
  * - name: state name string
+ *
+ * Props:
+ * - to: optional URL string; when provided, renders the state name as a link
+ *   to the facilities browse page pre-filtered by state and sort.
+ *   The link passes router state { from: 'rankings' } so the facilities page
+ *   renders the correct breadcrumb trail back to rankings.
  */
 export function RankingTableRow({ item, to }) {
   return (
