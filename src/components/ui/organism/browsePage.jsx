@@ -66,6 +66,12 @@ export default function BrowsePage({
   const sortBy = searchParams.get('sortBy') || '';
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
+
+  // The compound value the sort SelectMenu should reflect (e.g. "overall_rating:desc" or "asc").
+  // Used to keep the control in sync when URL params arrive via navigation (e.g. from rankings).
+  const currentSortValue = sortBy
+    ? `${sortBy}:${searchParams.get('sort') || defaultSort}`
+    : searchParams.get('sort') || '';
   // // --- UI State ---
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -149,6 +155,8 @@ export default function BrowsePage({
         onPageChange={(newPage) => updateParam('page', newPage)}
         search={search}
         onSearchChange={(val) => updateParam('search', val)}
+        sortValue={currentSortValue}
+        stateValue={state}
         onSortChange={(val) => {
           setSearchParams((prev) => {
             const params = new URLSearchParams(prev);

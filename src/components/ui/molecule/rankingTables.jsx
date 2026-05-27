@@ -7,6 +7,31 @@ import SimplePagination from './simplePagination';
 import { RankingTableRow } from './listContainerContent';
 import { RankingTablesSkeleton } from '../atom/skeletons';
 
+/** Maps each ranking metric to the sortBy + sort params for the facilities browse page. */
+const METRIC_TO_SORT = {
+  overall_rank:  'sortBy=overall_rating&sort=desc',
+  rank_financial: 'sortBy=operating_margin&sort=desc',
+  rank_staffing:  'sortBy=staffing_rating&sort=desc',
+  rank_outcomes:  'sortBy=health_inspection_rating&sort=desc',
+};
+
+/** Maps full state/territory names (as used in STATES) to their URL abbreviation. */
+const STATE_NAME_TO_ABBR = {
+  Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR',
+  California: 'CA', Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE',
+  Florida: 'FL', Georgia: 'GA', Hawaii: 'HI', Idaho: 'ID',
+  Illinois: 'IL', Indiana: 'IN', Iowa: 'IA', Kansas: 'KS',
+  Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD',
+  Massachusetts: 'MA', Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS',
+  Missouri: 'MO', Montana: 'MT', Nebraska: 'NE', Nevada: 'NV',
+  'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+  'North Carolina': 'NC', 'North Dakota': 'ND', Ohio: 'OH', Oklahoma: 'OK',
+  Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+  'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT',
+  Vermont: 'VT', Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV',
+  Wisconsin: 'WI', Wyoming: 'WY', 'D.C.': 'DC', 'Puerto Rico': 'PR', Guam: 'GU',
+};
+
 const STATES = [
   {
     state: 'Alabama',
@@ -459,17 +484,22 @@ export default function RankingTables({
   const totalItems = sorted.length;
   const pageItems = sorted
     .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-    .map((s) => ({
-      id: s.state,
-      rank: s[metric],
-      name: s.state,
-      badgeColor:
-        s[metric] <= 10
-          ? 'green'
-          : s[metric] > STATES.length - 10
-            ? 'red'
-            : 'zinc',
-    }));
+    .map((s) => {
+      const abbr = STATE_NAME_TO_ABBR[s.state];
+      const sortQuery = METRIC_TO_SORT[metric];
+      return {
+        id: s.state,
+        rank: s[metric],
+        name: s.state,
+        to: abbr && sortQuery ? `/facilities?state=${abbr}&${sortQuery}` : undefined,
+        badgeColor:
+          s[metric] <= 10
+            ? 'green'
+            : s[metric] > STATES.length - 10
+              ? 'red'
+              : 'zinc',
+      };
+    });
 
   return (
     <div className="py-2">
@@ -487,7 +517,7 @@ export default function RankingTables({
         >
           {pageItems.map((item) => (
             <li key={item.id} className="py-3">
-              <RankingTableRow item={item} />
+              <RankingTableRow item={item} to={item.to} />
             </li>
           ))}
         </ul>
