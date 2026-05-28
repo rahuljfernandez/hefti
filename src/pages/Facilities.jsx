@@ -2,7 +2,7 @@ import React from 'react';
 import ListContainer, {
   ListContainerSeparate,
 } from '../components/ui/organism/ListContainer';
-import { BrowseNursingHomes } from '../components/ui/molecule/listContainerContent';
+import { BrowseNursingHomes, BrowseNursingHomesRatings } from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import {
@@ -54,8 +54,19 @@ function Facilities() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const chain = searchParams.get('chain');
+  const sortBy = searchParams.get('sortBy') || '';
   const breadcrumb =
     state?.from === 'rankings' ? rankingsFacilityListPages : facilityListPages;
+
+  // Pass linkState through to whichever card is rendered so the breadcrumb trail is correct.
+  const linkState = state?.from === 'rankings' ? { from: 'rankings' } : undefined;
+
+  // When a field-based sort is active, show the ratings card with that metric highlighted.
+  // Otherwise fall back to the standard ownership card.
+  const CardComponent = sortBy
+    ? (props) => <BrowseNursingHomesRatings {...props} activeMetric={sortBy} linkState={linkState} />
+    : (props) => <BrowseNursingHomes {...props} linkState={linkState} />;
+
   return (
     <>
       <Breadcrumb pages={breadcrumb} />
@@ -78,16 +89,7 @@ function Facilities() {
             <ListContainer
               items={items}
               LayoutSelector={ListContainerSeparate}
-              ListContent={
-                state?.from === 'rankings'
-                  ? (props) => (
-                      <BrowseNursingHomes
-                        {...props}
-                        linkState={{ from: 'rankings' }}
-                      />
-                    )
-                  : BrowseNursingHomes
-              }
+              ListContent={CardComponent}
             />
           </>
         )}
