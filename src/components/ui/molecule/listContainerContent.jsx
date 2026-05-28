@@ -394,20 +394,78 @@ BrowseNursingHomes.propTypes = {
   linkState: PropTypes.object,
 };
 
+/**
+ * Chain ranking card used on the Rankings page (/rankings/chains).
+ *
+ * Renders one chain entry in the paginated rankings list via ListContainer.
+ * Clicking navigates to a filtered facility list for that chain.
+ *
+ * Expected item shape: name, count, slug, states (array of state abbreviations).
+ * `states` is optional — falls back gracefully until the API returns it.
+ */
 export function BrowseChains({ item }) {
+  const chainName = toTitleCase(item.name);
+  const states = item.states || [];
+  const visibleStates = states.slice(0, 10);
+  const extraCount = states.length - visibleStates.length;
+
   return (
     <Link
       to={`/facilities?chain=${encodeURIComponent(item.slug)}`}
       state={{ from: 'rankings' }}
-      className="focus-ring-light flex items-center justify-between px-6 py-5 transition-colors hover:bg-gray-50"
-      style={{ textDecoration: 'none' }}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View facilities for ${chainName}`}
     >
-      <span className="text-paragraph-base font-bold text-blue-700">
-        {toTitleCase(item.name)}
-      </span>
-      <span className="text-paragraph-base text-core-black min-w-[100px] text-right font-semibold">
-        {item.count} facilities
-      </span>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Name + Facility Count */}
+        <div className="md:col-span-2">
+          <span
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {chainName}
+          </span>
+          <div className="flex flex-row items-baseline gap-1 py-2 md:py-0 md:pt-2">
+            <p className="text-paragraph-base text-content-secondary">Total Facilities:</p>
+            <p className="text-paragraph-base text-core-black font-semibold">{item.count}</p>
+          </div>
+        </div>
+
+        {/* Button */}
+        <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Facilities
+          </span>
+        </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
+
+        {/* Bottom Row — States */}
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+          <div className="flex flex-row items-baseline gap-1 md:pr-6">
+            <p className="text-paragraph-base text-content-secondary">
+              States:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {states.length || '—'}
+            </p>
+          </div>
+          {states.length > 0 && (
+            <div className="md:flex md:flex-row">
+              <p className="text-paragraph-base text-core-black">
+                {visibleStates.join(', ')}
+                {extraCount > 0 && (
+                  <span className="text-content-secondary"> +{extraCount} more</span>
+                )}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </Link>
   );
 }
@@ -417,6 +475,7 @@ BrowseChains.propTypes = {
     name: PropTypes.string.isRequired,
     count: PropTypes.number.isRequired,
     slug: PropTypes.string.isRequired,
+    states: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
 };
 
