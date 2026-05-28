@@ -63,8 +63,15 @@ export default function BrowsePage({
   const page = parseInt(searchParams.get('page')) || 1;
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || defaultSort;
+  const sortBy = searchParams.get('sortBy') || '';
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
+
+  // The compound value the sort SelectMenu should reflect (e.g. "overall_rating:desc" or "asc").
+  // Used to keep the control in sync when URL params arrive via navigation (e.g. from rankings).
+  const currentSortValue = sortBy
+    ? `${sortBy}:${searchParams.get('sort') || defaultSort}`
+    : searchParams.get('sort') || '';
   // // --- UI State ---
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -90,6 +97,8 @@ export default function BrowsePage({
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
     if (chain.trim() !== '') params.set('chain', chain);
+    // sortBy is only set when a field-based sort option is selected (e.g. overall_rating)
+    if (sortBy) params.set('sortBy', sortBy);
 
     fetch(`${apiEndpoint}?${params}`)
       .then((res) => {
@@ -102,7 +111,7 @@ export default function BrowsePage({
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page, search, sort, state, chain, apiEndpoint]);
+  }, [page, search, sort, sortBy, state, chain, apiEndpoint]);
 
   //Fetch suggestions when user types in the search box
   useEffect(() => {
@@ -112,7 +121,9 @@ export default function BrowsePage({
       return;
     }
 
-    fetch(`${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`)
+    fetch(
+      `${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`,
+    )
       .then((res) => res.json())
       .then((resData) => {
         setSuggestions(resData);
@@ -145,7 +156,35 @@ export default function BrowsePage({
         onPageChange={(newPage) => updateParam('page', newPage)}
         search={search}
         onSearchChange={(val) => updateParam('search', val)}
-        onSortChange={(val) => val && updateParam('sort', val)}
+        sortValue={currentSortValue}
+        stateValue={state}
+        // Sort option values follow a "field:direction" encoding convention defined in
+        // FACILITY_SORT_OPTIONS (Facilities.jsx). Field-based sorts use compound values
+        // like "overall_rating:desc", which are split here into separate `sortBy` and
+        // `sort` URL params for the API. Plain "asc"/"desc" values indicate a name sort
+        // and pass through as `sort` only. Any new sort options added to a page that
+        // uses this handler must follow the same convention.
+        onSortChange={(val) => {
+          setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set('page', 1);
+            if (!val) {
+              // Clear button: reset both sort params to defaults
+              params.delete('sort');
+              params.delete('sortBy');
+            } else if (val.includes(':')) {
+              // Compound value like "overall_rating:desc" — split into field + direction
+              const [field, dir] = val.split(':');
+              params.set('sortBy', field);
+              params.set('sort', dir);
+            } else {
+              // Plain direction value ("asc"/"desc") — name sort, clear sortBy
+              params.set('sort', val);
+              params.delete('sortBy');
+            }
+            return params;
+          });
+        }}
         onStateChange={(val) => updateParam('state', val)}
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}

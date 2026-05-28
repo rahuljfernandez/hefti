@@ -9,6 +9,7 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import {
   badgeConfig,
   getBadgeColorAboveBelow,
+  getCmprColor,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
@@ -395,6 +396,190 @@ BrowseNursingHomes.propTypes = {
 };
 
 /**
+ * Facility browse card variant that surfaces rating metrics in the bottom row.
+ * Used on the facilities browse page when a field-based sort is active
+ * (overall rating, staffing, health inspection, or financial).
+ *
+ * The top section (name, address, View Profile) is identical to BrowseNursingHomes.
+ * The bottom row replaces ownership info with four stat blocks:
+ * - Overall, Health Insp., Staffing: star rating display
+ * - Financial: operating margin percentage + comparison badge (Above/Below avg.)
+ *   sourced from cmpr_operating_margin. Higher is better, so above avg. = green,
+ *   below avg. = red. The financial block always carries a border to visually
+ *   group its denser two-row layout, even when it is not the active sort metric.
+ *
+ * The active stat block (matching activeMetric) receives a highlighted background
+ * in addition to its border.
+ *
+ * Props:
+ * - item: facility data object
+ * - linkState: optional router state passed through to the facility profile link
+ *   (e.g. { from: 'rankings' } to preserve the breadcrumb trail)
+ * - activeMetric: which stat block to visually highlight — matches the active sortBy field
+ *   ('overall_rating' | 'health_inspection_rating' | 'staffing_rating' | 'operating_margin')
+ */
+export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
+  if (!item) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="md:col-span-3">
+          <p className="text-paragraph-base text-red-600">
+            Error: Invalid facility data
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const facilityHref = `/facilities/${item.slug}`;
+  const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
+
+  const stats = [
+    {
+      key: 'overall_rating',
+      label: 'Overall',
+      value: item.overall_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'health_inspection_rating',
+      label: 'Health insp.',
+      value: item.health_inspection_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'staffing_rating',
+      label: 'Staffing',
+      value: item.staffing_rating ?? '—',
+      type: 'stars',
+    },
+    {
+      key: 'operating_margin',
+      label: 'Financial',
+      value: item.operating_margin ?? '—',
+      comparison: item.cmpr_operating_margin ?? null,
+      comparisonColor: getCmprColor(item.cmpr_operating_margin, true),
+      type: 'financial',
+    },
+  ];
+  return (
+    <Link
+      to={facilityHref}
+      state={linkState}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}`}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span
+            className="text-heading-xs font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {facilityName}
+          </span>
+          <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+            {item.street_address && item.city && item.state
+              ? `${toTitleCase(item.street_address || '')}, ${toTitleCase(item.city || '')}, ${item.state || ''}`
+              : 'Address not available'}
+          </p>
+        </div>
+
+        {/* Button — Top right on desktop, bottom on mobile */}
+        <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Profile
+          </span>
+        </div>
+
+        {/* Divider */}
+        <Divider className="order-2 md:order-none md:col-span-3" />
+
+        {/* Bottom Row — rating stats. cursor-default prevents the pointer cursor
+            on hover, signalling these blocks are informational, not interactive. */}
+        <div className="order-2 flex cursor-default flex-col gap-2 md:order-none md:col-span-3 md:flex-row">
+          {stats.map((stat) => {
+            const isActive = stat.key === activeMetric;
+            return (
+              <div
+                key={stat.key}
+                className={clsx(
+                  'flex flex-1 gap-1 rounded-md px-3 py-2 md:flex-col',
+                  isActive
+                    ? 'bg-background-secondary border-border-primary border'
+                    : // Financial always gets a border (inactive) to visually group
+                      // its two-row layout; active state upgrades it with a background.
+                      stat.type === 'financial' &&
+                        'border-border-primary border',
+                )}
+              >
+                {stat.type === 'financial' ? (
+                  // Financial block: row1 = label + badge, row2 = op. margin + value
+                  // flex-col + w-full ensures two-row layout even when parent is flex-row (mobile)
+                  <div className="flex w-full flex-col">
+                    <div className="flex items-center justify-between">
+                      <p className="text-paragraph-sm text-content-secondary">
+                        {stat.label}
+                      </p>
+                      {stat.comparison && (
+                        <Badge color={stat.comparisonColor || 'zinc'}>
+                          {stat.comparison.toLowerCase().includes('above')
+                            ? 'Above avg.'
+                            : stat.comparison.toLowerCase().includes('below')
+                              ? 'Below avg.'
+                              : 'Avg.'}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-paragraph-sm text-content-tertiary">
+                        op. margin
+                      </span>
+                      <span className="text-paragraph-base font-bold">
+                        {typeof stat.value === 'number'
+                          ? `${stat.value.toFixed(1)}%`
+                          : stat.value}
+                      </span>
+                    </div>
+                  </div>
+                ) : stat.type === 'stars' ? (
+                  // Mobile: label left, stars right. Desktop: label top, stars below.
+                  <div className="flex w-full items-center justify-between md:flex-col md:items-start">
+                    <p className="text-paragraph-sm text-content-secondary">
+                      {stat.label}
+                    </p>
+                    <StarRating
+                      title=""
+                      rating={typeof stat.value === 'number' ? stat.value : 0}
+                      size="h-4 w-4"
+                      ratingSize="sm"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+BrowseNursingHomesRatings.propTypes = {
+  item: PropTypes.object.isRequired,
+  linkState: PropTypes.object,
+  activeMetric: PropTypes.oneOf([
+    'overall_rating',
+    'health_inspection_rating',
+    'staffing_rating',
+    'operating_margin',
+  ]),
+};
+
+/**
  * Chain ranking card used on the Rankings page (/rankings/chains).
  *
  * Renders one chain entry in the paginated rankings list via ListContainer.
@@ -429,8 +614,12 @@ export function BrowseChains({ item }) {
             {chainName}
           </span>
           <div className="flex flex-row items-baseline gap-1 py-2 md:py-0 md:pt-2">
-            <p className="text-paragraph-base text-content-secondary">Total Facilities:</p>
-            <p className="text-paragraph-base text-core-black font-semibold">{item.count}</p>
+            <p className="text-paragraph-base text-content-secondary">
+              Total Facilities:
+            </p>
+            <p className="text-paragraph-base text-core-black font-semibold">
+              {item.count}
+            </p>
           </div>
         </div>
 
@@ -459,7 +648,10 @@ export function BrowseChains({ item }) {
               <p className="text-paragraph-base text-core-black">
                 {visibleStates.join(', ')}
                 {extraCount > 0 && (
-                  <span className="text-content-secondary"> +{extraCount} more</span>
+                  <span className="text-content-secondary">
+                    {' '}
+                    +{extraCount} more
+                  </span>
                 )}
               </p>
             </div>
@@ -579,6 +771,7 @@ BrowseOwners.propTypes = {
       }),
     ),
   }).isRequired,
+  linkState: PropTypes.object,
 };
 
 /**
@@ -873,8 +1066,14 @@ NetworkSidePanelList.propTypes = {
  * Expected item shape:
  * - rank: number (1-based position)
  * - name: state name string
+ *
+ * Props:
+ * - to: optional URL string; when provided, renders the state name as a link
+ *   to the facilities browse page pre-filtered by state and sort.
+ *   The link passes router state { from: 'rankings' } so the facilities page
+ *   renders the correct breadcrumb trail back to rankings.
  */
-export function RankingTableRow({ item }) {
+export function RankingTableRow({ item, to }) {
   return (
     <div
       className="flex items-center justify-between"
@@ -887,9 +1086,19 @@ export function RankingTableRow({ item }) {
         >
           {item.rank}
         </span>
-        <span className="text-paragraph-base text-core-black font-medium">
-          {item.name}
-        </span>
+        {to ? (
+          <Link
+            to={to}
+            state={{ from: 'rankings' }}
+            className="text-paragraph-base font-medium text-blue-700 underline hover:text-blue-800"
+          >
+            {item.name}
+          </Link>
+        ) : (
+          <span className="text-paragraph-base text-core-black font-medium">
+            {item.name}
+          </span>
+        )}
       </div>
       <Badge color={item.badgeColor || 'green'} aria-hidden="true">
         #{item.rank}
@@ -904,4 +1113,5 @@ RankingTableRow.propTypes = {
     name: PropTypes.string.isRequired,
     badgeColor: PropTypes.string,
   }).isRequired,
+  to: PropTypes.string,
 };
