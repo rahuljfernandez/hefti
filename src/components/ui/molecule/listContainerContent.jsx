@@ -814,8 +814,14 @@ NetworkSidePanelList.propTypes = {
  * Expected item shape:
  * - rank: number (1-based position)
  * - name: state name string
+ *
+ * Props:
+ * - to: optional URL string; when provided, renders the state name as a link
+ *   to the facilities browse page pre-filtered by state and sort.
+ *   The link passes router state { from: 'rankings' } so the facilities page
+ *   renders the correct breadcrumb trail back to rankings.
  */
-export function RankingTableRow({ item }) {
+export function RankingTableRow({ item, to }) {
   return (
     <div
       className="flex items-center justify-between"
@@ -828,9 +834,19 @@ export function RankingTableRow({ item }) {
         >
           {item.rank}
         </span>
-        <span className="text-paragraph-base text-core-black font-medium">
-          {item.name}
-        </span>
+        {to ? (
+          <Link
+            to={to}
+            state={{ from: 'rankings' }}
+            className="text-paragraph-base font-medium text-blue-700 underline hover:text-blue-800"
+          >
+            {item.name}
+          </Link>
+        ) : (
+          <span className="text-paragraph-base text-core-black font-medium">
+            {item.name}
+          </span>
+        )}
       </div>
       <Badge color={item.badgeColor || 'green'} aria-hidden="true">
         #{item.rank}
@@ -845,4 +861,5 @@ RankingTableRow.propTypes = {
     name: PropTypes.string.isRequired,
     badgeColor: PropTypes.string,
   }).isRequired,
+  to: PropTypes.string,
 };

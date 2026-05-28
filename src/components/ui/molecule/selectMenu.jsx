@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import PropTypes from 'prop-types';
 import { Heading } from '../atom/heading';
@@ -9,7 +9,7 @@ import { CheckIcon } from '@heroicons/react/20/solid';
  * Reusable sort/filter control for browse pages.
  *
  * Variants:
- * - `sort`: allows sorting by name (A-Z / Z-A)
+ * - `sort`: sorts by name (A-Z / Z-A) by default; accepts custom sortOptions for field-based sorts
  * - `filter`: allows filtering by state
  *
  * Behavior:
@@ -83,8 +83,8 @@ export default function SelectMenu({
   accessibleLabel,
   sortOptions,
   filterOptions,
+  value,
 }) {
-  const [selected, setSelected] = useState(null); // Stores the current selection for desktop and mobile UIs.
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const headingId = useId();
   const mobileTriggerRef = useRef(null);
@@ -94,6 +94,18 @@ export default function SelectMenu({
     variant === 'sort' && sortOptions ? sortOptions :
     variant === 'filter' && filterOptions ? filterOptions :
     OPTIONS[variant] || [];
+
+  // Derive selected option from the value prop (set externally via URL params).
+  // Falls back to null when value is empty/undefined so the placeholder shows.
+  const selectedFromValue = value ? options.find((opt) => opt.value === value) ?? null : null;
+  const [selected, setSelected] = useState(selectedFromValue);
+
+  // Sync whenever the value prop changes (e.g. navigating in from the rankings page).
+  useEffect(() => {
+    setSelected(value ? options.find((opt) => opt.value === value) ?? null : null);
+  // options is a stable module-level or component-prop constant — safe to omit from deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   // Applies the selected sort/filter option, or clears back to the default state.
   function handleSelect(option) {
@@ -259,4 +271,6 @@ SelectMenu.propTypes = {
   accessibleLabel: PropTypes.string,
   sortOptions: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
   filterOptions: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
+  /** The currently active option value (from URL params). Keeps the control in sync on load/navigation. */
+  value: PropTypes.string,
 };

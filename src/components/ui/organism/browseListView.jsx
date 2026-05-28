@@ -33,6 +33,8 @@ export default function BrowseListView({
   filterAccessibleLabel,
   onFilterChange,
   onSuggestionPick,
+  sortValue,
+  stateValue,
 }) {
   const searchHeadingId = useId();
   const resultsHeadingId = useId();
@@ -69,6 +71,7 @@ export default function BrowseListView({
                 onSortChange={onSortChange}
                 accessibleLabel="Sort results"
                 sortOptions={sortOptions}
+                value={sortValue}
               />
               {/* onFilterChange replaces onStateChange when provided (rankings context only) */}
               <SelectMenu
@@ -76,6 +79,7 @@ export default function BrowseListView({
                 onStateChange={onFilterChange ?? onStateChange}
                 accessibleLabel={filterAccessibleLabel ?? 'Filter by state'}
                 filterOptions={filterOptions}
+                value={stateValue}
               />
             </div>
           </div>
@@ -123,4 +127,6 @@ BrowseListView.propTypes = {
   filterAccessibleLabel: PropTypes.string,
   onFilterChange: PropTypes.func,
   onSuggestionPick: PropTypes.func,
+  sortValue: PropTypes.string,
+  stateValue: PropTypes.string,
 };
