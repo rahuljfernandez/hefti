@@ -5,12 +5,24 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
 import { MdComponents } from '../lib/mdComponents';
-import { getResearchPages, getRankingsResearchPages } from '../lib/breadcrumbPages';
+import {
+  getResearchPages,
+  getRankingsResearchPages,
+} from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
 import ResearchChart from '../components/ui/molecule/ResearchChart';
+import { buildContextChart } from '../lib/contextChart';
+import { toTitleCase } from '../lib/toTitleCase';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
+  'http://hefti-data-api.ddev.site:3000/api';
+
+// The researcher stream lives behind VITE_RESEARCHER_FUNCTION_URL, but the
+// on-load context chart pulls subject + national data from the regular data API
+// (the same endpoints the profile pages use), which is a separate env var.
+const DATA_API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 /**
  * HeftiResearch
@@ -51,9 +63,10 @@ export default function HeftiResearch() {
   const contextType = pathname.includes('/owners/') ? 'owner' : 'facility';
 
   // Swaps in rankings breadcrumb trail when arriving via the rankings page.
-  const researchPages = state?.from === 'rankings'
-    ? getRankingsResearchPages(slug, contextType)
-    : getResearchPages(slug, contextType);
+  const researchPages =
+    state?.from === 'rankings'
+      ? getRankingsResearchPages(slug, contextType)
+      : getResearchPages(slug, contextType);
 
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
@@ -70,6 +83,54 @@ export default function HeftiResearch() {
   // (before any new charts have streamed in).
   const turnStartIndexRef = useRef(null);
   const hasStarted = messages.length > 0;
+
+  // On-load context chart: fetch the subject + national ratings from the
+  // URL and seed a comparison chart into the right panel before the user sends
+  // anything. Fetching keeps it correct on reload/shared links.
+  // The `prev.length ? prev : [chart]` guard makes a late fetch a no-op once any
+  // chart exists, so it can't clobber streamed charts.
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+
+    const subjectPath =
+      contextType === 'owner'
+        ? `owners/${encodeURIComponent(slug)}`
+        : `facilities/${slug}`;
+
+    Promise.all([
+      fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((r) =>
+        r.ok ? r.json() : null,
+      ),
+      // National bars are best-effort — resolve to null on failure so the chart
+      // can still render the subject's own ratings.
+      fetch(`${DATA_API_BASE_URL}/national`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+    ])
+      .then(([subject, national]) => {
+        if (cancelled || !subject) return;
+        const subjectName =
+          contextType === 'owner'
+            ? toTitleCase(subject.cms_ownership_name)
+            : subject.provider_name;
+        // Normalizes the differing facility/owner rating fields into a single
+        // `comparison_bar` chart (subject vs. national). See lib/contextChart.
+        const chart = buildContextChart({
+          contextType,
+          subject,
+          national,
+          subjectName,
+        });
+        if (chart) setCharts((prev) => (prev.length ? prev : [chart]));
+      })
+      // The on-load chart is non-critical; leave the panel empty on failure.
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, contextType]);
 
   // Left side (chat): tracks the height of the scroll container so we can give the
   // incoming assistant message bubble enough min-height to fill the remaining
@@ -239,7 +300,9 @@ export default function HeftiResearch() {
         // Accumulate into a line buffer so SSE lines split across TCP chunks are
         // reassembled before parsing. Without this, large chart payloads cause
         // JSON.parse failures when the chunk boundary falls mid-line.
-        lineBuffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+        lineBuffer += decoder.decode(value ?? new Uint8Array(), {
+          stream: !done,
+        });
 
         const lines = lineBuffer.split('\n');
         // Keep the last (potentially incomplete) segment in the buffer
@@ -248,7 +311,10 @@ export default function HeftiResearch() {
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6);
-          if (payload === '[DONE]') { done = true; break; }
+          if (payload === '[DONE]') {
+            done = true;
+            break;
+          }
 
           const { text, error, chart } = JSON.parse(payload);
 
@@ -278,7 +344,10 @@ export default function HeftiResearch() {
 
       // DEBUG-ONLY: remove before production. Removing this also makes finalText
       // and finalCharts (declared above) dead code — delete them together.
-      console.log('[researcher] final response:', { text: finalText, charts: finalCharts });
+      console.log('[researcher] final response:', {
+        text: finalText,
+        charts: finalCharts,
+      });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     }
@@ -381,7 +450,7 @@ export default function HeftiResearch() {
           <div
             ref={chartsPanelRef}
             aria-live="polite"
-            className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4"
+            className="mr-auto flex h-full w-full max-w-[600px] flex-col space-y-4 overflow-y-auto p-6"
           >
             {charts.map((chart, i) => (
               <div
