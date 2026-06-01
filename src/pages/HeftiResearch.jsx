@@ -127,9 +127,9 @@ export default function HeftiResearch() {
     const startIdx = turnStartIndexRef.current;
     if (!panel || startIdx === null || charts.length !== startIdx + 1) return;
 
-    requestAnimationFrame(() => {
+    const frameId = requestAnimationFrame(() => {
       const chart = turnFirstChartRef.current;
-      if (!panel || !chart) return;
+      if (!chart) return;
 
       const panelRect = panel.getBoundingClientRect();
       const chartRect = chart.getBoundingClientRect();
@@ -137,6 +137,8 @@ export default function HeftiResearch() {
 
       panel.scrollTo({ top: panel.scrollTop + topOffset, behavior: 'smooth' });
     });
+
+    return () => cancelAnimationFrame(frameId);
   }, [charts]);
 
   async function submitPrompt() {
@@ -370,8 +372,17 @@ export default function HeftiResearch() {
         </section>
 
         {/* Right panel — chart output */}
-        <section className="flex min-h-0 flex-col bg-white">
-          <div ref={chartsPanelRef} className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4">
+        <section
+          aria-label="Generated charts"
+          className="flex min-h-0 flex-col bg-white"
+        >
+          {/* aria-live announces newly streamed charts to screen readers, since
+              they appear without any focus or navigation change. */}
+          <div
+            ref={chartsPanelRef}
+            aria-live="polite"
+            className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4"
+          >
             {charts.map((chart, i) => (
               <div
                 key={i}
