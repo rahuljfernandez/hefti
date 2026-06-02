@@ -13,6 +13,7 @@ import { Heading } from '../components/ui/atom/heading';
 import ResearchChart from '../components/ui/molecule/ResearchChart';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
+import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -104,13 +105,13 @@ export default function HeftiResearch() {
         : `facilities/${slug}`;
 
     Promise.all([
-      fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((r) =>
-        r.ok ? r.json() : null,
+      fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
+        response.ok ? response.json() : null,
       ),
       // National bars are best-effort — resolve to null on failure so the chart
       // can still render the subject's own ratings.
       fetch(`${DATA_API_BASE_URL}/national`)
-        .then((r) => (r.ok ? r.json() : null))
+        .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
     ])
       .then(([subject, national]) => {
@@ -210,8 +211,10 @@ export default function HeftiResearch() {
     return () => cancelAnimationFrame(frameId);
   }, [charts]);
 
-  async function submitPrompt() {
-    const trimmedPrompt = prompt.trim();
+  async function submitPrompt(override) {
+    const trimmedPrompt = (
+      typeof override === 'string' ? override : prompt
+    ).trim();
     if (!trimmedPrompt) return;
 
     // Snapshot history before touching state
@@ -429,14 +432,35 @@ export default function HeftiResearch() {
                 />
               </>
             ) : (
-              <div className="flex flex-1 flex-col items-center justify-center gap-6">
-                <div className="text-center">
-                  <Heading level={2} className="text-heading-lg mb-2">
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex-1 overflow-y-auto px-6 py-8">
+                  <Heading level={2} className="text-heading-lg mb-1">
                     Hefti Researcher
                   </Heading>
-                  <p className="text-paragraph-lg text-content-secondary">
-                    Ask a question about facilities, owners, or quality data.
+                  <p className="text-paragraph-base text-content-secondary mb-6">
+                    {contextType === 'owner'
+                      ? "Ask a question about this owner's facilities, quality, staffing, or financials."
+                      : "Ask a question about this facility's quality, staffing, deficiencies, or ownership."}
                   </p>
+                  <div className="hidden md:block">
+                    <p className="text-paragraph-sm text-content-secondary mb-3 font-medium">
+                      Try asking
+                    </p>
+                    <div className="flex flex-col items-start gap-2">
+                      {(contextType === 'owner'
+                        ? OWNER_PROMPTS
+                        : FACILITY_PROMPTS
+                      ).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => submitPrompt(p)}
+                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors hover:bg-zinc-50"
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <ResearcherComposer
                   value={prompt}
@@ -468,15 +492,25 @@ export default function HeftiResearch() {
             {charts.map((chart, i) => (
               <React.Fragment key={i}>
                 <div
-                  ref={i === turnStartIndexRef.current ? turnFirstChartRef : null}
+                  ref={
+                    i === turnStartIndexRef.current ? turnFirstChartRef : null
+                  }
                 >
                   <ResearchChart chart={chart} />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (
                   <div className="flex items-center gap-3 py-2">
-                    <div aria-hidden="true" className="h-px flex-1 bg-zinc-200" />
-                    <span className="text-paragraph-sm text-content-secondary shrink-0">Session start</span>
-                    <div aria-hidden="true" className="h-px flex-1 bg-zinc-200" />
+                    <div
+                      aria-hidden="true"
+                      className="h-px flex-1 bg-zinc-200"
+                    />
+                    <span className="text-paragraph-sm text-content-secondary shrink-0">
+                      Session start
+                    </span>
+                    <div
+                      aria-hidden="true"
+                      className="h-px flex-1 bg-zinc-200"
+                    />
                   </div>
                 )}
               </React.Fragment>
