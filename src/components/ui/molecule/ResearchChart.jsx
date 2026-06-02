@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   BarChart,
   Bar,
@@ -21,10 +22,11 @@ const COLORS = [
   '#0891b2',
 ];
 
+//The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children }) {
   return (
-    <div className="rounded-xl border border-zinc-200 p-4">
-      <p className="text-paragraph-sm text-core-black font-semibold">{title}</p>
+    <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+      <p className="text-label-lg text-core-black">{title}</p>
       {description && (
         <p className="text-paragraph-sm text-content-secondary mt-1">
           {description}
@@ -34,6 +36,12 @@ function ChartWrapper({ title, description, children }) {
     </div>
   );
 }
+
+ChartWrapper.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
 
 function BarView({ data }) {
   const bars = data.bars ?? data.items ?? [];
@@ -62,6 +70,13 @@ function BarView({ data }) {
     </ResponsiveContainer>
   );
 }
+
+BarView.propTypes = {
+  data: PropTypes.shape({
+    bars: PropTypes.arrayOf(PropTypes.object),
+    items: PropTypes.arrayOf(PropTypes.object),
+  }).isRequired,
+};
 
 function ComparisonBarView({ data }) {
   const { categories = [], series = [] } = data;
@@ -102,6 +117,19 @@ function ComparisonBarView({ data }) {
   );
 }
 
+ComparisonBarView.propTypes = {
+  data: PropTypes.shape({
+    categories: PropTypes.arrayOf(PropTypes.string),
+    series: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        values: PropTypes.arrayOf(PropTypes.number),
+        data: PropTypes.arrayOf(PropTypes.number),
+      }),
+    ),
+  }).isRequired,
+};
+
 function ScatterView({ data }) {
   const points = data.points ?? [];
   return (
@@ -124,6 +152,14 @@ function ScatterView({ data }) {
     </ResponsiveContainer>
   );
 }
+
+ScatterView.propTypes = {
+  data: PropTypes.shape({
+    points: PropTypes.arrayOf(PropTypes.object),
+    xLabel: PropTypes.string,
+    yLabel: PropTypes.string,
+  }).isRequired,
+};
 
 function DistributionView({ data }) {
   const bins = data.bins ?? data.bars ?? data.items ?? [];
@@ -153,29 +189,55 @@ function DistributionView({ data }) {
   );
 }
 
+DistributionView.propTypes = {
+  data: PropTypes.shape({
+    bins: PropTypes.arrayOf(PropTypes.object),
+    bars: PropTypes.arrayOf(PropTypes.object),
+    items: PropTypes.arrayOf(PropTypes.object),
+  }).isRequired,
+};
+
 function KpiRowView({ data }) {
   const kpis = data.kpis ?? [];
   return (
     <div className="grid grid-cols-2 gap-3">
       {kpis.map((kpi, i) => (
-        <div key={i} className="rounded-lg bg-zinc-50 p-3">
-          <p className="text-xs text-zinc-500">{kpi.label}</p>
-          <p className="mt-1 text-xl font-semibold text-zinc-900">
+        <div
+          key={i}
+          className="bg-core-white border-border-primary rounded-md border p-3 shadow-sm"
+        >
+          <p className="text-core-black mt-1 text-xl font-semibold">
             {kpi.value}
             {kpi.unit ? (
-              <span className="ml-1 text-sm font-normal text-zinc-500">
+              <span className="text-content-secondary text-label-sm ml-1">
                 {kpi.unit}
               </span>
             ) : null}
           </p>
+          <p className="text-core-black text-label-sm">{kpi.label}</p>
           {kpi.delta && (
-            <p className="mt-0.5 text-xs text-zinc-400">{kpi.delta}</p>
+            <p className="text-content-secondary text-label-sm mt-0.5">
+              {kpi.delta}
+            </p>
           )}
         </div>
       ))}
     </div>
   );
 }
+
+KpiRowView.propTypes = {
+  data: PropTypes.shape({
+    kpis: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        unit: PropTypes.string,
+        delta: PropTypes.string,
+      }),
+    ),
+  }).isRequired,
+};
 
 function TableView({ data }) {
   const rows = data.rows ?? [];
@@ -225,6 +287,13 @@ function TableView({ data }) {
   );
 }
 
+TableView.propTypes = {
+  data: PropTypes.shape({
+    rows: PropTypes.array.isRequired,
+    columns: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+};
+
 const VIEWS = {
   bar: BarView,
   comparison_bar: ComparisonBarView,
@@ -244,3 +313,12 @@ export default function ResearchChart({ chart }) {
     </ChartWrapper>
   );
 }
+
+ResearchChart.propTypes = {
+  chart: PropTypes.shape({
+    chart_type: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    data: PropTypes.object.isRequired,
+  }).isRequired,
+};

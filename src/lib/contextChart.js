@@ -48,12 +48,12 @@ const BENCHMARK_SOURCE = {
 };
 
 const METRICS = [
-  { key: 'overall', label: 'OVERALL RATING', barLabel: 'Overall' },
-  { key: 'quality', label: 'QUALITY', barLabel: 'Quality' },
-  { key: 'staffing', label: 'STAFFING', barLabel: 'Staffing' },
+  { key: 'overall', label: 'Overall Rating', barLabel: 'Overall' },
+  { key: 'quality', label: 'Quality', barLabel: 'Quality' },
+  { key: 'staffing', label: 'Staffing', barLabel: 'Staffing' },
   {
     key: 'healthInspection',
-    label: 'HEALTH INSPECTION',
+    label: 'Health Inspection',
     barLabel: 'Health insp.',
   },
 ];

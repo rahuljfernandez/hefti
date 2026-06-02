@@ -119,7 +119,7 @@ export default function HeftiResearch() {
         const subjectName =
           contextType === 'owner'
             ? toTitleCase(subject.cms_ownership_name)
-            : subject.provider_name;
+            : toTitleCase(subject.provider_name);
         // Normalizes the differing facility/owner rating fields into context
         // charts (KPI grid + bar). See lib/contextChart.
         const contextCharts = buildContextCharts({
@@ -127,7 +127,7 @@ export default function HeftiResearch() {
           subject,
           national,
           subjectName,
-        });
+        }).slice(1, 2);
         if (contextCharts.length) {
           contextChartCountRef.current = contextCharts.length;
           setCharts((prev) => (prev.length ? prev : contextCharts));
@@ -373,7 +373,7 @@ export default function HeftiResearch() {
 
       <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
-        <section className="bg-background-secondary flex min-h-0 flex-col">
+        <section className="bg-background-tertiary flex min-h-0 flex-col">
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
             {hasStarted ? (
               <>
@@ -475,7 +475,7 @@ export default function HeftiResearch() {
         {/* Right panel — chart output */}
         <section
           aria-label="Generated charts"
-          className="flex min-h-0 flex-col bg-white"
+          className="bg-background-secondary flex min-h-0 flex-col"
         >
           {/* aria-live announces newly streamed charts to screen readers, since
               they appear without any focus or navigation change. */}
