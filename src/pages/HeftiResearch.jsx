@@ -263,7 +263,7 @@ export default function HeftiResearch() {
       const topOffset = messageRect.top - containerRect.top;
 
       container.scrollTo({
-        top: container.scrollTop + topOffset,
+        top: container.scrollTop + topOffset - 24,
         behavior: 'auto',
       });
     });
