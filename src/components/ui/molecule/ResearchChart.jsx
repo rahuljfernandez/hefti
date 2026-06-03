@@ -50,6 +50,43 @@ const COLORS = [
   '#0891b2', // cyan-600   — tertiary series
 ];
 
+// Max chars before X-axis labels are truncated; keeps bottom margin predictable.
+const MAX_LABEL_CHARS = 21;
+
+// Computes top and bottom chart margins from actual label strings.
+// Bottom scales with the longest label (angle 35° × avg char width). Top stays
+// proportional so the chart looks balanced regardless of label length.
+function xMargins(labels) {
+  const maxLen = Math.min(
+    Math.max(...labels.map((l) => String(l).length), 0),
+    MAX_LABEL_CHARS,
+  );
+  const bottom = Math.max(20, Math.ceil(maxLen * 3.5) + 8);
+  return { top: Math.max(8, Math.ceil(bottom * 0.3)), bottom };
+}
+
+// Custom X-axis tick that truncates long labels and handles rotation internally.
+// Recharts' `angle` / `textAnchor` XAxis props only affect the built-in tick —
+// a custom tick component must manage both itself.
+function ChartXTick({ x, y, payload }) {
+  const raw = String(payload?.value ?? '');
+  const label =
+    raw.length > MAX_LABEL_CHARS ? `${raw.slice(0, MAX_LABEL_CHARS)}…` : raw;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        fontSize={CHART_TICK_STYLE.fontSize}
+        fill={CHART_TICK_STYLE.fill}
+        fontFamily={CHART_TICK_STYLE.fontFamily}
+        textAnchor="end"
+        transform="rotate(-35)"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children }) {
   return (
@@ -77,20 +114,12 @@ function BarView({ data }) {
     label: b.label ?? b.name,
     value: b.value,
   }));
+  const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="label"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="label" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[0]} radius={[3, 3, 0, 0]} />
@@ -115,20 +144,12 @@ function ComparisonBarView({ data }) {
     });
     return row;
   });
+  const { top, bottom } = xMargins(categories);
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="category"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="category" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '12px' }} />
@@ -187,20 +208,12 @@ function DistributionView({ data }) {
     label: b.range ?? b.label ?? b.name,
     value: b.count ?? b.value,
   }));
+  const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="label"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="label" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[1]} radius={[3, 3, 0, 0]} />
