@@ -87,6 +87,14 @@ function ChartXTick({ x, y, payload }) {
   );
 }
 
+ChartXTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.shape({
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+};
+
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children }) {
   return (
