@@ -32,9 +32,9 @@ import {
  * than hardcoded Tailwind zinc/hex values — use existing views as the reference.
  */
 
-// Recharts accepts only hex/rgb — CSS variables are not supported in its prop
-// system. These constants are manually kept in sync with the Hefti tokens they
-// correspond to; update both if the design system palette changes.
+/* Recharts accepts only hex/rgb — CSS variables are not supported in its prop
+   system. These constants are manually kept in sync with the Hefti tokens they
+   correspond to; update both if the design system palette changes. */
 const CHART_GRID_COLOR = '#71717a'; // --content-secondary (zinc-500)
 const CHART_AXIS_COLOR = '#09090b'; // --content-primary (zinc-950)
 // SVG text does not inherit CSS font-family — Inter must be set explicitly.
@@ -53,9 +53,9 @@ const COLORS = [
 // Max chars before X-axis labels are truncated; keeps bottom margin predictable.
 const MAX_LABEL_CHARS = 21;
 
-// Computes top and bottom chart margins from actual label strings.
-// Bottom scales with the longest label (angle 35° × avg char width). Top stays
-// proportional so the chart looks balanced regardless of label length.
+/* Computes top and bottom chart margins from actual label strings.
+   Bottom scales with the longest label (angle 35° × avg char width). Top stays
+   proportional so the chart looks balanced regardless of label length. */
 function xMargins(labels) {
   const maxLen = Math.min(
     Math.max(...labels.map((l) => String(l).length), 0),
@@ -65,9 +65,9 @@ function xMargins(labels) {
   return { top: Math.max(8, Math.ceil(bottom * 0.3)), bottom };
 }
 
-// Custom X-axis tick that truncates long labels and handles rotation internally.
-// Recharts' `angle` / `textAnchor` XAxis props only affect the built-in tick —
-// a custom tick component must manage both itself.
+/* Custom X-axis tick that truncates long labels and handles rotation internally.
+   Recharts' `angle` / `textAnchor` XAxis props only affect the built-in tick —
+   a custom tick component must manage both itself. */
 function ChartXTick({ x, y, payload }) {
   const raw = String(payload?.value ?? '');
   const label =
@@ -331,9 +331,9 @@ TableView.propTypes = {
   }).isRequired,
 };
 
-// Registry mapping chart_type strings (from the API response) to their view
-// components. To add a new chart type: create a view component above, add it
-// here, and the LLM response just needs to include the matching chart_type key.
+/* Registry mapping chart_type strings (from the API response) to their view
+   components. To add a new chart type: create a view component above, add it
+   here, and the LLM response just needs to include the matching chart_type key. */
 const VIEWS = {
   bar: BarView,
   comparison_bar: ComparisonBarView,
@@ -343,9 +343,9 @@ const VIEWS = {
   table: TableView,
 };
 
-// Entry point — receives a single chart object, looks up the right view from
-// the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
-// chart types so unrecognized LLM output fails silently rather than crashing.
+/* Entry point — receives a single chart object, looks up the right view from
+   the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
+   chart types so unrecognized LLM output fails silently rather than crashing. */
 export default function ResearchChart({ chart }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];
