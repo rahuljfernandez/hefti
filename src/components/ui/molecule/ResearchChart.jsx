@@ -13,13 +13,35 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+/**
+ * ResearchChart — chart rendering for the Hefti Researcher right panel.
+ *
+ * This file houses all Recharts-based view components used in the Researcher.
+ * Each view (BarView, ComparisonBarView, ScatterView, DistributionView,
+ * KpiRowView, TableView) handles one chart type and receives a `data` prop
+ * shaped to its needs. Views are internal — they are never rendered directly.
+ *
+ * The VIEWS registry maps `chart_type` strings from the API response to their
+ * view component. The exported `ResearchChart` component is the single entry
+ * point: it receives a chart object, looks up the right view from the registry,
+ * and wraps it in ChartWrapper (the shared card shell with title and border).
+ *
+ * To add a new chart type: build a view component, add it to VIEWS, and the
+ * LLM response just needs to return the matching `chart_type` key. New view
+ * components must use Hefti design tokens (colors, typography, spacing) rather
+ * than hardcoded Tailwind zinc/hex values — use existing views as the reference.
+ */
+
+// Recharts accepts only hex/rgb — CSS variables are not supported in its prop
+// system. These constants are manually kept in sync with the Hefti tokens they
+// correspond to; update both if the design system palette changes.
+const CHART_GRID_COLOR = '#e4e4e7'; // --border-primary  (zinc-200)
+const CHART_AXIS_COLOR = '#71717a'; // --content-secondary (zinc-500)
+
 const COLORS = [
-  '#2563eb',
-  '#16a34a',
-  '#dc2626',
-  '#d97706',
-  '#7c3aed',
-  '#0891b2',
+  '#7c3aed', // violet-600 — home page accent, subject series (This owner / This facility)
+  '#60a5fa', // blue-400   — home page accent, benchmark series (National avg / State avg)
+  '#0891b2', // cyan-600   — tertiary series
 ];
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
@@ -55,15 +77,15 @@ function BarView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[0]} radius={[3, 3, 0, 0]} />
       </BarChart>
@@ -93,17 +115,17 @@ function ComparisonBarView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="category"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
         <Tooltip />
-        <Legend />
+        <Legend verticalAlign="top" />
         {series.map((s, i) => (
           <Bar
             key={s.name}
@@ -135,16 +157,16 @@ function ScatterView({ data }) {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <ScatterChart margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="x"
           name={data.xLabel ?? 'x'}
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
         />
         <YAxis
           dataKey="y"
           name={data.yLabel ?? 'y'}
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
         />
         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
         <Scatter data={points} fill={COLORS[0]} />
@@ -173,15 +195,15 @@ function DistributionView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[1]} radius={[3, 3, 0, 0]} />
       </BarChart>
@@ -204,7 +226,7 @@ function KpiRowView({ data }) {
       {kpis.map((kpi, i) => (
         <div
           key={i}
-          className="bg-core-white border-border-primary rounded-md border p-3 shadow-sm"
+          className="border-border-primary bg-background-secondary rounded-md border p-3 shadow-sm"
         >
           <p className="text-core-black mt-1 text-xl font-semibold">
             {kpi.value}
@@ -255,13 +277,13 @@ function TableView({ data }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs">
+      <table className="text-paragraph-xs w-full text-left">
         <thead>
-          <tr className="border-b border-zinc-200">
+          <tr className="border-border-primary border-b">
             {columns.map((col) => (
               <th
                 key={col}
-                className="pr-4 pb-2 font-semibold whitespace-nowrap text-zinc-500 capitalize"
+                className="text-label-sm pr-4 pb-2 whitespace-nowrap capitalize"
               >
                 {String(col).replace(/_/g, ' ')}
               </th>
@@ -270,11 +292,14 @@ function TableView({ data }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-zinc-100 last:border-0">
+            <tr
+              key={i}
+              className="border-border-secondary border-b last:border-0"
+            >
               {columns.map((col, j) => (
                 <td
                   key={col}
-                  className="py-2 pr-4 whitespace-nowrap text-zinc-800"
+                  className="text-content-tertiary py-2 pr-4 whitespace-nowrap"
                 >
                   {getCell(row, col, j)}
                 </td>
@@ -294,6 +319,9 @@ TableView.propTypes = {
   }).isRequired,
 };
 
+// Registry mapping chart_type strings (from the API response) to their view
+// components. To add a new chart type: create a view component above, add it
+// here, and the LLM response just needs to include the matching chart_type key.
 const VIEWS = {
   bar: BarView,
   comparison_bar: ComparisonBarView,
@@ -303,6 +331,9 @@ const VIEWS = {
   table: TableView,
 };
 
+// Entry point — receives a single chart object, looks up the right view from
+// the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
+// chart types so unrecognized LLM output fails silently rather than crashing.
 export default function ResearchChart({ chart }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];

@@ -127,7 +127,7 @@ export default function HeftiResearch() {
           subject,
           national,
           subjectName,
-        }).slice(1, 2);
+        });
         if (contextCharts.length) {
           contextChartCountRef.current = contextCharts.length;
           setCharts((prev) => (prev.length ? prev : contextCharts));
