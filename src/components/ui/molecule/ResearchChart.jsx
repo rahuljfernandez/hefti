@@ -35,8 +35,8 @@ import {
 // Recharts accepts only hex/rgb — CSS variables are not supported in its prop
 // system. These constants are manually kept in sync with the Hefti tokens they
 // correspond to; update both if the design system palette changes.
-const CHART_GRID_COLOR = '#e4e4e7'; // --border-primary  (zinc-200)
-const CHART_AXIS_COLOR = '#71717a'; // --content-secondary (zinc-500)
+const CHART_GRID_COLOR = '#71717a'; // --content-secondary (zinc-500)
+const CHART_AXIS_COLOR = '#09090b'; // --content-primary (zinc-950)
 // SVG text does not inherit CSS font-family — Inter must be set explicitly.
 const CHART_TICK_STYLE = {
   fontSize: 11,
@@ -45,8 +45,8 @@ const CHART_TICK_STYLE = {
 };
 
 const COLORS = [
-  '#7c3aed', // violet-600 — home page accent, subject series (This owner / This facility)
-  '#60a5fa', // blue-400   — home page accent, benchmark series (National avg / State avg)
+  '#60a5fa', // blue-400   — home page accent, subject series (This owner / This facility)
+  '#7c3aed', // violet-600 — home page accent, benchmark series (National avg / State avg)
   '#0891b2', // cyan-600   — tertiary series
 ];
 
