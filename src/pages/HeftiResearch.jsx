@@ -371,7 +371,7 @@ export default function HeftiResearch() {
         Hefti Researcher
       </Heading>
 
-      <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-white lg:grid-cols-2">
+      <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-core-white lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
         <section className="bg-background-tertiary flex min-h-0 flex-col">
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
@@ -454,7 +454,7 @@ export default function HeftiResearch() {
                         <button
                           key={p}
                           onClick={() => submitPrompt(p)}
-                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors hover:bg-zinc-50"
+                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors hover:bg-background-tertiary"
                         >
                           {p}
                         </button>
@@ -502,14 +502,14 @@ export default function HeftiResearch() {
                   <div className="flex items-center gap-3 py-2">
                     <div
                       aria-hidden="true"
-                      className="h-px flex-1 bg-zinc-200"
+                      className="h-px flex-1 bg-border-primary"
                     />
                     <span className="text-paragraph-sm text-content-secondary shrink-0">
                       Session start
                     </span>
                     <div
                       aria-hidden="true"
-                      className="h-px flex-1 bg-zinc-200"
+                      className="h-px flex-1 bg-border-primary"
                     />
                   </div>
                 )}

@@ -37,6 +37,12 @@ import {
 // correspond to; update both if the design system palette changes.
 const CHART_GRID_COLOR = '#e4e4e7'; // --border-primary  (zinc-200)
 const CHART_AXIS_COLOR = '#71717a'; // --content-secondary (zinc-500)
+// SVG text does not inherit CSS font-family — Inter must be set explicitly.
+const CHART_TICK_STYLE = {
+  fontSize: 11,
+  fill: CHART_AXIS_COLOR,
+  fontFamily: 'Inter, sans-serif',
+};
 
 const COLORS = [
   '#7c3aed', // violet-600 — home page accent, subject series (This owner / This facility)
@@ -50,7 +56,7 @@ function ChartWrapper({ title, description, children }) {
     <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
       <p className="text-label-lg text-core-black">{title}</p>
       {description && (
-        <p className="text-paragraph-sm text-content-secondary mt-1">
+        <p className="text-paragraph-base text-content-secondary mt-1">
           {description}
         </p>
       )}
@@ -80,12 +86,12 @@ function BarView({ data }) {
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[0]} radius={[3, 3, 0, 0]} />
       </BarChart>
@@ -118,14 +124,14 @@ function ComparisonBarView({ data }) {
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="category"
-          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
-        <Legend verticalAlign="top" />
+        <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '12px' }} />
         {series.map((s, i) => (
           <Bar
             key={s.name}
@@ -158,16 +164,8 @@ function ScatterView({ data }) {
     <ResponsiveContainer width="100%" height={260}>
       <ScatterChart margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="x"
-          name={data.xLabel ?? 'x'}
-          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
-        />
-        <YAxis
-          dataKey="y"
-          name={data.yLabel ?? 'y'}
-          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
-        />
+        <XAxis dataKey="x" name={data.xLabel ?? 'x'} tick={CHART_TICK_STYLE} />
+        <YAxis dataKey="y" name={data.yLabel ?? 'y'} tick={CHART_TICK_STYLE} />
         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
         <Scatter data={points} fill={COLORS[0]} />
       </ScatterChart>
@@ -198,12 +196,12 @@ function DistributionView({ data }) {
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: CHART_AXIS_COLOR }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[1]} radius={[3, 3, 0, 0]} />
       </BarChart>
@@ -228,7 +226,8 @@ function KpiRowView({ data }) {
           key={i}
           className="border-border-primary bg-background-secondary rounded-md border p-3 shadow-sm"
         >
-          <p className="text-core-black mt-1 text-xl font-semibold">
+          <p className="text-core-black text-label-base">{kpi.label}</p>
+          <p className="text-core-black text-heading-xs mt-1">
             {kpi.value}
             {kpi.unit ? (
               <span className="text-content-secondary text-label-sm ml-1">
@@ -236,9 +235,9 @@ function KpiRowView({ data }) {
               </span>
             ) : null}
           </p>
-          <p className="text-core-black text-label-sm">{kpi.label}</p>
+
           {kpi.delta && (
-            <p className="text-content-secondary text-label-sm mt-0.5">
+            <p className="text-content-secondary text-label-base mt-0.5">
               {kpi.delta}
             </p>
           )}
