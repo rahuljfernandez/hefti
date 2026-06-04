@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   BarChart,
   Bar,
@@ -12,21 +13,50 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+/**
+ * ResearchChart — chart rendering for the Hefti Researcher right panel.
+ *
+ * This file houses all Recharts-based view components used in the Researcher.
+ * Each view (BarView, ComparisonBarView, ScatterView, DistributionView,
+ * KpiRowView, TableView) handles one chart type and receives a `data` prop
+ * shaped to its needs. Views are internal — they are never rendered directly.
+ *
+ * The VIEWS registry maps `chart_type` strings from the API response to their
+ * view component. The exported `ResearchChart` component is the single entry
+ * point: it receives a chart object, looks up the right view from the registry,
+ * and wraps it in ChartWrapper (the shared card shell with title and border).
+ *
+ * To add a new chart type: build a view component, add it to VIEWS, and the
+ * LLM response just needs to return the matching `chart_type` key. New view
+ * components must use Hefti design tokens (colors, typography, spacing) rather
+ * than hardcoded Tailwind zinc/hex values — use existing views as the reference.
+ */
+
+// Recharts accepts only hex/rgb — CSS variables are not supported in its prop
+// system. These constants are manually kept in sync with the Hefti tokens they
+// correspond to; update both if the design system palette changes.
+const CHART_GRID_COLOR = '#71717a'; // --content-secondary (zinc-500)
+const CHART_AXIS_COLOR = '#09090b'; // --content-primary (zinc-950)
+// SVG text does not inherit CSS font-family — Inter must be set explicitly.
+const CHART_TICK_STYLE = {
+  fontSize: 11,
+  fill: CHART_AXIS_COLOR,
+  fontFamily: 'Inter, sans-serif',
+};
+
 const COLORS = [
-  '#2563eb',
-  '#16a34a',
-  '#dc2626',
-  '#d97706',
-  '#7c3aed',
-  '#0891b2',
+  '#60a5fa', // blue-400   — home page accent, subject series (This owner / This facility)
+  '#7c3aed', // violet-600 — home page accent, benchmark series (National avg / State avg)
+  '#0891b2', // cyan-600   — tertiary series
 ];
 
+//The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children }) {
   return (
-    <div className="rounded-xl border border-zinc-200 p-4">
-      <p className="text-paragraph-sm text-core-black font-semibold">{title}</p>
+    <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+      <p className="text-label-lg text-core-black">{title}</p>
       {description && (
-        <p className="text-paragraph-sm text-content-secondary mt-1">
+        <p className="text-paragraph-base text-content-secondary mt-1">
           {description}
         </p>
       )}
@@ -34,6 +64,12 @@ function ChartWrapper({ title, description, children }) {
     </div>
   );
 }
+
+ChartWrapper.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
 
 function BarView({ data }) {
   const bars = data.bars ?? data.items ?? [];
@@ -47,21 +83,28 @@ function BarView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[0]} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
+
+BarView.propTypes = {
+  data: PropTypes.shape({
+    bars: PropTypes.arrayOf(PropTypes.object),
+    items: PropTypes.arrayOf(PropTypes.object),
+  }).isRequired,
+};
 
 function ComparisonBarView({ data }) {
   const { categories = [], series = [] } = data;
@@ -78,17 +121,17 @@ function ComparisonBarView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="category"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
-        <Legend />
+        <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '12px' }} />
         {series.map((s, i) => (
           <Bar
             key={s.name}
@@ -102,28 +145,41 @@ function ComparisonBarView({ data }) {
   );
 }
 
+ComparisonBarView.propTypes = {
+  data: PropTypes.shape({
+    categories: PropTypes.arrayOf(PropTypes.string),
+    series: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        values: PropTypes.arrayOf(PropTypes.number),
+        data: PropTypes.arrayOf(PropTypes.number),
+      }),
+    ),
+  }).isRequired,
+};
+
 function ScatterView({ data }) {
   const points = data.points ?? [];
   return (
     <ResponsiveContainer width="100%" height={260}>
       <ScatterChart margin={{ top: 4, right: 8, left: 0, bottom: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
-        <XAxis
-          dataKey="x"
-          name={data.xLabel ?? 'x'}
-          tick={{ fontSize: 11, fill: '#71717a' }}
-        />
-        <YAxis
-          dataKey="y"
-          name={data.yLabel ?? 'y'}
-          tick={{ fontSize: 11, fill: '#71717a' }}
-        />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+        <XAxis dataKey="x" name={data.xLabel ?? 'x'} tick={CHART_TICK_STYLE} />
+        <YAxis dataKey="y" name={data.yLabel ?? 'y'} tick={CHART_TICK_STYLE} />
         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
         <Scatter data={points} fill={COLORS[0]} />
       </ScatterChart>
     </ResponsiveContainer>
   );
 }
+
+ScatterView.propTypes = {
+  data: PropTypes.shape({
+    points: PropTypes.arrayOf(PropTypes.object),
+    xLabel: PropTypes.string,
+    yLabel: PropTypes.string,
+  }).isRequired,
+};
 
 function DistributionView({ data }) {
   const bins = data.bins ?? data.bars ?? data.items ?? [];
@@ -137,15 +193,15 @@ function DistributionView({ data }) {
         data={normalized}
         margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#71717a' }}
+          tick={CHART_TICK_STYLE}
           angle={-35}
           textAnchor="end"
           interval={0}
         />
-        <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+        <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[1]} radius={[3, 3, 0, 0]} />
       </BarChart>
@@ -153,29 +209,56 @@ function DistributionView({ data }) {
   );
 }
 
+DistributionView.propTypes = {
+  data: PropTypes.shape({
+    bins: PropTypes.arrayOf(PropTypes.object),
+    bars: PropTypes.arrayOf(PropTypes.object),
+    items: PropTypes.arrayOf(PropTypes.object),
+  }).isRequired,
+};
+
 function KpiRowView({ data }) {
   const kpis = data.kpis ?? [];
   return (
     <div className="grid grid-cols-2 gap-3">
       {kpis.map((kpi, i) => (
-        <div key={i} className="rounded-lg bg-zinc-50 p-3">
-          <p className="text-xs text-zinc-500">{kpi.label}</p>
-          <p className="mt-1 text-xl font-semibold text-zinc-900">
+        <div
+          key={i}
+          className="border-border-primary bg-background-secondary rounded-md border p-3 shadow-sm"
+        >
+          <p className="text-core-black text-label-base">{kpi.label}</p>
+          <p className="text-core-black text-heading-xs mt-1">
             {kpi.value}
             {kpi.unit ? (
-              <span className="ml-1 text-sm font-normal text-zinc-500">
+              <span className="text-content-secondary text-label-sm ml-1">
                 {kpi.unit}
               </span>
             ) : null}
           </p>
+
           {kpi.delta && (
-            <p className="mt-0.5 text-xs text-zinc-400">{kpi.delta}</p>
+            <p className="text-content-secondary text-label-base mt-0.5">
+              {kpi.delta}
+            </p>
           )}
         </div>
       ))}
     </div>
   );
 }
+
+KpiRowView.propTypes = {
+  data: PropTypes.shape({
+    kpis: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        unit: PropTypes.string,
+        delta: PropTypes.string,
+      }),
+    ),
+  }).isRequired,
+};
 
 function TableView({ data }) {
   const rows = data.rows ?? [];
@@ -193,13 +276,13 @@ function TableView({ data }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs">
+      <table className="text-paragraph-xs w-full text-left">
         <thead>
-          <tr className="border-b border-zinc-200">
+          <tr className="border-border-primary border-b">
             {columns.map((col) => (
               <th
                 key={col}
-                className="pr-4 pb-2 font-semibold whitespace-nowrap text-zinc-500 capitalize"
+                className="text-label-sm pr-4 pb-2 whitespace-nowrap capitalize"
               >
                 {String(col).replace(/_/g, ' ')}
               </th>
@@ -208,11 +291,14 @@ function TableView({ data }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-zinc-100 last:border-0">
+            <tr
+              key={i}
+              className="border-border-secondary border-b last:border-0"
+            >
               {columns.map((col, j) => (
                 <td
                   key={col}
-                  className="py-2 pr-4 whitespace-nowrap text-zinc-800"
+                  className="text-content-tertiary py-2 pr-4 whitespace-nowrap"
                 >
                   {getCell(row, col, j)}
                 </td>
@@ -225,6 +311,16 @@ function TableView({ data }) {
   );
 }
 
+TableView.propTypes = {
+  data: PropTypes.shape({
+    rows: PropTypes.array.isRequired,
+    columns: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+};
+
+// Registry mapping chart_type strings (from the API response) to their view
+// components. To add a new chart type: create a view component above, add it
+// here, and the LLM response just needs to include the matching chart_type key.
 const VIEWS = {
   bar: BarView,
   comparison_bar: ComparisonBarView,
@@ -234,6 +330,9 @@ const VIEWS = {
   table: TableView,
 };
 
+// Entry point — receives a single chart object, looks up the right view from
+// the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
+// chart types so unrecognized LLM output fails silently rather than crashing.
 export default function ResearchChart({ chart }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];
@@ -244,3 +343,12 @@ export default function ResearchChart({ chart }) {
     </ChartWrapper>
   );
 }
+
+ResearchChart.propTypes = {
+  chart: PropTypes.shape({
+    chart_type: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    data: PropTypes.object.isRequired,
+  }).isRequired,
+};
