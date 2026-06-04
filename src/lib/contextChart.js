@@ -1,17 +1,9 @@
 /**
- * Builds the Researcher's on-load "context chart" — a comparison of the subject's
- * four CMS star ratings against the national average — from data fetched straight
- * from the URL (see HEF-85).
+ * Builds the Researcher's on-load context charts from data fetched on mount
+ * Returns an array so multiple charts can be seeded at once — currently a KPI grid and a bar chart .
  *
- * The facility and owner endpoints expose the same four ratings under different
- * field names, so we normalize both into a single internal shape here and emit a
- * `comparison_bar` chart object consumable by the existing ResearchChart
- * component — no new chart view required.
- *
- * NOTE: the `comparison_bar` output is a baseline. HEF-85's job is the data
- * pipeline (fetch → normalize → render); the designed on-load charts arrive in
- * HEF-83, which will change what this emits and/or add new ResearchChart views.
- * The fetch effect that calls this stays untouched across that work.
+ * The facility and owner endpoints expose the same four CMS ratings under
+ * different field names; both are normalized here so callers stay context-agnostic.
  */
 
 // Per-context field names for the four CMS star ratings on the subject record.
@@ -30,20 +22,42 @@ const RATING_KEYS = {
   },
 };
 
-// Field names for the same four ratings on the /national benchmark record.
-const NATIONAL_KEYS = {
-  overall: 'national_overall_rating',
-  healthInspection: 'national_health_inspection_rating',
-  staffing: 'national_staffing_rating',
-  quality: 'national_quality_rating',
+// Benchmark field names by context:
+// - facility: state averages live on the facility record itself
+// - owner: national averages from the /national endpoint (owners span states)
+const BENCHMARK_KEYS = {
+  facility: {
+    overall: 'state_overall_rating',
+    healthInspection: 'state_health_inspection_rating',
+    staffing: 'state_staffing_rating',
+    quality: 'state_quality_rating',
+  },
+  owner: {
+    overall: 'national_overall_rating',
+    healthInspection: 'national_health_inspection_rating',
+    staffing: 'national_staffing_rating',
+    quality: 'national_quality_rating',
+  },
 };
 
-// Display order + axis labels, shared by both the subject and national series so
-// the bars line up category-for-category.
-const METRIC_ORDER = ['overall', 'healthInspection', 'staffing', 'quality'];
-const CATEGORY_LABELS = ['Overall', 'Health Inspection', 'Staffing', 'Quality'];
+// Source of benchmark data by context — facility reads from the subject record
+// itself, owner reads from the separate /national endpoint.
+const BENCHMARK_SOURCE = {
+  facility: 'subject',
+  owner: 'national',
+};
 
-// Star ratings are 1–5; round to one decimal so averaged owner values read cleanly.
+const METRICS = [
+  { key: 'overall', label: 'OVERALL RATING', barLabel: 'Overall' },
+  { key: 'quality', label: 'QUALITY', barLabel: 'Quality' },
+  { key: 'staffing', label: 'STAFFING', barLabel: 'Staffing' },
+  {
+    key: 'healthInspection',
+    label: 'HEALTH INSPECTION',
+    barLabel: 'Health insp.',
+  },
+];
+
 function round(value) {
   return typeof value === 'number' && Number.isFinite(value)
     ? Math.round(value * 10) / 10
@@ -53,41 +67,74 @@ function round(value) {
 /**
  * @param {Object}  args
  * @param {'facility'|'owner'} args.contextType
- * @param {Object}  args.subject       - facility or owner record from the data API
- * @param {Object} [args.national]     - /national benchmark record (optional)
- * @param {string} [args.subjectName]  - display name for the chart title
- * @returns {Object|null} a `comparison_bar` chart object, or null if there's
- *   nothing to plot (unknown context or no subject ratings present).
+ * @param {Object}  args.subject    - facility or owner record from the data API
+ * @param {Object} [args.national]  - /national benchmark record (optional)
+ * @param {string} [args.subjectName]
+ * @returns {Object[]} array of chart objects for ResearchChart: [kpiChart, comparisonChart]
  */
-export function buildContextChart({ contextType, subject, national, subjectName }) {
+export function buildContextCharts({
+  contextType,
+  subject,
+  national,
+  subjectName,
+}) {
   const keys = RATING_KEYS[contextType];
-  if (!subject || !keys) return null;
-
-  const subjectValues = METRIC_ORDER.map((metric) => round(subject[keys[metric]]));
-  // Nothing worth charting if the subject has no ratings at all.
-  if (subjectValues.every((value) => value == null)) return null;
+  if (!subject || !keys) return [];
 
   const subjectLabel = contextType === 'owner' ? 'This owner' : 'This facility';
-  const series = [{ name: subjectLabel, values: subjectValues }];
+  const benchmarkKeys = BENCHMARK_KEYS[contextType];
+  // Facility: state averages are on the subject record. Owner: from /national.
+  const benchmarkSource =
+    BENCHMARK_SOURCE[contextType] === 'subject' ? subject : national;
+  const benchmarkLabel =
+    contextType === 'facility' ? 'State avg' : 'National avg';
+  const comparisonTitle =
+    contextType === 'facility'
+      ? 'CMS Star Ratings vs. State Average'
+      : 'CMS Star Ratings vs. National Average';
 
-  // National bars are best-effort: include them only when the benchmark fetch
-  // succeeded and carries usable values, otherwise show the subject alone.
-  if (national) {
-    const nationalValues = METRIC_ORDER.map((metric) =>
-      round(national[NATIONAL_KEYS[metric]]),
-    );
-    if (nationalValues.some((value) => value != null)) {
-      series.push({ name: 'National average', values: nationalValues });
-    }
-  }
+  // Normalize all four metric values once; shared by both charts below.
+  const normalized = METRICS.map(({ key, label, barLabel }) => {
+    const value = round(subject[keys[key]]);
+    const benchmark = benchmarkSource
+      ? round(benchmarkSource[benchmarkKeys[key]])
+      : null;
+    return { key, label, barLabel, value, benchmark };
+  });
 
-  const comparesNational = series.length > 1;
-  return {
-    chart_type: 'comparison_bar',
+  const kpis = normalized
+    .filter(({ value }) => value != null)
+    .map(({ label, value, benchmark }) => ({
+      label,
+      value: value.toFixed(1),
+      ...(benchmark != null ? { delta: `${benchmarkLabel} ${benchmark.toFixed(1)}` } : {}),
+    }));
+
+  if (!kpis.length) return [];
+
+  const kpiChart = {
+    chart_type: 'kpi_row',
     title: `${subjectName || subjectLabel} — CMS Star Ratings`,
-    description: comparesNational
-      ? 'Overall, Health Inspection, Staffing, and Quality star ratings (1–5) compared to the national average.'
-      : 'Overall, Health Inspection, Staffing, and Quality star ratings (1–5).',
-    data: { categories: CATEGORY_LABELS, series },
+    data: { kpis },
   };
+
+  const subjectValues = normalized.map(({ value }) => value);
+  const benchmarkValues = normalized.map(({ benchmark }) => benchmark);
+  const hasBenchmark = benchmarkValues.some((v) => v != null);
+
+  const comparisonChart = {
+    chart_type: 'comparison_bar',
+    title: comparisonTitle,
+    data: {
+      categories: normalized.map(({ barLabel }) => barLabel),
+      series: [
+        { name: subjectLabel, values: subjectValues },
+        ...(hasBenchmark
+          ? [{ name: benchmarkLabel, values: benchmarkValues }]
+          : []),
+      ],
+    },
+  };
+
+  return [kpiChart, comparisonChart];
 }

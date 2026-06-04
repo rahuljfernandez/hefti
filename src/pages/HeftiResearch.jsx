@@ -11,7 +11,7 @@ import {
 } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
 import ResearchChart from '../components/ui/molecule/ResearchChart';
-import { buildContextChart } from '../lib/contextChart';
+import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 
 const API_BASE_URL =
@@ -36,6 +36,8 @@ const DATA_API_BASE_URL =
  *   Fetch ReadableStream API and renders them with react-markdown.
  * - Keeps a rolling history of the last 20 messages to support multi-turn
  *   conversation without unbounded context growth.
+ * - Seeds the right panel with on-load context charts (KPI + comparison bar)
+ *   fetched on mount before the user sends any messages.
  *
  * Scroll behavior — both panels pin the newest content to the top of their
  * viewport so each turn starts from the top, but they do it differently because
@@ -82,6 +84,9 @@ export default function HeftiResearch() {
   // The index the current turn's first chart will occupy, snapshotted at submit
   // (before any new charts have streamed in).
   const turnStartIndexRef = useRef(null);
+  // Count of on-load context charts — used to position the session-start divider
+  // between the baseline charts and the first AI-generated chart.
+  const contextChartCountRef = useRef(0);
   const hasStarted = messages.length > 0;
 
   // On-load context chart: fetch the subject + national ratings from the
@@ -114,15 +119,18 @@ export default function HeftiResearch() {
           contextType === 'owner'
             ? toTitleCase(subject.cms_ownership_name)
             : subject.provider_name;
-        // Normalizes the differing facility/owner rating fields into a single
-        // `comparison_bar` chart (subject vs. national). See lib/contextChart.
-        const chart = buildContextChart({
+        // Normalizes the differing facility/owner rating fields into context
+        // charts (KPI grid + bar). See lib/contextChart.
+        const contextCharts = buildContextCharts({
           contextType,
           subject,
           national,
           subjectName,
         });
-        if (chart) setCharts((prev) => (prev.length ? prev : [chart]));
+        if (contextCharts.length) {
+          contextChartCountRef.current = contextCharts.length;
+          setCharts((prev) => (prev.length ? prev : contextCharts));
+        }
       })
       // The on-load chart is non-critical; leave the panel empty on failure.
       .catch(() => {});
@@ -452,13 +460,26 @@ export default function HeftiResearch() {
             aria-live="polite"
             className="mr-auto flex h-full w-full max-w-[600px] flex-col space-y-4 overflow-y-auto p-6"
           >
+            {!hasStarted && charts.length > 0 && (
+              <p className="text-paragraph-sm text-content-secondary pb-2">
+                More visualizations will appear here as you explore.
+              </p>
+            )}
             {charts.map((chart, i) => (
-              <div
-                key={i}
-                ref={i === turnStartIndexRef.current ? turnFirstChartRef : null}
-              >
-                <ResearchChart chart={chart} />
-              </div>
+              <React.Fragment key={i}>
+                <div
+                  ref={i === turnStartIndexRef.current ? turnFirstChartRef : null}
+                >
+                  <ResearchChart chart={chart} />
+                </div>
+                {hasStarted && i === contextChartCountRef.current - 1 && (
+                  <div className="flex items-center gap-3 py-2">
+                    <div aria-hidden="true" className="h-px flex-1 bg-zinc-200" />
+                    <span className="text-paragraph-sm text-content-secondary shrink-0">Session start</span>
+                    <div aria-hidden="true" className="h-px flex-1 bg-zinc-200" />
+                  </div>
+                )}
+              </React.Fragment>
             ))}
             {/* Trailing spacer — guarantees enough scroll depth to pin a new
                 turn's first chart to the top, mirroring assistantMinHeight on

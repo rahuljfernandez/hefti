@@ -156,7 +156,7 @@ function DistributionView({ data }) {
 function KpiRowView({ data }) {
   const kpis = data.kpis ?? [];
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-3">
       {kpis.map((kpi, i) => (
         <div key={i} className="rounded-lg bg-zinc-50 p-3">
           <p className="text-xs text-zinc-500">{kpi.label}</p>
@@ -210,7 +210,10 @@ function TableView({ data }) {
           {rows.map((row, i) => (
             <tr key={i} className="border-b border-zinc-100 last:border-0">
               {columns.map((col, j) => (
-                <td key={col} className="py-2 pr-4 whitespace-nowrap text-zinc-800">
+                <td
+                  key={col}
+                  className="py-2 pr-4 whitespace-nowrap text-zinc-800"
+                >
                   {getCell(row, col, j)}
                 </td>
               ))}
