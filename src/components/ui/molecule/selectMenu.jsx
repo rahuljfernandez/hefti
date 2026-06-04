@@ -196,7 +196,7 @@ export default function SelectMenu({
           </div>
 
           <Heading id={headingId} className="text-label-lg mb-2 font-bold">
-            {label} By
+            {variant === 'state' ? label : `${label} By`}
           </Heading>
 
           <div className="flex-1 overflow-y-auto">
