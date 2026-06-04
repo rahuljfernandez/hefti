@@ -8,7 +8,7 @@ import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringF
  * - Transforms raw API fields into the display-ready objects expected by StatsCard
  *
  * Pattern:
- * - Facility builders read state averages from metricsSource and surface them as detail1
+ * - Facility builders surface state and national averages as detail1/detail2
  * - Owner builders surface median and std dev as detail1/detail2 (placeholders until backend provides real data)
  */
 
@@ -62,7 +62,6 @@ const ownerDeficienciesConfig = [
     description: 'Average number of deficiencies found in affiliated homes in the last three years',
     valueKey: 'cms_owner_average_deficiencies',
     isCurrency: false,
-    decimals: 1,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
   },
@@ -123,33 +122,24 @@ export function buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks) {
   });
 }
 
-export function buildOwnerDeficienciesStats(metricsSource) {
-  return ownerDeficienciesConfig.map((metric) => {
-    const raw = metricsSource?.[metric.valueKey];
-    const stat =
-      raw == null
-        ? 'N/A'
-        : metric.decimals != null
-          ? raw.toFixed(metric.decimals)
-          : raw;
-    return {
-      key: metric.key,
-      description: metric.description,
-      stat,
-      isCurrency: metric.isCurrency,
-      detail1: `Median: ${metric.medianKey}`,
-      detail2: `Std Dev: ${metric.stdDevKey}`,
-    };
-  });
-}
+function buildOwnerStats(config, metricsSource) {
+  const format = (metric, value) =>
+    metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
-export function buildOwnerPenaltiesStats(metricsSource) {
-  return ownerPenaltiesConfig.map((metric) => ({
+  return config.map((metric) => ({
     key: metric.key,
     description: metric.description,
-    stat: metricsSource?.[metric.valueKey] ?? 'N/A',
+    stat: format(metric, metricsSource?.[metric.valueKey]),
     isCurrency: metric.isCurrency,
     detail1: `Median: ${metric.medianKey}`,
     detail2: `Std Dev: ${metric.stdDevKey}`,
   }));
+}
+
+export function buildOwnerDeficienciesStats(metricsSource) {
+  return buildOwnerStats(ownerDeficienciesConfig, metricsSource);
+}
+
+export function buildOwnerPenaltiesStats(metricsSource) {
+  return buildOwnerStats(ownerPenaltiesConfig, metricsSource);
 }

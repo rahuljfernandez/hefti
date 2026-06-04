@@ -5,10 +5,19 @@ import PropTypes from 'prop-types';
 
 /**
  * This component is built with Application Ui Stats/Simple and Stats/With Shared Border.
- * The styles are applied to the components styling via the variant prop
+ * The styles are applied to the components styling via the variant prop.
+ *
+ * Each item in the stats array supports:
+ *   { key, stat, rating, isCurrency, description, detail1, detail2 }
+ * detail1 and detail2 render as benchmark lines below the description (e.g. state/national averages).
  *
  * Example:
- *    StatsCard stats={data} variant="panel"
+ *    const data = [
+ *      { key: 'Total Deficiencies', stat: 12, rating: 'Above Average', isCurrency: false,
+ *        description: 'Total deficiencies found in the past year',
+ *        detail1: 'Texas average: 10.3', detail2: 'National average: 11.1' }
+ *    ];
+ *    <StatsCard stats={data} variant="card" />
  */
 
 const variants = {

@@ -30,6 +30,15 @@ export default function DeficienciesTab({ metricsSource, status, nationalBenchma
 
   return (
     <section>
+      {status === 'owner' && (
+        <div className="pt-8">
+          <p className="text-paragraph-lg">
+            Scores represent the{' '}
+            <span className="font-bold">weighted average </span>
+            across all facilities under this owner&apos;s management.
+          </p>
+        </div>
+      )}
       <div className="my-8">
         <div>
           <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
