@@ -31,23 +31,12 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-/**
- * Sort options for the facilities browse page.
- * Rating fields use a compound "field:direction" value so browsePage can split
- * them into separate `sortBy` and `sort` URL params for the API.
- * Plain "asc"/"desc" values fall back to the default name-based sort.
- */
-const FACILITY_SORT_OPTIONS = [
-  { label: 'Name (A–Z)', value: 'asc' },
-  { label: 'Name (Z–A)', value: 'desc' },
-  { label: 'Overall Rating (High–Low)', value: 'overall_rating:desc' },
-  { label: 'Overall Rating (Low–High)', value: 'overall_rating:asc' },
-  { label: 'Staffing Rating (High–Low)', value: 'staffing_rating:desc' },
-  { label: 'Staffing Rating (Low–High)', value: 'staffing_rating:asc' },
-  { label: 'Health Inspection (High–Low)', value: 'health_inspection_rating:desc' },
-  { label: 'Health Inspection (Low–High)', value: 'health_inspection_rating:asc' },
-  { label: 'Financial (High–Low)', value: 'operating_margin:desc' },
-  { label: 'Financial (Low–High)', value: 'operating_margin:asc' },
+const FACILITY_FILTER_OPTIONS = [
+  { label: 'Name', value: 'name' },
+  { label: 'Overall Rating', value: 'overall_rating' },
+  { label: 'Staffing Rating', value: 'staffing_rating' },
+  { label: 'Health Inspection', value: 'health_inspection_rating' },
+  { label: 'Financial', value: 'operating_margin' },
 ];
 
 function Facilities() {
@@ -75,7 +64,7 @@ function Facilities() {
         title="Nursing Homes"
         searchPlaceholder="Nursing home name..."
         type="facilities"
-        sortOptions={FACILITY_SORT_OPTIONS}
+        filterOptions={FACILITY_FILTER_OPTIONS}
         renderList={(items) => (
           <>
             {chain && (

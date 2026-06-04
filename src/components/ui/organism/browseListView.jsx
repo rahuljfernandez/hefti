@@ -25,6 +25,8 @@ export default function BrowseListView({
   onSearchChange,
   onSortChange,
   onStateChange,
+  onCategoryChange,
+  showStateFilter = true,
   suggestions,
   hasFetchedSuggestions,
   type,
@@ -34,6 +36,7 @@ export default function BrowseListView({
   onFilterChange,
   onSuggestionPick,
   sortValue,
+  filterValue,
   stateValue,
 }) {
   const searchHeadingId = useId();
@@ -73,14 +76,24 @@ export default function BrowseListView({
                 sortOptions={sortOptions}
                 value={sortValue}
               />
-              {/* onFilterChange replaces onStateChange when provided (rankings context only) */}
-              <SelectMenu
-                variant="filter"
-                onStateChange={onFilterChange ?? onStateChange}
-                accessibleLabel={filterAccessibleLabel ?? 'Filter by state'}
-                filterOptions={filterOptions}
-                value={stateValue}
-              />
+              {/* onFilterChange (rankings nav) takes priority, then onCategoryChange (facilities), then state */}
+              {(filterOptions?.length > 0 || onFilterChange) && (
+                <SelectMenu
+                  variant="filter"
+                  onStateChange={onFilterChange ?? onCategoryChange ?? onStateChange}
+                  accessibleLabel={filterAccessibleLabel ?? 'Filter by category'}
+                  filterOptions={filterOptions}
+                  value={onFilterChange ? stateValue : filterValue ?? stateValue}
+                />
+              )}
+              {showStateFilter && (
+                <SelectMenu
+                  variant="state"
+                  onStateChange={onStateChange}
+                  accessibleLabel="Filter by state"
+                  value={stateValue}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -121,6 +134,7 @@ BrowseListView.propTypes = {
   hasFetchedSuggestions: PropTypes.bool,
   onSortChange: PropTypes.func,
   onStateChange: PropTypes.func,
+  onCategoryChange: PropTypes.func,
   type: PropTypes.string,
   sortOptions: PropTypes.array,
   filterOptions: PropTypes.array,
@@ -128,5 +142,6 @@ BrowseListView.propTypes = {
   onFilterChange: PropTypes.func,
   onSuggestionPick: PropTypes.func,
   sortValue: PropTypes.string,
+  filterValue: PropTypes.string,
   stateValue: PropTypes.string,
 };

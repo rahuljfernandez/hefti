@@ -19,10 +19,10 @@ import { CheckIcon } from '@heroicons/react/20/solid';
 
 const OPTIONS = {
   sort: [
-    { label: 'Sort A to Z', value: 'asc' },
-    { label: 'Sort Z to A', value: 'desc' },
+    { label: 'Ascending', value: 'asc' },
+    { label: 'Descending', value: 'desc' },
   ],
-  filter: [
+  state: [
     { label: 'AL', value: 'AL' },
     { label: 'AK', value: 'AK' },
     { label: 'AZ', value: 'AZ' },
@@ -74,6 +74,7 @@ const OPTIONS = {
     { label: 'WI', value: 'WI' },
     { label: 'WY', value: 'WY' },
   ],
+  filter: [],
 };
 
 export default function SelectMenu({
@@ -92,7 +93,7 @@ export default function SelectMenu({
   const label = variant.charAt(0).toUpperCase() + variant.slice(1);
   const options =
     variant === 'sort' && sortOptions ? sortOptions :
-    variant === 'filter' && filterOptions ? filterOptions :
+    filterOptions ? filterOptions :
     OPTIONS[variant] || [];
 
   // Derive selected option from the value prop (set externally via URL params).
@@ -264,7 +265,7 @@ export default function SelectMenu({
 
 SelectMenu.propTypes = {
   onChange: PropTypes.func,
-  variant: PropTypes.oneOf(['sort', 'filter']),
+  variant: PropTypes.oneOf(['sort', 'filter', 'state']),
   onSortChange: PropTypes.func,
   onFilterChange: PropTypes.func,
   onStateChange: PropTypes.func,
