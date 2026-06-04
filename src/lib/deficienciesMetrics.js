@@ -1,4 +1,4 @@
-import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
+import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
 
 /**
  * Deficiencies & Penalties metric config and builder helpers.
@@ -25,6 +25,15 @@ const facilityDeficienciesConfig = [
 ];
 
 const facilityPenaltiesConfig = [
+  {
+    key: 'Total Penalties',
+    description: 'Total number of penalties issued against this facility',
+    valueKey: 'total_penalties',
+    ratingKey: 'cmpr_total_penalties',
+    stateAvgKey: 'state_total_penalties',
+    nationalAvgKey: 'national_total_penalties',
+    isCurrency: false,
+  },
   {
     key: 'Number of Fines',
     description: 'Total fines issued against this facility',
@@ -81,8 +90,9 @@ const ownerPenaltiesConfig = [
 export function buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
   return facilityDeficienciesConfig.map((metric) => {
-    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
-    const nationalAvg = formatMetricValue(nationalBenchmarks?.[metric.nationalAvgKey]);
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const stateAvg = format(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = format(nationalBenchmarks?.[metric.nationalAvgKey]);
     return {
       key: metric.key,
       description: metric.description,
@@ -98,8 +108,9 @@ export function buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks
 export function buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
   return facilityPenaltiesConfig.map((metric) => {
-    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
-    const nationalAvg = formatMetricValue(nationalBenchmarks?.[metric.nationalAvgKey]);
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const stateAvg = format(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = format(nationalBenchmarks?.[metric.nationalAvgKey]);
     return {
       key: metric.key,
       description: metric.description,
