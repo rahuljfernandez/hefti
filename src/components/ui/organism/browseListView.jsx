@@ -80,10 +80,16 @@ export default function BrowseListView({
               {(filterOptions?.length > 0 || onFilterChange) && (
                 <SelectMenu
                   variant="filter"
-                  onStateChange={onFilterChange ?? onCategoryChange ?? onStateChange}
-                  accessibleLabel={filterAccessibleLabel ?? 'Filter by category'}
+                  onStateChange={
+                    onFilterChange ?? onCategoryChange ?? onStateChange
+                  }
+                  accessibleLabel={
+                    filterAccessibleLabel ?? 'Filter by category'
+                  }
                   filterOptions={filterOptions}
-                  value={onFilterChange ? stateValue : filterValue ?? stateValue}
+                  value={
+                    onFilterChange ? stateValue : (filterValue ?? stateValue)
+                  }
                 />
               )}
               {showStateFilter && (
@@ -135,6 +141,7 @@ BrowseListView.propTypes = {
   onSortChange: PropTypes.func,
   onStateChange: PropTypes.func,
   onCategoryChange: PropTypes.func,
+  showStateFilter: PropTypes.bool,
   type: PropTypes.string,
   sortOptions: PropTypes.array,
   filterOptions: PropTypes.array,

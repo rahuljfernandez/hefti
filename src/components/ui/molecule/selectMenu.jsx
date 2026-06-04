@@ -9,8 +9,9 @@ import { CheckIcon } from '@heroicons/react/20/solid';
  * Reusable sort/filter control for browse pages.
  *
  * Variants:
- * - `sort`: sorts by name (A-Z / Z-A) by default; accepts custom sortOptions for field-based sorts
- * - `filter`: allows filtering by state
+ * - `sort`: Ascending / Descending; accepts custom sortOptions to override the defaults
+ * - `filter`: sort category picker (Name, Overall Rating, etc.); requires filterOptions prop
+ * - `state`: state picker; uses built-in 50-state list by default
  *
  * Behavior:
  * - Desktop renders a native single-select control

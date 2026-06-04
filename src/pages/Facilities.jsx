@@ -2,7 +2,10 @@ import React from 'react';
 import ListContainer, {
   ListContainerSeparate,
 } from '../components/ui/organism/ListContainer';
-import { BrowseNursingHomes, BrowseNursingHomesRatings } from '../components/ui/molecule/listContainerContent';
+import {
+  BrowseNursingHomes,
+  BrowseNursingHomesRatings,
+} from '../components/ui/molecule/listContainerContent';
 import BrowsePage from '../components/ui/organism/browsePage';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import {
@@ -23,7 +26,7 @@ import { toTitleCase } from '../lib/toTitleCase';
  * - title: Page title
  * - searchPlaceholder: Input placeholder text
  * - type: Entity type for routing (facilities)
- * - sortOptions: Facilities-specific sort options (see FACILITY_SORT_OPTIONS)
+ * - filterOptions: Sort category options (Name, Overall Rating, etc.)
  * - renderList: Function rendering the list of facilities
  */
 
@@ -31,6 +34,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+//We include the filter options here because this is specific to facility context. Facility, owner, and ranking browses share the same internal components, thus these options need to be passed into BrowsePage as contextual props
 const FACILITY_FILTER_OPTIONS = [
   { label: 'Name', value: 'name' },
   { label: 'Overall Rating', value: 'overall_rating' },
@@ -48,12 +52,18 @@ function Facilities() {
     state?.from === 'rankings' ? rankingsFacilityListPages : facilityListPages;
 
   // Pass linkState through to whichever card is rendered so the breadcrumb trail is correct.
-  const linkState = state?.from === 'rankings' ? { from: 'rankings' } : undefined;
+  const linkState =
+    state?.from === 'rankings' ? { from: 'rankings' } : undefined;
 
-  // When a field-based sort is active, show the ratings card with that metric highlighted.
-  // Otherwise fall back to the standard ownership card.
+  // When a field-based sort is active, show the ratings card with that metric highlighted. Otherwise fall back to the standard ownership card.
   const CardComponent = sortBy
-    ? (props) => <BrowseNursingHomesRatings {...props} activeMetric={sortBy} linkState={linkState} />
+    ? (props) => (
+        <BrowseNursingHomesRatings
+          {...props}
+          activeMetric={sortBy}
+          linkState={linkState}
+        />
+      )
     : (props) => <BrowseNursingHomes {...props} linkState={linkState} />;
 
   return (
