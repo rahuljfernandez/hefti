@@ -17,16 +17,16 @@ import {
  * - Switches between facility and owner metric builders based on status
  * - Renders each group using the shared StatsCard layout
  */
-export default function DeficienciesTab({ metricsSource, status }) {
+export default function DeficienciesTab({ metricsSource, status, nationalBenchmarks }) {
   const deficienciesStats =
     status === 'owner'
       ? buildOwnerDeficienciesStats(metricsSource)
-      : buildFacilityDeficienciesStats(metricsSource);
+      : buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks);
 
   const penaltiesStats =
     status === 'owner'
       ? buildOwnerPenaltiesStats(metricsSource)
-      : buildFacilityPenaltiesStats(metricsSource);
+      : buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks);
 
   return (
     <section>
@@ -52,4 +52,5 @@ export default function DeficienciesTab({ metricsSource, status }) {
 DeficienciesTab.propTypes = {
   metricsSource: PropTypes.object,
   status: PropTypes.oneOf(['facility', 'owner']),
+  nationalBenchmarks: PropTypes.object,
 };

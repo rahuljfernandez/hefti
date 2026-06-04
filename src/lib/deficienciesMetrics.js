@@ -1,3 +1,5 @@
+import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
+
 /**
  * Deficiencies & Penalties metric config and builder helpers.
  *
@@ -6,17 +8,18 @@
  * - Transforms raw API fields into the display-ready objects expected by StatsCard
  *
  * Pattern:
- * - Config arrays describe which backend fields map to each stat card
- * - Builder functions read those configs and return normalized UI data
- * - Facility builders include CMS comparison ratings when available
+ * - Facility builders read state averages from metricsSource and surface them as detail1
+ * - Owner builders surface median and std dev as detail1/detail2 (placeholders until backend provides real data)
  */
 
 const facilityDeficienciesConfig = [
   {
     key: 'Total Deficiencies',
-    description: 'Number of deficiencies found during health inspections in the last three years',
+    description: 'Total deficiencies found in the past year',
     valueKey: 'health_deficiencies',
     ratingKey: 'cmpr_health_deficiencies',
+    stateAvgKey: 'state_health_deficiencies',
+    nationalAvgKey: 'national_health_deficiencies',
     isCurrency: false,
   },
 ];
@@ -24,9 +27,11 @@ const facilityDeficienciesConfig = [
 const facilityPenaltiesConfig = [
   {
     key: 'Number of Fines',
-    description: 'Total number of fines issued against this facility',
+    description: 'Total fines issued against this facility',
     valueKey: 'number_of_fines',
     ratingKey: 'cmpr_number_of_fines',
+    stateAvgKey: 'state_number_of_fines',
+    nationalAvgKey: 'national_number_of_fines',
     isCurrency: false,
   },
   {
@@ -34,10 +39,14 @@ const facilityPenaltiesConfig = [
     description: 'Total dollar amount of all fines issued against this facility',
     valueKey: 'total_amount_of_fines_in_usd',
     ratingKey: 'cmpr_total_amount_of_fines_in_usd',
+    stateAvgKey: 'state_total_amount_of_fines_in_usd',
+    nationalAvgKey: 'national_total_amount_of_fines_in_usd',
     isCurrency: true,
   },
 ];
 
+// NOTE: owner median/std-dev values are placeholders until backend provides
+// owner-level deficiency and penalty distribution data.
 const ownerDeficienciesConfig = [
   {
     key: 'Average Total Deficiencies',
@@ -45,6 +54,8 @@ const ownerDeficienciesConfig = [
     valueKey: 'cms_owner_average_deficiencies',
     isCurrency: false,
     decimals: 1,
+    medianKey: 'N/A',
+    stdDevKey: 'N/A',
   },
 ];
 
@@ -54,33 +65,51 @@ const ownerPenaltiesConfig = [
     description: 'Average number of penalties issued against affiliated homes',
     valueKey: 'cms_owner_average_penalties',
     isCurrency: false,
+    medianKey: 'N/A',
+    stdDevKey: 'N/A',
   },
   {
     key: 'Average Fine Amount',
     description: 'Average total fines issued against affiliated homes',
     valueKey: 'cms_owner_average_fines',
     isCurrency: true,
+    medianKey: 'N/A',
+    stdDevKey: 'N/A',
   },
 ];
 
-export function buildFacilityDeficienciesStats(metricsSource) {
-  return facilityDeficienciesConfig.map((metric) => ({
-    key: metric.key,
-    description: metric.description,
-    stat: metricsSource?.[metric.valueKey] ?? 'N/A',
-    rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
-    isCurrency: metric.isCurrency,
-  }));
+export function buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks) {
+  const stateName = expandStateAbbreviation(metricsSource?.state);
+  return facilityDeficienciesConfig.map((metric) => {
+    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = formatMetricValue(nationalBenchmarks?.[metric.nationalAvgKey]);
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat: metricsSource?.[metric.valueKey] ?? 'N/A',
+      rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
+      isCurrency: metric.isCurrency,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+    };
+  });
 }
 
-export function buildFacilityPenaltiesStats(metricsSource) {
-  return facilityPenaltiesConfig.map((metric) => ({
-    key: metric.key,
-    description: metric.description,
-    stat: metricsSource?.[metric.valueKey] ?? 'N/A',
-    rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
-    isCurrency: metric.isCurrency,
-  }));
+export function buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks) {
+  const stateName = expandStateAbbreviation(metricsSource?.state);
+  return facilityPenaltiesConfig.map((metric) => {
+    const stateAvg = formatMetricValue(metricsSource?.[metric.stateAvgKey]);
+    const nationalAvg = formatMetricValue(nationalBenchmarks?.[metric.nationalAvgKey]);
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat: metricsSource?.[metric.valueKey] ?? 'N/A',
+      rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
+      isCurrency: metric.isCurrency,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+    };
+  });
 }
 
 export function buildOwnerDeficienciesStats(metricsSource) {
@@ -97,19 +126,19 @@ export function buildOwnerDeficienciesStats(metricsSource) {
       description: metric.description,
       stat,
       isCurrency: metric.isCurrency,
+      detail1: `Median: ${metric.medianKey}`,
+      detail2: `Std Dev: ${metric.stdDevKey}`,
     };
   });
 }
 
 export function buildOwnerPenaltiesStats(metricsSource) {
-  return ownerPenaltiesConfig.map((metric) => {
-    const raw = metricsSource?.[metric.valueKey];
-    const stat = raw == null ? 'N/A' : raw;
-    return {
-      key: metric.key,
-      description: metric.description,
-      stat,
-      isCurrency: metric.isCurrency,
-    };
-  });
+  return ownerPenaltiesConfig.map((metric) => ({
+    key: metric.key,
+    description: metric.description,
+    stat: metricsSource?.[metric.valueKey] ?? 'N/A',
+    isCurrency: metric.isCurrency,
+    detail1: `Median: ${metric.medianKey}`,
+    detail2: `Std Dev: ${metric.stdDevKey}`,
+  }));
 }

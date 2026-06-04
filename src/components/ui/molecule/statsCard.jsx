@@ -72,10 +72,12 @@ function StatCardLayout({ stats, variant = 'panel' }) {
               <div className="text-paragraph-base text-content-secondary">
                 {item.description}
               </div>
-              <div className="text-paragraph-base text-content-secondary py-1">
-                {/* National average:{' '}
-                {formatValue(nationalAverage, item.isCurrency)} */}
-              </div>
+              {(item.detail1 || item.detail2) && (
+                <div className="text-paragraph-base text-content-secondary mt-3 flex flex-col gap-0.5">
+                  {item.detail1 && <span>{item.detail1}</span>}
+                  {item.detail2 && <span>{item.detail2}</span>}
+                </div>
+              )}
             </div>
           );
         })}
@@ -92,6 +94,8 @@ StatCardLayout.propTypes = {
       rating: PropTypes.string,
       isCurrency: PropTypes.bool,
       description: PropTypes.string,
+      detail1: PropTypes.string,
+      detail2: PropTypes.string,
     }),
   ).isRequired,
   variant: PropTypes.oneOf(['card', 'panel']),
