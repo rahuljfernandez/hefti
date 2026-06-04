@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -24,9 +24,22 @@ const API_BASE_URL =
  *   Fetch ReadableStream API and renders them with react-markdown.
  * - Keeps a rolling history of the last 20 messages to support multi-turn
  *   conversation without unbounded context growth.
- * - Uses `flushSync` + `requestAnimationFrame` to scroll the latest user
- *   bubble to the top of the viewport immediately after send, before the
- *   assistant has produced any output.
+ *
+ * Scroll behavior — both panels pin the newest content to the top of their
+ * viewport so each turn starts from the top, but they do it differently because
+ * of *when* their anchor element exists:
+ *
+ * - Left (chat): the anchor is the user's message, which exists the instant they
+ *   hit send. So we pin it SYNCHRONOUSLY inside submitPrompt — `flushSync` commits
+ *   the message, then a single `requestAnimationFrame` scrolls it to the top.
+ *   Room to scroll is made by giving the latest assistant bubble a min-height
+ *   (`assistantMinHeight`) equal to ~one viewport.
+ * - Right (charts): the anchor is the turn's first chart, which does NOT exist at
+ *   send time — charts stream in asynchronously over the response. So we pin
+ *   REACTIVELY in a `useEffect` keyed on `charts`, scrolling once that first chart
+ *   arrives. Room to scroll is made by a trailing spacer (`chartsSpacerHeight`)
+ *   sized to the right panel's full height, which also survives the brief window
+ *   before Recharts has measured the incoming chart.
  *
  * Route params:
  *  - slug: string — the owner or facility slug, forwarded to the API for context.
@@ -46,14 +59,24 @@ export default function HeftiResearch() {
   const [messages, setMessages] = useState([]);
   const [charts, setCharts] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
+  const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
+  const chartsPanelRef = useRef(null);
+  // Mirrors lastUserMsgRef on the left: the first chart produced by the current
+  // turn, which we pin to the top of the panel once it arrives.
+  const turnFirstChartRef = useRef(null);
+  // The index the current turn's first chart will occupy, snapshotted at submit
+  // (before any new charts have streamed in).
+  const turnStartIndexRef = useRef(null);
   const hasStarted = messages.length > 0;
 
-  // Tracks the height of the scroll container so we can give the incoming assistant
-  // message bubble enough min-height to fill the remaining viewport. This ensures
-  // there's always enough scroll depth to push the user message to the top of the
-  // view when a new message is sent, even before the assistant has streamed any content.
+  // Left side (chat): tracks the height of the scroll container so we can give the
+  // incoming assistant message bubble enough min-height to fill the remaining
+  // viewport. This ensures there's always enough scroll depth to push the user
+  // message to the top of the view when a new message is sent, even before the
+  // assistant has streamed any content. (The right panel's equivalent spacer
+  // measurement is the next effect below.)
   useLayoutEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -69,6 +92,54 @@ export default function HeftiResearch() {
 
     return () => resizeObserver.disconnect();
   }, [hasStarted]);
+
+  // Right-panel equivalent of the spacer measurement above. We track the chart
+  // panel's own full height (it's taller than the left container, which excludes
+  // the composer) and use it as a trailing spacer. Sizing the spacer to a full
+  // viewport guarantees there's enough scroll depth to pin a new turn's first
+  // chart to the top even during the brief window before Recharts has measured
+  // and laid out the chart (when it still reports near-zero height).
+  useLayoutEffect(() => {
+    const panel = chartsPanelRef.current;
+    if (!panel) return;
+
+    function updateChartsSpacerHeight() {
+      setChartsSpacerHeight(panel.clientHeight);
+    }
+
+    updateChartsSpacerHeight();
+
+    const resizeObserver = new ResizeObserver(updateChartsSpacerHeight);
+    resizeObserver.observe(panel);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // Right-panel counterpart to the left side's scroll-to-top (see the scroll block
+  // in submitPrompt). Unlike the left — which pins synchronously at send time
+  // because the user message already exists — charts stream in asynchronously, so
+  // we must pin REACTIVELY here: this effect fires when `charts` changes and acts
+  // only when the turn's first chart has just arrived (length === startIdx + 1),
+  // scrolling it to the top. The trailing spacer in the render guarantees enough
+  // scroll depth below it, exactly how assistantMinHeight makes room on the left.
+  useEffect(() => {
+    const panel = chartsPanelRef.current;
+    const startIdx = turnStartIndexRef.current;
+    if (!panel || startIdx === null || charts.length !== startIdx + 1) return;
+
+    const frameId = requestAnimationFrame(() => {
+      const chart = turnFirstChartRef.current;
+      if (!chart) return;
+
+      const panelRect = panel.getBoundingClientRect();
+      const chartRect = chart.getBoundingClientRect();
+      const topOffset = chartRect.top - panelRect.top;
+
+      panel.scrollTo({ top: panel.scrollTop + topOffset, behavior: 'smooth' });
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [charts]);
 
   async function submitPrompt() {
     const trimmedPrompt = prompt.trim();
@@ -89,7 +160,7 @@ export default function HeftiResearch() {
       isError: false,
     };
 
-    setCharts([]);
+    turnStartIndexRef.current = charts.length;
 
     // flushSync forces React to commit the new messages to the DOM synchronously
     // before we proceed. Without this, the requestAnimationFrame below would run
@@ -104,6 +175,11 @@ export default function HeftiResearch() {
     // sits at the top of the viewport. We use requestAnimationFrame to wait one
     // paint cycle, ensuring layout is complete and getBoundingClientRect() returns
     // accurate values before we calculate the scroll offset.
+    //
+    // This is the SYNCHRONOUS counterpart to the right panel's pin-to-top. We can
+    // do it inline here because the anchor (the user message) already exists after
+    // the flushSync above. The right panel can't — its charts arrive later over
+    // the stream — so it pins reactively in the `charts` useEffect instead.
     requestAnimationFrame(() => {
       const container = messagesContainerRef.current;
       const lastUserMessage = lastUserMsgRef.current;
@@ -147,6 +223,10 @@ export default function HeftiResearch() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+      // DEBUG-ONLY: finalText/finalCharts exist solely to feed the debug log at
+      // the end of the stream loop. The UI is driven by setMessages/setCharts,
+      // not these. Remove these two declarations and their accumulation lines
+      // below when the debug console.log is removed.
       let finalText = '';
       const finalCharts = [];
       let lineBuffer = '';
@@ -196,6 +276,8 @@ export default function HeftiResearch() {
         }
       }
 
+      // DEBUG-ONLY: remove before production. Removing this also makes finalText
+      // and finalCharts (declared above) dead code — delete them together.
       console.log('[researcher] final response:', { text: finalText, charts: finalCharts });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -290,11 +372,35 @@ export default function HeftiResearch() {
         </section>
 
         {/* Right panel — chart output */}
-        <section className="flex min-h-0 flex-col bg-white">
-          <div className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4">
+        <section
+          aria-label="Generated charts"
+          className="flex min-h-0 flex-col bg-white"
+        >
+          {/* aria-live announces newly streamed charts to screen readers, since
+              they appear without any focus or navigation change. */}
+          <div
+            ref={chartsPanelRef}
+            aria-live="polite"
+            className="mr-auto flex h-full w-full max-w-[600px] flex-col overflow-y-auto p-6 space-y-4"
+          >
             {charts.map((chart, i) => (
-              <ResearchChart key={i} chart={chart} />
+              <div
+                key={i}
+                ref={i === turnStartIndexRef.current ? turnFirstChartRef : null}
+              >
+                <ResearchChart chart={chart} />
+              </div>
             ))}
+            {/* Trailing spacer — guarantees enough scroll depth to pin a new
+                turn's first chart to the top, mirroring assistantMinHeight on
+                the left panel. Sized to the panel's full height so the pin works
+                even before Recharts has laid out the incoming chart. */}
+            {charts.length > 0 && (
+              <div
+                aria-hidden="true"
+                style={{ minHeight: `${chartsSpacerHeight}px` }}
+              />
+            )}
           </div>
         </section>
       </div>
