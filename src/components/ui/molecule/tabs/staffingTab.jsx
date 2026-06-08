@@ -4,7 +4,7 @@ import LayoutCard from '../../atom/layout-card';
 import CMSRating from '../CMSRating';
 import { Divider } from '../../atom/divider';
 import ListContainer, { ListContainerGrid } from '../../organism/ListContainer';
-import { StaffingStatCard } from '../listContainerContent';
+import StatsCard from '../statsCard';
 import {
   buildFacilityStaffingLevels,
   buildFacilityStaffingTurnover,
@@ -91,7 +91,8 @@ export default function StaffingTab({ items, status }) {
               <ListContainer
                 items={staffingLevelsStats}
                 LayoutSelector={ListContainerGrid}
-                ListContent={StaffingStatCard}
+                ListContent={StatsCard}
+                layoutProps={{ cols: 3 }}
               />
             </div>
             <Divider />
@@ -101,7 +102,8 @@ export default function StaffingTab({ items, status }) {
               <ListContainer
                 items={staffingTurnoverStats}
                 LayoutSelector={ListContainerGrid}
-                ListContent={StaffingStatCard}
+                ListContent={StatsCard}
+                layoutProps={{ cols: 3 }}
               />
             </div>
           </LayoutCard>

@@ -6,7 +6,7 @@ import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
  * Purpose:
  * - Defines the field-to-card mapping for staffing tabs
  * - Keeps facility and owner staffing metric definitions in one place
- * - Transforms raw API fields into the display-ready objects expected by StaffingStatCard
+ * - Transforms raw API fields into the display-ready objects expected by StatsCard
  *
  * Pattern:
  * - Config arrays describe which backend fields belong to each staffing card
@@ -152,12 +152,12 @@ export function buildFacilityStaffingLevels(metricsSource) {
 
     return {
       id: metric.id,
-      title: metric.title,
+      key: metric.title,
       description: metric.description,
       stat,
       displayStat: formatDisplayValue(metric, stat),
       rating: metricsSource?.[metric.ratingKey] ?? null,
-      detail: `${stateName} average: ${stateAvg}`,
+      detail1: `${stateName} average: ${stateAvg}`,
     };
   });
 }
@@ -173,12 +173,12 @@ export function buildFacilityStaffingTurnover(metricsSource) {
 
     return {
       id: metric.id,
-      title: metric.title,
+      key: metric.title,
       description: metric.description,
       stat,
       displayStat: formatDisplayValue(metric, stat),
       rating: metric.ratingKey ? metricsSource?.[metric.ratingKey] : null,
-      detail: stateAvg ? `${stateName} average: ${stateAvg}` : 'N/A',
+      detail1: stateAvg ? `${stateName} average: ${stateAvg}` : 'N/A',
     };
   });
 }
@@ -191,11 +191,11 @@ export function buildOwnerStaffingLevels(metricsSource) {
 
     return {
       id: metric.id,
-      title: metric.title,
+      key: metric.title,
       description: metric.description,
       stat,
       displayStat: formatDisplayValue(metric, stat),
-      detail: `Median: ${metric.median}`,
+      detail1: `Median: ${metric.median}`,
     };
   });
 }
@@ -206,11 +206,11 @@ export function buildOwnerStaffingTurnover(metricsSource) {
 
     return {
       id: metric.id,
-      title: metric.title,
+      key: metric.title,
       description: metric.description,
       stat,
       displayStat: formatDisplayValue(metric, stat),
-      detail: `Median: ${metric.median}`,
+      detail1: `Median: ${metric.median}`,
     };
   });
 }

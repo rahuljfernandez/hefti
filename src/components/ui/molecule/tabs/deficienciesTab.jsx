@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Heading } from '../../atom/heading';
 import StatsCard from '../statsCard';
+import ListContainer, { ListContainerGrid } from '../../organism/ListContainer';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -15,9 +16,13 @@ import {
  * Responsibilities:
  * - Builds deficiency and penalty stat groups from the provided data source
  * - Switches between facility and owner metric builders based on status
- * - Renders each group using the shared StatsCard layout
+ * - Renders each group using ListContainer + ListContainerGrid + StatsCard
  */
-export default function DeficienciesTab({ metricsSource, status, nationalBenchmarks }) {
+export default function DeficienciesTab({
+  metricsSource,
+  status,
+  nationalBenchmarks,
+}) {
   const deficienciesStats =
     status === 'owner'
       ? buildOwnerDeficienciesStats(metricsSource)
@@ -44,14 +49,24 @@ export default function DeficienciesTab({ metricsSource, status, nationalBenchma
           <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
             Deficiencies from Inspection Reports
           </Heading>
-          <StatsCard stats={deficienciesStats} variant="card" cols={2} />
+          <ListContainer
+            items={deficienciesStats}
+            LayoutSelector={ListContainerGrid}
+            ListContent={StatsCard}
+            layoutProps={{ cols: 1 }}
+          />
         </div>
 
         <div className="pb-8">
           <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
             Penalties
           </Heading>
-          <StatsCard stats={penaltiesStats} variant="card" cols={3} />
+          <ListContainer
+            items={penaltiesStats}
+            LayoutSelector={ListContainerGrid}
+            ListContent={StatsCard}
+            layoutProps={{ cols: 3 }}
+          />
         </div>
       </div>
     </section>
