@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
  *        description: 'Total deficiencies found in the past year',
  *        detail1: 'Texas average: 10.3', detail2: 'National average: 11.1' }
  *    ];
- *    <StatsCard stats={data} variant="card" />
+ *    <StatsCard stats={data} variant="card" cols={2} />
  */
 
 const cardColsClass = {
