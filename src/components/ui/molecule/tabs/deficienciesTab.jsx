@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Heading } from '../../atom/heading';
 import StatsCard from '../statsCard';
-import ListContainer, { ListContainerGrid } from '../../organism/ListContainer';
+import ListContainer, { ListContainerGrid, ListContainerDivider } from '../../organism/ListContainer';
+import { DeficiencyReportItem } from '../listContainerContent';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -54,6 +55,11 @@ export default function DeficienciesTab({
             LayoutSelector={ListContainerGrid}
             ListContent={StatsCard}
             layoutProps={{ cols: 1 }}
+          />
+          <ListContainer
+            items={metricsSource?.deficiency_reports ?? []}
+            LayoutSelector={ListContainerDivider}
+            ListContent={DeficiencyReportItem}
           />
         </div>
 
