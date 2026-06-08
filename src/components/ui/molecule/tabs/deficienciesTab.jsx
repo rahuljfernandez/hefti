@@ -44,14 +44,14 @@ export default function DeficienciesTab({ metricsSource, status, nationalBenchma
           <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
             Deficiencies from Inspection Reports
           </Heading>
-          <StatsCard stats={deficienciesStats} variant="card" />
+          <StatsCard stats={deficienciesStats} variant="card" cols={2} />
         </div>
 
         <div className="pb-8">
           <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
             Penalties
           </Heading>
-          <StatsCard stats={penaltiesStats} variant="card" />
+          <StatsCard stats={penaltiesStats} variant="card" cols={3} />
         </div>
       </div>
     </section>

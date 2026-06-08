@@ -20,9 +20,16 @@ import PropTypes from 'prop-types';
  *    <StatsCard stats={data} variant="card" />
  */
 
+const cardColsClass = {
+  1: 'sm:grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+};
+
 const variants = {
   card: {
-    wrapper: 'mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2',
+    wrapper: (cols) =>
+      `mt-5 grid grid-cols-1 gap-5 ${cardColsClass[cols] ?? 'sm:grid-cols-2'}`,
     item: 'border-border-primary text-label-lg overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-16 shadow-sm',
   },
   panel: {
@@ -54,11 +61,13 @@ function normalizeKey(str) {
 }
 
 //StatCardLayout handles all the styling
-function StatCardLayout({ stats, variant = 'panel' }) {
+function StatCardLayout({ stats, variant = 'panel', cols = 2 }) {
   const styles = variants[variant];
+  const wrapperClass =
+    typeof styles.wrapper === 'function' ? styles.wrapper(cols) : styles.wrapper;
   return (
     <div>
-      <dl className={styles.wrapper} aria-label="Statistics summary">
+      <dl className={wrapperClass} aria-label="Statistics summary">
         {stats.map((item, i) => {
           return (
             <div key={item.key + i} className={styles.item}>
@@ -108,9 +117,16 @@ StatCardLayout.propTypes = {
     }),
   ).isRequired,
   variant: PropTypes.oneOf(['card', 'panel']),
+  cols: PropTypes.oneOf([1, 2, 3]),
 };
 
 //Wrapper for StatCardLayout which applies the syling.
-export default function StatsCard({ stats, variant = 'card' }) {
-  return <StatCardLayout stats={stats} variant={variant} />;
+export default function StatsCard({ stats, variant = 'card', cols = 2 }) {
+  return <StatCardLayout stats={stats} variant={variant} cols={cols} />;
 }
+
+StatsCard.propTypes = {
+  stats: PropTypes.array.isRequired,
+  variant: PropTypes.oneOf(['card', 'panel']),
+  cols: PropTypes.oneOf([1, 2, 3]),
+};
