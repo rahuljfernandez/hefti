@@ -36,6 +36,9 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
+const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017];
+
 export default function OwnersProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
@@ -44,6 +47,7 @@ export default function OwnersProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
 
@@ -53,6 +57,7 @@ export default function OwnersProfile() {
     setError(null);
     setNotFound(false);
 
+    // TODO: append ?year=${selectedYear} once the API supports year filtering.
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => {
         if (res.status === 404) return null;
@@ -68,7 +73,7 @@ export default function OwnersProfile() {
       })
       .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, selectedYear]);
 
   // Use related facilities from API if available
   const relatedFacilities =
@@ -126,6 +131,9 @@ export default function OwnersProfile() {
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
               subjectType="owner"
+              years={AVAILABLE_YEARS}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
             />
             <OwnersNetworkGraphLauncher ownerId={owner.id} />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}

@@ -30,6 +30,9 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
+const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017];
+
 /**
  * Facility profile page container.
  *
@@ -46,16 +49,18 @@ export default function FacilityProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Reload facility details whenever the URL slug changes.
+    // Reload facility details whenever the URL slug or selected year changes.
     setLoading(true);
     setFacility(null);
     setError(null);
     setNotFound(false);
 
+    // TODO: append ?year=${selectedYear} once the API supports year filtering.
     fetch(`${API_BASE_URL}/facilities/${slug}`)
       .then((res) => {
         if (res.status === 404) return null;
@@ -71,7 +76,7 @@ export default function FacilityProfile() {
       })
       .catch(() => setError('Failed to load facility data.'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, selectedYear]);
 
   useEffect(() => {
     const fetchNationalBenchmarks = async () => {
@@ -135,6 +140,9 @@ export default function FacilityProfile() {
               func={getBadgeColorOwnershipType}
               onClick={handleResearchClick}
               subjectType="facility"
+              years={AVAILABLE_YEARS}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
