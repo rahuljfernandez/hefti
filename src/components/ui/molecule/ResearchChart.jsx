@@ -32,9 +32,9 @@ import {
  * than hardcoded Tailwind zinc/hex values — use existing views as the reference.
  */
 
-// Recharts accepts only hex/rgb — CSS variables are not supported in its prop
-// system. These constants are manually kept in sync with the Hefti tokens they
-// correspond to; update both if the design system palette changes.
+/* Recharts accepts only hex/rgb — CSS variables are not supported in its prop
+   system. These constants are manually kept in sync with the Hefti tokens they
+   correspond to; update both if the design system palette changes. */
 const CHART_GRID_COLOR = '#71717a'; // --content-secondary (zinc-500)
 const CHART_AXIS_COLOR = '#09090b'; // --content-primary (zinc-950)
 // SVG text does not inherit CSS font-family — Inter must be set explicitly.
@@ -49,6 +49,51 @@ const COLORS = [
   '#7c3aed', // violet-600 — home page accent, benchmark series (National avg / State avg)
   '#0891b2', // cyan-600   — tertiary series
 ];
+
+// Max chars before X-axis labels are truncated; keeps bottom margin predictable.
+const MAX_LABEL_CHARS = 21;
+
+/* Computes top and bottom chart margins from actual label strings.
+   Bottom scales with the longest label (angle 35° × avg char width). Top stays
+   proportional so the chart looks balanced regardless of label length. */
+function xMargins(labels) {
+  const maxLen = Math.min(
+    Math.max(...labels.map((l) => String(l).length), 0),
+    MAX_LABEL_CHARS,
+  );
+  const bottom = Math.max(20, Math.ceil(maxLen * 3.5) + 8);
+  return { top: Math.max(8, Math.ceil(bottom * 0.3)), bottom };
+}
+
+/* Custom X-axis tick that truncates long labels and handles rotation internally.
+   Recharts' `angle` / `textAnchor` XAxis props only affect the built-in tick —
+   a custom tick component must manage both itself. */
+function ChartXTick({ x, y, payload }) {
+  const raw = String(payload?.value ?? '');
+  const label =
+    raw.length > MAX_LABEL_CHARS ? `${raw.slice(0, MAX_LABEL_CHARS)}…` : raw;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        fontSize={CHART_TICK_STYLE.fontSize}
+        fill={CHART_TICK_STYLE.fill}
+        fontFamily={CHART_TICK_STYLE.fontFamily}
+        textAnchor="end"
+        transform="rotate(-35)"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+ChartXTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.shape({
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+};
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children }) {
@@ -77,20 +122,12 @@ function BarView({ data }) {
     label: b.label ?? b.name,
     value: b.value,
   }));
+  const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="label"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="label" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[0]} radius={[3, 3, 0, 0]} />
@@ -115,20 +152,12 @@ function ComparisonBarView({ data }) {
     });
     return row;
   });
+  const { top, bottom } = xMargins(categories);
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="category"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="category" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: '12px' }} />
@@ -187,20 +216,12 @@ function DistributionView({ data }) {
     label: b.range ?? b.label ?? b.name,
     value: b.count ?? b.value,
   }));
+  const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={normalized}
-        margin={{ top: 4, right: 8, left: 0, bottom: 40 }}
-      >
+      <BarChart data={normalized} margin={{ top, right: 8, left: 0, bottom }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-        <XAxis
-          dataKey="label"
-          tick={CHART_TICK_STYLE}
-          angle={-35}
-          textAnchor="end"
-          interval={0}
-        />
+        <XAxis dataKey="label" tick={<ChartXTick />} interval={0} />
         <YAxis tick={CHART_TICK_STYLE} />
         <Tooltip />
         <Bar dataKey="value" fill={COLORS[1]} radius={[3, 3, 0, 0]} />
@@ -318,9 +339,9 @@ TableView.propTypes = {
   }).isRequired,
 };
 
-// Registry mapping chart_type strings (from the API response) to their view
-// components. To add a new chart type: create a view component above, add it
-// here, and the LLM response just needs to include the matching chart_type key.
+/* Registry mapping chart_type strings (from the API response) to their view
+   components. To add a new chart type: create a view component above, add it
+   here, and the LLM response just needs to include the matching chart_type key. */
 const VIEWS = {
   bar: BarView,
   comparison_bar: ComparisonBarView,
@@ -330,9 +351,9 @@ const VIEWS = {
   table: TableView,
 };
 
-// Entry point — receives a single chart object, looks up the right view from
-// the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
-// chart types so unrecognized LLM output fails silently rather than crashing.
+/* Entry point — receives a single chart object, looks up the right view from
+   the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
+   chart types so unrecognized LLM output fails silently rather than crashing. */
 export default function ResearchChart({ chart }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];

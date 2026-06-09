@@ -205,7 +205,10 @@ export default function HeftiResearch() {
       const chartRect = chart.getBoundingClientRect();
       const topOffset = chartRect.top - panelRect.top;
 
-      panel.scrollTo({ top: panel.scrollTop + topOffset, behavior: 'smooth' });
+      panel.scrollTo({
+        top: panel.scrollTop + topOffset - 16,
+        behavior: 'smooth',
+      });
     });
 
     return () => cancelAnimationFrame(frameId);
@@ -371,7 +374,7 @@ export default function HeftiResearch() {
         Hefti Researcher
       </Heading>
 
-      <div className="grid h-[calc(100vh-140px)] grid-cols-1 bg-core-white lg:grid-cols-2">
+      <div className="bg-core-white grid h-[calc(100vh-140px)] grid-cols-1 lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
         <section className="bg-background-tertiary flex min-h-0 flex-col">
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
@@ -454,7 +457,7 @@ export default function HeftiResearch() {
                         <button
                           key={p}
                           onClick={() => submitPrompt(p)}
-                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white cursor-pointer rounded-xl border px-4 py-3 text-left transition-colors hover:bg-background-tertiary"
+                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white hover:bg-background-tertiar cursor-pointer rounded-lg border px-4 py-3 text-left shadow-sm transition-colors"
                         >
                           {p}
                         </button>
@@ -502,14 +505,14 @@ export default function HeftiResearch() {
                   <div className="flex items-center gap-3 py-2">
                     <div
                       aria-hidden="true"
-                      className="h-px flex-1 bg-border-primary"
+                      className="bg-border-primary h-px flex-1"
                     />
                     <span className="text-paragraph-sm text-content-secondary shrink-0">
                       Session start
                     </span>
                     <div
                       aria-hidden="true"
-                      className="h-px flex-1 bg-border-primary"
+                      className="bg-border-primary h-px flex-1"
                     />
                   </div>
                 )}
