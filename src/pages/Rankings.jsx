@@ -71,6 +71,7 @@ export default function Rankings() {
         sortOptions={RANKINGS_SORT_OPTIONS}
         filterOptions={RANKINGS_FILTER_OPTIONS}
         filterAccessibleLabel="Filter by ranking type"
+        showStateFilter={false}
         onFilterChange={(val) => val && navigate(`/rankings/${val}`)}
         onSuggestionPick={(suggestion) => {
           if (type === 'chains') navigate(`/facilities?chain=${suggestion.slug}`, { state: { from: 'rankings' } });
