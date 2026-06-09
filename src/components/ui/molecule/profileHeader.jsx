@@ -16,7 +16,7 @@ export default function ProfileHeader({
   subjectType = 'owner',
 }) {
   return (
-    <div className="bg-background-secondary my-6 flex flex-wrap font-sans lg:flex-row lg:justify-between">
+    <div className="bg-background-secondary my-6 flex flex-wrap gap-y-4 font-sans lg:flex-row lg:justify-between">
       <div>
         <Heading className="text-display-xs" level={1}>
           {title}
