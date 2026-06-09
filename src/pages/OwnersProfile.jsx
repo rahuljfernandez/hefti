@@ -131,9 +131,6 @@ export default function OwnersProfile() {
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
               subjectType="owner"
-              years={AVAILABLE_YEARS}
-              selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
             />
             <OwnersNetworkGraphLauncher ownerId={owner.id} />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}

@@ -7,7 +7,7 @@ import TabsSelector from './tabsSelector';
  * Stateful wrapper around the tab selector.
  * It owns the active tab and passes the selected tab back to the page via render props.
  */
-export default function TabsShell({ tabsData, defaultTabName, children }) {
+export default function TabsShell({ tabsData, defaultTabName, children, rightSlot }) {
   // Prefer the requested default tab when present; otherwise fall back to the first tab.
   const defaultTab =
     tabsData.find((tab) => tab.name === defaultTabName) ?? tabsData[0];
@@ -26,6 +26,7 @@ export default function TabsShell({ tabsData, defaultTabName, children }) {
           activeTab={activeTab}
           panelId={panelId}
           getTabId={getTabId}
+          rightSlot={rightSlot}
         />
       </div>
 
@@ -58,4 +59,5 @@ TabsShell.propTypes = {
   ).isRequired,
   defaultTabName: PropTypes.string,
   children: PropTypes.func,
+  rightSlot: PropTypes.node,
 };
