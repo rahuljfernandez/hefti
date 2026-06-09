@@ -134,6 +134,35 @@ OwnershipAndStakeholders.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+// V1 placeholder — Rahul will split into separate report_date + report_url fields.
+// Update field names here once the backend change lands.
+export function DeficiencyReportItem({ item }) {
+  return (
+    <div className="flex items-center justify-between">
+      <p className="text-paragraph-base text-core-black">{item.report_date ?? '—'}</p>
+      {item.report_url ? (
+        <a
+          href={item.report_url}
+          className="text-paragraph-base font-medium text-blue-600 underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Full Report
+        </a>
+      ) : (
+        <span className="text-paragraph-base text-content-secondary">No report available</span>
+      )}
+    </div>
+  );
+}
+
+DeficiencyReportItem.propTypes = {
+  item: PropTypes.shape({
+    report_date: PropTypes.string,
+    report_url: PropTypes.string,
+  }).isRequired,
+};
+
 //Did not see this data in CSV. Where will it be?
 //What does it look like with zero deficiencies?
 //links will need to be added to report, need clarity

@@ -2,13 +2,32 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Heading } from '../../atom/heading';
 import StatsCard from '../statsCard';
-import ListContainer, { ListContainerGrid } from '../../organism/ListContainer';
+import ListContainer, {
+  ListContainerGrid,
+  ListContainerDivider,
+} from '../../organism/ListContainer';
+import { DeficiencyReportItem } from '../listContainerContent';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
   buildOwnerDeficienciesStats,
   buildOwnerPenaltiesStats,
 } from '../../../../lib/deficienciesMetrics';
+
+// Hardcoded placeholder until the API includes inspection_reports in the facility query and a date field is added to the inspection_reports table (pending Rahul).
+const PLACEHOLDER_INSPECTION_REPORTS = [
+  {
+    id: 1,
+    report_date: 'August 29, 2024',
+    report_url: 'https://example.com/report-1.pdf',
+  },
+  {
+    id: 2,
+    report_date: 'June 5, 2024',
+    report_url: 'https://example.com/report-2.pdf',
+  },
+  { id: 3, report_date: 'May 2, 2024', report_url: null },
+];
 
 /**
  * Deficiencies & Penalties tab content.
@@ -55,6 +74,15 @@ export default function DeficienciesTab({
             ListContent={StatsCard}
             layoutProps={{ cols: 1 }}
           />
+          {/* DeficiencyReportItem is a placeholder — item shape and field names will
+            need updating once the API exposes real inspection_reports fields. */}
+          <div className="py-4">
+            <ListContainer
+              items={PLACEHOLDER_INSPECTION_REPORTS}
+              LayoutSelector={ListContainerDivider}
+              ListContent={DeficiencyReportItem}
+            />
+          </div>
         </div>
 
         <div className="pb-8">
@@ -65,7 +93,7 @@ export default function DeficienciesTab({
             items={penaltiesStats}
             LayoutSelector={ListContainerGrid}
             ListContent={StatsCard}
-            layoutProps={{ cols: 3 }}
+            layoutProps={{ cols: status === 'owner' ? 2 : 3 }}
           />
         </div>
       </div>
