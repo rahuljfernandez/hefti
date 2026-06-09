@@ -37,7 +37,7 @@ const DATA_API_BASE_URL =
  *   Fetch ReadableStream API and renders them with react-markdown.
  * - Keeps a rolling history of the last 20 messages to support multi-turn
  *   conversation without unbounded context growth.
- * - Seeds the right panel with on-load context charts (KPI + comparison bar)
+ * - Seeds the right panel with an on-load comparison bar chart (CMS Star Ratings)
  *   fetched on mount before the user sends any messages.
  *
  * Scroll behavior — both panels pin the newest content to the top of their
@@ -120,8 +120,8 @@ export default function HeftiResearch() {
           contextType === 'owner'
             ? toTitleCase(subject.cms_ownership_name)
             : toTitleCase(subject.provider_name);
-        // Normalizes the differing facility/owner rating fields into context
-        // charts (KPI grid + bar). See lib/contextChart.
+        // Normalizes the differing facility/owner rating fields into the on-load
+        // comparison bar chart. See lib/contextChart.
         const contextCharts = buildContextCharts({
           contextType,
           subject,
