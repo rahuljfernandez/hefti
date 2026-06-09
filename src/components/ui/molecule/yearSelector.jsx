@@ -81,8 +81,10 @@ export default function YearSelector({
           className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 flex items-center gap-2 rounded-md bg-white py-1.5 pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300"
           aria-label={`${label}: ${value}. Tap to change.`}
         >
-          <span className="tracking-wide uppercase">{label}</span>
-          <span className="text-core-black font-medium">{value}</span>
+          <span className="text-paragraph-base text-core-black">{label}</span>
+          <span className="text-paragraph-base text-content-secondary">
+            {value}
+          </span>
         </button>
         <ChevronDownIcon
           aria-hidden="true"
@@ -122,7 +124,7 @@ export default function YearSelector({
                 return (
                   <label
                     key={year}
-                    className="text-paragraph-base flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-zinc-100"
+                    className="text-paragraph-base text-content-secondary flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-zinc-100"
                   >
                     <input
                       type="radio"
@@ -135,7 +137,7 @@ export default function YearSelector({
                       className={
                         isSelected
                           ? 'text-core-black font-bold'
-                          : 'text-core-black'
+                          : 'text-content-secondary'
                       }
                     >
                       {year}
