@@ -8,7 +8,6 @@ import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import {
   badgeConfig,
-  getBadgeColorAboveBelow,
   getCmprColor,
 } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
@@ -963,49 +962,6 @@ StaffingCardShort.propTypes = {
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
 
-/**
- * Compact staffing metric card used in the Staffing tab grid.
- *
- * Expected item shape:
- * - stat: primary staffing value
- * - title, description: card heading and explanatory copy
- * - rating: optional comparison badge label
- * - detail: supporting benchmark text shown at the bottom
- *
- * These items are typically built by the staffing metric helpers in src/lib/staffingMetrics.js.
- */
-export function StaffingStatCard({ item }) {
-  return (
-    <div className="border-border-primary h-full rounded-xl border bg-white px-4 py-4 shadow-sm">
-      <div className="flex items-start gap-2">
-        <div className="text-core-black text-heading-lg leading-none">
-          {item.stat}
-        </div>
-        {item.rating ? (
-          <Badge
-            color={getBadgeColorAboveBelow(item.rating)}
-            className="text-label-xs mt-1 leading-none"
-          >
-            {item.rating}
-          </Badge>
-        ) : null}
-      </div>
-      <div className="text-core-black text-label-lg mt-3">{item.title}</div>
-      <p className="text-content-secondary text-paragraph-base mt-1">
-        {item.description}
-      </p>
-      {item.detail ? (
-        <div className="text-content-secondary text-paragraph-base mt-6">
-          {item.detail}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-StaffingStatCard.propTypes = {
-  item: PropTypes.object.isRequired,
-};
 
 //This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel.
 export function NetworkSidePanelList({ item, onSelectNode, variant }) {
