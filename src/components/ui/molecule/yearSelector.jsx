@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { CheckIcon } from '@heroicons/react/20/solid';
@@ -29,8 +29,18 @@ export default function YearSelector({
   label = 'Data Year',
 }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [pendingYear, setPendingYear] = useState(value);
   const headingId = useId();
+  const radioGroupName = useId();
   const mobileTriggerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (isMobileOpen) {
+      setPendingYear(value);
+      closeButtonRef.current?.focus();
+    }
+  }, [isMobileOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDesktopChange(event) {
     onChange?.(event.target.value);
@@ -40,6 +50,36 @@ export default function YearSelector({
     onChange?.(year);
     setIsMobileOpen(false);
     mobileTriggerRef.current?.focus();
+  }
+
+  function handleDialogKeyDown(event) {
+    if (event.key === 'Escape') {
+      setIsMobileOpen(false);
+      mobileTriggerRef.current?.focus();
+      return;
+    }
+    if (event.key === 'Tab') {
+      const focusable = Array.from(
+        event.currentTarget.querySelectorAll(
+          'button, input:not([type="hidden"]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      const first = focusable[0];
+      const radios = focusable.filter((el) => el.type === 'radio');
+      const activeIsRadio = radios.includes(document.activeElement);
+
+      if (event.shiftKey && document.activeElement === first) {
+        // Shift+Tab from close button → jump to checked radio (or last radio)
+        event.preventDefault();
+        const target =
+          radios.find((r) => r.checked) ?? radios[radios.length - 1];
+        target?.focus();
+      } else if (!event.shiftKey && activeIsRadio) {
+        // Tab from anywhere in the radio group → wrap back to close button
+        event.preventDefault();
+        first.focus();
+      }
+    }
   }
 
   function handleMobileTrigger() {
@@ -82,7 +122,7 @@ export default function YearSelector({
           type="button"
           onClick={handleMobileTrigger}
           className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 flex items-center gap-2 rounded-md bg-white py-1.5 pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300"
-          aria-label={`${label}: ${value}. Tap to change.`}
+          aria-label={`${label}: ${value}. Activate to change.`}
         >
           <span className="text-paragraph-base text-core-black">{label}</span>
           <span className="text-paragraph-base text-content-secondary">
@@ -101,10 +141,12 @@ export default function YearSelector({
           role="dialog"
           aria-modal="true"
           aria-labelledby={headingId}
+          onKeyDown={handleDialogKeyDown}
           className="fixed inset-0 z-50 flex flex-col bg-white p-4"
         >
           <div className="mb-4 flex justify-end">
             <button
+              ref={closeButtonRef}
               type="button"
               aria-label={`Close ${label} options`}
               className="text-3xl"
@@ -123,18 +165,25 @@ export default function YearSelector({
             <fieldset className="mt-2 w-full rounded-xl bg-white">
               <legend className="sr-only">{label} options</legend>
               {years.map((year) => {
-                const isSelected = String(year) === String(value);
+                const isSelected = String(year) === String(pendingYear);
                 return (
                   <label
                     key={year}
+                    // e.detail is the click count: mouse/touch interactions are always ≥1, but Chrome fires a synthetic click (detail=0) on the label when arrow keys change the radio selection. Guarding on detail>0 prevents thatfrom triggering a premature data load.
+                    onClick={(e) => {
+                      if (e.detail > 0) handleMobileSelect(year);
+                    }}
                     className="text-paragraph-base text-content-secondary flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-zinc-100"
                   >
                     <input
                       type="radio"
-                      name="year-selector-options"
+                      name={radioGroupName}
                       value={year}
                       checked={isSelected}
-                      onChange={() => handleMobileSelect(year)}
+                      onChange={() => setPendingYear(year)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleMobileSelect(year);
+                      }}
                     />
                     <span
                       className={
