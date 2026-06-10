@@ -9,8 +9,9 @@ import { CheckIcon } from '@heroicons/react/20/solid';
  * Reusable sort/filter control for browse pages.
  *
  * Variants:
- * - `sort`: sorts by name (A-Z / Z-A) by default; accepts custom sortOptions for field-based sorts
- * - `filter`: allows filtering by state
+ * - `sort`: Ascending / Descending; accepts custom sortOptions to override the defaults
+ * - `filter`: sort category picker (Name, Overall Rating, etc.); requires filterOptions prop
+ * - `state`: state picker; uses built-in 50-state list by default
  *
  * Behavior:
  * - Desktop renders a native single-select control
@@ -19,10 +20,10 @@ import { CheckIcon } from '@heroicons/react/20/solid';
 
 const OPTIONS = {
   sort: [
-    { label: 'Sort A to Z', value: 'asc' },
-    { label: 'Sort Z to A', value: 'desc' },
+    { label: 'Ascending', value: 'asc' },
+    { label: 'Descending', value: 'desc' },
   ],
-  filter: [
+  state: [
     { label: 'AL', value: 'AL' },
     { label: 'AK', value: 'AK' },
     { label: 'AZ', value: 'AZ' },
@@ -74,6 +75,7 @@ const OPTIONS = {
     { label: 'WI', value: 'WI' },
     { label: 'WY', value: 'WY' },
   ],
+  filter: [],
 };
 
 export default function SelectMenu({
@@ -92,7 +94,7 @@ export default function SelectMenu({
   const label = variant.charAt(0).toUpperCase() + variant.slice(1);
   const options =
     variant === 'sort' && sortOptions ? sortOptions :
-    variant === 'filter' && filterOptions ? filterOptions :
+    filterOptions ? filterOptions :
     OPTIONS[variant] || [];
 
   // Derive selected option from the value prop (set externally via URL params).
@@ -194,7 +196,7 @@ export default function SelectMenu({
           </div>
 
           <Heading id={headingId} className="text-label-lg mb-2 font-bold">
-            {label} By
+            {variant === 'state' ? label : `${label} By`}
           </Heading>
 
           <div className="flex-1 overflow-y-auto">
@@ -264,7 +266,7 @@ export default function SelectMenu({
 
 SelectMenu.propTypes = {
   onChange: PropTypes.func,
-  variant: PropTypes.oneOf(['sort', 'filter']),
+  variant: PropTypes.oneOf(['sort', 'filter', 'state']),
   onSortChange: PropTypes.func,
   onFilterChange: PropTypes.func,
   onStateChange: PropTypes.func,

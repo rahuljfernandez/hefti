@@ -16,33 +16,22 @@ import { ErrorBanner, NoResultsBanner } from '../atom/errorBanner.jsx';
  * Search placeholders
  * Routing behavior
  *
+ * Shared optional props:
+ * - filterOptions: options for the Filter dropdown. Facilities passes sort categories;
+ *   Rankings passes ranking type switcher. Omit to hide the Filter dropdown entirely (e.g. Owners).
+ * - sortOptions: custom sort labels/values passed to SelectMenu. Omit to use the default Ascending/Descending.
+ * - showStateFilter: set to false to hide the State dropdown. Defaults to true.
+ *
  * Rankings-only props (not used by Facilities or Owners):
  * - suggestionsEndpoint: overrides the default `${apiEndpoint}/suggestions` fetch URL.
  *   Used by Rankings to point individual-owners suggestions at /api/owners/suggestions.
  * - defaultSort: overrides the default sort direction ('asc'). Rankings defaults to 'desc'.
- * - sortOptions: custom sort labels/values passed to SelectMenu. Rankings uses Descending/Ascending.
- * - filterOptions: custom filter options passed to SelectMenu. Rankings uses ranking type switcher.
- * - filterAccessibleLabel: overrides the default "Filter by state" aria-label on the filter control.
- * - onFilterChange: when provided, replaces the default state-param filter behavior.
- *   Rankings uses this to navigate between ranking types instead of filtering by state.
+ * - filterAccessibleLabel: overrides the default "Filter by category" aria-label on the filter control.
+ * - onFilterChange: when provided, replaces the default category-param filter behavior.
+ *   Rankings uses this to navigate between ranking types instead of setting a sort category.
  * - onSuggestionPick: when provided, overrides SearchMenu's default profile-page navigation.
  *   Rankings uses this to route chains to a filtered facility list and owners to their profile.
  */
-
-BrowsePage.propTypes = {
-  apiEndpoint: PropTypes.string.isRequired,
-  suggestionsEndpoint: PropTypes.string,
-  title: PropTypes.string.isRequired,
-  searchPlaceholder: PropTypes.string,
-  renderList: PropTypes.func.isRequired,
-  type: PropTypes.oneOf(['facilities', 'owners', 'rankings']),
-  sortOptions: PropTypes.array,
-  defaultSort: PropTypes.oneOf(['asc', 'desc']),
-  filterOptions: PropTypes.array,
-  filterAccessibleLabel: PropTypes.string,
-  onFilterChange: PropTypes.func,
-  onSuggestionPick: PropTypes.func,
-};
 
 export default function BrowsePage({
   apiEndpoint,
@@ -56,9 +45,10 @@ export default function BrowsePage({
   filterAccessibleLabel,
   onFilterChange,
   onSuggestionPick,
+  showStateFilter = true,
   defaultSort = 'asc',
 }) {
-  // // --- URL Params ---
+  // --- URL Params ---
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page')) || 1;
   const search = searchParams.get('search') || '';
@@ -67,12 +57,9 @@ export default function BrowsePage({
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
 
-  // The compound value the sort SelectMenu should reflect (e.g. "overall_rating:desc" or "asc").
-  // Used to keep the control in sync when URL params arrive via navigation (e.g. from rankings).
-  const currentSortValue = sortBy
-    ? `${sortBy}:${searchParams.get('sort') || defaultSort}`
-    : searchParams.get('sort') || '';
-  // // --- UI State ---
+  const currentSortValue = searchParams.get('sort') || '';
+  const currentFilterValue = sortBy || '';
+  // --- UI State ---
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [data, setData] = useState([]);
@@ -145,6 +132,24 @@ export default function BrowsePage({
     [setSearchParams],
   );
 
+  const handleCategoryChange = useCallback(
+    (val) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('page', 1);
+        if (!val || val === 'name') {
+          params.delete('sortBy');
+          params.set('sort', 'asc');
+        } else {
+          params.set('sortBy', val);
+          params.set('sort', 'desc');
+        }
+        return params;
+      });
+    },
+    [setSearchParams],
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div aria-live="polite" className="sr-only">
@@ -157,34 +162,11 @@ export default function BrowsePage({
         search={search}
         onSearchChange={(val) => updateParam('search', val)}
         sortValue={currentSortValue}
+        filterValue={currentFilterValue}
         stateValue={state}
-        // Sort option values follow a "field:direction" encoding convention defined in
-        // FACILITY_SORT_OPTIONS (Facilities.jsx). Field-based sorts use compound values
-        // like "overall_rating:desc", which are split here into separate `sortBy` and
-        // `sort` URL params for the API. Plain "asc"/"desc" values indicate a name sort
-        // and pass through as `sort` only. Any new sort options added to a page that
-        // uses this handler must follow the same convention.
-        onSortChange={(val) => {
-          setSearchParams((prev) => {
-            const params = new URLSearchParams(prev);
-            params.set('page', 1);
-            if (!val) {
-              // Clear button: reset both sort params to defaults
-              params.delete('sort');
-              params.delete('sortBy');
-            } else if (val.includes(':')) {
-              // Compound value like "overall_rating:desc" — split into field + direction
-              const [field, dir] = val.split(':');
-              params.set('sortBy', field);
-              params.set('sort', dir);
-            } else {
-              // Plain direction value ("asc"/"desc") — name sort, clear sortBy
-              params.set('sort', val);
-              params.delete('sortBy');
-            }
-            return params;
-          });
-        }}
+        onSortChange={(val) => updateParam('sort', val)}
+        onCategoryChange={handleCategoryChange}
+        showStateFilter={showStateFilter}
         onStateChange={(val) => updateParam('state', val)}
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}
@@ -218,3 +200,19 @@ export default function BrowsePage({
     </div>
   );
 }
+
+BrowsePage.propTypes = {
+  apiEndpoint: PropTypes.string.isRequired,
+  suggestionsEndpoint: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  searchPlaceholder: PropTypes.string,
+  renderList: PropTypes.func.isRequired,
+  type: PropTypes.oneOf(['facilities', 'owners', 'rankings']),
+  sortOptions: PropTypes.array,
+  defaultSort: PropTypes.oneOf(['asc', 'desc']),
+  filterOptions: PropTypes.array,
+  filterAccessibleLabel: PropTypes.string,
+  onFilterChange: PropTypes.func,
+  onSuggestionPick: PropTypes.func,
+  showStateFilter: PropTypes.bool,
+};

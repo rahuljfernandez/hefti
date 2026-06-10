@@ -164,7 +164,7 @@ export default function OwnersProfile() {
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':
-                    return <DeficienciesTab items={owner} />;
+                    return <DeficienciesTab metricsSource={owner} status="owner" />;
 
                   case 'Clinical Quality Measures':
                     return (

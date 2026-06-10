@@ -29,7 +29,9 @@ export default function ProfileHeader({
         <Badge color={func(ownershipType)}>{ownershipType}</Badge>
       </div>
       {freshness && (
-        <p className="mt-4 text-paragraph-base text-content-secondary">{freshness}</p>
+        <p className="text-paragraph-base text-content-secondary mt-4">
+          {freshness}
+        </p>
       )}
       <div className="mt-4 md:hidden">
         <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />

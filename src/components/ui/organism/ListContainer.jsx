@@ -32,6 +32,7 @@ export default function ListContainer({
   LayoutSelector,
   ListContent,
   variant = 'static',
+  layoutProps = {},
 }) {
   const renderListItem = (item) => {
     if (variant === 'static') {
@@ -66,7 +67,7 @@ export default function ListContainer({
 
   return (
     <div>
-      <LayoutSelector items={items} renderItem={renderListItem} />
+      <LayoutSelector items={items} renderItem={renderListItem} {...layoutProps} />
     </div>
   );
 }
@@ -76,6 +77,7 @@ ListContainer.propTypes = {
   LayoutSelector: PropTypes.elementType.isRequired,
   ListContent: PropTypes.elementType.isRequired,
   variant: PropTypes.oneOf(['static', 'expandable']),
+  layoutProps: PropTypes.object,
 };
 
 /**
@@ -123,14 +125,23 @@ ListContainerSeparate.propTypes = {
   renderItem: PropTypes.func.isRequired,
 };
 
+const gridColsClass = {
+  1: 'sm:grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+};
+
 /**
  * Grid layout used for card-based content such as staffing stat cards.
+ * Pass cols (1–3) to set the sm: breakpoint column count.
+ * Without cols, defaults to md:grid-cols-2 xl:grid-cols-3.
  */
-export function ListContainerGrid({ items = [], renderItem }) {
+export function ListContainerGrid({ items = [], renderItem, cols }) {
+  const colsClass = cols != null ? gridColsClass[cols] : 'md:grid-cols-2 xl:grid-cols-3';
   return (
     <ul
       role="list"
-      className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+      className={`mt-4 grid grid-cols-1 gap-4 ${colsClass}`}
     >
       {items.map((item, i) => (
         <li key={item.id || i}>{renderItem(item)}</li>
@@ -142,4 +153,5 @@ export function ListContainerGrid({ items = [], renderItem }) {
 ListContainerGrid.propTypes = {
   items: PropTypes.array,
   renderItem: PropTypes.func.isRequired,
+  cols: PropTypes.oneOf([1, 2, 3]),
 };

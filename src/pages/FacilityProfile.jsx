@@ -172,7 +172,7 @@ export default function FacilityProfile() {
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':
-                    return <DeficienciesTab items={facility} />;
+                    return <DeficienciesTab metricsSource={facility} status="facility" nationalBenchmarks={nationalBenchmarks} />;
 
                   case 'Clinical Quality Measures':
                     return (
