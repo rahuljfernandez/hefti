@@ -6,10 +6,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
-import {
-  badgeConfig,
-  getCmprColor,
-} from '../../../lib/getBadgeColor';
+import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
@@ -139,7 +136,9 @@ OwnershipAndStakeholders.propTypes = {
 export function DeficiencyReportItem({ item }) {
   return (
     <div className="flex items-center justify-between">
-      <p className="text-paragraph-base text-core-black">{item.report_date ?? '—'}</p>
+      <p className="text-paragraph-base text-core-black">
+        {item.report_date ?? '—'}
+      </p>
       {item.report_url ? (
         <a
           href={item.report_url}
@@ -150,7 +149,9 @@ export function DeficiencyReportItem({ item }) {
           Full Report
         </a>
       ) : (
-        <span className="text-paragraph-base text-content-secondary">No report available</span>
+        <span className="text-paragraph-base text-content-secondary">
+          No report available
+        </span>
       )}
     </div>
   );
@@ -699,8 +700,16 @@ BrowseChains.propTypes = {
   }).isRequired,
 };
 
+/**
+ * Owner card used on the Owners browse page (/owners).
+ *
+ * Renders one ownership entity in the paginated browse list via ListContainer.
+ * Clicking navigates to the owner's profile page.
+ *
+ * Expected item shape: slug, cms_ownership_name, cms_owner_total_facilities,
+ * cms_ownership_type, states (array of state abbreviations from the API).
+ */
 export function BrowseOwners({ item, linkState }) {
-  // Add error handling for missing or malformed data
   if (!item) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -713,10 +722,11 @@ export function BrowseOwners({ item, linkState }) {
     );
   }
 
-  // Get the first facility for display (or handle multiple)
-  const primaryFacility = item.facility_ownership_links?.[0]?.facility;
   const ownerHref = `/owners/${item.slug}`;
   const ownerName = toTitleCase(item.cms_ownership_name || 'Unknown Owner');
+  const states = item.states || [];
+  const visibleStates = states.slice(0, 10);
+  const extraCount = states.length - visibleStates.length;
   return (
     <Link
       to={ownerHref}
@@ -736,14 +746,20 @@ export function BrowseOwners({ item, linkState }) {
           >
             {ownerName}
           </span>
-          <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
-            {primaryFacility &&
-            primaryFacility.street_address &&
-            primaryFacility.city &&
-            primaryFacility.state
-              ? `${toTitleCase(primaryFacility.street_address)}, ${toTitleCase(primaryFacility.city)}, ${primaryFacility.state}`
-              : 'Multiple locations'}
-          </p>
+          {states.length > 0 && (
+            <p className="text-paragraph-base text-content-secondary hidden py-2 md:block md:py-0 md:pt-2">
+              <span className="md:pr-1">States:</span>
+              <span className="text-core-black font-semibold">
+                {visibleStates.join(', ')}
+                {extraCount > 0 && (
+                  <span className="text-content-secondary">
+                    {' '}
+                    +{extraCount} more
+                  </span>
+                )}
+              </span>
+            </p>
+          )}
         </div>
 
         {/* Button — Top right on desktop, bottom on mobile */}
@@ -789,11 +805,10 @@ BrowseOwners.propTypes = {
     cms_ownership_name: PropTypes.string,
     cms_owner_total_facilities: PropTypes.number,
     cms_ownership_type: PropTypes.string,
+    states: PropTypes.arrayOf(PropTypes.string),
     facility_ownership_links: PropTypes.arrayOf(
       PropTypes.shape({
         facility: PropTypes.shape({
-          street_address: PropTypes.string,
-          city: PropTypes.string,
           state: PropTypes.string,
         }),
       }),
@@ -990,7 +1005,6 @@ StaffingCardShort.propTypes = {
   }).isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
-
 
 //This componenet is specifically designed to show the ("Li") shared facilities of the hub owner in the Network Graph Module side panel.
 export function NetworkSidePanelList({ item, onSelectNode, variant }) {
