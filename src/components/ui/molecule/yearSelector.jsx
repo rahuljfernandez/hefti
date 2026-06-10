@@ -7,6 +7,9 @@ import { Heading } from '../atom/heading';
 /**
  * YearSelector
  *
+ * Modeled after the Select menu component, but created specifically to handle
+ * year selection — the generic search-based select was too broad for this use case.
+ *
  * Inline year picker for the profile header. Calling onChange triggers a
  * data refetch in the parent page for the selected year.
  *
