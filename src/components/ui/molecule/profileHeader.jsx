@@ -16,24 +16,21 @@ export default function ProfileHeader({
   subjectType = 'owner',
 }) {
   return (
-    <div className="bg-background-secondary my-6 font-sans">
-      <div className="flex items-start justify-between gap-4">
-        <Heading className="text-display-xs md:max-w-[65%]" level={1}>
+    <div className="bg-background-secondary my-6 flex flex-wrap gap-y-4 font-sans lg:flex-row lg:justify-between">
+      <div>
+        <Heading className="text-display-xs" level={1}>
           {title}
         </Heading>
-        <div className="hidden md:block">
-          <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />
+        <div className="mt-4 flex flex-row gap-2">
+          <Badge color={func(ownershipType)}>{ownershipType}</Badge>
         </div>
+        {freshness && (
+          <p className="text-paragraph-base text-content-secondary mt-4">
+            {freshness}
+          </p>
+        )}
       </div>
-      <div className="mt-4 flex flex-row gap-2">
-        <Badge color={func(ownershipType)}>{ownershipType}</Badge>
-      </div>
-      {freshness && (
-        <p className="text-paragraph-base text-content-secondary mt-4">
-          {freshness}
-        </p>
-      )}
-      <div className="mt-4 md:hidden">
+      <div>
         <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />
       </div>
     </div>
