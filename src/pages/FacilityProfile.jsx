@@ -5,7 +5,10 @@ import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
-import { getFacilityProfilePages, getRankingsFacilityProfilePages } from '../lib/breadcrumbPages';
+import {
+  getFacilityProfilePages,
+  getRankingsFacilityProfilePages,
+} from '../lib/breadcrumbPages';
 
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
@@ -25,10 +28,16 @@ import ListContainer, {
 import OwnershipFlowDiagram from '../components/ui/organism/ownershipFlowDiagram';
 import { OwnershipAndStakeholders } from '../components/ui/molecule/listContainerContent';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
+import YearSelector from '../components/ui/molecule/yearSelector';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
+
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
+const AVAILABLE_YEARS = [
+  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
+];
 
 /**
  * Facility profile page container.
@@ -46,16 +55,18 @@ export default function FacilityProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Reload facility details whenever the URL slug changes.
+    // Reload facility details whenever the URL slug or selected year changes.
     setLoading(true);
     setFacility(null);
     setError(null);
     setNotFound(false);
 
+    // TODO: append ?year=${selectedYear} once the API supports year filtering.
     fetch(`${API_BASE_URL}/facilities/${slug}`)
       .then((res) => {
         if (res.status === 404) return null;
@@ -71,7 +82,7 @@ export default function FacilityProfile() {
       })
       .catch(() => setError('Failed to load facility data.'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, selectedYear]);
 
   useEffect(() => {
     const fetchNationalBenchmarks = async () => {
@@ -92,13 +103,17 @@ export default function FacilityProfile() {
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
-    navigate(`/facilities/${slug}/research`, state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined);
+    navigate(
+      `/facilities/${slug}/research`,
+      state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined,
+    );
   };
 
   // Builds breadcrumb trail; swaps in rankings context when arriving from the rankings page.
-  const breadcrumbPages = state?.from === 'rankings'
-    ? getRankingsFacilityProfilePages(slug, facility?.provider_name)
-    : getFacilityProfilePages(slug, facility?.provider_name);
+  const breadcrumbPages =
+    state?.from === 'rankings'
+      ? getRankingsFacilityProfilePages(slug, facility?.provider_name)
+      : getFacilityProfilePages(slug, facility?.provider_name);
 
   return (
     <div className="bg-background-secondary font-sans">
@@ -112,7 +127,7 @@ export default function FacilityProfile() {
               title="Failed to load"
               message="Facility data couldn't be retrieved. Try refreshing the page."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <ProfilePageSkeleton error />
             </div>
           </>
@@ -122,7 +137,7 @@ export default function FacilityProfile() {
               title="Facility not found"
               message="We couldn't find a facility matching this URL."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <ProfilePageSkeleton error />
             </div>
           </>
@@ -140,6 +155,13 @@ export default function FacilityProfile() {
             <TabsShell
               tabsData={profileTabsDescriptions}
               defaultTabName={'Provider Highlights'}
+              rightSlot={
+                <YearSelector
+                  years={AVAILABLE_YEARS}
+                  value={selectedYear}
+                  onChange={setSelectedYear}
+                />
+              }
             >
               {(activeTab) => {
                 switch (activeTab.name) {

@@ -11,7 +11,10 @@ import { ListContainerDivider } from '../components/ui/organism/ListContainer';
 import { RelatedFacilities } from '../components/ui/molecule/listContainerContent';
 import { getBadgeColorOwnerProfile } from '../lib/getBadgeColor';
 import { toTitleCase } from '../lib/toTitleCase';
-import { getOwnerProfilePages, getRankingsOwnerProfilePages } from '../lib/breadcrumbPages';
+import {
+  getOwnerProfilePages,
+  getRankingsOwnerProfilePages,
+} from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
@@ -21,6 +24,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
+import YearSelector from '../components/ui/molecule/yearSelector';
 
 /**
  * Owner profile page container.
@@ -36,6 +40,11 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
+const AVAILABLE_YEARS = [
+  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
+];
+
 export default function OwnersProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
@@ -44,6 +53,7 @@ export default function OwnersProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
 
@@ -53,6 +63,7 @@ export default function OwnersProfile() {
     setError(null);
     setNotFound(false);
 
+    // TODO: append ?year=${selectedYear} once the API supports year filtering.
     fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
       .then((res) => {
         if (res.status === 404) return null;
@@ -68,7 +79,7 @@ export default function OwnersProfile() {
       })
       .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, selectedYear]);
 
   // Use related facilities from API if available
   const relatedFacilities =
@@ -79,7 +90,10 @@ export default function OwnersProfile() {
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
-    navigate(`/owners/${slug}/research`, state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined);
+    navigate(
+      `/owners/${slug}/research`,
+      state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined,
+    );
   };
 
   // Use the first facility's freshness as a proxy for the owner-level data freshness.
@@ -87,9 +101,10 @@ export default function OwnersProfile() {
 
   // Builds breadcrumb trail; swaps in rankings context when arriving from the rankings page.
   const ownerName = owner && toTitleCase(owner.cms_ownership_name);
-  const breadcrumbPages = state?.from === 'rankings'
-    ? getRankingsOwnerProfilePages(slug, ownerName)
-    : getOwnerProfilePages(slug, ownerName);
+  const breadcrumbPages =
+    state?.from === 'rankings'
+      ? getRankingsOwnerProfilePages(slug, ownerName)
+      : getOwnerProfilePages(slug, ownerName);
 
   return (
     <div className="bg-background-secondary">
@@ -103,7 +118,7 @@ export default function OwnersProfile() {
               title="Failed to load"
               message="Owner data couldn't be retrieved. Try refreshing the page."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <ProfilePageSkeleton error />
             </div>
           </>
@@ -113,7 +128,7 @@ export default function OwnersProfile() {
               title="Owner not found"
               message="We couldn't find an owner matching this URL."
             />
-            <div className="pointer-events-none select-none opacity-60 mt-4">
+            <div className="pointer-events-none mt-4 opacity-60 select-none">
               <ProfilePageSkeleton error />
             </div>
           </>
@@ -127,11 +142,20 @@ export default function OwnersProfile() {
               onClick={handleResearchClick}
               subjectType="owner"
             />
-            <OwnersNetworkGraphLauncher ownerId={owner.id} />
+            <div className="pb-4">
+              <OwnersNetworkGraphLauncher ownerId={owner.id} />
+            </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
               tabsData={profileTabsDescriptions}
               defaultTabName={'Provider Highlights'}
+              rightSlot={
+                <YearSelector
+                  years={AVAILABLE_YEARS}
+                  value={selectedYear}
+                  onChange={setSelectedYear}
+                />
+              }
             >
               {(activeTab) => {
                 switch (activeTab.name) {
