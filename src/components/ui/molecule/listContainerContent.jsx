@@ -970,7 +970,7 @@ export function StaffingCardShort({ item, variant }) {
             isMobile ? 'text-core-white' : 'text-core-black',
           )}
         >
-          {item.title}
+          {item.key}
         </p>
       </div>
       <div className="flex flex-col items-end">
@@ -983,13 +983,13 @@ export function StaffingCardShort({ item, variant }) {
           {item.displayStat ?? item.stat}
         </p>
         <p
-          aria-label={item.detail}
+          aria-label={item.detail1}
           className={clsx(
             'text-label-xs',
             isMobile ? 'text-content-tertiary' : 'text-content-secondary',
           )}
         >
-          {item.detail?.replace('Median:', 'Med')}
+          {item.detail1?.replace('Median:', 'Med')}
         </p>
       </div>
     </div>
@@ -998,10 +998,10 @@ export function StaffingCardShort({ item, variant }) {
 
 StaffingCardShort.propTypes = {
   item: PropTypes.shape({
-    title: PropTypes.string,
+    key: PropTypes.string,
     stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     displayStat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    detail: PropTypes.string,
+    detail1: PropTypes.string,
   }).isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
