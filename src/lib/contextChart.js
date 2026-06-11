@@ -1,6 +1,7 @@
 /**
- * Builds the Researcher's on-load context charts from data fetched on mount
- * Returns an array so multiple charts can be seeded at once — currently a KPI grid and a bar chart .
+ * Builds the Researcher's on-load context charts from data fetched on mount.
+ * Returns an array so multiple charts can be seeded at once — currently a single
+ * comparison bar chart (CMS Star Ratings vs. State/National Average).
  *
  * The facility and owner endpoints expose the same four CMS ratings under
  * different field names; both are normalized here so callers stay context-agnostic.
@@ -48,14 +49,10 @@ const BENCHMARK_SOURCE = {
 };
 
 const METRICS = [
-  { key: 'overall', label: 'Overall Rating', barLabel: 'Overall' },
-  { key: 'quality', label: 'Quality', barLabel: 'Quality' },
-  { key: 'staffing', label: 'Staffing', barLabel: 'Staffing' },
-  {
-    key: 'healthInspection',
-    label: 'Health Inspection',
-    barLabel: 'Health insp.',
-  },
+  { key: 'overall', barLabel: 'Overall' },
+  { key: 'quality', barLabel: 'Quality' },
+  { key: 'staffing', barLabel: 'Staffing' },
+  { key: 'healthInspection', barLabel: 'Health insp.' },
 ];
 
 function round(value) {
@@ -70,7 +67,7 @@ function round(value) {
  * @param {Object}  args.subject    - facility or owner record from the data API
  * @param {Object} [args.national]  - /national benchmark record (optional)
  * @param {string} [args.subjectName]
- * @returns {Object[]} array of chart objects for ResearchChart: [kpiChart, comparisonChart]
+ * @returns {Object[]} array of chart objects for ResearchChart: [comparisonChart]
  */
 export function buildContextCharts({
   contextType,
@@ -93,30 +90,15 @@ export function buildContextCharts({
       ? 'CMS Star Ratings vs. State Average'
       : 'CMS Star Ratings vs. National Average';
 
-  // Normalize all four metric values once; shared by both charts below.
-  const normalized = METRICS.map(({ key, label, barLabel }) => {
+  const normalized = METRICS.map(({ key, barLabel }) => {
     const value = round(subject[keys[key]]);
     const benchmark = benchmarkSource
       ? round(benchmarkSource[benchmarkKeys[key]])
       : null;
-    return { key, label, barLabel, value, benchmark };
+    return { key, barLabel, value, benchmark };
   });
 
-  const kpis = normalized
-    .filter(({ value }) => value != null)
-    .map(({ label, value, benchmark }) => ({
-      label,
-      value: value.toFixed(1),
-      ...(benchmark != null ? { delta: `${benchmarkLabel} ${benchmark.toFixed(1)}` } : {}),
-    }));
-
-  if (!kpis.length) return [];
-
-  const kpiChart = {
-    chart_type: 'kpi_row',
-    title: `${subjectName || subjectLabel} — CMS Star Ratings`,
-    data: { kpis },
-  };
+  if (!normalized.some(({ value }) => value != null)) return [];
 
   const subjectValues = normalized.map(({ value }) => value);
   const benchmarkValues = normalized.map(({ benchmark }) => benchmark);
@@ -136,5 +118,5 @@ export function buildContextCharts({
     },
   };
 
-  return [kpiChart, comparisonChart];
+  return [comparisonChart];
 }
