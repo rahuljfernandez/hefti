@@ -92,7 +92,7 @@ export default function YearSelector({
     <div className="relative">
       {/* Desktop */}
       <div className="hidden items-center gap-2 md:flex">
-        <span className="text-paragraph-base text-content-secondary">
+        <span className="text-paragraph-sm text-content-secondary">
           {label}
         </span>
         <div className="relative">
