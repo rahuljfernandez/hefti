@@ -75,13 +75,13 @@ export function downloadCsv(rows, filename, headers) {
   }
 }
 
-export function nodeToPngDataUrl(node, options) {
-  return toPng(node, { backgroundColor: '#ffffff', pixelRatio: 2, ...options });
+export function nodeToPngDataUrl(node) {
+  return toPng(node, { backgroundColor: '#ffffff', pixelRatio: 2 });
 }
 
-export async function downloadPng(node, filename, options) {
+export async function downloadPng(node, filename) {
   try {
-    const dataUrl = await nodeToPngDataUrl(node, options);
+    const dataUrl = await nodeToPngDataUrl(node);
     triggerDownload(dataUrl, filename);
     return true;
   } catch {

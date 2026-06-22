@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckIcon,
   ArrowPathIcon,
@@ -9,6 +15,60 @@ import {
 } from '@heroicons/react/24/outline';
 
 const CLICK_FEEDBACK_MS = 1200;
+const AUTO_COLLAPSE_MS = 2200;
+
+/* Animating `width` to/from the string 'auto' makes Framer Motion measure
+   the element's layout mid-animation, which is the source of a well-known
+   stutter partway through the transition. Measuring the content's actual
+   pixel width once up front and animating to/from that number instead
+   avoids the runtime auto-measurement entirely, so the transition is
+   driven purely by numbers with no layout reads competing with it. Each
+   segment grows/shrinks its own width rather than the whole bar fading as
+   one block — reads as the bar telescoping segments out of, and back into,
+   the persistent icon anchored at its right edge. */
+function GrowShrink({ className, children, skipEnter }) {
+  const contentRef = useRef(null);
+  const [contentWidth, setContentWidth] = useState(0);
+  const [settled, setSettled] = useState(false);
+
+  useLayoutEffect(() => {
+    if (contentRef.current) {
+      setContentWidth(contentRef.current.scrollWidth);
+    }
+  }, []);
+
+  /* Runs after paint, one render behind the layout effect above — lets the
+     very first width measurement (0 -> measured) render with skipFirstGrow
+     still true, before flipping settled for any later transitions. */
+  useEffect(() => {
+    if (contentWidth > 0) setSettled(true);
+  }, [contentWidth]);
+
+  const skipFirstGrow = skipEnter && !settled;
+
+  return (
+    <motion.div
+      initial={skipEnter ? false : { width: 0, opacity: 0 }}
+      animate={{
+        width: contentWidth,
+        opacity: 1,
+        transition: { duration: skipFirstGrow ? 0 : 0.2 },
+      }}
+      exit={{ width: 0, opacity: 0, transition: { duration: 0.6 } }}
+      className="overflow-x-hidden"
+    >
+      <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+GrowShrink.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+  skipEnter: PropTypes.bool,
+};
 
 /**
  * shareability
@@ -176,7 +236,7 @@ function TelescopeSegment({
       <button
         type="button"
         onClick={handleClick}
-        className="text-paragraph-sm text-core-white inline-flex cursor-pointer items-center gap-1.5 px-3 py-2 transition-colors hover:bg-white/10"
+        className="text-paragraph-sm text-core-white inline-flex cursor-pointer items-center gap-1.5 px-3 py-2 whitespace-nowrap transition-colors hover:bg-white/10"
       >
         <display.icon
           className={clsx('size-4', status === 'loading' && 'animate-spin')}
@@ -203,12 +263,20 @@ TelescopeSegment.propTypes = {
 };
 
 /**
- * ShareWidget — the full-scale telescoping theme. Minimized to a single icon
- * button; clicking it expands into a horizontal bar with one TelescopeSegment
- * per category (1-3) and a trailing close button that collapses it back.
+ * ShareWidget — the full-scale telescoping theme. A persistent icon button
+ * anchors the right edge; clicking it grows one TelescopeSegment per
+ * category (1-3) out to its left, each animating its own width in/out
+ * (rather than the whole bar fading as one block).
+ *
+ * When `title` is set, the widget mounts already expanded with that title
+ * grown in as a non-interactive leading label (a "display category") and
+ * the categories hidden, then auto-collapses on its own — a one-time
+ * introduction so a first-time viewer sees what the icon means before it
+ * withdraws back into the icon.
  *
  * @example
  * <ShareWidget
+ *   title="Export Session"
  *   categories={[
  *     {
  *       icon: TableCellsIcon,
@@ -223,42 +291,69 @@ TelescopeSegment.propTypes = {
  */
 export function ShareWidget({
   categories,
+  title,
   minimizedIcon: MinimizedIcon = ArrowDownTrayIcon,
   minimizedLabel = 'Export',
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(Boolean(title));
+  const [isIntro, setIsIntro] = useState(Boolean(title));
+  const autoCollapseRef = useRef(null);
 
-  if (!isExpanded) {
-    return (
-      <div className="group relative flex items-center">
-        <button
-          type="button"
-          onClick={() => setIsExpanded(true)}
-          aria-label={minimizedLabel}
-          className="text-core-white inline-flex cursor-pointer items-center justify-center rounded-md bg-blue-600 p-2.5 shadow-lg transition-colors hover:bg-blue-700"
-        >
-          <MinimizedIcon className="size-5" aria-hidden="true" />
-        </button>
-        <div className="text-core-white pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
-          {minimizedLabel}
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    if (!title) return;
+    autoCollapseRef.current = setTimeout(() => {
+      setIsExpanded(false);
+      setIsIntro(false);
+    }, AUTO_COLLAPSE_MS);
+    return () => clearTimeout(autoCollapseRef.current);
+  }, [title]);
+
+  function handleToggle(next) {
+    clearTimeout(autoCollapseRef.current);
+    setIsIntro(false);
+    setIsExpanded(next);
   }
 
   return (
     <div className="text-core-white flex items-center divide-x divide-white/20 rounded-md bg-blue-600 shadow-md">
-      {categories.map((category) => (
-        <TelescopeSegment key={category.label} {...category} />
-      ))}
-      <button
-        type="button"
-        onClick={() => setIsExpanded(false)}
-        aria-label="Close"
-        className="inline-flex cursor-pointer items-center px-3 py-2 transition-colors hover:bg-white/10"
-      >
-        <XMarkIcon className="size-4" aria-hidden="true" />
-      </button>
+      <AnimatePresence initial={false}>
+        {isExpanded && isIntro && (
+          <GrowShrink
+            key="title"
+            skipEnter
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold"
+          >
+            <MinimizedIcon className="size-4" aria-hidden="true" />
+            {title}
+          </GrowShrink>
+        )}
+        {isExpanded &&
+          !isIntro &&
+          categories.map((category) => (
+            <GrowShrink key={category.label}>
+              <TelescopeSegment {...category} />
+            </GrowShrink>
+          ))}
+      </AnimatePresence>
+      <div className="group relative flex shrink-0 items-center">
+        <button
+          type="button"
+          onClick={() => handleToggle(!isExpanded)}
+          aria-label={isExpanded ? 'Close' : minimizedLabel}
+          className="inline-flex cursor-pointer items-center justify-center p-2.5 transition-colors hover:bg-white/10"
+        >
+          {isExpanded ? (
+            <XMarkIcon className="size-5" aria-hidden="true" />
+          ) : (
+            <MinimizedIcon className="size-5" aria-hidden="true" />
+          )}
+        </button>
+        {!isExpanded && (
+          <div className="text-core-white pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+            {minimizedLabel}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -274,6 +369,7 @@ ShareWidget.propTypes = {
       onClick: PropTypes.func.isRequired,
     }),
   ).isRequired,
+  title: PropTypes.string,
   minimizedIcon: PropTypes.elementType,
   minimizedLabel: PropTypes.string,
 };

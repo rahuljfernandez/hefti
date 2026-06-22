@@ -606,9 +606,10 @@ export default function HeftiResearch() {
           aria-label="Generated charts"
           className="bg-background-secondary relative flex min-h-0 flex-col"
         >
-          {charts.length > 0 && (
+          {hasStarted && (
             <div className="absolute inset-x-0 top-4 z-20 mr-auto flex w-full max-w-[600px] justify-end px-6">
               <ShareWidget
+                title="Export Session"
                 categories={[
                   {
                     icon: TableCellsIcon,
