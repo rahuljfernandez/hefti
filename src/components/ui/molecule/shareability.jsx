@@ -153,7 +153,10 @@ function TelescopeSegment({
       if (result) {
         setStatus('success');
         clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => setStatus('idle'), CLICK_FEEDBACK_MS);
+        timeoutRef.current = setTimeout(
+          () => setStatus('idle'),
+          CLICK_FEEDBACK_MS,
+        );
       } else {
         setStatus('idle');
       }
@@ -173,7 +176,7 @@ function TelescopeSegment({
       <button
         type="button"
         onClick={handleClick}
-        className="inline-flex cursor-pointer items-center gap-1.5 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10"
+        className="text-paragraph-sm text-core-white inline-flex cursor-pointer items-center gap-1.5 px-3 py-2 transition-colors hover:bg-white/10"
       >
         <display.icon
           className={clsx('size-4', status === 'loading' && 'animate-spin')}
@@ -182,7 +185,7 @@ function TelescopeSegment({
         <span>{display.text}</span>
       </button>
       {tooltip && (
-        <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-56 -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+        <div className="text-core-white text-paragraph-sm pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-56 -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 opacity-0 shadow-sm transition-opacity duration-150 group-hover:block group-hover:opacity-100">
           {tooltip}
         </div>
       )}
@@ -221,7 +224,7 @@ TelescopeSegment.propTypes = {
 export function ShareWidget({
   categories,
   minimizedIcon: MinimizedIcon = ArrowDownTrayIcon,
-  minimizedLabel = 'Share',
+  minimizedLabel = 'Export',
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -232,11 +235,11 @@ export function ShareWidget({
           type="button"
           onClick={() => setIsExpanded(true)}
           aria-label={minimizedLabel}
-          className="inline-flex cursor-pointer items-center justify-center rounded-full bg-blue-600 p-2.5 text-white shadow-lg transition-colors hover:bg-blue-700"
+          className="text-core-white inline-flex cursor-pointer items-center justify-center rounded-md bg-blue-600 p-2.5 shadow-lg transition-colors hover:bg-blue-700"
         >
           <MinimizedIcon className="size-5" aria-hidden="true" />
         </button>
-        <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+        <div className="text-core-white pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
           {minimizedLabel}
         </div>
       </div>
@@ -244,7 +247,7 @@ export function ShareWidget({
   }
 
   return (
-    <div className="flex items-center divide-x divide-white/20 rounded-full bg-blue-600 text-white shadow-lg">
+    <div className="text-core-white flex items-center divide-x divide-white/20 rounded-md bg-blue-600 shadow-md">
       {categories.map((category) => (
         <TelescopeSegment key={category.label} {...category} />
       ))}
