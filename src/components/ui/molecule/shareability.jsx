@@ -65,9 +65,8 @@ export function ShareButton({ icon: Icon, label, onClick, className }) {
     <button
       type="button"
       onClick={handleClick}
-      disabled={isPending}
       className={clsx(
-        'border-border-primary text-content-secondary hover:bg-background-tertiary text-paragraph-xs hover:border-border-inverse-primary hover:text-border-inverse-primary inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 transition-colors hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50',
+        'border-border-primary text-content-secondary hover:bg-background-tertiary text-paragraph-xs hover:border-border-inverse-primary hover:text-border-inverse-primary inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 transition-colors hover:shadow-sm',
         className,
       )}
     >
