@@ -1,6 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import clsx from 'clsx';
 import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
@@ -19,6 +18,7 @@ import { copyText, copyRichText } from '../lib/shareActions';
 import {
   ShareButton,
   ShareButtonRow,
+  HoverReveal,
 } from '../components/ui/molecule/shareability';
 import {
   DocumentTextIcon,
@@ -90,8 +90,8 @@ export default function HeftiResearch() {
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
-  // message.id -> rendered markdown DOM node, used to read rendered HTML for
-  // "copy as rich text" without keeping a ref per message via useRef.
+  /* message.id -> rendered markdown DOM node, used to read rendered HTML for
+     "copy as rich text" without keeping a ref per message via useRef. */
   const assistantContentRefs = useRef(new Map());
   // Mirrors lastUserMsgRef on the left: the first chart produced by the current
   // turn, which we pin to the top of the panel once it arrives.
@@ -413,7 +413,8 @@ export default function HeftiResearch() {
                       const showShareRow =
                         message.role === 'assistant' &&
                         !message.isError &&
-                        !(isLatestAssistant && isStreaming);
+                        !(isLatestAssistant && isStreaming) &&
+                        message.content.trim().length > 0;
                       return (
                         <div
                           key={message.id}
@@ -456,13 +457,9 @@ export default function HeftiResearch() {
                                   </ReactMarkdown>
                                 </div>
                                 {showShareRow && (
-                                  <div
-                                    className={clsx(
-                                      'mt-2 transition-opacity',
-                                      isLatestAssistant
-                                        ? 'opacity-100'
-                                        : 'opacity-0 group-hover:opacity-100',
-                                    )}
+                                  <HoverReveal
+                                    show={isLatestAssistant}
+                                    className="mt-2"
                                   >
                                     <ShareButtonRow>
                                       <ShareButton
@@ -485,7 +482,7 @@ export default function HeftiResearch() {
                                         }
                                       />
                                     </ShareButtonRow>
-                                  </div>
+                                  </HoverReveal>
                                 )}
                               </>
                             )
@@ -496,7 +493,7 @@ export default function HeftiResearch() {
                                   {message.content}
                                 </p>
                               </div>
-                              <div className="mt-2 flex justify-end opacity-0 transition-opacity group-hover:opacity-100">
+                              <HoverReveal className="mt-2 flex justify-end">
                                 <ShareButtonRow>
                                   <ShareButton
                                     icon={DocumentTextIcon}
@@ -504,7 +501,7 @@ export default function HeftiResearch() {
                                     onClick={() => copyText(message.content)}
                                   />
                                 </ShareButtonRow>
-                              </div>
+                              </HoverReveal>
                             </>
                           )}
                         </div>

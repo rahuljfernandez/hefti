@@ -34,6 +34,7 @@ const CLICK_FEEDBACK_MS = 1200;
  */
 export function ShareButton({ icon: Icon, label, onClick, className }) {
   const [justSucceeded, setJustSucceeded] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const timeoutRef = useRef(null);
 
   useEffect(() => {
@@ -41,14 +42,22 @@ export function ShareButton({ icon: Icon, label, onClick, className }) {
   }, []);
 
   async function handleClick() {
-    const result = await onClick();
-    if (result) {
-      setJustSucceeded(true);
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(
-        () => setJustSucceeded(false),
-        CLICK_FEEDBACK_MS,
-      );
+    /* Guards against a rapid double-click firing onClick twice concurrently
+       (e.g. two overlapping PNG renders/downloads from the same button). */
+    if (isPending) return;
+    setIsPending(true);
+    try {
+      const result = await onClick();
+      if (result) {
+        setJustSucceeded(true);
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(
+          () => setJustSucceeded(false),
+          CLICK_FEEDBACK_MS,
+        );
+      }
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -56,8 +65,9 @@ export function ShareButton({ icon: Icon, label, onClick, className }) {
     <button
       type="button"
       onClick={handleClick}
+      disabled={isPending}
       className={clsx(
-        'border-border-primary text-content-secondary hover:bg-background-tertiary text-paragraph-xs hover:border-border-inverse-primary hover:text-border-inverse-primary inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 transition-colors hover:shadow-sm',
+        'border-border-primary text-content-secondary hover:bg-background-tertiary text-paragraph-xs hover:border-border-inverse-primary hover:text-border-inverse-primary inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 transition-colors hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
     >
@@ -83,5 +93,32 @@ export function ShareButtonRow({ children }) {
 }
 
 ShareButtonRow.propTypes = {
+  children: PropTypes.node,
+};
+
+/**
+ * Wraps a ShareButtonRow so it's always visible when `show` is true (e.g. the
+ * latest chat message or chart), and otherwise hidden until the nearest
+ * ancestor with className="group" is hovered. Centralizes the opacity/hover
+ * treatment so chat messages and chart cards don't each hand-roll their own
+ * copy of the same `clsx` expression.
+ */
+export function HoverReveal({ show, className, children }) {
+  return (
+    <div
+      className={clsx(
+        'transition-opacity',
+        show ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+HoverReveal.propTypes = {
+  show: PropTypes.bool,
+  className: PropTypes.string,
   children: PropTypes.node,
 };

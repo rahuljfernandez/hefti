@@ -10,15 +10,13 @@ import { toPng } from 'html-to-image';
  * widget without either pulling in React.
  */
 
-function triggerDownload(blob, filename) {
-  const url = URL.createObjectURL(blob);
+function triggerDownload(url, filename) {
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
 }
 
 export async function copyText(text) {
@@ -30,9 +28,9 @@ export async function copyText(text) {
   }
 }
 
-// Safari requires the Blobs passed to ClipboardItem be constructed
-// synchronously within the user-gesture call stack — don't `await` anything
-// before calling this from a click handler.
+/* Safari requires the Blobs passed to ClipboardItem be constructed
+   synchronously within the user-gesture call stack — don't `await` anything
+   before calling this from a click handler. */
 export async function copyRichText(html, plainTextFallback) {
   if (!window.ClipboardItem || !navigator.clipboard?.write) {
     return copyText(plainTextFallback);
@@ -63,7 +61,10 @@ export function downloadCsv(rows, filename, headers) {
     const csv = allRows
       .map((row) => row.map(escapeCsvCell).join(','))
       .join('\r\n');
-    triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), filename);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    triggerDownload(url, filename);
+    URL.revokeObjectURL(url);
     return true;
   } catch {
     return false;
@@ -76,12 +77,7 @@ export async function downloadPng(node, filename) {
       backgroundColor: '#ffffff',
       pixelRatio: 2,
     });
-    const anchor = document.createElement('a');
-    anchor.href = dataUrl;
-    anchor.download = filename;
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+    triggerDownload(dataUrl, filename);
     return true;
   } catch {
     return false;

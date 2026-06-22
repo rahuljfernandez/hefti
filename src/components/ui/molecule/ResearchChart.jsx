@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import {
   BarChart,
   Bar,
@@ -14,7 +13,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { TableCellsIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import { ShareButton, ShareButtonRow } from './shareability';
+import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
 import { downloadCsv, downloadPng } from '../../../lib/shareActions';
 import { slugify } from '../../../lib/slugify';
 
@@ -103,14 +102,18 @@ ChartXTick.propTypes = {
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
 function ChartWrapper({ title, description, children, chart, isLatest }) {
   const cardRef = useRef(null);
+  /* Falls back to a generic name when the title has no a-z0-9 characters for
+     slugify to keep (e.g. emoji/symbols-only), so the download isn't a bare
+     ".csv"/".png" with no visible filename. */
+  const filenameBase = slugify(title) || 'chart';
 
   function handleDownloadCsv() {
     const { headers, rows } = chartToRows(chart);
-    return downloadCsv(rows, `${slugify(title)}.csv`, headers);
+    return downloadCsv(rows, `${filenameBase}.csv`, headers);
   }
 
   function handleDownloadPng() {
-    return downloadPng(cardRef.current, `${slugify(title)}.png`);
+    return downloadPng(cardRef.current, `${filenameBase}.png`);
   }
 
   return (
@@ -127,12 +130,7 @@ function ChartWrapper({ title, description, children, chart, isLatest }) {
         )}
         <div className="mt-4">{children}</div>
       </div>
-      <div
-        className={clsx(
-          'mt-3 transition-opacity',
-          isLatest ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-        )}
-      >
+      <HoverReveal show={isLatest} className="mt-3">
         <ShareButtonRow>
           <ShareButton
             icon={PhotoIcon}
@@ -145,7 +143,7 @@ function ChartWrapper({ title, description, children, chart, isLatest }) {
             onClick={handleDownloadCsv}
           />
         </ShareButtonRow>
-      </div>
+      </HoverReveal>
     </div>
   );
 }
@@ -158,12 +156,42 @@ ChartWrapper.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-function BarView({ data }) {
-  const bars = data.bars ?? data.items ?? [];
-  const normalized = bars.map((b) => ({
-    label: b.label ?? b.name,
-    value: b.value,
+/* Shared shape-unwrapping helpers — used by both the View that renders a
+   chart_type and the matching case in chartToRows below, so the LLM's
+   field-naming fallbacks (e.g. `bars` vs `items`) only have to be encoded
+   once per chart_type instead of drifting between render and CSV export. */
+function normalizeBarItems(data) {
+  const items = data.bars ?? data.items ?? [];
+  return items.map((item) => ({
+    label: item.label ?? item.name,
+    value: item.value,
   }));
+}
+
+function normalizeDistributionItems(data) {
+  const items = data.bins ?? data.bars ?? data.items ?? [];
+  return items.map((item) => ({
+    label: item.range ?? item.label ?? item.name,
+    value: item.count ?? item.value,
+  }));
+}
+
+function seriesValueAt(series, i) {
+  return series.values?.[i] ?? series.data?.[i];
+}
+
+function normalizeTableShape(data) {
+  const rows = data.rows ?? [];
+  if (!rows.length) return { columns: [], rows: [], isArrayRows: false };
+  const isArrayRows = Array.isArray(rows[0]);
+  const columns = isArrayRows
+    ? (data.columns ?? rows[0].map((_, i) => String(i)))
+    : Object.keys(rows[0]);
+  return { columns, rows, isArrayRows };
+}
+
+function BarView({ data }) {
+  const normalized = normalizeBarItems(data);
   const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -190,7 +218,7 @@ function ComparisonBarView({ data }) {
   const normalized = categories.map((cat, i) => {
     const row = { category: cat };
     series.forEach((s) => {
-      row[s.name] = s.values?.[i] ?? s.data?.[i];
+      row[s.name] = seriesValueAt(s, i);
     });
     return row;
   });
@@ -253,11 +281,7 @@ ScatterView.propTypes = {
 };
 
 function DistributionView({ data }) {
-  const bins = data.bins ?? data.bars ?? data.items ?? [];
-  const normalized = bins.map((b) => ({
-    label: b.range ?? b.label ?? b.name,
-    value: b.count ?? b.value,
-  }));
+  const normalized = normalizeDistributionItems(data);
   const { top, bottom } = xMargins(normalized.map((b) => b.label));
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -324,15 +348,8 @@ KpiRowView.propTypes = {
 };
 
 function TableView({ data }) {
-  const rows = data.rows ?? [];
+  const { columns, rows, isArrayRows } = normalizeTableShape(data);
   if (!rows.length) return null;
-
-  // rows can be array-of-arrays (with a separate columns array)
-  // or array-of-objects (columns derived from keys)
-  const isArrayRows = Array.isArray(rows[0]);
-  const columns = isArrayRows
-    ? (data.columns ?? rows[0].map((_, i) => String(i)))
-    : Object.keys(rows[0]);
 
   const getCell = (row, col, i) =>
     isArrayRows ? (row[i] ?? '—') : (row[col] ?? '—');
@@ -402,20 +419,17 @@ export function chartToRows(chart) {
 
   switch (chart_type) {
     case 'bar': {
-      const items = data.bars ?? data.items ?? [];
+      const items = normalizeBarItems(data);
       return {
         headers: ['Label', 'Value'],
-        rows: items.map((item) => [item.label ?? item.name, item.value]),
+        rows: items.map((item) => [item.label, item.value]),
       };
     }
     case 'distribution': {
-      const items = data.bins ?? data.bars ?? data.items ?? [];
+      const items = normalizeDistributionItems(data);
       return {
         headers: ['Label', 'Value'],
-        rows: items.map((item) => [
-          item.range ?? item.label ?? item.name,
-          item.count ?? item.value,
-        ]),
+        rows: items.map((item) => [item.label, item.value]),
       };
     }
     case 'comparison_bar': {
@@ -424,7 +438,7 @@ export function chartToRows(chart) {
         headers: ['Category', ...series.map((s) => s.name)],
         rows: categories.map((cat, i) => [
           cat,
-          ...series.map((s) => s.values?.[i] ?? s.data?.[i]),
+          ...series.map((s) => seriesValueAt(s, i)),
         ]),
       };
     }
@@ -448,12 +462,11 @@ export function chartToRows(chart) {
       };
     }
     case 'table': {
-      const rows = data.rows ?? [];
+      const { columns, rows, isArrayRows } = normalizeTableShape(data);
       if (!rows.length) return { headers: [], rows: [] };
-      const isArrayRows = Array.isArray(rows[0]);
-      const columns = isArrayRows
-        ? (data.columns ?? rows[0].map((_, i) => String(i)))
-        : Object.keys(rows[0]);
+      /* Empty string, not TableView's '—' placeholder — a literal em-dash in
+         an otherwise-numeric CSV column would be misread as text by Excel/
+         pandas instead of as a missing value. */
       const getCell = (row, col, i) =>
         isArrayRows ? (row[i] ?? '') : (row[col] ?? '');
       return {
