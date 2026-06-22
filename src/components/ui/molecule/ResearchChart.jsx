@@ -107,14 +107,16 @@ function ChartWrapper({ title, description, children, chart }) {
   }
 
   return (
-    <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
-      <p className="text-label-lg text-core-black">{title}</p>
-      {description && (
-        <p className="text-paragraph-base text-content-secondary mt-1">
-          {description}
-        </p>
-      )}
-      <div className="mt-4">{children}</div>
+    <>
+      <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+        <p className="text-label-lg text-core-black">{title}</p>
+        {description && (
+          <p className="text-paragraph-base text-content-secondary mt-1">
+            {description}
+          </p>
+        )}
+        <div className="mt-4">{children}</div>
+      </div>
       <div className="mt-3">
         <ShareButtonRow>
           <ShareButton
@@ -124,7 +126,7 @@ function ChartWrapper({ title, description, children, chart }) {
           />
         </ShareButtonRow>
       </div>
-    </div>
+    </>
   );
 }
 

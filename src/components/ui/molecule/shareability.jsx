@@ -12,6 +12,25 @@ const CLICK_FEEDBACK_MS = 1200;
  * chart cards. A full-scale "telescoping" widget (accepting multiple share
  * categories and expanding/collapsing between them) will be added here
  * later — this file is the single home for all shareability UI.
+ *
+ * @example
+ * import { ShareButton, ShareButtonRow } from './shareability';
+ * import { copyText, downloadCsv } from '../../../lib/shareActions';
+ * import { DocumentTextIcon, TableCellsIcon } from '@heroicons/react/24/outline';
+ *
+ * <ShareButtonRow>
+ *   <ShareButton
+ *     icon={DocumentTextIcon}
+ *     label="Copy text"
+ *     onClick={() => copyText(message.content)}
+ *   />
+ *   <ShareButton
+ *     icon={TableCellsIcon}
+ *     label="Download data as CSV"
+ *     onClick={() => downloadCsv(rows, 'chart.csv', headers)}
+ *     className="ml-2"
+ *   />
+ * </ShareButtonRow>
  */
 export function ShareButton({ icon: Icon, label, onClick, className }) {
   const [justSucceeded, setJustSucceeded] = useState(false);
@@ -37,9 +56,8 @@ export function ShareButton({ icon: Icon, label, onClick, className }) {
     <button
       type="button"
       onClick={handleClick}
-      title={label}
       className={clsx(
-        'border-border-primary bg-core-white text-content-secondary hover:bg-background-tertiary text-paragraph-xs inline-flex items-center gap-1.5 rounded-md border px-2 py-1 transition-colors',
+        'border-border-primary text-content-secondary hover:bg-background-tertiary text-paragraph-xs hover:border-border-inverse-primary hover:text-border-inverse-primary inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 transition-colors hover:shadow-sm',
         className,
       )}
     >
