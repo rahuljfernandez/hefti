@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import clsx from 'clsx';
 import { useParams, useLocation } from 'react-router-dom';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
@@ -14,6 +15,15 @@ import ResearchChart from '../components/ui/molecule/ResearchChart';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
+import { copyText, copyRichText } from '../lib/shareActions';
+import {
+  ShareButton,
+  ShareButtonRow,
+} from '../components/ui/molecule/shareability';
+import {
+  DocumentTextIcon,
+  ClipboardDocumentIcon,
+} from '@heroicons/react/24/outline';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -76,9 +86,13 @@ export default function HeftiResearch() {
   const [charts, setCharts] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
+  // message.id -> rendered markdown DOM node, used to read rendered HTML for
+  // "copy as rich text" without keeping a ref per message via useRef.
+  const assistantContentRefs = useRef(new Map());
   // Mirrors lastUserMsgRef on the left: the first chart produced by the current
   // turn, which we pin to the top of the panel once it arrives.
   const turnFirstChartRef = useRef(null);
@@ -289,6 +303,7 @@ export default function HeftiResearch() {
 
     // console.log('[researcher] outgoing messages:', outgoingMessages);
 
+    setIsStreaming(true);
     try {
       const res = await fetch(`${API_BASE_URL}/researcher`, {
         method: 'POST',
@@ -364,6 +379,8 @@ export default function HeftiResearch() {
       });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsStreaming(false);
     }
   }
 
@@ -393,37 +410,87 @@ export default function HeftiResearch() {
                       const isLatestAssistant =
                         message.role === 'assistant' &&
                         i === messages.length - 1;
+                      const showShareRow =
+                        message.role === 'assistant' && !message.isError;
                       return (
-                        <div
-                          key={message.id}
-                          ref={isLastUser ? lastUserMsgRef : null}
-                          style={
-                            isLatestAssistant
-                              ? { minHeight: `${assistantMinHeight}px` }
-                              : undefined
-                          }
-                          className={
-                            message.role === 'user'
-                              ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
-                              : 'text-paragraph-base text-core-black max-w-[92%]'
-                          }
-                        >
-                          {message.role === 'assistant' ? (
-                            message.isError ? (
-                              <p className="text-paragraph-base text-red-600">
+                        <React.Fragment key={message.id}>
+                          <div
+                            ref={isLastUser ? lastUserMsgRef : null}
+                            style={
+                              isLatestAssistant
+                                ? { minHeight: `${assistantMinHeight}px` }
+                                : undefined
+                            }
+                            className={
+                              message.role === 'user'
+                                ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
+                                : 'peer text-paragraph-base text-core-black max-w-[92%]'
+                            }
+                          >
+                            {message.role === 'assistant' ? (
+                              message.isError ? (
+                                <p className="text-paragraph-base text-red-600">
+                                  {message.content}
+                                </p>
+                              ) : (
+                                <div
+                                  ref={(el) => {
+                                    if (el) {
+                                      assistantContentRefs.current.set(
+                                        message.id,
+                                        el,
+                                      );
+                                    } else {
+                                      assistantContentRefs.current.delete(
+                                        message.id,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <ReactMarkdown components={MdComponents}>
+                                    {message.content}
+                                  </ReactMarkdown>
+                                </div>
+                              )
+                            ) : (
+                              <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
                                 {message.content}
                               </p>
-                            ) : (
-                              <ReactMarkdown components={MdComponents}>
-                                {message.content}
-                              </ReactMarkdown>
-                            )
-                          ) : (
-                            <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                              {message.content}
-                            </p>
+                            )}
+                          </div>
+                          {showShareRow && (
+                            <div
+                              className={clsx(
+                                'mt-2! max-w-[92%] transition-opacity',
+                                isLatestAssistant
+                                  ? 'opacity-100'
+                                  : 'opacity-0 peer-hover:opacity-100',
+                              )}
+                            >
+                              <ShareButtonRow>
+                                <ShareButton
+                                  icon={DocumentTextIcon}
+                                  label="Copy text"
+                                  disabled={isLatestAssistant && isStreaming}
+                                  onClick={() => copyText(message.content)}
+                                />
+                                <ShareButton
+                                  icon={ClipboardDocumentIcon}
+                                  label="Copy as rich text"
+                                  disabled={isLatestAssistant && isStreaming}
+                                  onClick={() =>
+                                    copyRichText(
+                                      assistantContentRefs.current.get(
+                                        message.id,
+                                      )?.innerHTML ?? '',
+                                      message.content,
+                                    )
+                                  }
+                                />
+                              </ShareButtonRow>
+                            </div>
                           )}
-                        </div>
+                        </React.Fragment>
                       );
                     })}
                   </div>

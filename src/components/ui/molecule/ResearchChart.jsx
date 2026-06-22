@@ -12,6 +12,10 @@ import {
   Scatter,
   ResponsiveContainer,
 } from 'recharts';
+import { TableCellsIcon } from '@heroicons/react/24/outline';
+import { ShareButton, ShareButtonRow } from './shareability';
+import { downloadCsv } from '../../../lib/shareActions';
+import { slugify } from '../../../lib/slugify';
 
 /**
  * ResearchChart — chart rendering for the Hefti Researcher right panel.
@@ -96,7 +100,12 @@ ChartXTick.propTypes = {
 };
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
-function ChartWrapper({ title, description, children }) {
+function ChartWrapper({ title, description, children, chart }) {
+  function handleDownloadCsv() {
+    const { headers, rows } = chartToRows(chart);
+    return downloadCsv(rows, `${slugify(title)}.csv`, headers);
+  }
+
   return (
     <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
       <p className="text-label-lg text-core-black">{title}</p>
@@ -106,6 +115,15 @@ function ChartWrapper({ title, description, children }) {
         </p>
       )}
       <div className="mt-4">{children}</div>
+      <div className="mt-3">
+        <ShareButtonRow>
+          <ShareButton
+            icon={TableCellsIcon}
+            label="Download data as CSV"
+            onClick={handleDownloadCsv}
+          />
+        </ShareButtonRow>
+      </div>
     </div>
   );
 }
@@ -113,6 +131,7 @@ function ChartWrapper({ title, description, children }) {
 ChartWrapper.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
+  chart: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
 };
 
@@ -351,6 +370,79 @@ const VIEWS = {
   table: TableView,
 };
 
+/* Converts a chart's `data` into flat { headers, rows } for CSV export,
+   reusing the same per-chart_type unwrap logic as the View components above.
+   Lives here (not in shareActions.js) since this file already owns the
+   chart_type-to-shape knowledge — shareActions.js stays generic. */
+export function chartToRows(chart) {
+  const { chart_type, data } = chart;
+
+  switch (chart_type) {
+    case 'bar': {
+      const items = data.bars ?? data.items ?? [];
+      return {
+        headers: ['Label', 'Value'],
+        rows: items.map((item) => [item.label ?? item.name, item.value]),
+      };
+    }
+    case 'distribution': {
+      const items = data.bins ?? data.bars ?? data.items ?? [];
+      return {
+        headers: ['Label', 'Value'],
+        rows: items.map((item) => [
+          item.range ?? item.label ?? item.name,
+          item.count ?? item.value,
+        ]),
+      };
+    }
+    case 'comparison_bar': {
+      const { categories = [], series = [] } = data;
+      return {
+        headers: ['Category', ...series.map((s) => s.name)],
+        rows: categories.map((cat, i) => [
+          cat,
+          ...series.map((s) => s.values?.[i] ?? s.data?.[i]),
+        ]),
+      };
+    }
+    case 'scatter': {
+      const points = data.points ?? [];
+      return {
+        headers: [data.xLabel ?? 'x', data.yLabel ?? 'y'],
+        rows: points.map((p) => [p.x, p.y]),
+      };
+    }
+    case 'kpi_row': {
+      const kpis = data.kpis ?? [];
+      return {
+        headers: ['Label', 'Value', 'Unit', 'Delta'],
+        rows: kpis.map((kpi) => [
+          kpi.label,
+          kpi.value,
+          kpi.unit ?? '',
+          kpi.delta ?? '',
+        ]),
+      };
+    }
+    case 'table': {
+      const rows = data.rows ?? [];
+      if (!rows.length) return { headers: [], rows: [] };
+      const isArrayRows = Array.isArray(rows[0]);
+      const columns = isArrayRows
+        ? (data.columns ?? rows[0].map((_, i) => String(i)))
+        : Object.keys(rows[0]);
+      const getCell = (row, col, i) =>
+        isArrayRows ? (row[i] ?? '') : (row[col] ?? '');
+      return {
+        headers: columns,
+        rows: rows.map((row) => columns.map((col, j) => getCell(row, col, j))),
+      };
+    }
+    default:
+      return { headers: [], rows: [] };
+  }
+}
+
 /* Entry point — receives a single chart object, looks up the right view from
    the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
    chart types so unrecognized LLM output fails silently rather than crashing. */
@@ -359,7 +451,7 @@ export default function ResearchChart({ chart }) {
   const View = VIEWS[chart_type];
   if (!View) return null;
   return (
-    <ChartWrapper title={title} description={description}>
+    <ChartWrapper title={title} description={description} chart={chart}>
       <View data={data} />
     </ChartWrapper>
   );
