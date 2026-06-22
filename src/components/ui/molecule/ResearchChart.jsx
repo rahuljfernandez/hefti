@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import {
   BarChart,
   Bar,
@@ -12,9 +13,9 @@ import {
   Scatter,
   ResponsiveContainer,
 } from 'recharts';
-import { TableCellsIcon } from '@heroicons/react/24/outline';
+import { TableCellsIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { ShareButton, ShareButtonRow } from './shareability';
-import { downloadCsv } from '../../../lib/shareActions';
+import { downloadCsv, downloadPng } from '../../../lib/shareActions';
 import { slugify } from '../../../lib/slugify';
 
 /**
@@ -100,15 +101,24 @@ ChartXTick.propTypes = {
 };
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
-function ChartWrapper({ title, description, children, chart }) {
+function ChartWrapper({ title, description, children, chart, isLatest }) {
+  const cardRef = useRef(null);
+
   function handleDownloadCsv() {
     const { headers, rows } = chartToRows(chart);
     return downloadCsv(rows, `${slugify(title)}.csv`, headers);
   }
 
+  function handleDownloadPng() {
+    return downloadPng(cardRef.current, `${slugify(title)}.png`);
+  }
+
   return (
-    <>
-      <div className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm">
+    <div className="group">
+      <div
+        ref={cardRef}
+        className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm"
+      >
         <p className="text-label-lg text-core-black">{title}</p>
         {description && (
           <p className="text-paragraph-base text-content-secondary mt-1">
@@ -117,8 +127,18 @@ function ChartWrapper({ title, description, children, chart }) {
         )}
         <div className="mt-4">{children}</div>
       </div>
-      <div className="mt-3">
+      <div
+        className={clsx(
+          'mt-3 transition-opacity',
+          isLatest ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+        )}
+      >
         <ShareButtonRow>
+          <ShareButton
+            icon={PhotoIcon}
+            label="Download PNG"
+            onClick={handleDownloadPng}
+          />
           <ShareButton
             icon={TableCellsIcon}
             label="Download data as CSV"
@@ -126,13 +146,14 @@ function ChartWrapper({ title, description, children, chart }) {
           />
         </ShareButtonRow>
       </div>
-    </>
+    </div>
   );
 }
 
 ChartWrapper.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
+  isLatest: PropTypes.bool,
   chart: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
 };
@@ -448,18 +469,24 @@ export function chartToRows(chart) {
 /* Entry point — receives a single chart object, looks up the right view from
    the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
    chart types so unrecognized LLM output fails silently rather than crashing. */
-export default function ResearchChart({ chart }) {
+export default function ResearchChart({ chart, isLatest }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];
   if (!View) return null;
   return (
-    <ChartWrapper title={title} description={description} chart={chart}>
+    <ChartWrapper
+      title={title}
+      description={description}
+      chart={chart}
+      isLatest={isLatest}
+    >
       <View data={data} />
     </ChartWrapper>
   );
 }
 
 ResearchChart.propTypes = {
+  isLatest: PropTypes.bool,
   chart: PropTypes.shape({
     chart_type: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

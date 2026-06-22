@@ -1,3 +1,5 @@
+import { toPng } from 'html-to-image';
+
 /**
  * shareActions
  *
@@ -62,6 +64,24 @@ export function downloadCsv(rows, filename, headers) {
       .map((row) => row.map(escapeCsvCell).join(','))
       .join('\r\n');
     triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), filename);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function downloadPng(node, filename) {
+  try {
+    const dataUrl = await toPng(node, {
+      backgroundColor: '#ffffff',
+      pixelRatio: 2,
+    });
+    const anchor = document.createElement('a');
+    anchor.href = dataUrl;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
     return true;
   } catch {
     return false;

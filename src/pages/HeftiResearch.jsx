@@ -583,7 +583,10 @@ export default function HeftiResearch() {
                     i === turnStartIndexRef.current ? turnFirstChartRef : null
                   }
                 >
-                  <ResearchChart chart={chart} />
+                  <ResearchChart
+                    chart={chart}
+                    isLatest={i === charts.length - 1}
+                  />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (
                   <div className="flex items-center gap-3 py-2">
