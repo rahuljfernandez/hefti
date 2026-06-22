@@ -100,7 +100,14 @@ ChartXTick.propTypes = {
 };
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
-function ChartWrapper({ title, description, children, chart, isLatest }) {
+function ChartWrapper({
+  title,
+  description,
+  children,
+  chart,
+  isLatest,
+  onCardMount,
+}) {
   const cardRef = useRef(null);
   /* Falls back to a generic name when the title has no a-z0-9 characters for
      slugify to keep (e.g. emoji/symbols-only), so the download isn't a bare
@@ -119,7 +126,10 @@ function ChartWrapper({ title, description, children, chart, isLatest }) {
   return (
     <div className="group">
       <div
-        ref={cardRef}
+        ref={(el) => {
+          cardRef.current = el;
+          onCardMount?.(el);
+        }}
         className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm"
       >
         <p className="text-label-lg text-core-black">{title}</p>
@@ -154,6 +164,7 @@ ChartWrapper.propTypes = {
   isLatest: PropTypes.bool,
   chart: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
+  onCardMount: PropTypes.func,
 };
 
 /* Shared shape-unwrapping helpers — used by both the View that renders a
@@ -479,26 +490,10 @@ export function chartToRows(chart) {
   }
 }
 
-/* Combines every chart's rows into one CSV (one section per chart, separated
-   by a blank row), for the telescoping widget's "export everything in the
-   right panel" action. Each chart keeps its own title/headers since rows
-   from different chart_types rarely share the same columns. */
-export function combineChartsForExport(charts) {
-  const rows = [];
-  charts.forEach((chart, i) => {
-    if (i > 0) rows.push([]);
-    rows.push([chart.title]);
-    const { headers, rows: chartRows } = chartToRows(chart);
-    if (headers.length) rows.push(headers);
-    rows.push(...chartRows);
-  });
-  return rows;
-}
-
 /* Entry point — receives a single chart object, looks up the right view from
    the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
    chart types so unrecognized LLM output fails silently rather than crashing. */
-export default function ResearchChart({ chart, isLatest }) {
+export default function ResearchChart({ chart, isLatest, onCardMount }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];
   if (!View) return null;
@@ -508,6 +503,7 @@ export default function ResearchChart({ chart, isLatest }) {
       description={description}
       chart={chart}
       isLatest={isLatest}
+      onCardMount={onCardMount}
     >
       <View data={data} />
     </ChartWrapper>
@@ -516,6 +512,7 @@ export default function ResearchChart({ chart, isLatest }) {
 
 ResearchChart.propTypes = {
   isLatest: PropTypes.bool,
+  onCardMount: PropTypes.func,
   chart: PropTypes.shape({
     chart_type: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

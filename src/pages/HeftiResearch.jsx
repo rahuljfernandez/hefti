@@ -11,12 +11,19 @@ import {
 } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
 import ResearchChart, {
-  combineChartsForExport,
+  chartToRows,
 } from '../components/ui/molecule/ResearchChart';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
+import { slugify } from '../lib/slugify';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
-import { copyText, copyRichText, downloadCsv, downloadPng } from '../lib/shareActions';
+import {
+  copyText,
+  copyRichText,
+  rowsToCsv,
+  nodeToPngDataUrl,
+  downloadZip,
+} from '../lib/shareActions';
 import {
   ShareButton,
   ShareButtonRow,
@@ -97,6 +104,9 @@ export default function HeftiResearch() {
   /* message.id -> rendered markdown DOM node, used to read rendered HTML for
      "copy as rich text" without keeping a ref per message via useRef. */
   const assistantContentRefs = useRef(new Map());
+  /* chart index -> rendered card DOM node, used to capture each chart as its
+     own PNG for the "Right panel" export (see handleExportRightPanel). */
+  const chartCardRefs = useRef(new Map());
   // Mirrors lastUserMsgRef on the left: the first chart produced by the current
   // turn, which we pin to the top of the panel once it arrives.
   const turnFirstChartRef = useRef(null);
@@ -388,18 +398,35 @@ export default function HeftiResearch() {
     }
   }
 
-  /* The telescoping widget's "Right panel" category — combines every chart
-     into one CSV and one PNG of the whole panel, rather than triggering a
-     separate download per chart (which browsers throttle/block past ~2
-     rapid downloads from the same click). The trailing scroll spacer is
-     excluded from the PNG via data-export-ignore, since it's just empty
-     space reserved for scroll math, not visible content. */
+  /* The telescoping widget's "Right panel" category — one PNG and one CSV
+     per chart (PNG1, PNG2, PNG3, then CSV1, CSV2, CSV3), bundled into a
+     single charts.zip rather than triggering 2*N separate downloads (which
+     browsers throttle/block past ~2 rapid downloads from the same click).
+     Skips the on-load context charts (contextChartCountRef) — those are a
+     generic baseline comparison seeded before any prompt, not something the
+     user asked the AI for, so they don't belong in an export of its output. */
   async function handleExportRightPanel() {
-    const csvOk = downloadCsv(combineChartsForExport(charts), 'charts.csv');
-    const pngOk = await downloadPng(chartsPanelRef.current, 'charts.png', {
-      filter: (node) => node.dataset?.exportIgnore !== 'true',
+    const entries = [];
+    const startIndex = contextChartCountRef.current;
+
+    for (let i = startIndex; i < charts.length; i++) {
+      const node = chartCardRefs.current.get(i);
+      if (!node) continue;
+      const filenameBase = slugify(charts[i].title) || `chart-${i + 1}`;
+      const dataUrl = await nodeToPngDataUrl(node);
+      entries.push({ name: `${filenameBase}.png`, content: dataUrl });
+    }
+
+    charts.slice(startIndex).forEach((chart, i) => {
+      const filenameBase = slugify(chart.title) || `chart-${startIndex + i + 1}`;
+      const { headers, rows } = chartToRows(chart);
+      entries.push({
+        name: `${filenameBase}.csv`,
+        content: rowsToCsv(rows, headers),
+      });
     });
-    return csvOk && pngOk;
+
+    return downloadZip(entries, 'charts.zip');
   }
 
   return (
@@ -617,6 +644,13 @@ export default function HeftiResearch() {
                   <ResearchChart
                     chart={chart}
                     isLatest={i === charts.length - 1}
+                    onCardMount={(el) => {
+                      if (el) {
+                        chartCardRefs.current.set(i, el);
+                      } else {
+                        chartCardRefs.current.delete(i);
+                      }
+                    }}
                   />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (
@@ -643,7 +677,6 @@ export default function HeftiResearch() {
             {charts.length > 0 && (
               <div
                 aria-hidden="true"
-                data-export-ignore="true"
                 style={{ minHeight: `${chartsSpacerHeight}px` }}
               />
             )}

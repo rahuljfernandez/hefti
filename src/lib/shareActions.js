@@ -1,4 +1,5 @@
 import { toPng } from 'html-to-image';
+import JSZip from 'jszip';
 
 /**
  * shareActions
@@ -55,13 +56,16 @@ function escapeCsvCell(cell) {
   return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
+export function rowsToCsv(rows, headers) {
+  const allRows = headers ? [headers, ...rows] : rows;
+  return allRows.map((row) => row.map(escapeCsvCell).join(',')).join('\r\n');
+}
+
 export function downloadCsv(rows, filename, headers) {
   try {
-    const allRows = headers ? [headers, ...rows] : rows;
-    const csv = allRows
-      .map((row) => row.map(escapeCsvCell).join(','))
-      .join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([rowsToCsv(rows, headers)], {
+      type: 'text/csv;charset=utf-8;',
+    });
     const url = URL.createObjectURL(blob);
     triggerDownload(url, filename);
     URL.revokeObjectURL(url);
@@ -71,14 +75,39 @@ export function downloadCsv(rows, filename, headers) {
   }
 }
 
+export function nodeToPngDataUrl(node, options) {
+  return toPng(node, { backgroundColor: '#ffffff', pixelRatio: 2, ...options });
+}
+
 export async function downloadPng(node, filename, options) {
   try {
-    const dataUrl = await toPng(node, {
-      backgroundColor: '#ffffff',
-      pixelRatio: 2,
-      ...options,
-    });
+    const dataUrl = await nodeToPngDataUrl(node, options);
     triggerDownload(dataUrl, filename);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/* entries: [{ name, content }], where content is either a plain string (CSV)
+   or a PNG data URL (from nodeToPngDataUrl) — used to bundle multiple
+   per-chart exports into one download instead of triggering N separate
+   downloads, which Chromium browsers block past the first couple in quick
+   succession. */
+export async function downloadZip(entries, filename) {
+  try {
+    const zip = new JSZip();
+    entries.forEach(({ name, content }) => {
+      if (content.startsWith('data:')) {
+        zip.file(name, content.split(',')[1], { base64: true });
+      } else {
+        zip.file(name, content);
+      }
+    });
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    triggerDownload(url, filename);
+    URL.revokeObjectURL(url);
     return true;
   } catch {
     return false;
