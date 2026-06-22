@@ -580,7 +580,7 @@ export default function HeftiResearch() {
           className="bg-background-secondary relative flex min-h-0 flex-col"
         >
           {charts.length > 0 && (
-            <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2">
+            <div className="absolute inset-x-0 top-4 z-20 mr-auto flex w-full max-w-[600px] justify-end px-6">
               <ShareWidget
                 categories={[
                   {
