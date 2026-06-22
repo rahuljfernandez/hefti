@@ -71,11 +71,12 @@ export function downloadCsv(rows, filename, headers) {
   }
 }
 
-export async function downloadPng(node, filename) {
+export async function downloadPng(node, filename, options) {
   try {
     const dataUrl = await toPng(node, {
       backgroundColor: '#ffffff',
       pixelRatio: 2,
+      ...options,
     });
     triggerDownload(dataUrl, filename);
     return true;

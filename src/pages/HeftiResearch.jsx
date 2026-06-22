@@ -10,19 +10,23 @@ import {
   getRankingsResearchPages,
 } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
-import ResearchChart from '../components/ui/molecule/ResearchChart';
+import ResearchChart, {
+  combineChartsForExport,
+} from '../components/ui/molecule/ResearchChart';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
-import { copyText, copyRichText } from '../lib/shareActions';
+import { copyText, copyRichText, downloadCsv, downloadPng } from '../lib/shareActions';
 import {
   ShareButton,
   ShareButtonRow,
   HoverReveal,
+  ShareWidget,
 } from '../components/ui/molecule/shareability';
 import {
   DocumentTextIcon,
   ClipboardDocumentIcon,
+  TableCellsIcon,
 } from '@heroicons/react/24/outline';
 
 const API_BASE_URL =
@@ -384,6 +388,20 @@ export default function HeftiResearch() {
     }
   }
 
+  /* The telescoping widget's "Right panel" category — combines every chart
+     into one CSV and one PNG of the whole panel, rather than triggering a
+     separate download per chart (which browsers throttle/block past ~2
+     rapid downloads from the same click). The trailing scroll spacer is
+     excluded from the PNG via data-export-ignore, since it's just empty
+     space reserved for scroll math, not visible content. */
+  async function handleExportRightPanel() {
+    const csvOk = downloadCsv(combineChartsForExport(charts), 'charts.csv');
+    const pngOk = await downloadPng(chartsPanelRef.current, 'charts.png', {
+      filter: (node) => node.dataset?.exportIgnore !== 'true',
+    });
+    return csvOk && pngOk;
+  }
+
   return (
     <>
       <Breadcrumb pages={researchPages} />
@@ -559,8 +577,24 @@ export default function HeftiResearch() {
         {/* Right panel — chart output */}
         <section
           aria-label="Generated charts"
-          className="bg-background-secondary flex min-h-0 flex-col"
+          className="bg-background-secondary relative flex min-h-0 flex-col"
         >
+          {charts.length > 0 && (
+            <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2">
+              <ShareWidget
+                categories={[
+                  {
+                    icon: TableCellsIcon,
+                    label: 'Right panel',
+                    tooltip: 'Download charts + data',
+                    loadingLabel: 'Exporting…',
+                    successLabel: 'Downloaded',
+                    onClick: handleExportRightPanel,
+                  },
+                ]}
+              />
+            </div>
+          )}
           {/* aria-live announces newly streamed charts to screen readers, since
               they appear without any focus or navigation change. */}
           <div
@@ -609,6 +643,7 @@ export default function HeftiResearch() {
             {charts.length > 0 && (
               <div
                 aria-hidden="true"
+                data-export-ignore="true"
                 style={{ minHeight: `${chartsSpacerHeight}px` }}
               />
             )}

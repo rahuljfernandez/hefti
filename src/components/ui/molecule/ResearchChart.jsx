@@ -479,6 +479,22 @@ export function chartToRows(chart) {
   }
 }
 
+/* Combines every chart's rows into one CSV (one section per chart, separated
+   by a blank row), for the telescoping widget's "export everything in the
+   right panel" action. Each chart keeps its own title/headers since rows
+   from different chart_types rarely share the same columns. */
+export function combineChartsForExport(charts) {
+  const rows = [];
+  charts.forEach((chart, i) => {
+    if (i > 0) rows.push([]);
+    rows.push([chart.title]);
+    const { headers, rows: chartRows } = chartToRows(chart);
+    if (headers.length) rows.push(headers);
+    rows.push(...chartRows);
+  });
+  return rows;
+}
+
 /* Entry point — receives a single chart object, looks up the right view from
    the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
    chart types so unrecognized LLM output fails silently rather than crashing. */

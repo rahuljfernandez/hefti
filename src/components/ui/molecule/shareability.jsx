@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { CheckIcon } from '@heroicons/react/24/outline';
+import {
+  CheckIcon,
+  ArrowPathIcon,
+  XMarkIcon,
+  ArrowDownTrayIcon,
+} from '@heroicons/react/24/outline';
 
 const CLICK_FEEDBACK_MS = 1200;
 
@@ -120,4 +125,152 @@ HoverReveal.propTypes = {
   show: PropTypes.bool,
   className: PropTypes.string,
   children: PropTypes.node,
+};
+
+/* One segment inside an expanded ShareWidget. Unlike ShareButton, the
+   in-flight state is visible (spinner + custom text) rather than a silent
+   guard, since the widget's segments need to show real export/copy progress. */
+function TelescopeSegment({
+  icon: Icon,
+  label,
+  tooltip,
+  loadingLabel,
+  successLabel,
+  onClick,
+}) {
+  const [status, setStatus] = useState('idle');
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
+
+  async function handleClick() {
+    if (status === 'loading') return;
+    setStatus('loading');
+    try {
+      const result = await onClick();
+      if (result) {
+        setStatus('success');
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => setStatus('idle'), CLICK_FEEDBACK_MS);
+      } else {
+        setStatus('idle');
+      }
+    } catch {
+      setStatus('idle');
+    }
+  }
+
+  const display = {
+    idle: { icon: Icon, text: label },
+    loading: { icon: ArrowPathIcon, text: loadingLabel ?? label },
+    success: { icon: CheckIcon, text: successLabel ?? label },
+  }[status];
+
+  return (
+    <div className="group relative flex items-center">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="inline-flex cursor-pointer items-center gap-1.5 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10"
+      >
+        <display.icon
+          className={clsx('size-4', status === 'loading' && 'animate-spin')}
+          aria-hidden="true"
+        />
+        <span>{display.text}</span>
+      </button>
+      {tooltip && (
+        <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-56 -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+          {tooltip}
+        </div>
+      )}
+    </div>
+  );
+}
+
+TelescopeSegment.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  tooltip: PropTypes.string,
+  loadingLabel: PropTypes.string,
+  successLabel: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
+};
+
+/**
+ * ShareWidget — the full-scale telescoping theme. Minimized to a single icon
+ * button; clicking it expands into a horizontal bar with one TelescopeSegment
+ * per category (1-3) and a trailing close button that collapses it back.
+ *
+ * @example
+ * <ShareWidget
+ *   categories={[
+ *     {
+ *       icon: TableCellsIcon,
+ *       label: 'Right panel',
+ *       tooltip: 'Download charts + data',
+ *       loadingLabel: 'Exporting…',
+ *       successLabel: 'Downloaded',
+ *       onClick: () => downloadCsv(rows, 'charts.csv'),
+ *     },
+ *   ]}
+ * />
+ */
+export function ShareWidget({
+  categories,
+  minimizedIcon: MinimizedIcon = ArrowDownTrayIcon,
+  minimizedLabel = 'Share',
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!isExpanded) {
+    return (
+      <div className="group relative flex items-center">
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          aria-label={minimizedLabel}
+          className="inline-flex cursor-pointer items-center justify-center rounded-full bg-blue-600 p-2.5 text-white shadow-lg transition-colors hover:bg-blue-700"
+        >
+          <MinimizedIcon className="size-5" aria-hidden="true" />
+        </button>
+        <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+          {minimizedLabel}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center divide-x divide-white/20 rounded-full bg-blue-600 text-white shadow-lg">
+      {categories.map((category) => (
+        <TelescopeSegment key={category.label} {...category} />
+      ))}
+      <button
+        type="button"
+        onClick={() => setIsExpanded(false)}
+        aria-label="Close"
+        className="inline-flex cursor-pointer items-center px-3 py-2 transition-colors hover:bg-white/10"
+      >
+        <XMarkIcon className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+ShareWidget.propTypes = {
+  categories: PropTypes.arrayOf(
+    PropTypes.shape({
+      icon: PropTypes.elementType.isRequired,
+      label: PropTypes.string.isRequired,
+      tooltip: PropTypes.string,
+      loadingLabel: PropTypes.string,
+      successLabel: PropTypes.string,
+      onClick: PropTypes.func.isRequired,
+    }),
+  ).isRequired,
+  minimizedIcon: PropTypes.elementType,
+  minimizedLabel: PropTypes.string,
 };
