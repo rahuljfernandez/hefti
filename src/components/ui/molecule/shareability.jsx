@@ -13,7 +13,7 @@ const CLICK_FEEDBACK_MS = 1200;
  * categories and expanding/collapsing between them) will be added here
  * later — this file is the single home for all shareability UI.
  */
-export function ShareButton({ icon: Icon, label, onClick, disabled, className }) {
+export function ShareButton({ icon: Icon, label, onClick, className }) {
   const [justSucceeded, setJustSucceeded] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -37,10 +37,9 @@ export function ShareButton({ icon: Icon, label, onClick, disabled, className })
     <button
       type="button"
       onClick={handleClick}
-      disabled={disabled}
       title={label}
       className={clsx(
-        'border-border-primary bg-core-white text-content-secondary hover:bg-background-tertiary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-paragraph-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+        'border-border-primary bg-core-white text-content-secondary hover:bg-background-tertiary text-paragraph-xs inline-flex items-center gap-1.5 rounded-md border px-2 py-1 transition-colors',
         className,
       )}
     >
@@ -58,7 +57,6 @@ ShareButton.propTypes = {
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
   className: PropTypes.string,
 };
 

@@ -402,7 +402,7 @@ export default function HeftiResearch() {
                   ref={messagesContainerRef}
                   className="min-h-0 flex-1 overflow-y-auto px-6 py-8"
                 >
-                  <div className="space-y-5">
+                  <div className="space-y-2">
                     {messages.map((message, i) => {
                       const isLastUser =
                         message.role === 'user' &&
@@ -411,29 +411,33 @@ export default function HeftiResearch() {
                         message.role === 'assistant' &&
                         i === messages.length - 1;
                       const showShareRow =
-                        message.role === 'assistant' && !message.isError;
+                        message.role === 'assistant' &&
+                        !message.isError &&
+                        !(isLatestAssistant && isStreaming);
                       return (
-                        <React.Fragment key={message.id}>
-                          <div
-                            ref={isLastUser ? lastUserMsgRef : null}
-                            style={
-                              isLatestAssistant
-                                ? { minHeight: `${assistantMinHeight}px` }
-                                : undefined
-                            }
-                            className={
-                              message.role === 'user'
-                                ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
-                                : 'peer text-paragraph-base text-core-black max-w-[92%]'
-                            }
-                          >
-                            {message.role === 'assistant' ? (
-                              message.isError ? (
-                                <p className="text-paragraph-base text-red-600">
-                                  {message.content}
-                                </p>
-                              ) : (
+                        <div
+                          key={message.id}
+                          ref={isLastUser ? lastUserMsgRef : null}
+                          style={
+                            isLatestAssistant
+                              ? { minHeight: `${assistantMinHeight}px` }
+                              : undefined
+                          }
+                          className={
+                            message.role === 'user'
+                              ? 'group ml-auto max-w-[85%]'
+                              : 'group text-paragraph-base text-core-black max-w-[92%]'
+                          }
+                        >
+                          {message.role === 'assistant' ? (
+                            message.isError ? (
+                              <p className="text-paragraph-base text-red-600">
+                                {message.content}
+                              </p>
+                            ) : (
+                              <>
                                 <div
+                                  className="flow-root [&>*:last-child]:mb-0"
                                   ref={(el) => {
                                     if (el) {
                                       assistantContentRefs.current.set(
@@ -451,46 +455,59 @@ export default function HeftiResearch() {
                                     {message.content}
                                   </ReactMarkdown>
                                 </div>
-                              )
-                            ) : (
-                              <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                                {message.content}
-                              </p>
-                            )}
-                          </div>
-                          {showShareRow && (
-                            <div
-                              className={clsx(
-                                'mt-2! max-w-[92%] transition-opacity',
-                                isLatestAssistant
-                                  ? 'opacity-100'
-                                  : 'opacity-0 peer-hover:opacity-100',
-                              )}
-                            >
-                              <ShareButtonRow>
-                                <ShareButton
-                                  icon={DocumentTextIcon}
-                                  label="Copy text"
-                                  disabled={isLatestAssistant && isStreaming}
-                                  onClick={() => copyText(message.content)}
-                                />
-                                <ShareButton
-                                  icon={ClipboardDocumentIcon}
-                                  label="Copy as rich text"
-                                  disabled={isLatestAssistant && isStreaming}
-                                  onClick={() =>
-                                    copyRichText(
-                                      assistantContentRefs.current.get(
-                                        message.id,
-                                      )?.innerHTML ?? '',
-                                      message.content,
-                                    )
-                                  }
-                                />
-                              </ShareButtonRow>
-                            </div>
+                                {showShareRow && (
+                                  <div
+                                    className={clsx(
+                                      'mt-2 transition-opacity',
+                                      isLatestAssistant
+                                        ? 'opacity-100'
+                                        : 'opacity-0 group-hover:opacity-100',
+                                    )}
+                                  >
+                                    <ShareButtonRow>
+                                      <ShareButton
+                                        icon={DocumentTextIcon}
+                                        label="Copy text"
+                                        onClick={() =>
+                                          copyText(message.content)
+                                        }
+                                      />
+                                      <ShareButton
+                                        icon={ClipboardDocumentIcon}
+                                        label="Copy as rich text"
+                                        onClick={() =>
+                                          copyRichText(
+                                            assistantContentRefs.current.get(
+                                              message.id,
+                                            )?.innerHTML ?? '',
+                                            message.content,
+                                          )
+                                        }
+                                      />
+                                    </ShareButtonRow>
+                                  </div>
+                                )}
+                              </>
+                            )
+                          ) : (
+                            <>
+                              <div className="bg-background-primary rounded-3xl rounded-tr-sm px-4 py-3 text-left">
+                                <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
+                                  {message.content}
+                                </p>
+                              </div>
+                              <div className="mt-2 flex justify-end opacity-0 transition-opacity group-hover:opacity-100">
+                                <ShareButtonRow>
+                                  <ShareButton
+                                    icon={DocumentTextIcon}
+                                    label="Copy text"
+                                    onClick={() => copyText(message.content)}
+                                  />
+                                </ShareButtonRow>
+                              </div>
+                            </>
                           )}
-                        </React.Fragment>
+                        </div>
                       );
                     })}
                   </div>
