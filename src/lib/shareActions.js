@@ -44,8 +44,8 @@ export function stripMarkdown(text) {
     .replace(/\*\*(.*?)\*\*/g, '$1')
     .replace(/__(.*?)__/g, '$1')
     .replace(/\*(.*?)\*/g, '$1')
-    .replace(/_(.*?)_/g, '$1')
     .replace(/`{1,3}([^`]*?)`{1,3}/g, '$1')
+    .replace(/(?<!\w)_(.*?)_(?!\w)/g, '$1')
     .replace(/^[-*+]\s+/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .trim();
