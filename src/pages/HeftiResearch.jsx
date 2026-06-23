@@ -104,6 +104,9 @@ export default function HeftiResearch() {
      'right' | 'both' | null) — drives the highlight/dim accent on the two
      panels below. */
   const [hoveredTarget, setHoveredTarget] = useState(null);
+  // The owner/facility's display name, used as the title of the "Full session
+  // (PDF)" research brief. Set once the on-load context fetch resolves.
+  const [subjectName, setSubjectName] = useState('');
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
@@ -119,6 +122,11 @@ export default function HeftiResearch() {
   // The index the current turn's first chart will occupy, snapshotted at submit
   // (before any new charts have streamed in).
   const turnStartIndexRef = useRef(null);
+  /* Mirrors charts.length synchronously (setCharts is batched/async, so the
+     closed-over `charts` value can be stale at the moment a turn finishes
+     streaming) — lets us stamp an accurate chartEnd on the assistant message
+     for the "Full session (PDF)" export to group charts by turn. */
+  const chartCountRef = useRef(0);
   // Count of on-load context charts — used to position the session-start divider
   // between the baseline charts and the first AI-generated chart.
   const contextChartCountRef = useRef(0);
@@ -142,28 +150,28 @@ export default function HeftiResearch() {
       fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
         response.ok ? response.json() : null,
       ),
-      // National bars are best-effort — resolve to null on failure so the chart
-      // can still render the subject's own ratings.
       fetch(`${DATA_API_BASE_URL}/national`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
     ])
       .then(([subject, national]) => {
         if (cancelled || !subject) return;
-        const subjectName =
+        const resolvedSubjectName =
           contextType === 'owner'
             ? toTitleCase(subject.cms_ownership_name)
             : toTitleCase(subject.provider_name);
+        setSubjectName(resolvedSubjectName);
         // Normalizes the differing facility/owner rating fields into the on-load
         // comparison bar chart. See lib/contextChart.
         const contextCharts = buildContextCharts({
           contextType,
           subject,
           national,
-          subjectName,
+          subjectName: resolvedSubjectName,
         });
         if (contextCharts.length) {
           contextChartCountRef.current = contextCharts.length;
+          chartCountRef.current = contextCharts.length;
           setCharts((prev) => (prev.length ? prev : contextCharts));
         }
       })
@@ -386,6 +394,7 @@ export default function HeftiResearch() {
 
           if (chart) {
             finalCharts.push(chart);
+            chartCountRef.current += 1;
             setCharts((prev) => [...prev, chart]);
           }
         }
@@ -401,6 +410,20 @@ export default function HeftiResearch() {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsStreaming(false);
+      // Stamps which charts (by index) this turn produced, so the "Full
+      // session (PDF)" export can group charts under the right turn —
+      // `charts` itself carries no turn identity.
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessage.id
+            ? {
+                ...m,
+                chartStart: turnStartIndexRef.current,
+                chartEnd: chartCountRef.current,
+              }
+            : m,
+        ),
+      );
     }
   }
 
@@ -415,6 +438,7 @@ export default function HeftiResearch() {
     chartToRows,
     contextChartCountRef,
     messages,
+    subjectName,
   });
 
   // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
