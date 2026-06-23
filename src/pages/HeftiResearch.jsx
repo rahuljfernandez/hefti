@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
@@ -100,6 +101,10 @@ export default function HeftiResearch() {
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
+  /* Which panel(s) the ShareWidget's hovered segment targets ('left' |
+     'right' | 'both' | null) — drives the highlight/dim accent on the two
+     panels below. */
+  const [hoveredTarget, setHoveredTarget] = useState(null);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
@@ -465,6 +470,13 @@ export default function HeftiResearch() {
     return false;
   }
 
+  // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
+  // highlight ring, the other panel gets dimmed by an overlay.
+  const isLeftHighlighted = hoveredTarget === 'left' || hoveredTarget === 'both';
+  const isRightHighlighted = hoveredTarget === 'right' || hoveredTarget === 'both';
+  const isLeftDimmed = hoveredTarget === 'right';
+  const isRightDimmed = hoveredTarget === 'left';
+
   return (
     <>
       <Breadcrumb pages={researchPages} />
@@ -474,7 +486,18 @@ export default function HeftiResearch() {
 
       <div className="bg-core-white grid h-[calc(100vh-140px)] grid-cols-1 lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
-        <section className="bg-background-tertiary flex min-h-0 flex-col">
+        <section
+          className={clsx(
+            'bg-background-tertiary relative flex min-h-0 flex-col transition-shadow',
+            isLeftHighlighted && 'ring-2 ring-inset ring-blue-600',
+          )}
+        >
+          {isLeftDimmed && (
+            <div
+              aria-hidden="true"
+              className="bg-core-white/70 pointer-events-none absolute inset-0 z-10 transition-opacity"
+            />
+          )}
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
             {hasStarted ? (
               <>
@@ -640,12 +663,24 @@ export default function HeftiResearch() {
         {/* Right panel — chart output */}
         <section
           aria-label="Generated charts"
-          className="bg-background-secondary relative flex min-h-0 flex-col"
+          className={clsx(
+            'bg-background-secondary relative flex min-h-0 flex-col transition-shadow',
+            isRightHighlighted && 'ring-2 ring-inset ring-blue-600',
+          )}
         >
+          {isRightDimmed && (
+            /* z-10, below the widget's z-20 — dims the charts underneath
+               without dimming the widget the user is currently hovering. */
+            <div
+              aria-hidden="true"
+              className="bg-core-white/70 pointer-events-none absolute inset-0 z-10 transition-opacity"
+            />
+          )}
           {hasStarted && (
             <div className="absolute inset-x-0 top-4 z-20 mr-auto flex w-full max-w-[600px] justify-end px-6">
               <ShareWidget
                 title="Export Session"
+                onCategoryHover={setHoveredTarget}
                 categories={[
                   {
                     icon: ClipboardDocumentIcon,
@@ -654,6 +689,7 @@ export default function HeftiResearch() {
                     loadingLabel: 'Copying…',
                     successLabel: 'Copied',
                     onClick: handleCopyLeftPanel,
+                    target: 'left',
                   },
                   {
                     icon: DocumentArrowDownIcon,
@@ -662,6 +698,7 @@ export default function HeftiResearch() {
                     loadingLabel: 'Exporting…',
                     successLabel: 'Downloaded',
                     onClick: handleExportFullSession,
+                    target: 'both',
                   },
                   {
                     icon: ChartBarIcon,
@@ -670,6 +707,7 @@ export default function HeftiResearch() {
                     loadingLabel: 'Exporting…',
                     successLabel: 'Downloaded',
                     onClick: handleExportRightPanel,
+                    target: 'right',
                   },
                 ]}
               />

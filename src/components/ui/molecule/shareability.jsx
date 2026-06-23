@@ -197,6 +197,7 @@ function TelescopeSegment({
   loadingLabel,
   successLabel,
   onClick,
+  onHoverChange,
 }) {
   const [status, setStatus] = useState('idle');
   const timeoutRef = useRef(null);
@@ -232,7 +233,11 @@ function TelescopeSegment({
   }[status];
 
   return (
-    <div className="group relative flex items-center">
+    <div
+      className="group relative flex items-center"
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+    >
       <button
         type="button"
         onClick={handleClick}
@@ -260,6 +265,7 @@ TelescopeSegment.propTypes = {
   loadingLabel: PropTypes.string,
   successLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
+  onHoverChange: PropTypes.func,
 };
 
 /**
@@ -294,6 +300,7 @@ export function ShareWidget({
   title,
   minimizedIcon: MinimizedIcon = ArrowDownTrayIcon,
   minimizedLabel = 'Export',
+  onCategoryHover,
 }) {
   const [isExpanded, setIsExpanded] = useState(Boolean(title));
   const [isIntro, setIsIntro] = useState(Boolean(title));
@@ -304,14 +311,18 @@ export function ShareWidget({
     autoCollapseRef.current = setTimeout(() => {
       setIsExpanded(false);
       setIsIntro(false);
+      onCategoryHover?.(null);
     }, AUTO_COLLAPSE_MS);
     return () => clearTimeout(autoCollapseRef.current);
-  }, [title]);
+  }, [title, onCategoryHover]);
 
   function handleToggle(next) {
     clearTimeout(autoCollapseRef.current);
     setIsIntro(false);
     setIsExpanded(next);
+    /* Collapsing unmounts the hovered segment without a mouseleave event,
+       which would otherwise leave its highlight stuck on. */
+    if (!next) onCategoryHover?.(null);
   }
 
   return (
@@ -331,7 +342,12 @@ export function ShareWidget({
           !isIntro &&
           categories.map((category) => (
             <GrowShrink key={category.label}>
-              <TelescopeSegment {...category} />
+              <TelescopeSegment
+                {...category}
+                onHoverChange={(isHovering) =>
+                  onCategoryHover?.(isHovering ? category.target : null)
+                }
+              />
             </GrowShrink>
           ))}
       </AnimatePresence>
@@ -367,9 +383,13 @@ ShareWidget.propTypes = {
       loadingLabel: PropTypes.string,
       successLabel: PropTypes.string,
       onClick: PropTypes.func.isRequired,
+      /* Opaque identifier forwarded as-is to onCategoryHover — ShareWidget
+         doesn't interpret it, the caller defines what it means. */
+      target: PropTypes.string,
     }),
   ).isRequired,
   title: PropTypes.string,
   minimizedIcon: PropTypes.elementType,
   minimizedLabel: PropTypes.string,
+  onCategoryHover: PropTypes.func,
 };
