@@ -160,7 +160,8 @@ async function exportFullSession({
     if (
       !assistantMessage ||
       assistantMessage.role !== 'assistant' ||
-      assistantMessage.isError
+      assistantMessage.isError ||
+      assistantMessage.chartEnd === undefined
     ) {
       continue;
     }
@@ -196,7 +197,7 @@ async function exportFullSession({
 export function createResearchShareActions({
   assistantContentRefs,
   chartCardRefs,
-  charts,
+  chartsRef,
   chartToRows,
   contextChartCountRef,
   messages,
@@ -205,7 +206,7 @@ export function createResearchShareActions({
   return {
     handleExportRightPanel: () =>
       exportRightPanel({
-        charts,
+        charts: chartsRef.current,
         chartCardRefs,
         chartToRows,
         contextChartCountRef,
@@ -218,7 +219,7 @@ export function createResearchShareActions({
     handleExportFullSession: () =>
       exportFullSession({
         messages,
-        charts,
+        charts: chartsRef.current,
         chartToRows,
         chartCardRefs,
         subjectName,

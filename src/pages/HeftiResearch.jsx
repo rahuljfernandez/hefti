@@ -97,6 +97,8 @@ export default function HeftiResearch() {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [charts, setCharts] = useState([]);
+  const chartsRef = useRef([]);
+  chartsRef.current = charts;
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -257,6 +259,7 @@ export default function HeftiResearch() {
   }, [charts]);
 
   async function submitPrompt(override) {
+    if (isStreaming) return;
     const trimmedPrompt = (
       typeof override === 'string' ? override : prompt
     ).trim();
@@ -395,6 +398,7 @@ export default function HeftiResearch() {
           if (chart) {
             finalCharts.push(chart);
             chartCountRef.current += 1;
+            chartsRef.current = [...chartsRef.current, chart];
             setCharts((prev) => [...prev, chart]);
           }
         }
@@ -434,7 +438,7 @@ export default function HeftiResearch() {
   } = createResearchShareActions({
     assistantContentRefs,
     chartCardRefs,
-    charts,
+    chartsRef,
     chartToRows,
     contextChartCountRef,
     messages,
