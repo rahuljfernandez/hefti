@@ -15,11 +15,15 @@ const BRAND_DARK = '#09090b'; // --content-primary
 const BRAND_SECONDARY = '#71717a'; // --content-secondary
 const BRAND_BORDER = '#e4e4e7';
 
+const PAGE_WIDTH = 612; // LETTER, points
+const PAGE_PADDING_HORIZONTAL = 40;
+const CONTENT_WIDTH = PAGE_WIDTH - PAGE_PADDING_HORIZONTAL * 2;
+
 const styles = StyleSheet.create({
   page: {
     paddingTop: 36,
     paddingBottom: 48,
-    paddingHorizontal: 40,
+    paddingHorizontal: PAGE_PADDING_HORIZONTAL,
     fontSize: 10,
     color: BRAND_DARK,
   },
@@ -88,14 +92,44 @@ const styles = StyleSheet.create({
   chartBlock: {
     marginBottom: 16,
   },
-  chartImage: {
-    width: '100%',
+  tableTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    marginBottom: 2,
+  },
+  tableDescription: {
+    fontSize: 9,
+    color: BRAND_SECONDARY,
+    marginBottom: 8,
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: BRAND_DARK,
+    paddingBottom: 4,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 0.5,
+    borderBottomColor: BRAND_BORDER,
+    paddingVertical: 3,
+  },
+  tableHeaderCell: {
+    fontSize: 8,
+    fontWeight: 700,
+    color: BRAND_DARK,
+    paddingRight: 6,
+  },
+  tableCell: {
+    fontSize: 8,
+    color: BRAND_DARK,
+    paddingRight: 6,
   },
   footer: {
     position: 'absolute',
     bottom: 20,
-    left: 40,
-    right: 40,
+    left: PAGE_PADDING_HORIZONTAL,
+    right: PAGE_PADDING_HORIZONTAL,
     borderTopWidth: 1,
     borderTopColor: BRAND_BORDER,
     paddingTop: 8,
@@ -148,19 +182,91 @@ function LogoMark() {
 /* The captured PNG is a screenshot of the chart's whole card (see
    ChartWrapper in ResearchChart.jsx — its title/description live inside the
    same ref that gets rasterized), so it already has its own title and
-   description baked in. Rendering them again here as PDF <Text> duplicated
-   that content on top of the image. */
-function ChartBlock({ chart }) {
+   description baked in. Rendering them again here as PDF <Text> would
+   duplicate that content on top of the image. */
+function PdfImage({ block }) {
+  /* Explicit width+height (from the capture's real aspect ratio) — left to
+     react-pdf, an <Image> with only a width can mis-measure and squish the
+     image to whatever vertical space is left on the page. */
   return (
     <View style={styles.chartBlock} wrap={false}>
-      <Image style={styles.chartImage} src={chart.dataUrl} />
+      <Image
+        style={{ width: CONTENT_WIDTH, height: CONTENT_WIDTH / block.aspectRatio }}
+        src={block.dataUrl}
+      />
     </View>
   );
 }
 
-ChartBlock.propTypes = {
-  chart: PropTypes.shape({
+PdfImage.propTypes = {
+  block: PropTypes.shape({
     dataUrl: PropTypes.string.isRequired,
+    aspectRatio: PropTypes.number.isRequired,
+  }).isRequired,
+};
+
+/* First (label) column gets double weight; the rest share the remaining
+   width equally. flexBasis 0 makes flexGrow the sole width driver, so the
+   ratio holds regardless of cell content length. */
+function columnFlex(index) {
+  return { flexGrow: index === 0 ? 2 : 1, flexBasis: 0 };
+}
+
+/* Renders a `table` chart natively from its structured rows (not a
+   screenshot), so every column is present and the table paginates and stays
+   crisp. The block wrapper is intentionally NOT wrap={false} — the table must
+   be able to break across pages; only individual rows are kept atomic. */
+function PdfTable({ block }) {
+  return (
+    <View style={styles.chartBlock}>
+      {block.title && <Text style={styles.tableTitle}>{block.title}</Text>}
+      {block.description && (
+        <Text style={styles.tableDescription}>{block.description}</Text>
+      )}
+      <View>
+        {/* `fixed` reprints the header row at the top of each page the table
+            spans, so columns stay labeled when a long table breaks. */}
+        <View style={styles.tableHeaderRow} fixed>
+          {block.headers.map((header, i) => (
+            <Text key={i} style={[styles.tableHeaderCell, columnFlex(i)]}>
+              {String(header ?? '')}
+            </Text>
+          ))}
+        </View>
+        {block.rows.map((row, r) => (
+          <View key={r} style={styles.tableRow} wrap={false}>
+            {block.headers.map((_, c) => (
+              <Text key={c} style={[styles.tableCell, columnFlex(c)]}>
+                {String(row[c] ?? '')}
+              </Text>
+            ))}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+PdfTable.propTypes = {
+  block: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    headers: PropTypes.array.isRequired,
+    rows: PropTypes.array.isRequired,
+  }).isRequired,
+};
+
+function ChartBlock({ block }) {
+  return block.type === 'table' ? (
+    <PdfTable block={block} />
+  ) : (
+    <PdfImage block={block} />
+  );
+}
+
+ChartBlock.propTypes = {
+  block: PropTypes.shape({
+    type: PropTypes.oneOf(['image', 'table']).isRequired,
   }).isRequired,
 };
 
@@ -170,8 +276,8 @@ function Turn({ turn }) {
       <Text style={styles.promptLabel}>PROMPT</Text>
       <Text style={styles.promptText}>{turn.prompt}</Text>
       {turn.narrative && <Text style={styles.narrative}>{turn.narrative}</Text>}
-      {turn.charts.map((chart, i) => (
-        <ChartBlock key={i} chart={chart} />
+      {turn.charts.map((block, i) => (
+        <ChartBlock key={i} block={block} />
       ))}
     </View>
   );
@@ -187,15 +293,13 @@ Turn.propTypes = {
 
 /**
  * ResearchBriefDocument — the "Full session (PDF)" export. Purely
- * presentational: the caller (see researchShareActions.js) is responsible
- * for capturing each chart's PNG and grouping messages into turns before
- * handing them here, so this file has no DOM/ref dependencies and can be
- * unit-rendered on its own.
+ * presentational: the caller (researchShareActions.jsx) groups messages into
+ * turns and prepares each chart as either a captured PNG (visual charts) or
+ * structured table data, so this file has no DOM/ref dependencies.
  *
- * Pagination is react-pdf's default content-driven flow — turns aren't
- * forced onto their own page; a long turn spills onto a continuation page.
- * Each chart's image+caption is wrapped `wrap={false}` so it can only ever
- * move to the next page as a whole block, never get sliced across one.
+ * Pagination is react-pdf's content-driven flow — a long turn spills onto a
+ * continuation page. Image blocks are `wrap={false}` so an image is never
+ * sliced across a page break; tables flow but keep each row atomic.
  */
 export default function ResearchBriefDocument({ subjectName, turns }) {
   const generatedDate = new Date().toLocaleDateString('en-US', {
