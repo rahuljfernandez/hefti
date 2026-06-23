@@ -14,16 +14,16 @@ import { Heading } from '../components/ui/atom/heading';
 import ResearchChart, {
   chartToRows,
 } from '../components/ui/molecule/ResearchChart';
-import { chartCsvEntry, chartPngEntry } from '../lib/chartExport';
+import DimOverlay from '../lib/ResearchPanelDimOverlay';
+import {
+  getPanelAccent,
+  SHARE_WIDGET_Z_CLASS,
+} from '../lib/researchPanelAccent';
+import { createResearchShareActions } from '../lib/researchShareActions';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
-import {
-  copyText,
-  copyRichText,
-  escapeHtml,
-  downloadZip,
-} from '../lib/shareActions';
+import { copyText, copyRichText } from '../lib/shareActions';
 import {
   ShareButton,
   ShareButtonRow,
@@ -47,52 +47,6 @@ const API_BASE_URL =
 const DATA_API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
-
-/* Panel accent stacking contract: dim overlays sit above panel content at
-   z-10, while the ShareWidget sits at z-20 so the active control remains
-   clickable and undimmed while it targets either panel. */
-const PANEL_DIM_OVERLAY_Z_CLASS = 'z-10';
-const SHARE_WIDGET_Z_CLASS = 'z-20';
-
-const EMPTY_PANEL_ACCENT = {
-  leftHighlighted: false,
-  rightHighlighted: false,
-  leftDimmed: false,
-  rightDimmed: false,
-};
-
-const PANEL_ACCENT_BY_TARGET = {
-  left: {
-    leftHighlighted: true,
-    rightHighlighted: false,
-    leftDimmed: false,
-    rightDimmed: true,
-  },
-  right: {
-    leftHighlighted: false,
-    rightHighlighted: true,
-    leftDimmed: true,
-    rightDimmed: false,
-  },
-  both: {
-    leftHighlighted: true,
-    rightHighlighted: true,
-    leftDimmed: false,
-    rightDimmed: false,
-  },
-};
-
-function DimOverlay() {
-  return (
-    <div
-      aria-hidden="true"
-      className={clsx(
-        'bg-core-white/70 pointer-events-none absolute inset-0 transition-opacity',
-        PANEL_DIM_OVERLAY_Z_CLASS,
-      )}
-    />
-  );
-}
 
 /**
  * HeftiResearch
@@ -450,77 +404,23 @@ export default function HeftiResearch() {
     }
   }
 
-  /* The telescoping widget's "Right panel" category — one PNG paired with
-     one CSV per chart, bundled into a single charts.zip. Skips the on-load context
-     charts (contextChartCountRef) — those are a generic baseline comparison
-     seeded before any prompt, not something the user asked the AI for, so
-     they don't belong in an export of its output. A chart that never
-     mounted (e.g. an unrecognized chart_type) or whose PNG capture fails
-     is skipped entirely, so the zip never ends up with a CSV that has no
-     matching PNG (or vice versa). */
-  async function handleExportRightPanel() {
-    const entries = [];
-    const startIndex = contextChartCountRef.current;
-
-    for (let i = startIndex; i < charts.length; i++) {
-      const node = chartCardRefs.current.get(i);
-      if (!node) continue;
-      const fallbackName = `chart-${i + 1}`;
-
-      try {
-        entries.push(await chartPngEntry(node, charts[i], fallbackName));
-      } catch {
-        continue;
-      }
-
-      entries.push(chartCsvEntry(charts[i], chartToRows, fallbackName));
-    }
-
-    // Nothing to export yet (e.g. clicked before any chart has streamed in)
-    // — a falsy return keeps the segment idle instead of flashing "Downloaded".
-    if (entries.length === 0) return false;
-
-    return downloadZip(entries, 'charts.zip');
-  }
-
-  /* "Left panel" — copies the whole conversation as rich text, in order, so
-     pasting into a report/email keeps headers/bullets/etc. intact instead of
-     dumping raw markdown. User turns are plain text escaped into HTML;
-     assistant turns reuse their already-rendered markdown HTML via
-     assistantContentRefs. Errors and empty turns are skipped (same rule
-     showShareRow uses for the per-message buttons). */
-  async function handleCopyLeftPanel() {
-    const turns = messages
-      .filter((m) => !m.isError && m.content.trim().length > 0)
-      .map((m) => {
-        const label = m.role === 'user' ? 'You' : 'Assistant';
-        const html =
-          m.role === 'user'
-            ? `<p>${escapeHtml(m.content).replace(/\n/g, '<br />')}</p>`
-            : (assistantContentRefs.current.get(m.id)?.innerHTML ?? '');
-        return { label, html, text: m.content };
-      });
-
-    const html = turns
-      .map((turn) => `<p><strong>${turn.label}:</strong></p>${turn.html}`)
-      .join('');
-    const text = turns
-      .map((turn) => `${turn.label}:\n${turn.text}`)
-      .join('\n\n');
-
-    return copyRichText(html, text);
-  }
-
-  /* "Full session (PDF)" is wired up visually only — PDF export is a
-     separate follow-up. */
-  async function handleExportFullSession() {
-    return false;
-  }
+  const {
+    handleExportRightPanel,
+    handleCopyLeftPanel,
+    handleExportFullSession,
+  } = createResearchShareActions({
+    assistantContentRefs,
+    chartCardRefs,
+    charts,
+    chartToRows,
+    contextChartCountRef,
+    messages,
+  });
 
   // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
   // highlight ring, the other panel gets dimmed by an overlay.
   const { leftHighlighted, rightHighlighted, leftDimmed, rightDimmed } =
-    PANEL_ACCENT_BY_TARGET[hoveredTarget] ?? EMPTY_PANEL_ACCENT;
+    getPanelAccent(hoveredTarget);
 
   return (
     <>
