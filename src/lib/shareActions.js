@@ -29,6 +29,10 @@ export async function copyText(text) {
   }
 }
 
+export function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /* Safari requires the Blobs passed to ClipboardItem be constructed
    synchronously within the user-gesture call stack — don't `await` anything
    before calling this from a click handler. */
