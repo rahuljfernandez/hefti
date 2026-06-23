@@ -14,8 +14,10 @@ import {
 } from 'recharts';
 import { TableCellsIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
-import { downloadCsv, downloadPng } from '../../../lib/shareActions';
-import { slugify } from '../../../lib/slugify';
+import {
+  downloadChartCsv,
+  downloadChartPng,
+} from '../../../lib/chartExport';
 
 /**
  * ResearchChart — chart rendering for the Hefti Researcher right panel.
@@ -109,18 +111,12 @@ function ChartWrapper({
   onCardMount,
 }) {
   const cardRef = useRef(null);
-  /* Falls back to a generic name when the title has no a-z0-9 characters for
-     slugify to keep (e.g. emoji/symbols-only), so the download isn't a bare
-     ".csv"/".png" with no visible filename. */
-  const filenameBase = slugify(title) || 'chart';
-
   function handleDownloadCsv() {
-    const { headers, rows } = chartToRows(chart);
-    return downloadCsv(rows, `${filenameBase}.csv`, headers);
+    return downloadChartCsv(chart, chartToRows);
   }
 
   function handleDownloadPng() {
-    return downloadPng(cardRef.current, `${filenameBase}.png`);
+    return downloadChartPng(cardRef.current, chart);
   }
 
   return (

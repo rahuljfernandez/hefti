@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -13,6 +14,7 @@ import {
   XMarkIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+import Tooltip from '../atom/tooltip';
 
 const CLICK_FEEDBACK_MS = 1200;
 const AUTO_COLLAPSE_MS = 2200;
@@ -54,7 +56,15 @@ function GrowShrink({ className, children, skipEnter }) {
         opacity: 1,
         transition: { duration: skipFirstGrow ? 0 : 0.2 },
       }}
-      exit={{ width: 0, opacity: 0, transition: { duration: 0.6 } }}
+      /* pointerEvents isn't interpolated — Framer Motion applies it
+         immediately when exit starts, so a shrinking segment can't fire
+         hover/click while it's still visible mid-animation. */
+      exit={{
+        width: 0,
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: { duration: 0.6 },
+      }}
       className="overflow-x-hidden"
     >
       <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
@@ -121,6 +131,10 @@ export function ShareButton({ icon: Icon, label, onClick, className }) {
           CLICK_FEEDBACK_MS,
         );
       }
+    } catch {
+      /* shareActions functions already resolve to false on failure rather
+         than throwing — this only guards against an unexpected rejection
+         becoming an unhandled promise rejection. */
     } finally {
       setIsPending(false);
     }
@@ -250,9 +264,9 @@ function TelescopeSegment({
         <span>{display.text}</span>
       </button>
       {tooltip && (
-        <div className="text-core-white text-paragraph-sm pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max max-w-56 -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 opacity-0 shadow-sm transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+        <Tooltip size="sm" className="max-w-56 shadow-sm">
           {tooltip}
-        </div>
+        </Tooltip>
       )}
     </div>
   );
@@ -305,16 +319,27 @@ export function ShareWidget({
   const [isExpanded, setIsExpanded] = useState(Boolean(title));
   const [isIntro, setIsIntro] = useState(Boolean(title));
   const autoCollapseRef = useRef(null);
+  const clearCategoryHover = useCallback(() => {
+    onCategoryHover?.(null);
+  }, [onCategoryHover]);
 
   useEffect(() => {
     if (!title) return;
     autoCollapseRef.current = setTimeout(() => {
       setIsExpanded(false);
       setIsIntro(false);
-      onCategoryHover?.(null);
+      clearCategoryHover();
     }, AUTO_COLLAPSE_MS);
     return () => clearTimeout(autoCollapseRef.current);
-  }, [title, onCategoryHover]);
+  }, [title, clearCategoryHover]);
+
+  useEffect(() => {
+    if (!isExpanded) clearCategoryHover();
+  }, [isExpanded, clearCategoryHover]);
+
+  useEffect(() => {
+    return clearCategoryHover;
+  }, [clearCategoryHover]);
 
   function handleToggle(next) {
     clearTimeout(autoCollapseRef.current);
@@ -322,11 +347,14 @@ export function ShareWidget({
     setIsExpanded(next);
     /* Collapsing unmounts the hovered segment without a mouseleave event,
        which would otherwise leave its highlight stuck on. */
-    if (!next) onCategoryHover?.(null);
+    if (!next) clearCategoryHover();
   }
 
   return (
-    <div className="text-core-white flex items-center divide-x divide-white/20 rounded-md bg-blue-600 shadow-md">
+    <div
+      className="text-core-white flex items-center divide-x divide-white/20 rounded-md bg-blue-600 shadow-md"
+      onMouseLeave={clearCategoryHover}
+    >
       <AnimatePresence initial={false}>
         {isExpanded && isIntro && (
           <GrowShrink
@@ -365,9 +393,9 @@ export function ShareWidget({
           )}
         </button>
         {!isExpanded && (
-          <div className="text-core-white pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden w-max -translate-x-1/2 rounded-md bg-zinc-900 px-3 py-2 text-xs opacity-0 shadow-lg transition-opacity duration-150 group-hover:block group-hover:opacity-100">
+          <Tooltip>
             {minimizedLabel}
-          </div>
+          </Tooltip>
         )}
       </div>
     </div>

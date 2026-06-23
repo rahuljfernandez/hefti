@@ -57,7 +57,7 @@ export async function copyRichText(html, plainTextFallback) {
 function escapeCsvCell(cell) {
   const value = cell ?? '';
   const str = String(value);
-  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
 export function rowsToCsv(rows, headers) {
@@ -72,7 +72,7 @@ export function downloadCsv(rows, filename, headers) {
     });
     const url = URL.createObjectURL(blob);
     triggerDownload(url, filename);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return true;
   } catch {
     return false;
@@ -111,7 +111,7 @@ export async function downloadZip(entries, filename) {
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
     triggerDownload(url, filename);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return true;
   } catch {
     return false;

@@ -14,16 +14,14 @@ import { Heading } from '../components/ui/atom/heading';
 import ResearchChart, {
   chartToRows,
 } from '../components/ui/molecule/ResearchChart';
+import { chartCsvEntry, chartPngEntry } from '../lib/chartExport';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
-import { slugify } from '../lib/slugify';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
 import {
   copyText,
   copyRichText,
   escapeHtml,
-  rowsToCsv,
-  nodeToPngDataUrl,
   downloadZip,
 } from '../lib/shareActions';
 import {
@@ -49,6 +47,53 @@ const API_BASE_URL =
 const DATA_API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
+
+/* Panel accent stacking contract: dim overlays sit above panel content at
+   z-10, while the ShareWidget sits at z-20 so the active control remains
+   clickable and undimmed while it targets either panel. */
+const PANEL_DIM_OVERLAY_Z_CLASS = 'z-10';
+const SHARE_WIDGET_Z_CLASS = 'z-20';
+
+const EMPTY_PANEL_ACCENT = {
+  leftHighlighted: false,
+  rightHighlighted: false,
+  leftDimmed: false,
+  rightDimmed: false,
+};
+
+const PANEL_ACCENT_BY_TARGET = {
+  left: {
+    leftHighlighted: true,
+    rightHighlighted: false,
+    leftDimmed: false,
+    rightDimmed: true,
+  },
+  right: {
+    leftHighlighted: false,
+    rightHighlighted: true,
+    leftDimmed: true,
+    rightDimmed: false,
+  },
+  both: {
+    leftHighlighted: true,
+    rightHighlighted: true,
+    leftDimmed: false,
+    rightDimmed: false,
+  },
+};
+
+function DimOverlay() {
+  return (
+    <div
+      aria-hidden="true"
+      className={clsx(
+        'bg-core-white/70 pointer-events-none absolute inset-0 transition-opacity',
+        PANEL_DIM_OVERLAY_Z_CLASS,
+      )}
+    />
+  );
+}
+
 /**
  * HeftiResearch
  *
@@ -405,13 +450,14 @@ export default function HeftiResearch() {
     }
   }
 
-  /* The telescoping widget's "Right panel" category — one PNG and one CSV
-     per chart (PNG1, PNG2, PNG3, then CSV1, CSV2, CSV3), bundled into a
-     single charts.zip rather than triggering 2*N separate downloads (which
-     browsers throttle/block past ~2 rapid downloads from the same click).
-     Skips the on-load context charts (contextChartCountRef) — those are a
-     generic baseline comparison seeded before any prompt, not something the
-     user asked the AI for, so they don't belong in an export of its output. */
+  /* The telescoping widget's "Right panel" category — one PNG paired with
+     one CSV per chart, bundled into a single charts.zip. Skips the on-load context
+     charts (contextChartCountRef) — those are a generic baseline comparison
+     seeded before any prompt, not something the user asked the AI for, so
+     they don't belong in an export of its output. A chart that never
+     mounted (e.g. an unrecognized chart_type) or whose PNG capture fails
+     is skipped entirely, so the zip never ends up with a CSV that has no
+     matching PNG (or vice versa). */
   async function handleExportRightPanel() {
     const entries = [];
     const startIndex = contextChartCountRef.current;
@@ -419,19 +465,20 @@ export default function HeftiResearch() {
     for (let i = startIndex; i < charts.length; i++) {
       const node = chartCardRefs.current.get(i);
       if (!node) continue;
-      const filenameBase = slugify(charts[i].title) || `chart-${i + 1}`;
-      const dataUrl = await nodeToPngDataUrl(node);
-      entries.push({ name: `${filenameBase}.png`, content: dataUrl });
+      const fallbackName = `chart-${i + 1}`;
+
+      try {
+        entries.push(await chartPngEntry(node, charts[i], fallbackName));
+      } catch {
+        continue;
+      }
+
+      entries.push(chartCsvEntry(charts[i], chartToRows, fallbackName));
     }
 
-    charts.slice(startIndex).forEach((chart, i) => {
-      const filenameBase = slugify(chart.title) || `chart-${startIndex + i + 1}`;
-      const { headers, rows } = chartToRows(chart);
-      entries.push({
-        name: `${filenameBase}.csv`,
-        content: rowsToCsv(rows, headers),
-      });
-    });
+    // Nothing to export yet (e.g. clicked before any chart has streamed in)
+    // — a falsy return keeps the segment idle instead of flashing "Downloaded".
+    if (entries.length === 0) return false;
 
     return downloadZip(entries, 'charts.zip');
   }
@@ -472,10 +519,8 @@ export default function HeftiResearch() {
 
   // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
   // highlight ring, the other panel gets dimmed by an overlay.
-  const isLeftHighlighted = hoveredTarget === 'left' || hoveredTarget === 'both';
-  const isRightHighlighted = hoveredTarget === 'right' || hoveredTarget === 'both';
-  const isLeftDimmed = hoveredTarget === 'right';
-  const isRightDimmed = hoveredTarget === 'left';
+  const { leftHighlighted, rightHighlighted, leftDimmed, rightDimmed } =
+    PANEL_ACCENT_BY_TARGET[hoveredTarget] ?? EMPTY_PANEL_ACCENT;
 
   return (
     <>
@@ -489,15 +534,10 @@ export default function HeftiResearch() {
         <section
           className={clsx(
             'bg-background-tertiary relative flex min-h-0 flex-col transition-shadow',
-            isLeftHighlighted && 'ring-2 ring-inset ring-blue-600',
+            leftHighlighted && 'ring-2 ring-blue-600 ring-inset',
           )}
         >
-          {isLeftDimmed && (
-            <div
-              aria-hidden="true"
-              className="bg-core-white/70 pointer-events-none absolute inset-0 z-10 transition-opacity"
-            />
-          )}
+          {leftDimmed && <DimOverlay />}
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
             {hasStarted ? (
               <>
@@ -665,19 +705,17 @@ export default function HeftiResearch() {
           aria-label="Generated charts"
           className={clsx(
             'bg-background-secondary relative flex min-h-0 flex-col transition-shadow',
-            isRightHighlighted && 'ring-2 ring-inset ring-blue-600',
+            rightHighlighted && 'ring-2 ring-blue-600 ring-inset',
           )}
         >
-          {isRightDimmed && (
-            /* z-10, below the widget's z-20 — dims the charts underneath
-               without dimming the widget the user is currently hovering. */
-            <div
-              aria-hidden="true"
-              className="bg-core-white/70 pointer-events-none absolute inset-0 z-10 transition-opacity"
-            />
-          )}
+          {rightDimmed && <DimOverlay />}
           {hasStarted && (
-            <div className="absolute inset-x-0 top-4 z-20 mr-auto flex w-full max-w-[600px] justify-end px-6">
+            <div
+              className={clsx(
+                'absolute inset-x-0 top-4 mr-auto flex w-full max-w-[600px] justify-end px-6',
+                SHARE_WIDGET_Z_CLASS,
+              )}
+            >
               <ShareWidget
                 title="Export Session"
                 onCategoryHover={setHoveredTarget}
