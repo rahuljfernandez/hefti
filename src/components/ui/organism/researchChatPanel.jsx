@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import ResearcherComposer from '../molecule/researcherComposer';
 import ResearchChatMessage from '../molecule/researchChatMessage';
 import ResearchEmptyState from '../molecule/researchEmptyState';
-import DimOverlay from '../../../lib/shareability/ResearchPanelDimOverlay';
+import DimOverlay from '../../../lib/shareability/researchPanelDimOverlay';
 
 /**
  * Left researcher panel: the chat transcript (or the pre-conversation welcome)

@@ -4,7 +4,8 @@ import clsx from 'clsx';
 import ResearchChart from '../molecule/researchChart';
 import ResearchExportWidget from '../molecule/researchExportWidget';
 import ResearchSessionDivider from '../molecule/researchSessionDivider';
-import DimOverlay from '../../../lib/shareability/ResearchPanelDimOverlay';
+import DimOverlay from '../../../lib/shareability/researchPanelDimOverlay';
+import { mapRefCallback } from '../../../lib/mapRefCallback';
 
 /**
  * Right researcher panel: the streamed chart output. Hosts the "Export Session"
@@ -64,13 +65,7 @@ export default function ResearchChartsPanel({
               <ResearchChart
                 chart={chart}
                 isLatest={i === charts.length - 1}
-                onCardMount={(el) => {
-                  if (el) {
-                    chartCardRefs.current.set(i, el);
-                  } else {
-                    chartCardRefs.current.delete(i);
-                  }
-                }}
+                onCardMount={mapRefCallback(chartCardRefs, i)}
               />
             </div>
             {hasStarted && i === contextChartCountRef.current - 1 && (

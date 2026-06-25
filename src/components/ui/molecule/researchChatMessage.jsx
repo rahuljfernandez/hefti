@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { DocumentTextIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { MdComponents } from '../../../lib/mdComponents';
+import { mapRefCallback } from '../../../lib/mapRefCallback';
 import { copyText, copyRichText } from '../../../lib/shareability/shareActions';
 import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
 
@@ -48,13 +49,7 @@ export default function ResearchChatMessage({
           <>
             <div
               className="flow-root [&>*:last-child]:mb-0"
-              ref={(el) => {
-                if (el) {
-                  assistantContentRefs.current.set(message.id, el);
-                } else {
-                  assistantContentRefs.current.delete(message.id);
-                }
-              }}
+              ref={mapRefCallback(assistantContentRefs, message.id)}
             >
               <ReactMarkdown components={MdComponents}>
                 {message.content}
