@@ -3,8 +3,6 @@ import { useParams, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
-import ReactMarkdown from 'react-markdown';
-import { MdComponents } from '../lib/mdComponents';
 import {
   getResearchPages,
   getRankingsResearchPages,
@@ -13,26 +11,13 @@ import { Heading } from '../components/ui/atom/heading';
 import ResearchChart, {
   chartToRows,
 } from '../components/ui/molecule/ResearchChart';
+import ChatMessage from '../components/ui/molecule/ChatMessage';
+import ResearchEmptyState from '../components/ui/molecule/ResearchEmptyState';
+import ExportSessionWidget from '../components/ui/molecule/ExportSessionWidget';
+import SessionStartDivider from '../components/ui/molecule/SessionStartDivider';
 import DimOverlay from '../lib/shareability/ResearchPanelDimOverlay';
-import {
-  getPanelAccent,
-  SHARE_WIDGET_Z_CLASS,
-} from '../lib/shareability/researchPanelAccent';
+import { getPanelAccent } from '../lib/shareability/researchPanelAccent';
 import { createResearchShareActions } from '../lib/shareability/researchShareActions';
-import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
-import { copyText, copyRichText } from '../lib/shareability/shareActions';
-import {
-  ShareButton,
-  ShareButtonRow,
-  HoverReveal,
-  ShareWidget,
-} from '../components/ui/molecule/shareability';
-import {
-  DocumentTextIcon,
-  ClipboardDocumentIcon,
-  ChartBarIcon,
-  DocumentArrowDownIcon,
-} from '@heroicons/react/24/outline';
 import useResearchScroll from '../hooks/useResearchScroll';
 import useResearchContextCharts from '../hooks/useResearchContextCharts';
 import useResearchStream from '../hooks/useResearchStream';
@@ -174,95 +159,16 @@ export default function HeftiResearch() {
                         !(isLatestAssistant && isStreaming) &&
                         message.content.trim().length > 0;
                       return (
-                        <div
+                        <ChatMessage
                           key={message.id}
-                          ref={isLastUser ? lastUserMsgRef : null}
-                          style={
-                            isLatestAssistant
-                              ? { minHeight: `${assistantMinHeight}px` }
-                              : undefined
-                          }
-                          className={
-                            message.role === 'user'
-                              ? 'group ml-auto max-w-[85%]'
-                              : 'group text-paragraph-base text-core-black max-w-[92%]'
-                          }
-                        >
-                          {message.role === 'assistant' ? (
-                            message.isError ? (
-                              <p className="text-paragraph-base text-red-600">
-                                {message.content}
-                              </p>
-                            ) : (
-                              <>
-                                <div
-                                  className="flow-root [&>*:last-child]:mb-0"
-                                  ref={(el) => {
-                                    if (el) {
-                                      assistantContentRefs.current.set(
-                                        message.id,
-                                        el,
-                                      );
-                                    } else {
-                                      assistantContentRefs.current.delete(
-                                        message.id,
-                                      );
-                                    }
-                                  }}
-                                >
-                                  <ReactMarkdown components={MdComponents}>
-                                    {message.content}
-                                  </ReactMarkdown>
-                                </div>
-                                {showShareRow && (
-                                  <HoverReveal
-                                    show={isLatestAssistant}
-                                    className="mt-2"
-                                  >
-                                    <ShareButtonRow>
-                                      <ShareButton
-                                        icon={DocumentTextIcon}
-                                        label="Copy text"
-                                        onClick={() =>
-                                          copyText(message.content)
-                                        }
-                                      />
-                                      <ShareButton
-                                        icon={ClipboardDocumentIcon}
-                                        label="Copy as rich text"
-                                        onClick={() =>
-                                          copyRichText(
-                                            assistantContentRefs.current.get(
-                                              message.id,
-                                            )?.innerHTML ?? '',
-                                            message.content,
-                                          )
-                                        }
-                                      />
-                                    </ShareButtonRow>
-                                  </HoverReveal>
-                                )}
-                              </>
-                            )
-                          ) : (
-                            <>
-                              <div className="bg-background-primary rounded-3xl rounded-tr-sm px-4 py-3 text-left">
-                                <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                                  {message.content}
-                                </p>
-                              </div>
-                              <HoverReveal className="mt-2 flex justify-end">
-                                <ShareButtonRow>
-                                  <ShareButton
-                                    icon={DocumentTextIcon}
-                                    label="Copy text"
-                                    onClick={() => copyText(message.content)}
-                                  />
-                                </ShareButtonRow>
-                              </HoverReveal>
-                            </>
-                          )}
-                        </div>
+                          message={message}
+                          isLastUser={isLastUser}
+                          isLatestAssistant={isLatestAssistant}
+                          showShareRow={showShareRow}
+                          assistantMinHeight={assistantMinHeight}
+                          lastUserMsgRef={lastUserMsgRef}
+                          assistantContentRefs={assistantContentRefs}
+                        />
                       );
                     })}
                   </div>
@@ -275,35 +181,10 @@ export default function HeftiResearch() {
               </>
             ) : (
               <div className="flex min-h-0 flex-1 flex-col">
-                <div className="flex-1 overflow-y-auto px-6 py-8">
-                  <Heading level={2} className="text-heading-lg mb-1">
-                    Hefti Researcher
-                  </Heading>
-                  <p className="text-paragraph-base text-content-secondary mb-6">
-                    {contextType === 'owner'
-                      ? "Ask a question about this owner's facilities, quality, staffing, or financials."
-                      : "Ask a question about this facility's quality, staffing, deficiencies, or ownership."}
-                  </p>
-                  <div className="hidden md:block">
-                    <p className="text-paragraph-sm text-content-secondary mb-3 font-medium">
-                      Try asking
-                    </p>
-                    <div className="flex flex-col items-start gap-2">
-                      {(contextType === 'owner'
-                        ? OWNER_PROMPTS
-                        : FACILITY_PROMPTS
-                      ).map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => submitPrompt(p)}
-                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white hover:bg-background-tertiary cursor-pointer rounded-lg border px-4 py-3 text-left shadow-sm transition-colors"
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ResearchEmptyState
+                  contextType={contextType}
+                  onSelectPrompt={submitPrompt}
+                />
                 <ResearcherComposer
                   value={prompt}
                   onChange={setPrompt}
@@ -324,47 +205,12 @@ export default function HeftiResearch() {
         >
           {rightDimmed && <DimOverlay />}
           {hasStarted && (
-            <div
-              className={clsx(
-                'absolute inset-x-0 top-4 mr-auto flex w-full max-w-[600px] justify-end px-6',
-                SHARE_WIDGET_Z_CLASS,
-              )}
-            >
-              <ShareWidget
-                title="Export Session"
-                onCategoryHover={setHoveredTarget}
-                categories={[
-                  {
-                    icon: ClipboardDocumentIcon,
-                    label: 'Left panel',
-                    tooltip: 'Copy all chat text',
-                    loadingLabel: 'Copying…',
-                    successLabel: 'Copied',
-                    onClick: handleCopyLeftPanel,
-                    target: 'left',
-                  },
-                  {
-                    icon: DocumentArrowDownIcon,
-                    label: 'Full session (PDF)',
-                    tooltip: 'Export the full session as a PDF',
-                    loadingLabel: 'Exporting…',
-                    successLabel: 'Downloaded',
-                    onClick: handleExportFullSession,
-                    target: 'both',
-                  },
-                  {
-                    icon: ChartBarIcon,
-                    label: 'Right panel',
-                    tooltip: 'Download charts + data',
-                    loadingLabel: 'Exporting…',
-                    successLabel: 'Downloaded',
-                    emptyLabel: 'No charts yet',
-                    onClick: handleExportRightPanel,
-                    target: 'right',
-                  },
-                ]}
-              />
-            </div>
+            <ExportSessionWidget
+              onCategoryHover={setHoveredTarget}
+              onCopyLeftPanel={handleCopyLeftPanel}
+              onExportFullSession={handleExportFullSession}
+              onExportRightPanel={handleExportRightPanel}
+            />
           )}
           {/* aria-live announces newly streamed charts to screen readers, since
               they appear without any focus or navigation change. */}
@@ -398,19 +244,7 @@ export default function HeftiResearch() {
                   />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (
-                  <div className="flex items-center gap-3 py-2">
-                    <div
-                      aria-hidden="true"
-                      className="bg-border-primary h-px flex-1"
-                    />
-                    <span className="text-paragraph-sm text-content-secondary shrink-0">
-                      Session start
-                    </span>
-                    <div
-                      aria-hidden="true"
-                      className="bg-border-primary h-px flex-1"
-                    />
-                  </div>
+                  <SessionStartDivider />
                 )}
               </React.Fragment>
             ))}
