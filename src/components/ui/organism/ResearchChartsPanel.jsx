@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import ResearchChart from '../molecule/ResearchChart';
-import ExportSessionWidget from '../molecule/ExportSessionWidget';
-import SessionStartDivider from '../molecule/SessionStartDivider';
+import ResearchChart from '../molecule/researchChart';
+import ResearchExportWidget from '../molecule/researchExportWidget';
+import ResearchSessionDivider from '../molecule/researchSessionDivider';
 import DimOverlay from '../../../lib/shareability/ResearchPanelDimOverlay';
 
 /**
@@ -39,7 +39,7 @@ export default function ResearchChartsPanel({
     >
       {dimmed && <DimOverlay />}
       {hasStarted && (
-        <ExportSessionWidget
+        <ResearchExportWidget
           onCategoryHover={onCategoryHover}
           onCopyLeftPanel={onCopyLeftPanel}
           onExportFullSession={onExportFullSession}
@@ -74,7 +74,7 @@ export default function ResearchChartsPanel({
               />
             </div>
             {hasStarted && i === contextChartCountRef.current - 1 && (
-              <SessionStartDivider />
+              <ResearchSessionDivider />
             )}
           </React.Fragment>
         ))}

@@ -6,9 +6,9 @@ import {
   getRankingsResearchPages,
 } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
-import { chartToRows } from '../components/ui/molecule/ResearchChart';
-import ResearchChatPanel from '../components/ui/organism/ResearchChatPanel';
-import ResearchChartsPanel from '../components/ui/organism/ResearchChartsPanel';
+import { chartToRows } from '../components/ui/molecule/researchChart';
+import ResearchChatPanel from '../components/ui/organism/researchChatPanel';
+import ResearchChartsPanel from '../components/ui/organism/researchChartsPanel';
 import { getPanelAccent } from '../lib/shareability/researchPanelAccent';
 import { createResearchShareActions } from '../lib/shareability/researchShareActions';
 import useResearchScroll from '../hooks/useResearchScroll';

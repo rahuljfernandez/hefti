@@ -231,7 +231,10 @@ function TelescopeSegment({
       setStatus(next);
       if (next !== 'idle') {
         clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => setStatus('idle'), CLICK_FEEDBACK_MS);
+        timeoutRef.current = setTimeout(
+          () => setStatus('idle'),
+          CLICK_FEEDBACK_MS,
+        );
       }
     } catch {
       setStatus('idle');
@@ -393,11 +396,7 @@ export function ShareWidget({
             <MinimizedIcon className="size-5" aria-hidden="true" />
           )}
         </button>
-        {!isExpanded && (
-          <Tooltip>
-            {minimizedLabel}
-          </Tooltip>
-        )}
+        {!isExpanded && <Tooltip>{minimizedLabel}</Tooltip>}
       </div>
     </div>
   );

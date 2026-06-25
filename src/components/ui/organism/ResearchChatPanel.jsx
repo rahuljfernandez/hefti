@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import ResearcherComposer from '../molecule/researcherComposer';
-import ChatMessage from '../molecule/ChatMessage';
-import ResearchEmptyState from '../molecule/ResearchEmptyState';
+import ResearchChatMessage from '../molecule/researchChatMessage';
+import ResearchEmptyState from '../molecule/researchEmptyState';
 import DimOverlay from '../../../lib/shareability/ResearchPanelDimOverlay';
 
 /**
@@ -56,7 +56,7 @@ export default function ResearchChatPanel({
                     !(isLatestAssistant && isStreaming) &&
                     message.content.trim().length > 0;
                   return (
-                    <ChatMessage
+                    <ResearchChatMessage
                       key={message.id}
                       message={message}
                       isLastUser={isLastUser}

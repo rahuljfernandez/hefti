@@ -15,7 +15,7 @@ import { SHARE_WIDGET_Z_CLASS } from '../../../lib/shareability/researchPanelAcc
  * ShareWidget's category config; hover targeting is forwarded via
  * `onCategoryHover` so the page can drive the panel highlight/dim accent.
  */
-export default function ExportSessionWidget({
+export default function ResearchExportWidget({
   onCategoryHover,
   onCopyLeftPanel,
   onExportFullSession,
@@ -66,7 +66,7 @@ export default function ExportSessionWidget({
   );
 }
 
-ExportSessionWidget.propTypes = {
+ResearchExportWidget.propTypes = {
   onCategoryHover: PropTypes.func,
   onCopyLeftPanel: PropTypes.func.isRequired,
   onExportFullSession: PropTypes.func.isRequired,

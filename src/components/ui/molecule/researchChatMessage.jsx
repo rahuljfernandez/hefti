@@ -20,7 +20,7 @@ import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
  * @param assistantContentRefs - message.id -> rendered markdown node map, read
  *   for "copy as rich text" (and written here via the content ref callback).
  */
-export default function ChatMessage({
+export default function ResearchChatMessage({
   message,
   isLastUser,
   isLatestAssistant,
@@ -106,7 +106,7 @@ export default function ChatMessage({
   );
 }
 
-ChatMessage.propTypes = {
+ResearchChatMessage.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     role: PropTypes.oneOf(['user', 'assistant']).isRequired,
