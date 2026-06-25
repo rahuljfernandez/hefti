@@ -65,7 +65,7 @@ function GrowShrink({ className, children, skipEnter }) {
         pointerEvents: 'none',
         transition: { duration: 0.6 },
       }}
-      className="overflow-x-hidden"
+      className="overflow-x-clip"
     >
       <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
         {children}
@@ -248,7 +248,7 @@ function TelescopeSegment({
 
   return (
     <div
-      className="group relative flex items-center"
+      className="relative flex items-center"
       onMouseEnter={() => onHoverChange?.(true)}
       onMouseLeave={() => onHoverChange?.(false)}
     >
@@ -263,11 +263,6 @@ function TelescopeSegment({
         />
         <span>{display.text}</span>
       </button>
-      {tooltip && (
-        <Tooltip size="sm" className="max-w-56 shadow-sm">
-          {tooltip}
-        </Tooltip>
-      )}
     </div>
   );
 }
@@ -275,7 +270,6 @@ function TelescopeSegment({
 TelescopeSegment.propTypes = {
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
-  tooltip: PropTypes.string,
   loadingLabel: PropTypes.string,
   successLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
@@ -369,14 +363,21 @@ export function ShareWidget({
         {isExpanded &&
           !isIntro &&
           categories.map((category) => (
-            <GrowShrink key={category.label}>
-              <TelescopeSegment
-                {...category}
-                onHoverChange={(isHovering) =>
-                  onCategoryHover?.(isHovering ? category.target : null)
-                }
-              />
-            </GrowShrink>
+            <div key={category.label} className="group relative">
+              <GrowShrink>
+                <TelescopeSegment
+                  {...category}
+                  onHoverChange={(isHovering) =>
+                    onCategoryHover?.(isHovering ? category.target : null)
+                  }
+                />
+              </GrowShrink>
+              {category.tooltip && (
+                <Tooltip size="sm" className="max-w-56 shadow-sm">
+                  {category.tooltip}
+                </Tooltip>
+              )}
+            </div>
           ))}
       </AnimatePresence>
       <div className="group relative flex shrink-0 items-center">
