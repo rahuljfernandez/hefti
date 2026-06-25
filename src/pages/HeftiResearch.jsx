@@ -14,16 +14,16 @@ import { Heading } from '../components/ui/atom/heading';
 import ResearchChart, {
   chartToRows,
 } from '../components/ui/molecule/ResearchChart';
-import DimOverlay from '../lib/ResearchPanelDimOverlay';
+import DimOverlay from '../lib/shareability/ResearchPanelDimOverlay';
 import {
   getPanelAccent,
   SHARE_WIDGET_Z_CLASS,
-} from '../lib/researchPanelAccent';
-import { createResearchShareActions } from '../lib/researchShareActions';
+} from '../lib/shareability/researchPanelAccent';
+import { createResearchShareActions } from '../lib/shareability/researchShareActions';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
-import { copyText, copyRichText } from '../lib/shareActions';
+import { copyText, copyRichText } from '../lib/shareability/shareActions';
 import {
   ShareButton,
   ShareButtonRow,

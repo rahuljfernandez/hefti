@@ -91,7 +91,7 @@ GrowShrink.propTypes = {
  *
  * @example
  * import { ShareButton, ShareButtonRow } from './shareability';
- * import { copyText, downloadCsv } from '../../../lib/shareActions';
+ * import { copyText, downloadCsv } from '../../../lib/shareability/shareActions';
  * import { DocumentTextIcon, TableCellsIcon } from '@heroicons/react/24/outline';
  *
  * <ShareButtonRow>
