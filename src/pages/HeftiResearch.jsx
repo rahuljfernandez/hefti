@@ -672,6 +672,7 @@ export default function HeftiResearch() {
                     tooltip: 'Download charts + data',
                     loadingLabel: 'Exporting…',
                     successLabel: 'Downloaded',
+                    emptyLabel: 'No charts yet',
                     onClick: handleExportRightPanel,
                     target: 'right',
                   },

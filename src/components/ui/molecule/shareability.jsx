@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
   XMarkIcon,
   ArrowDownTrayIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import Tooltip from '../atom/tooltip';
 
@@ -210,6 +211,7 @@ function TelescopeSegment({
   tooltip,
   loadingLabel,
   successLabel,
+  emptyLabel,
   onClick,
   onHoverChange,
 }) {
@@ -221,19 +223,15 @@ function TelescopeSegment({
   }, []);
 
   async function handleClick() {
-    if (status === 'loading') return;
+    if (status !== 'idle') return;
     setStatus('loading');
     try {
       const result = await onClick();
-      if (result) {
-        setStatus('success');
+      const next = result ? 'success' : emptyLabel ? 'empty' : 'idle';
+      setStatus(next);
+      if (next !== 'idle') {
         clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(
-          () => setStatus('idle'),
-          CLICK_FEEDBACK_MS,
-        );
-      } else {
-        setStatus('idle');
+        timeoutRef.current = setTimeout(() => setStatus('idle'), CLICK_FEEDBACK_MS);
       }
     } catch {
       setStatus('idle');
@@ -244,6 +242,7 @@ function TelescopeSegment({
     idle: { icon: Icon, text: label },
     loading: { icon: ArrowPathIcon, text: loadingLabel ?? label },
     success: { icon: CheckIcon, text: successLabel ?? label },
+    empty: { icon: ExclamationCircleIcon, text: emptyLabel ?? label },
   }[status];
 
   return (
@@ -272,6 +271,7 @@ TelescopeSegment.propTypes = {
   label: PropTypes.string.isRequired,
   loadingLabel: PropTypes.string,
   successLabel: PropTypes.string,
+  emptyLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   onHoverChange: PropTypes.func,
 };
@@ -411,6 +411,7 @@ ShareWidget.propTypes = {
       tooltip: PropTypes.string,
       loadingLabel: PropTypes.string,
       successLabel: PropTypes.string,
+      emptyLabel: PropTypes.string,
       onClick: PropTypes.func.isRequired,
       /* Opaque identifier forwarded as-is to onCategoryHover — ShareWidget
          doesn't interpret it, the caller defines what it means. */
