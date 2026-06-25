@@ -1,5 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
+import React, { useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -20,8 +19,6 @@ import {
   SHARE_WIDGET_Z_CLASS,
 } from '../lib/shareability/researchPanelAccent';
 import { createResearchShareActions } from '../lib/shareability/researchShareActions';
-import { buildContextCharts } from '../lib/contextChart';
-import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
 import { copyText, copyRichText } from '../lib/shareability/shareActions';
 import {
@@ -36,17 +33,9 @@ import {
   ChartBarIcon,
   DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline';
-
-const API_BASE_URL =
-  import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
-  'http://hefti-data-api.ddev.site:3000/api';
-
-/* The researcher stream lives behind VITE_RESEARCHER_FUNCTION_URL, but the
-   on-load context chart pulls subject + national data from the regular data API
-   (the same endpoints the profile pages use), which is a separate env var. */
-const DATA_API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://hefti-data-api.ddev.site:3000/api';
+import useResearchScroll from '../hooks/useResearchScroll';
+import useResearchContextCharts from '../hooks/useResearchContextCharts';
+import useResearchStream from '../hooks/useResearchStream';
 
 /**
  * HeftiResearch
@@ -56,28 +45,12 @@ const DATA_API_BASE_URL =
  *
  * - Derives `contextType` ("owner" | "facility") from the current URL path
  *   so the backend can scope its response to the right entity type.
- * - Streams assistant responses from `POST /api/researcher` using the
- *   Fetch ReadableStream API and renders them with react-markdown.
- * - Keeps a rolling history of the last 20 messages to support multi-turn
- *   conversation without unbounded context growth.
- * - Seeds the right panel with an on-load comparison bar chart (CMS Star Ratings)
- *   fetched on mount before the user sends any messages.
+ * - Streams assistant responses and folds them into message/chart state via
+ *   useResearchStream; seeds the on-load context chart via useContextCharts;
+ *   and pins each new turn to the top of both panels via useResearchScroll.
  *
- * Scroll behavior — both panels pin the newest content to the top of their
- * viewport so each turn starts from the top, but they do it differently because
- * of *when* their anchor element exists:
- *
- * - Left (chat): the anchor is the user's message, which exists the instant they
- *   hit send. So we pin it SYNCHRONOUSLY inside submitPrompt — `flushSync` commits
- *   the message, then a single `requestAnimationFrame` scrolls it to the top.
- *   Room to scroll is made by giving the latest assistant bubble a min-height
- *   (`assistantMinHeight`) equal to ~one viewport.
- * - Right (charts): the anchor is the turn's first chart, which does NOT exist at
- *   send time — charts stream in asynchronously over the response. So we pin
- *   REACTIVELY in a `useEffect` keyed on `charts`, scrolling once that first chart
- *   arrives. Room to scroll is made by a trailing spacer (`chartsSpacerHeight`)
- *   sized to the right panel's full height, which also survives the brief window
- *   before Recharts has measured the incoming chart.
+ * This component owns the core message/chart state and the render; the three
+ * hooks above own the streaming, seeding, and scroll choreography respectively.
  *
  * Route params:
  *  - slug: string — the owner or facility slug, forwarded to the API for context.
@@ -99,337 +72,50 @@ export default function HeftiResearch() {
   const [charts, setCharts] = useState([]);
   const chartsRef = useRef([]);
   chartsRef.current = charts;
-  const [assistantMinHeight, setAssistantMinHeight] = useState(0);
-  const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
-  const [isStreaming, setIsStreaming] = useState(false);
   /* Which panel(s) the ShareWidget's hovered segment targets ('left' |
      'right' | 'both' | null) — drives the highlight/dim accent on the two
      panels below. */
   const [hoveredTarget, setHoveredTarget] = useState(null);
-  /* The owner/facility's display name, used as the title of the "Full session
-     (PDF)" research brief. Set once the on-load context fetch resolves. */
-  const [subjectName, setSubjectName] = useState('');
-  const messagesContainerRef = useRef(null);
-  const lastUserMsgRef = useRef(null);
-  const chartsPanelRef = useRef(null);
   /* message.id -> rendered markdown DOM node, used to read rendered HTML for
      "copy as rich text" without keeping a ref per message via useRef. */
   const assistantContentRefs = useRef(new Map());
   /* chart index -> rendered card DOM node, used to capture each chart as its
      own PNG for the "Right panel" export (see handleExportRightPanel). */
   const chartCardRefs = useRef(new Map());
-  /* Mirrors lastUserMsgRef on the left: the first chart produced by the current
-     turn, which we pin to the top of the panel once it arrives. */
-  const turnFirstChartRef = useRef(null);
-  /* The index the current turn's first chart will occupy, snapshotted at submit
-     (before any new charts have streamed in). */
-  const turnStartIndexRef = useRef(null);
-  /* Mirrors charts.length synchronously (setCharts is batched/async, so the
-     closed-over `charts` value can be stale at the moment a turn finishes
-     streaming) — lets us stamp an accurate chartEnd on the assistant message
-     for the "Full session (PDF)" export to group charts by turn. */
-  const chartCountRef = useRef(0);
-  /* Count of on-load context charts — used to position the session-start divider
-     between the baseline charts and the first AI-generated chart. */
-  const contextChartCountRef = useRef(0);
   const hasStarted = messages.length > 0;
 
-  /* On-load context chart: fetch the subject + national ratings from the
-     URL and seed a comparison chart into the right panel before the user sends
-     anything. Fetching keeps it correct on reload/shared links.
-     The `prev.length ? prev : [chart]` guard makes a late fetch a no-op once any
-     chart exists, so it can't clobber streamed charts. */
-  useEffect(() => {
-    if (!slug) return;
-    let cancelled = false;
+  const {
+    messagesContainerRef,
+    lastUserMsgRef,
+    chartsPanelRef,
+    turnFirstChartRef,
+    turnStartIndexRef,
+    assistantMinHeight,
+    chartsSpacerHeight,
+    pinUserMessageToTop,
+  } = useResearchScroll({ charts, hasStarted });
 
-    const subjectPath =
-      contextType === 'owner'
-        ? `owners/${encodeURIComponent(slug)}`
-        : `facilities/${slug}`;
-
-    Promise.all([
-      fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
-        response.ok ? response.json() : null,
-      ),
-      fetch(`${DATA_API_BASE_URL}/national`)
-        .then((response) => (response.ok ? response.json() : null))
-        .catch(() => null),
-    ])
-      .then(([subject, national]) => {
-        if (cancelled || !subject) return;
-        const resolvedSubjectName =
-          contextType === 'owner'
-            ? toTitleCase(subject.cms_ownership_name)
-            : toTitleCase(subject.provider_name);
-        setSubjectName(resolvedSubjectName);
-        /* Normalizes the differing facility/owner rating fields into the on-load
-           comparison bar chart. See lib/contextChart. */
-        const contextCharts = buildContextCharts({
-          contextType,
-          subject,
-          national,
-          subjectName: resolvedSubjectName,
-        });
-        if (contextCharts.length) {
-          contextChartCountRef.current = contextCharts.length;
-          chartCountRef.current = contextCharts.length;
-          setCharts((prev) => (prev.length ? prev : contextCharts));
-        }
-      })
-      // The on-load chart is non-critical; leave the panel empty on failure.
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, [slug, contextType]);
-
-  /* Left side (chat): tracks the height of the scroll container so we can give the
-     incoming assistant message bubble enough min-height to fill the remaining
-     viewport. This ensures there's always enough scroll depth to push the user
-     message to the top of the view when a new message is sent, even before the
-     assistant has streamed any content. (The right panel's equivalent spacer
-     measurement is the next effect below.) */
-  useLayoutEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-
-    function updateAssistantMinHeight() {
-      setAssistantMinHeight(Math.max(container.clientHeight - 120, 0));
-    }
-
-    updateAssistantMinHeight();
-
-    const resizeObserver = new ResizeObserver(updateAssistantMinHeight);
-    resizeObserver.observe(container);
-
-    return () => resizeObserver.disconnect();
-  }, [hasStarted]);
-
-  /* Right-panel equivalent of the spacer measurement above. We track the chart
-     panel's own full height (it's taller than the left container, which excludes
-     the composer) and use it as a trailing spacer. Sizing the spacer to a full
-     viewport guarantees there's enough scroll depth to pin a new turn's first
-     chart to the top even during the brief window before Recharts has measured
-     and laid out the chart (when it still reports near-zero height). */
-  useLayoutEffect(() => {
-    const panel = chartsPanelRef.current;
-    if (!panel) return;
-
-    function updateChartsSpacerHeight() {
-      setChartsSpacerHeight(panel.clientHeight);
-    }
-
-    updateChartsSpacerHeight();
-
-    const resizeObserver = new ResizeObserver(updateChartsSpacerHeight);
-    resizeObserver.observe(panel);
-
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  /* Right-panel counterpart to the left side's scroll-to-top (see the scroll block
-     in submitPrompt). Unlike the left — which pins synchronously at send time
-     because the user message already exists — charts stream in asynchronously, so
-     we must pin REACTIVELY here: this effect fires when `charts` changes and acts
-     only when the turn's first chart has just arrived (length === startIdx + 1),
-     scrolling it to the top. The trailing spacer in the render guarantees enough
-     scroll depth below it, exactly how assistantMinHeight makes room on the left. */
-  useEffect(() => {
-    const panel = chartsPanelRef.current;
-    const startIdx = turnStartIndexRef.current;
-    if (!panel || startIdx === null || charts.length !== startIdx + 1) return;
-
-    const frameId = requestAnimationFrame(() => {
-      const chart = turnFirstChartRef.current;
-      if (!chart) return;
-
-      const panelRect = panel.getBoundingClientRect();
-      const chartRect = chart.getBoundingClientRect();
-      const topOffset = chartRect.top - panelRect.top;
-
-      panel.scrollTo({
-        top: panel.scrollTop + topOffset - 16,
-        behavior: 'smooth',
-      });
+  const { subjectName, contextChartCountRef, chartCountRef } =
+    useResearchContextCharts({
+      slug,
+      contextType,
+      setCharts,
     });
 
-    return () => cancelAnimationFrame(frameId);
-  }, [charts]);
-
-  async function submitPrompt(override) {
-    if (isStreaming) return;
-    const trimmedPrompt = (
-      typeof override === 'string' ? override : prompt
-    ).trim();
-    if (!trimmedPrompt) return;
-
-    // Snapshot history before touching state
-    const history = messages; // already has prior user + assistant turns
-
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: trimmedPrompt,
-    };
-    const assistantMessage = {
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: '',
-      isError: false,
-    };
-
-    turnStartIndexRef.current = charts.length;
-
-    /* flushSync forces React to commit the new messages to the DOM synchronously
-       before we proceed. Without this, the requestAnimationFrame below would run
-       before the DOM has updated, meaning lastUserMsgRef wouldn't point to the
-       correct element yet and the scroll would be off. */
-    flushSync(() => {
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
-      setPrompt('');
-    });
-
-    /* After the DOM has updated, scroll the container so the user's message bubble
-       sits at the top of the viewport. We use requestAnimationFrame to wait one
-       paint cycle, ensuring layout is complete and getBoundingClientRect() returns
-       accurate values before we calculate the scroll offset.
-
-       This is the SYNCHRONOUS counterpart to the right panel's pin-to-top. We can
-       do it inline here because the anchor (the user message) already exists after
-       the flushSync above. The right panel can't — its charts arrive later over
-       the stream — so it pins reactively in the `charts` useEffect instead. */
-    requestAnimationFrame(() => {
-      const container = messagesContainerRef.current;
-      const lastUserMessage = lastUserMsgRef.current;
-
-      if (!container || !lastUserMessage) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const messageRect = lastUserMessage.getBoundingClientRect();
-      const topOffset = messageRect.top - containerRect.top;
-
-      container.scrollTo({
-        top: container.scrollTop + topOffset - 24,
-        behavior: 'auto',
-      });
-    });
-
-    function setError(msg) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMessage.id
-            ? { ...m, content: msg, isError: true }
-            : m,
-        ),
-      );
-    }
-
-    // Build what we send: trimmed history (max 20 messages) + new user message
-    const outgoingMessages = [
-      ...history.map(({ role, content }) => ({ role, content })).slice(-20),
-      { role: 'user', content: trimmedPrompt },
-    ];
-
-    // console.log('[researcher] outgoing messages:', outgoingMessages);
-
-    setIsStreaming(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/researcher`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: outgoingMessages, contextType, slug }),
-      });
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      /* DEBUG-ONLY: finalText/finalCharts exist solely to feed the debug log at
-         the end of the stream loop. The UI is driven by setMessages/setCharts,
-         not these. Remove these two declarations and their accumulation lines
-         below when the debug console.log is removed. */
-      let finalText = '';
-      const finalCharts = [];
-      let lineBuffer = '';
-      let done = false;
-
-      while (!done) {
-        const { done: streamDone, value } = await reader.read();
-        done = streamDone;
-
-        /* Accumulate into a line buffer so SSE lines split across TCP chunks are
-           reassembled before parsing. Without this, large chart payloads cause
-           JSON.parse failures when the chunk boundary falls mid-line. */
-        lineBuffer += decoder.decode(value ?? new Uint8Array(), {
-          stream: !done,
-        });
-
-        const lines = lineBuffer.split('\n');
-        // Keep the last (potentially incomplete) segment in the buffer
-        lineBuffer = lines.pop();
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const payload = line.slice(6);
-          if (payload === '[DONE]') {
-            done = true;
-            break;
-          }
-
-          const { text, error, chart } = JSON.parse(payload);
-
-          if (error) {
-            setError(error);
-            done = true;
-            break;
-          }
-
-          if (text) {
-            finalText += text;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantMessage.id
-                  ? { ...m, content: m.content + text }
-                  : m,
-              ),
-            );
-          }
-
-          if (chart) {
-            finalCharts.push(chart);
-            chartCountRef.current += 1;
-            chartsRef.current = [...chartsRef.current, chart];
-            setCharts((prev) => [...prev, chart]);
-          }
-        }
-      }
-
-      /* DEBUG-ONLY: remove before production. Removing this also makes finalText
-         and finalCharts (declared above) dead code — delete them together. */
-      console.log('[researcher] final response:', {
-        text: finalText,
-        charts: finalCharts,
-      });
-    } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
-    } finally {
-      setIsStreaming(false);
-      /* Stamps which charts (by index) this turn produced, so the "Full
-         session (PDF)" export can group charts under the right turn —
-         `charts` itself carries no turn identity. */
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMessage.id
-            ? {
-                ...m,
-                chartStart: turnStartIndexRef.current,
-                chartEnd: chartCountRef.current,
-              }
-            : m,
-        ),
-      );
-    }
-  }
+  const { isStreaming, submitPrompt } = useResearchStream({
+    contextType,
+    slug,
+    prompt,
+    setPrompt,
+    messages,
+    setMessages,
+    charts,
+    setCharts,
+    chartsRef,
+    chartCountRef,
+    turnStartIndexRef,
+    pinUserMessageToTop,
+  });
 
   const {
     handleExportRightPanel,
@@ -610,7 +296,7 @@ export default function HeftiResearch() {
                         <button
                           key={p}
                           onClick={() => submitPrompt(p)}
-                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white hover:bg-background-tertiar cursor-pointer rounded-lg border px-4 py-3 text-left shadow-sm transition-colors"
+                          className="text-paragraph-sm text-core-black border-border-primary bg-core-white hover:bg-background-tertiary cursor-pointer rounded-lg border px-4 py-3 text-left shadow-sm transition-colors"
                         >
                           {p}
                         </button>
