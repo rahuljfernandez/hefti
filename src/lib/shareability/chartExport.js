@@ -4,7 +4,7 @@ import {
   nodeToPngDataUrl,
   rowsToCsv,
 } from './shareActions';
-import { slugify } from './slugify';
+import { slugify } from '../slugify';
 
 /* Falls back to a generic name when the title has no a-z0-9 characters for
    slugify to keep (e.g. emoji/symbols-only), so downloads don't become a bare

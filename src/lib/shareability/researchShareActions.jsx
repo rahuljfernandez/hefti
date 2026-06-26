@@ -9,7 +9,7 @@ import {
   nodeToPngDataUrl,
   stripMarkdown,
 } from './shareActions';
-import { slugify } from './slugify';
+import { slugify } from '../slugify';
 import ResearchBriefDocument from './researchBriefPdf';
 
 /* Reads the real rasterized pixel dimensions of a captured chart PNG. The

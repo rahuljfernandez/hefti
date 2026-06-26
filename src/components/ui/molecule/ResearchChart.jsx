@@ -17,7 +17,7 @@ import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
 import {
   downloadChartCsv,
   downloadChartPng,
-} from '../../../lib/chartExport';
+} from '../../../lib/shareability/chartExport';
 
 /**
  * ResearchChart — chart rendering for the Hefti Researcher right panel.
