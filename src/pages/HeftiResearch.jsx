@@ -24,7 +24,7 @@ import useResearchStream from '../hooks/useResearchStream';
  * - Derives `contextType` ("owner" | "facility") from the current URL path
  *   so the backend can scope its response to the right entity type.
  * - Streams assistant responses and folds them into message/chart state via
- *   useResearchStream; seeds the on-load context chart via useContextCharts;
+ *   useResearchContextCharts; seeds the on-load context chart via useContextCharts;
  *   and pins each new turn to the top of both panels via useResearchScroll.
  *
  * This component owns the core message/chart state and the render; the three
@@ -48,11 +48,11 @@ export default function HeftiResearch() {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [charts, setCharts] = useState([]);
+  //Keeps track of latest chart for use by share actions
   const chartsRef = useRef([]);
   chartsRef.current = charts;
-  /* Which panel(s) the ShareWidget's hovered segment targets ('left' |
-     'right' | 'both' | null) — drives the highlight/dim accent on the two
-     panels below. */
+
+  /* Which panel(s) the ShareWidget's hovered segment targets drives the highlight/dim accent on the two panels below. */
   const [hoveredTarget, setHoveredTarget] = useState(null);
   /* message.id -> rendered markdown DOM node, used to read rendered HTML for
      "copy as rich text" without keeping a ref per message via useRef. */
@@ -62,6 +62,7 @@ export default function HeftiResearch() {
   const chartCardRefs = useRef(new Map());
   const hasStarted = messages.length > 0;
 
+  //hook to handle scroll/layout
   const {
     messagesContainerRef,
     lastUserMsgRef,
@@ -73,6 +74,7 @@ export default function HeftiResearch() {
     pinUserMessageToTop,
   } = useResearchScroll({ charts, hasStarted });
 
+  //hook to seed on load data
   const { subjectName, contextChartCountRef, chartCountRef } =
     useResearchContextCharts({
       slug,
@@ -80,6 +82,7 @@ export default function HeftiResearch() {
       setCharts,
     });
 
+  //hook for the chat stream engine
   const { isStreaming, submitPrompt } = useResearchStream({
     contextType,
     slug,
@@ -95,6 +98,7 @@ export default function HeftiResearch() {
     pinUserMessageToTop,
   });
 
+  //handles the export/share actions of the widget
   const {
     handleExportRightPanel,
     handleCopyLeftPanel,
