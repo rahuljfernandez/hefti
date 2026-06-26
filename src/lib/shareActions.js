@@ -33,6 +33,24 @@ export function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/* Regex-based, not a full markdown parser — strips common markdown syntax
+   (headers, bold/italic, list markers, inline code) down to plain prose for
+   contexts that can't render markdown (e.g. the PDF research brief, whose
+   react-pdf <Text> has no markdown support). Formatting is lost, not
+   reflowed into an equivalent rich layout — a deliberate v1 scope cut. */
+export function stripMarkdown(text) {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`{1,3}([^`]*?)`{1,3}/g, '$1')
+    .replace(/(?<!\w)_(.*?)_(?!\w)/g, '$1')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .trim();
+}
+
 /* Safari requires the Blobs passed to ClipboardItem be constructed
    synchronously within the user-gesture call stack — don't `await` anything
    before calling this from a click handler. */
@@ -65,11 +83,8 @@ export function rowsToCsv(rows, headers) {
   return allRows.map((row) => row.map(escapeCsvCell).join(',')).join('\r\n');
 }
 
-export function downloadCsv(rows, filename, headers) {
+export function downloadBlob(blob, filename) {
   try {
-    const blob = new Blob([rowsToCsv(rows, headers)], {
-      type: 'text/csv;charset=utf-8;',
-    });
     const url = URL.createObjectURL(blob);
     triggerDownload(url, filename);
     setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -77,6 +92,13 @@ export function downloadCsv(rows, filename, headers) {
   } catch {
     return false;
   }
+}
+
+export function downloadCsv(rows, filename, headers) {
+  const blob = new Blob([rowsToCsv(rows, headers)], {
+    type: 'text/csv;charset=utf-8;',
+  });
+  return downloadBlob(blob, filename);
 }
 
 export function nodeToPngDataUrl(node) {
@@ -109,10 +131,7 @@ export async function downloadZip(entries, filename) {
       }
     });
     const blob = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, filename);
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-    return true;
+    return downloadBlob(blob, filename);
   } catch {
     return false;
   }

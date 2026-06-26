@@ -41,9 +41,9 @@ const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// The researcher stream lives behind VITE_RESEARCHER_FUNCTION_URL, but the
-// on-load context chart pulls subject + national data from the regular data API
-// (the same endpoints the profile pages use), which is a separate env var.
+/* The researcher stream lives behind VITE_RESEARCHER_FUNCTION_URL, but the
+   on-load context chart pulls subject + national data from the regular data API
+   (the same endpoints the profile pages use), which is a separate env var. */
 const DATA_API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
@@ -97,6 +97,8 @@ export default function HeftiResearch() {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [charts, setCharts] = useState([]);
+  const chartsRef = useRef([]);
+  chartsRef.current = charts;
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -104,6 +106,9 @@ export default function HeftiResearch() {
      'right' | 'both' | null) — drives the highlight/dim accent on the two
      panels below. */
   const [hoveredTarget, setHoveredTarget] = useState(null);
+  /* The owner/facility's display name, used as the title of the "Full session
+     (PDF)" research brief. Set once the on-load context fetch resolves. */
+  const [subjectName, setSubjectName] = useState('');
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
@@ -113,22 +118,27 @@ export default function HeftiResearch() {
   /* chart index -> rendered card DOM node, used to capture each chart as its
      own PNG for the "Right panel" export (see handleExportRightPanel). */
   const chartCardRefs = useRef(new Map());
-  // Mirrors lastUserMsgRef on the left: the first chart produced by the current
-  // turn, which we pin to the top of the panel once it arrives.
+  /* Mirrors lastUserMsgRef on the left: the first chart produced by the current
+     turn, which we pin to the top of the panel once it arrives. */
   const turnFirstChartRef = useRef(null);
-  // The index the current turn's first chart will occupy, snapshotted at submit
-  // (before any new charts have streamed in).
+  /* The index the current turn's first chart will occupy, snapshotted at submit
+     (before any new charts have streamed in). */
   const turnStartIndexRef = useRef(null);
-  // Count of on-load context charts — used to position the session-start divider
-  // between the baseline charts and the first AI-generated chart.
+  /* Mirrors charts.length synchronously (setCharts is batched/async, so the
+     closed-over `charts` value can be stale at the moment a turn finishes
+     streaming) — lets us stamp an accurate chartEnd on the assistant message
+     for the "Full session (PDF)" export to group charts by turn. */
+  const chartCountRef = useRef(0);
+  /* Count of on-load context charts — used to position the session-start divider
+     between the baseline charts and the first AI-generated chart. */
   const contextChartCountRef = useRef(0);
   const hasStarted = messages.length > 0;
 
-  // On-load context chart: fetch the subject + national ratings from the
-  // URL and seed a comparison chart into the right panel before the user sends
-  // anything. Fetching keeps it correct on reload/shared links.
-  // The `prev.length ? prev : [chart]` guard makes a late fetch a no-op once any
-  // chart exists, so it can't clobber streamed charts.
+  /* On-load context chart: fetch the subject + national ratings from the
+     URL and seed a comparison chart into the right panel before the user sends
+     anything. Fetching keeps it correct on reload/shared links.
+     The `prev.length ? prev : [chart]` guard makes a late fetch a no-op once any
+     chart exists, so it can't clobber streamed charts. */
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
@@ -142,28 +152,28 @@ export default function HeftiResearch() {
       fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
         response.ok ? response.json() : null,
       ),
-      // National bars are best-effort — resolve to null on failure so the chart
-      // can still render the subject's own ratings.
       fetch(`${DATA_API_BASE_URL}/national`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
     ])
       .then(([subject, national]) => {
         if (cancelled || !subject) return;
-        const subjectName =
+        const resolvedSubjectName =
           contextType === 'owner'
             ? toTitleCase(subject.cms_ownership_name)
             : toTitleCase(subject.provider_name);
-        // Normalizes the differing facility/owner rating fields into the on-load
-        // comparison bar chart. See lib/contextChart.
+        setSubjectName(resolvedSubjectName);
+        /* Normalizes the differing facility/owner rating fields into the on-load
+           comparison bar chart. See lib/contextChart. */
         const contextCharts = buildContextCharts({
           contextType,
           subject,
           national,
-          subjectName,
+          subjectName: resolvedSubjectName,
         });
         if (contextCharts.length) {
           contextChartCountRef.current = contextCharts.length;
+          chartCountRef.current = contextCharts.length;
           setCharts((prev) => (prev.length ? prev : contextCharts));
         }
       })
@@ -175,12 +185,12 @@ export default function HeftiResearch() {
     };
   }, [slug, contextType]);
 
-  // Left side (chat): tracks the height of the scroll container so we can give the
-  // incoming assistant message bubble enough min-height to fill the remaining
-  // viewport. This ensures there's always enough scroll depth to push the user
-  // message to the top of the view when a new message is sent, even before the
-  // assistant has streamed any content. (The right panel's equivalent spacer
-  // measurement is the next effect below.)
+  /* Left side (chat): tracks the height of the scroll container so we can give the
+     incoming assistant message bubble enough min-height to fill the remaining
+     viewport. This ensures there's always enough scroll depth to push the user
+     message to the top of the view when a new message is sent, even before the
+     assistant has streamed any content. (The right panel's equivalent spacer
+     measurement is the next effect below.) */
   useLayoutEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -197,12 +207,12 @@ export default function HeftiResearch() {
     return () => resizeObserver.disconnect();
   }, [hasStarted]);
 
-  // Right-panel equivalent of the spacer measurement above. We track the chart
-  // panel's own full height (it's taller than the left container, which excludes
-  // the composer) and use it as a trailing spacer. Sizing the spacer to a full
-  // viewport guarantees there's enough scroll depth to pin a new turn's first
-  // chart to the top even during the brief window before Recharts has measured
-  // and laid out the chart (when it still reports near-zero height).
+  /* Right-panel equivalent of the spacer measurement above. We track the chart
+     panel's own full height (it's taller than the left container, which excludes
+     the composer) and use it as a trailing spacer. Sizing the spacer to a full
+     viewport guarantees there's enough scroll depth to pin a new turn's first
+     chart to the top even during the brief window before Recharts has measured
+     and laid out the chart (when it still reports near-zero height). */
   useLayoutEffect(() => {
     const panel = chartsPanelRef.current;
     if (!panel) return;
@@ -219,13 +229,13 @@ export default function HeftiResearch() {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // Right-panel counterpart to the left side's scroll-to-top (see the scroll block
-  // in submitPrompt). Unlike the left — which pins synchronously at send time
-  // because the user message already exists — charts stream in asynchronously, so
-  // we must pin REACTIVELY here: this effect fires when `charts` changes and acts
-  // only when the turn's first chart has just arrived (length === startIdx + 1),
-  // scrolling it to the top. The trailing spacer in the render guarantees enough
-  // scroll depth below it, exactly how assistantMinHeight makes room on the left.
+  /* Right-panel counterpart to the left side's scroll-to-top (see the scroll block
+     in submitPrompt). Unlike the left — which pins synchronously at send time
+     because the user message already exists — charts stream in asynchronously, so
+     we must pin REACTIVELY here: this effect fires when `charts` changes and acts
+     only when the turn's first chart has just arrived (length === startIdx + 1),
+     scrolling it to the top. The trailing spacer in the render guarantees enough
+     scroll depth below it, exactly how assistantMinHeight makes room on the left. */
   useEffect(() => {
     const panel = chartsPanelRef.current;
     const startIdx = turnStartIndexRef.current;
@@ -249,6 +259,7 @@ export default function HeftiResearch() {
   }, [charts]);
 
   async function submitPrompt(override) {
+    if (isStreaming) return;
     const trimmedPrompt = (
       typeof override === 'string' ? override : prompt
     ).trim();
@@ -271,24 +282,24 @@ export default function HeftiResearch() {
 
     turnStartIndexRef.current = charts.length;
 
-    // flushSync forces React to commit the new messages to the DOM synchronously
-    // before we proceed. Without this, the requestAnimationFrame below would run
-    // before the DOM has updated, meaning lastUserMsgRef wouldn't point to the
-    // correct element yet and the scroll would be off.
+    /* flushSync forces React to commit the new messages to the DOM synchronously
+       before we proceed. Without this, the requestAnimationFrame below would run
+       before the DOM has updated, meaning lastUserMsgRef wouldn't point to the
+       correct element yet and the scroll would be off. */
     flushSync(() => {
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
       setPrompt('');
     });
 
-    // After the DOM has updated, scroll the container so the user's message bubble
-    // sits at the top of the viewport. We use requestAnimationFrame to wait one
-    // paint cycle, ensuring layout is complete and getBoundingClientRect() returns
-    // accurate values before we calculate the scroll offset.
-    //
-    // This is the SYNCHRONOUS counterpart to the right panel's pin-to-top. We can
-    // do it inline here because the anchor (the user message) already exists after
-    // the flushSync above. The right panel can't — its charts arrive later over
-    // the stream — so it pins reactively in the `charts` useEffect instead.
+    /* After the DOM has updated, scroll the container so the user's message bubble
+       sits at the top of the viewport. We use requestAnimationFrame to wait one
+       paint cycle, ensuring layout is complete and getBoundingClientRect() returns
+       accurate values before we calculate the scroll offset.
+
+       This is the SYNCHRONOUS counterpart to the right panel's pin-to-top. We can
+       do it inline here because the anchor (the user message) already exists after
+       the flushSync above. The right panel can't — its charts arrive later over
+       the stream — so it pins reactively in the `charts` useEffect instead. */
     requestAnimationFrame(() => {
       const container = messagesContainerRef.current;
       const lastUserMessage = lastUserMsgRef.current;
@@ -333,10 +344,10 @@ export default function HeftiResearch() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      // DEBUG-ONLY: finalText/finalCharts exist solely to feed the debug log at
-      // the end of the stream loop. The UI is driven by setMessages/setCharts,
-      // not these. Remove these two declarations and their accumulation lines
-      // below when the debug console.log is removed.
+      /* DEBUG-ONLY: finalText/finalCharts exist solely to feed the debug log at
+         the end of the stream loop. The UI is driven by setMessages/setCharts,
+         not these. Remove these two declarations and their accumulation lines
+         below when the debug console.log is removed. */
       let finalText = '';
       const finalCharts = [];
       let lineBuffer = '';
@@ -346,9 +357,9 @@ export default function HeftiResearch() {
         const { done: streamDone, value } = await reader.read();
         done = streamDone;
 
-        // Accumulate into a line buffer so SSE lines split across TCP chunks are
-        // reassembled before parsing. Without this, large chart payloads cause
-        // JSON.parse failures when the chunk boundary falls mid-line.
+        /* Accumulate into a line buffer so SSE lines split across TCP chunks are
+           reassembled before parsing. Without this, large chart payloads cause
+           JSON.parse failures when the chunk boundary falls mid-line. */
         lineBuffer += decoder.decode(value ?? new Uint8Array(), {
           stream: !done,
         });
@@ -386,13 +397,15 @@ export default function HeftiResearch() {
 
           if (chart) {
             finalCharts.push(chart);
+            chartCountRef.current += 1;
+            chartsRef.current = [...chartsRef.current, chart];
             setCharts((prev) => [...prev, chart]);
           }
         }
       }
 
-      // DEBUG-ONLY: remove before production. Removing this also makes finalText
-      // and finalCharts (declared above) dead code — delete them together.
+      /* DEBUG-ONLY: remove before production. Removing this also makes finalText
+         and finalCharts (declared above) dead code — delete them together. */
       console.log('[researcher] final response:', {
         text: finalText,
         charts: finalCharts,
@@ -401,6 +414,20 @@ export default function HeftiResearch() {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsStreaming(false);
+      /* Stamps which charts (by index) this turn produced, so the "Full
+         session (PDF)" export can group charts under the right turn —
+         `charts` itself carries no turn identity. */
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessage.id
+            ? {
+                ...m,
+                chartStart: turnStartIndexRef.current,
+                chartEnd: chartCountRef.current,
+              }
+            : m,
+        ),
+      );
     }
   }
 
@@ -411,14 +438,15 @@ export default function HeftiResearch() {
   } = createResearchShareActions({
     assistantContentRefs,
     chartCardRefs,
-    charts,
+    chartsRef,
     chartToRows,
     contextChartCountRef,
     messages,
+    subjectName,
   });
 
-  // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
-  // highlight ring, the other panel gets dimmed by an overlay.
+  /* Drives the ShareWidget hover accent: the targeted panel(s) get a blue
+     highlight ring, the other panel gets dimmed by an overlay. */
   const { leftHighlighted, rightHighlighted, leftDimmed, rightDimmed } =
     getPanelAccent(hoveredTarget);
 

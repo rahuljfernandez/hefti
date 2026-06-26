@@ -19,6 +19,7 @@
     "@fontsource-variable/playfair-display": "^5.2.8",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@react-sigma/core": "^5.0.6",
     "@react-sigma/layout-forceatlas2": "^5.0.6",
     "@tailwindcss/vite": "^4.1.7",
