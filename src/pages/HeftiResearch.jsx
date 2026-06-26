@@ -14,6 +14,16 @@ import ResearchChart from '../components/ui/molecule/ResearchChart';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
+import { copyText, copyRichText } from '../lib/shareActions';
+import {
+  ShareButton,
+  ShareButtonRow,
+  HoverReveal,
+} from '../components/ui/molecule/shareability';
+import {
+  DocumentTextIcon,
+  ClipboardDocumentIcon,
+} from '@heroicons/react/24/outline';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -76,9 +86,13 @@ export default function HeftiResearch() {
   const [charts, setCharts] = useState([]);
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
+  /* message.id -> rendered markdown DOM node, used to read rendered HTML for
+     "copy as rich text" without keeping a ref per message via useRef. */
+  const assistantContentRefs = useRef(new Map());
   // Mirrors lastUserMsgRef on the left: the first chart produced by the current
   // turn, which we pin to the top of the panel once it arrives.
   const turnFirstChartRef = useRef(null);
@@ -289,6 +303,7 @@ export default function HeftiResearch() {
 
     // console.log('[researcher] outgoing messages:', outgoingMessages);
 
+    setIsStreaming(true);
     try {
       const res = await fetch(`${API_BASE_URL}/researcher`, {
         method: 'POST',
@@ -364,6 +379,8 @@ export default function HeftiResearch() {
       });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsStreaming(false);
     }
   }
 
@@ -385,7 +402,7 @@ export default function HeftiResearch() {
                   ref={messagesContainerRef}
                   className="min-h-0 flex-1 overflow-y-auto px-6 py-8"
                 >
-                  <div className="space-y-5">
+                  <div className="space-y-2">
                     {messages.map((message, i) => {
                       const isLastUser =
                         message.role === 'user' &&
@@ -393,6 +410,11 @@ export default function HeftiResearch() {
                       const isLatestAssistant =
                         message.role === 'assistant' &&
                         i === messages.length - 1;
+                      const showShareRow =
+                        message.role === 'assistant' &&
+                        !message.isError &&
+                        !(isLatestAssistant && isStreaming) &&
+                        message.content.trim().length > 0;
                       return (
                         <div
                           key={message.id}
@@ -404,8 +426,8 @@ export default function HeftiResearch() {
                           }
                           className={
                             message.role === 'user'
-                              ? 'bg-background-primary ml-auto max-w-[85%] rounded-3xl rounded-tr-sm px-4 py-3 text-left'
-                              : 'text-paragraph-base text-core-black max-w-[92%]'
+                              ? 'group ml-auto max-w-[85%]'
+                              : 'group text-paragraph-base text-core-black max-w-[92%]'
                           }
                         >
                           {message.role === 'assistant' ? (
@@ -414,14 +436,73 @@ export default function HeftiResearch() {
                                 {message.content}
                               </p>
                             ) : (
-                              <ReactMarkdown components={MdComponents}>
-                                {message.content}
-                              </ReactMarkdown>
+                              <>
+                                <div
+                                  className="flow-root [&>*:last-child]:mb-0"
+                                  ref={(el) => {
+                                    if (el) {
+                                      assistantContentRefs.current.set(
+                                        message.id,
+                                        el,
+                                      );
+                                    } else {
+                                      assistantContentRefs.current.delete(
+                                        message.id,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <ReactMarkdown components={MdComponents}>
+                                    {message.content}
+                                  </ReactMarkdown>
+                                </div>
+                                {showShareRow && (
+                                  <HoverReveal
+                                    show={isLatestAssistant}
+                                    className="mt-2"
+                                  >
+                                    <ShareButtonRow>
+                                      <ShareButton
+                                        icon={DocumentTextIcon}
+                                        label="Copy text"
+                                        onClick={() =>
+                                          copyText(message.content)
+                                        }
+                                      />
+                                      <ShareButton
+                                        icon={ClipboardDocumentIcon}
+                                        label="Copy as rich text"
+                                        onClick={() =>
+                                          copyRichText(
+                                            assistantContentRefs.current.get(
+                                              message.id,
+                                            )?.innerHTML ?? '',
+                                            message.content,
+                                          )
+                                        }
+                                      />
+                                    </ShareButtonRow>
+                                  </HoverReveal>
+                                )}
+                              </>
                             )
                           ) : (
-                            <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
-                              {message.content}
-                            </p>
+                            <>
+                              <div className="bg-background-primary rounded-3xl rounded-tr-sm px-4 py-3 text-left">
+                                <p className="text-paragraph-base text-core-black wrap-break-word whitespace-pre-wrap">
+                                  {message.content}
+                                </p>
+                              </div>
+                              <HoverReveal className="mt-2 flex justify-end">
+                                <ShareButtonRow>
+                                  <ShareButton
+                                    icon={DocumentTextIcon}
+                                    label="Copy text"
+                                    onClick={() => copyText(message.content)}
+                                  />
+                                </ShareButtonRow>
+                              </HoverReveal>
+                            </>
                           )}
                         </div>
                       );
@@ -499,7 +580,10 @@ export default function HeftiResearch() {
                     i === turnStartIndexRef.current ? turnFirstChartRef : null
                   }
                 >
-                  <ResearchChart chart={chart} />
+                  <ResearchChart
+                    chart={chart}
+                    isLatest={i === charts.length - 1}
+                  />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (
                   <div className="flex items-center gap-3 py-2">
