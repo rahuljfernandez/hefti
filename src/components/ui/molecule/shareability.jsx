@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
   XMarkIcon,
   ArrowDownTrayIcon,
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import Tooltip from '../atom/tooltip';
 
@@ -65,7 +66,7 @@ function GrowShrink({ className, children, skipEnter }) {
         pointerEvents: 'none',
         transition: { duration: 0.6 },
       }}
-      className="overflow-x-hidden"
+      className="overflow-x-clip"
     >
       <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
         {children}
@@ -210,6 +211,7 @@ function TelescopeSegment({
   tooltip,
   loadingLabel,
   successLabel,
+  emptyLabel,
   onClick,
   onHoverChange,
 }) {
@@ -221,19 +223,15 @@ function TelescopeSegment({
   }, []);
 
   async function handleClick() {
-    if (status === 'loading') return;
+    if (status !== 'idle') return;
     setStatus('loading');
     try {
       const result = await onClick();
-      if (result) {
-        setStatus('success');
+      const next = result ? 'success' : emptyLabel ? 'empty' : 'idle';
+      setStatus(next);
+      if (next !== 'idle') {
         clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(
-          () => setStatus('idle'),
-          CLICK_FEEDBACK_MS,
-        );
-      } else {
-        setStatus('idle');
+        timeoutRef.current = setTimeout(() => setStatus('idle'), CLICK_FEEDBACK_MS);
       }
     } catch {
       setStatus('idle');
@@ -244,11 +242,12 @@ function TelescopeSegment({
     idle: { icon: Icon, text: label },
     loading: { icon: ArrowPathIcon, text: loadingLabel ?? label },
     success: { icon: CheckIcon, text: successLabel ?? label },
+    empty: { icon: ExclamationCircleIcon, text: emptyLabel ?? label },
   }[status];
 
   return (
     <div
-      className="group relative flex items-center"
+      className="relative flex items-center"
       onMouseEnter={() => onHoverChange?.(true)}
       onMouseLeave={() => onHoverChange?.(false)}
     >
@@ -263,11 +262,6 @@ function TelescopeSegment({
         />
         <span>{display.text}</span>
       </button>
-      {tooltip && (
-        <Tooltip size="sm" className="max-w-56 shadow-sm">
-          {tooltip}
-        </Tooltip>
-      )}
     </div>
   );
 }
@@ -275,9 +269,9 @@ function TelescopeSegment({
 TelescopeSegment.propTypes = {
   icon: PropTypes.elementType.isRequired,
   label: PropTypes.string.isRequired,
-  tooltip: PropTypes.string,
   loadingLabel: PropTypes.string,
   successLabel: PropTypes.string,
+  emptyLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   onHoverChange: PropTypes.func,
 };
@@ -369,14 +363,21 @@ export function ShareWidget({
         {isExpanded &&
           !isIntro &&
           categories.map((category) => (
-            <GrowShrink key={category.label}>
-              <TelescopeSegment
-                {...category}
-                onHoverChange={(isHovering) =>
-                  onCategoryHover?.(isHovering ? category.target : null)
-                }
-              />
-            </GrowShrink>
+            <div key={category.label} className="group relative">
+              <GrowShrink>
+                <TelescopeSegment
+                  {...category}
+                  onHoverChange={(isHovering) =>
+                    onCategoryHover?.(isHovering ? category.target : null)
+                  }
+                />
+              </GrowShrink>
+              {category.tooltip && (
+                <Tooltip size="sm" className="max-w-56 shadow-sm">
+                  {category.tooltip}
+                </Tooltip>
+              )}
+            </div>
           ))}
       </AnimatePresence>
       <div className="group relative flex shrink-0 items-center">
@@ -410,6 +411,7 @@ ShareWidget.propTypes = {
       tooltip: PropTypes.string,
       loadingLabel: PropTypes.string,
       successLabel: PropTypes.string,
+      emptyLabel: PropTypes.string,
       onClick: PropTypes.func.isRequired,
       /* Opaque identifier forwarded as-is to onCategoryHover — ShareWidget
          doesn't interpret it, the caller defines what it means. */
