@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useParams, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import ResearcherComposer from '../components/ui/molecule/researcherComposer';
 import ReactMarkdown from 'react-markdown';
@@ -10,7 +11,15 @@ import {
   getRankingsResearchPages,
 } from '../lib/breadcrumbPages';
 import { Heading } from '../components/ui/atom/heading';
-import ResearchChart from '../components/ui/molecule/ResearchChart';
+import ResearchChart, {
+  chartToRows,
+} from '../components/ui/molecule/ResearchChart';
+import DimOverlay from '../lib/ResearchPanelDimOverlay';
+import {
+  getPanelAccent,
+  SHARE_WIDGET_Z_CLASS,
+} from '../lib/researchPanelAccent';
+import { createResearchShareActions } from '../lib/researchShareActions';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
 import { OWNER_PROMPTS, FACILITY_PROMPTS } from '../lib/researchPrompts';
@@ -19,10 +28,13 @@ import {
   ShareButton,
   ShareButtonRow,
   HoverReveal,
+  ShareWidget,
 } from '../components/ui/molecule/shareability';
 import {
   DocumentTextIcon,
   ClipboardDocumentIcon,
+  ChartBarIcon,
+  DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline';
 
 const API_BASE_URL =
@@ -35,6 +47,7 @@ const API_BASE_URL =
 const DATA_API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
+
 /**
  * HeftiResearch
  *
@@ -87,12 +100,19 @@ export default function HeftiResearch() {
   const [assistantMinHeight, setAssistantMinHeight] = useState(0);
   const [chartsSpacerHeight, setChartsSpacerHeight] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
+  /* Which panel(s) the ShareWidget's hovered segment targets ('left' |
+     'right' | 'both' | null) — drives the highlight/dim accent on the two
+     panels below. */
+  const [hoveredTarget, setHoveredTarget] = useState(null);
   const messagesContainerRef = useRef(null);
   const lastUserMsgRef = useRef(null);
   const chartsPanelRef = useRef(null);
   /* message.id -> rendered markdown DOM node, used to read rendered HTML for
      "copy as rich text" without keeping a ref per message via useRef. */
   const assistantContentRefs = useRef(new Map());
+  /* chart index -> rendered card DOM node, used to capture each chart as its
+     own PNG for the "Right panel" export (see handleExportRightPanel). */
+  const chartCardRefs = useRef(new Map());
   // Mirrors lastUserMsgRef on the left: the first chart produced by the current
   // turn, which we pin to the top of the panel once it arrives.
   const turnFirstChartRef = useRef(null);
@@ -384,6 +404,24 @@ export default function HeftiResearch() {
     }
   }
 
+  const {
+    handleExportRightPanel,
+    handleCopyLeftPanel,
+    handleExportFullSession,
+  } = createResearchShareActions({
+    assistantContentRefs,
+    chartCardRefs,
+    charts,
+    chartToRows,
+    contextChartCountRef,
+    messages,
+  });
+
+  // Drives the ShareWidget hover accent: the targeted panel(s) get a blue
+  // highlight ring, the other panel gets dimmed by an overlay.
+  const { leftHighlighted, rightHighlighted, leftDimmed, rightDimmed } =
+    getPanelAccent(hoveredTarget);
+
   return (
     <>
       <Breadcrumb pages={researchPages} />
@@ -393,7 +431,13 @@ export default function HeftiResearch() {
 
       <div className="bg-core-white grid h-[calc(100vh-140px)] grid-cols-1 lg:grid-cols-2">
         {/**Left-Panel Text and Input */}
-        <section className="bg-background-tertiary flex min-h-0 flex-col">
+        <section
+          className={clsx(
+            'bg-background-tertiary relative flex min-h-0 flex-col transition-shadow',
+            leftHighlighted && 'ring-2 ring-blue-600 ring-inset',
+          )}
+        >
+          {leftDimmed && <DimOverlay />}
           <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
             {hasStarted ? (
               <>
@@ -559,8 +603,54 @@ export default function HeftiResearch() {
         {/* Right panel — chart output */}
         <section
           aria-label="Generated charts"
-          className="bg-background-secondary flex min-h-0 flex-col"
+          className={clsx(
+            'bg-background-secondary relative flex min-h-0 flex-col transition-shadow',
+            rightHighlighted && 'ring-2 ring-blue-600 ring-inset',
+          )}
         >
+          {rightDimmed && <DimOverlay />}
+          {hasStarted && (
+            <div
+              className={clsx(
+                'absolute inset-x-0 top-4 mr-auto flex w-full max-w-[600px] justify-end px-6',
+                SHARE_WIDGET_Z_CLASS,
+              )}
+            >
+              <ShareWidget
+                title="Export Session"
+                onCategoryHover={setHoveredTarget}
+                categories={[
+                  {
+                    icon: ClipboardDocumentIcon,
+                    label: 'Left panel',
+                    tooltip: 'Copy all chat text',
+                    loadingLabel: 'Copying…',
+                    successLabel: 'Copied',
+                    onClick: handleCopyLeftPanel,
+                    target: 'left',
+                  },
+                  {
+                    icon: DocumentArrowDownIcon,
+                    label: 'Full session (PDF)',
+                    tooltip: 'Export the full session as a PDF',
+                    loadingLabel: 'Exporting…',
+                    successLabel: 'Downloaded',
+                    onClick: handleExportFullSession,
+                    target: 'both',
+                  },
+                  {
+                    icon: ChartBarIcon,
+                    label: 'Right panel',
+                    tooltip: 'Download charts + data',
+                    loadingLabel: 'Exporting…',
+                    successLabel: 'Downloaded',
+                    onClick: handleExportRightPanel,
+                    target: 'right',
+                  },
+                ]}
+              />
+            </div>
+          )}
           {/* aria-live announces newly streamed charts to screen readers, since
               they appear without any focus or navigation change. */}
           <div
@@ -583,6 +673,13 @@ export default function HeftiResearch() {
                   <ResearchChart
                     chart={chart}
                     isLatest={i === charts.length - 1}
+                    onCardMount={(el) => {
+                      if (el) {
+                        chartCardRefs.current.set(i, el);
+                      } else {
+                        chartCardRefs.current.delete(i);
+                      }
+                    }}
                   />
                 </div>
                 {hasStarted && i === contextChartCountRef.current - 1 && (

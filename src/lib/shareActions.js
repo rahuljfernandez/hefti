@@ -1,4 +1,5 @@
 import { toPng } from 'html-to-image';
+import JSZip from 'jszip';
 
 /**
  * shareActions
@@ -28,6 +29,10 @@ export async function copyText(text) {
   }
 }
 
+export function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /* Safari requires the Blobs passed to ClipboardItem be constructed
    synchronously within the user-gesture call stack — don't `await` anything
    before calling this from a click handler. */
@@ -52,32 +57,61 @@ export async function copyRichText(html, plainTextFallback) {
 function escapeCsvCell(cell) {
   const value = cell ?? '';
   const str = String(value);
-  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+export function rowsToCsv(rows, headers) {
+  const allRows = headers ? [headers, ...rows] : rows;
+  return allRows.map((row) => row.map(escapeCsvCell).join(',')).join('\r\n');
 }
 
 export function downloadCsv(rows, filename, headers) {
   try {
-    const allRows = headers ? [headers, ...rows] : rows;
-    const csv = allRows
-      .map((row) => row.map(escapeCsvCell).join(','))
-      .join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([rowsToCsv(rows, headers)], {
+      type: 'text/csv;charset=utf-8;',
+    });
     const url = URL.createObjectURL(blob);
     triggerDownload(url, filename);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return true;
   } catch {
     return false;
   }
 }
 
+export function nodeToPngDataUrl(node) {
+  return toPng(node, { backgroundColor: '#ffffff', pixelRatio: 2 });
+}
+
 export async function downloadPng(node, filename) {
   try {
-    const dataUrl = await toPng(node, {
-      backgroundColor: '#ffffff',
-      pixelRatio: 2,
-    });
+    const dataUrl = await nodeToPngDataUrl(node);
     triggerDownload(dataUrl, filename);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/* entries: [{ name, content }], where content is either a plain string (CSV)
+   or a PNG data URL (from nodeToPngDataUrl) — used to bundle multiple
+   per-chart exports into one download instead of triggering N separate
+   downloads, which Chromium browsers block past the first couple in quick
+   succession. */
+export async function downloadZip(entries, filename) {
+  try {
+    const zip = new JSZip();
+    entries.forEach(({ name, content }) => {
+      if (content.startsWith('data:')) {
+        zip.file(name, content.split(',')[1], { base64: true });
+      } else {
+        zip.file(name, content);
+      }
+    });
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    triggerDownload(url, filename);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return true;
   } catch {
     return false;

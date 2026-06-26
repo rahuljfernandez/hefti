@@ -14,8 +14,10 @@ import {
 } from 'recharts';
 import { TableCellsIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
-import { downloadCsv, downloadPng } from '../../../lib/shareActions';
-import { slugify } from '../../../lib/slugify';
+import {
+  downloadChartCsv,
+  downloadChartPng,
+} from '../../../lib/chartExport';
 
 /**
  * ResearchChart — chart rendering for the Hefti Researcher right panel.
@@ -100,26 +102,30 @@ ChartXTick.propTypes = {
 };
 
 //The Recharts code lives inside the individual view components (BarView, ComparisonBarView, etc.) which get passed in as children. ChartWrapper just wraps them in the card with the border and title.
-function ChartWrapper({ title, description, children, chart, isLatest }) {
+function ChartWrapper({
+  title,
+  description,
+  children,
+  chart,
+  isLatest,
+  onCardMount,
+}) {
   const cardRef = useRef(null);
-  /* Falls back to a generic name when the title has no a-z0-9 characters for
-     slugify to keep (e.g. emoji/symbols-only), so the download isn't a bare
-     ".csv"/".png" with no visible filename. */
-  const filenameBase = slugify(title) || 'chart';
-
   function handleDownloadCsv() {
-    const { headers, rows } = chartToRows(chart);
-    return downloadCsv(rows, `${filenameBase}.csv`, headers);
+    return downloadChartCsv(chart, chartToRows);
   }
 
   function handleDownloadPng() {
-    return downloadPng(cardRef.current, `${filenameBase}.png`);
+    return downloadChartPng(cardRef.current, chart);
   }
 
   return (
     <div className="group">
       <div
-        ref={cardRef}
+        ref={(el) => {
+          cardRef.current = el;
+          onCardMount?.(el);
+        }}
         className="border-border-primary overflow-hidden rounded-lg border bg-white p-4 shadow-sm"
       >
         <p className="text-label-lg text-core-black">{title}</p>
@@ -154,6 +160,7 @@ ChartWrapper.propTypes = {
   isLatest: PropTypes.bool,
   chart: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
+  onCardMount: PropTypes.func,
 };
 
 /* Shared shape-unwrapping helpers — used by both the View that renders a
@@ -482,7 +489,7 @@ export function chartToRows(chart) {
 /* Entry point — receives a single chart object, looks up the right view from
    the VIEWS registry, and wraps it in ChartWrapper. Returns null for unknown
    chart types so unrecognized LLM output fails silently rather than crashing. */
-export default function ResearchChart({ chart, isLatest }) {
+export default function ResearchChart({ chart, isLatest, onCardMount }) {
   const { chart_type, title, description, data } = chart;
   const View = VIEWS[chart_type];
   if (!View) return null;
@@ -492,6 +499,7 @@ export default function ResearchChart({ chart, isLatest }) {
       description={description}
       chart={chart}
       isLatest={isLatest}
+      onCardMount={onCardMount}
     >
       <View data={data} />
     </ChartWrapper>
@@ -500,6 +508,7 @@ export default function ResearchChart({ chart, isLatest }) {
 
 ResearchChart.propTypes = {
   isLatest: PropTypes.bool,
+  onCardMount: PropTypes.func,
   chart: PropTypes.shape({
     chart_type: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
