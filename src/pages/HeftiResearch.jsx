@@ -24,8 +24,9 @@ import useResearchStream from '../hooks/useResearchStream';
  * - Derives `contextType` ("owner" | "facility") from the current URL path
  *   so the backend can scope its response to the right entity type.
  * - Streams assistant responses and folds them into message/chart state via
- *   useResearchContextCharts; seeds the on-load context chart via useContextCharts;
- *   and pins each new turn to the top of both panels via useResearchScroll.
+ *   useResearchStream; seeds the on-load context chart via
+ *   useResearchContextCharts; and pins each new turn to the top of both panels
+ *   via useResearchScroll.
  *
  * This component owns the core message/chart state and the render; the three
  * hooks above own the streaming, seeding, and scroll choreography respectively.
@@ -48,7 +49,7 @@ export default function HeftiResearch() {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [charts, setCharts] = useState([]);
-  //Keeps track of latest chart for use by share actions
+  // Keeps track of latest chart for use by share actions
   const chartsRef = useRef([]);
   chartsRef.current = charts;
 
@@ -62,7 +63,7 @@ export default function HeftiResearch() {
   const chartCardRefs = useRef(new Map());
   const hasStarted = messages.length > 0;
 
-  //hook to handle scroll/layout
+  // Hook to handle scroll/layout
   const {
     messagesContainerRef,
     lastUserMsgRef,
@@ -74,7 +75,7 @@ export default function HeftiResearch() {
     pinUserMessageToTop,
   } = useResearchScroll({ charts, hasStarted });
 
-  //hook to seed on load data
+  // Hook to seed on load data
   const { subjectName, contextChartCountRef, chartCountRef } =
     useResearchContextCharts({
       slug,
@@ -82,7 +83,7 @@ export default function HeftiResearch() {
       setCharts,
     });
 
-  //hook for the chat stream engine
+  // Hook for the chat stream engine
   const { isStreaming, submitPrompt } = useResearchStream({
     contextType,
     slug,
@@ -98,7 +99,7 @@ export default function HeftiResearch() {
     pinUserMessageToTop,
   });
 
-  //handles the export/share actions of the widget
+  // Handles the export/share actions of the widget
   const {
     handleExportRightPanel,
     handleCopyLeftPanel,
@@ -113,19 +114,20 @@ export default function HeftiResearch() {
     subjectName,
   });
 
-  /* Drives the ShareWidget hover accent: the targeted panel(s) get a blue
-     highlight ring, the other panel gets dimmed by an overlay. */
+  /* Controls the hover accent behavior when user hovers the widget */
   const { leftHighlighted, rightHighlighted, leftDimmed, rightDimmed } =
     getPanelAccent(hoveredTarget);
 
   return (
     <>
       <Breadcrumb pages={researchPages} />
+      {/**sr-only h1 for accessibility and screen readers */}
       <Heading level={1} className="sr-only">
         Hefti Researcher
       </Heading>
 
       <div className="bg-core-white grid h-[calc(100vh-140px)] grid-cols-1 lg:grid-cols-2">
+        {/**Left panel focused on chat/prompt flow */}
         <ResearchChatPanel
           highlighted={leftHighlighted}
           dimmed={leftDimmed}
@@ -141,7 +143,7 @@ export default function HeftiResearch() {
           lastUserMsgRef={lastUserMsgRef}
           assistantContentRefs={assistantContentRefs}
         />
-
+        {/**Right panel focused on charts */}
         <ResearchChartsPanel
           highlighted={rightHighlighted}
           dimmed={rightDimmed}
