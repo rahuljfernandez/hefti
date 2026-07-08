@@ -16,14 +16,17 @@ import MonthlyOwnershipChangeChart from './monthlyOwnershipChangeChart';
 /**
  * Empty chart area standing in for a trending chart that has not been built
  * yet. The carousel container renders its title/subtitle, so this is only the
- * body.
+ * body. Mirrors the real chart's gray-box wrapper (same padding + 580px plot
+ * height) so the card doesn't change height when flipping between slides.
  */
 function PlaceholderChart() {
   return (
     <div
-      className="bg-background-primary h-[580px] w-full rounded-lg"
+      className="bg-background-primary rounded-lg px-3 py-4 md:px-6"
       aria-hidden="true"
-    />
+    >
+      <div className="h-[580px] w-full" />
+    </div>
   );
 }
 

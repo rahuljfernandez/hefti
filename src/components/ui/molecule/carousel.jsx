@@ -76,6 +76,8 @@ export default function Carousel({ slides, options, ariaLabel }) {
     };
   }, [emblaApi, onSelect]);
 
+  if (!slides.length) return null;
+
   const activeSlide = slides[selectedIndex] ?? slides[0];
 
   return (
@@ -83,7 +85,7 @@ export default function Carousel({ slides, options, ariaLabel }) {
       <div role="group" aria-roledescription="carousel" aria-label={ariaLabel}>
         {/* Same horizontal inset as the viewport below so the title/subtitle
             line up with the slide body rather than the arrow gutters. */}
-        <div className="mb-4 md:mx-12">
+        <div className="mb-4 lg:mx-12">
           <Heading level={3} className="text-heading-xs">
             {activeSlide.title}
           </Heading>
@@ -95,7 +97,7 @@ export default function Carousel({ slides, options, ariaLabel }) {
         </div>
 
         <div className="relative">
-          <div className="overflow-hidden md:mx-12" ref={emblaRef}>
+          <div className="overflow-hidden lg:mx-12" ref={emblaRef}>
             <div className="flex">
               {slides.map((slide, index) => (
                 <div

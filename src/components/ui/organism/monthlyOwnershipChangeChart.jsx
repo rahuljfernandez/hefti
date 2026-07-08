@@ -154,7 +154,7 @@ function Chart({ data }) {
       <div
         role="img"
         aria-describedby={descId}
-        className="rounded-lg bg-gray-200 px-3 py-4 md:px-6"
+        className="bg-background-primary rounded-lg px-3 py-4 md:px-6"
       >
         <ResponsiveContainer width="100%" height={580}>
           <BarChart
