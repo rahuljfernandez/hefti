@@ -17,96 +17,51 @@ import {
 } from '@heroicons/react/24/outline';
 import Tooltip from '../atom/tooltip';
 
+/**
+ * shareability — single home for all shareability UI. Two themes live here,
+ * each in its own section below:
+ * - The lightweight ShareButton / ShareButtonRow / HoverReveal set, used
+ *   inline in chat messages and chart cards.
+ * - ShareWidget, the full-scale "telescoping" widget that accepts multiple
+ *   share categories and expands/collapses between them.
+ */
+
+// How long a button/segment holds its success (or empty) feedback before
+// reverting to idle. Shared by both themes below.
 const CLICK_FEEDBACK_MS = 1200;
-const AUTO_COLLAPSE_MS = 2200;
 
-/* Animating `width` to/from the string 'auto' makes Framer Motion measure
-   the element's layout mid-animation, which is the source of a well-known
-   stutter partway through the transition. Measuring the content's actual
-   pixel width once up front and animating to/from that number instead
-   avoids the runtime auto-measurement entirely, so the transition is
-   driven purely by numbers with no layout reads competing with it. Each
-   segment grows/shrinks its own width rather than the whole bar fading as
-   one block — reads as the bar telescoping segments out of, and back into,
-   the persistent icon anchored at its right edge. */
-function GrowShrink({ className, children, skipEnter }) {
-  const contentRef = useRef(null);
-  const [contentWidth, setContentWidth] = useState(0);
-  const [settled, setSettled] = useState(false);
-
-  useLayoutEffect(() => {
-    if (contentRef.current) {
-      setContentWidth(contentRef.current.scrollWidth);
-    }
-  }, []);
-
-  /* Runs after paint, one render behind the layout effect above — lets the
-     very first width measurement (0 -> measured) render with skipFirstGrow
-     still true, before flipping settled for any later transitions. */
-  useEffect(() => {
-    if (contentWidth > 0) setSettled(true);
-  }, [contentWidth]);
-
-  const skipFirstGrow = skipEnter && !settled;
-
-  return (
-    <motion.div
-      initial={skipEnter ? false : { width: 0, opacity: 0 }}
-      animate={{
-        width: contentWidth,
-        opacity: 1,
-        transition: { duration: skipFirstGrow ? 0 : 0.2 },
-      }}
-      /* pointerEvents isn't interpolated — Framer Motion applies it
-         immediately when exit starts, so a shrinking segment can't fire
-         hover/click while it's still visible mid-animation. */
-      exit={{
-        width: 0,
-        opacity: 0,
-        pointerEvents: 'none',
-        transition: { duration: 0.6 },
-      }}
-      className="overflow-x-clip"
-    >
-      <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
-        {children}
-      </div>
-    </motion.div>
-  );
-}
-
-GrowShrink.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-  skipEnter: PropTypes.bool,
-};
+/* ────────────────────────────────────────────────────────────────────────
+   Lightweight inline buttons — ShareButton / ShareButtonRow / HoverReveal.
+   Used inline in chat messages and chart cards.
+   ──────────────────────────────────────────────────────────────────────── */
 
 /**
- * shareability
+ * ShareButton — lightweight inline share button used in chat messages and
+ * chart cards. Runs its async onClick, guards against a concurrent
+ * double-click, and briefly flashes a check icon on success.
  *
- * Hosts the lightweight ShareButton theme used inline in chat messages and
- * chart cards. A full-scale "telescoping" widget (accepting multiple share
- * categories and expanding/collapsing between them) will be added here
- * later — this file is the single home for all shareability UI.
+ * Buttons are typically wrapped in a ShareButtonRow inside a HoverReveal, so
+ * they show for the latest message/chart (`show`) and reveal on hover otherwise.
  *
  * @example
- * import { ShareButton, ShareButtonRow } from './shareability';
+ * import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
  * import { copyText, downloadCsv } from '../../../lib/shareability/shareActions';
  * import { DocumentTextIcon, TableCellsIcon } from '@heroicons/react/24/outline';
  *
- * <ShareButtonRow>
- *   <ShareButton
- *     icon={DocumentTextIcon}
- *     label="Copy text"
- *     onClick={() => copyText(message.content)}
- *   />
- *   <ShareButton
- *     icon={TableCellsIcon}
- *     label="Download data as CSV"
- *     onClick={() => downloadCsv(rows, 'chart.csv', headers)}
- *     className="ml-2"
- *   />
- * </ShareButtonRow>
+ * <HoverReveal show={isLatest} className="mt-2">
+ *   <ShareButtonRow>
+ *     <ShareButton
+ *       icon={DocumentTextIcon}
+ *       label="Copy text"
+ *       onClick={() => copyText(message.content)}
+ *     />
+ *     <ShareButton
+ *       icon={TableCellsIcon}
+ *       label="Download data as CSV"
+ *       onClick={() => downloadCsv(rows, 'chart.csv', headers)}
+ *     />
+ *   </ShareButtonRow>
+ * </HoverReveal>
  */
 export function ShareButton({ icon: Icon, label, onClick, className }) {
   const [justSucceeded, setJustSucceeded] = useState(false);
@@ -200,6 +155,71 @@ HoverReveal.propTypes = {
   show: PropTypes.bool,
   className: PropTypes.string,
   children: PropTypes.node,
+};
+
+/* ────────────────────────────────────────────────────────────────────────
+   Telescoping ShareWidget — GrowShrink / TelescopeSegment / ShareWidget.
+   A persistent icon that expands one segment per share category out to its
+   left, then collapses back into the icon.
+   ──────────────────────────────────────────────────────────────────────── */
+
+// How long the intro auto-expansion lingers before collapsing on its own.
+const AUTO_COLLAPSE_MS = 2200;
+
+/* Framer Motion stutters when animating `width` to/from the string 'auto'
+   because it measures layout mid-animation. Measuring the content's pixel
+   width up front and animating to/from that number instead keeps the
+   transition purely numeric, with no competing layout reads. */
+function GrowShrink({ className, children, skipEnter }) {
+  const contentRef = useRef(null);
+  const [contentWidth, setContentWidth] = useState(0);
+  const [settled, setSettled] = useState(false);
+
+  useLayoutEffect(() => {
+    if (contentRef.current) {
+      setContentWidth(contentRef.current.scrollWidth);
+    }
+  }, []);
+
+  /* Runs after paint, one render behind the layout effect above — lets the
+     very first width measurement (0 -> measured) render with skipFirstGrow
+     still true, before flipping settled for any later transitions. */
+  useEffect(() => {
+    if (contentWidth > 0) setSettled(true);
+  }, [contentWidth]);
+
+  const skipFirstGrow = skipEnter && !settled;
+
+  return (
+    <motion.div
+      initial={skipEnter ? false : { width: 0, opacity: 0 }}
+      animate={{
+        width: contentWidth,
+        opacity: 1,
+        transition: { duration: skipFirstGrow ? 0 : 0.2 },
+      }}
+      /* pointerEvents isn't interpolated — Framer Motion applies it
+         immediately when exit starts, so a shrinking segment can't fire
+         hover/click while it's still visible mid-animation. */
+      exit={{
+        width: 0,
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: { duration: 0.6 },
+      }}
+      className="overflow-x-clip"
+    >
+      <div ref={contentRef} className={clsx('whitespace-nowrap', className)}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+GrowShrink.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+  skipEnter: PropTypes.bool,
 };
 
 /* One segment inside an expanded ShareWidget. Unlike ShareButton, the

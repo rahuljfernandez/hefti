@@ -11,6 +11,18 @@ import {
 } from './shareActions';
 import { slugify } from '../slugify';
 import ResearchBriefDocument from './researchBriefPdf';
+/**
+ * researchShareActions
+ *
+ * Owns the researcher's "Export Session" share actions — the logic behind the
+ * three ShareWidget categories
+ * -copy the chat
+ * -export a PDF brief
+ * -download acharts.zip
+ *
+ * `createResearchShareActions` is the single public entry point;
+ * everything else here is a private helper for one of those three actions.
+ */
 
 /* Reads the real rasterized pixel dimensions of a captured chart PNG. The
    DOM node's own offsetWidth/offsetHeight isn't a reliable proxy for this —
@@ -19,7 +31,8 @@ import ResearchBriefDocument from './researchBriefPdf';
 function loadImageDimensions(dataUrl) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onload = () =>
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
     img.onerror = reject;
     img.src = dataUrl;
   });
@@ -194,6 +207,25 @@ async function exportFullSession({
   return downloadBlob(blob, filename);
 }
 
+/**
+ * Builds the three share-action handlers for the researcher's "Export Session"
+ * widget, closing over the live message/chart state and DOM refs they read.
+ *
+ * The returned handlers map one-to-one to the widget's categories:
+ * - `handleCopyLeftPanel` — copies the whole conversation to the clipboard as
+ *   rich text (headers/bullets preserved).
+ * - `handleExportFullSession` — downloads a branded "Research Brief" PDF of
+ *   every turn (prompt + assistant narrative + that turn's charts).
+ * - `handleExportRightPanel` — downloads a charts.zip of one PNG + one CSV per
+ *   AI-generated chart (on-load context charts excluded).
+ *
+ * Each handler resolves to a truthy value on success and `false` when there is
+ * nothing to export (e.g. no charts yet) — the widget uses this to drive its
+ * success flash vs. its empty-state feedback.
+ *
+ * Refs (not snapshots) are passed in so the handlers read current state at
+ * click time; `chartsRef` mirrors the latest charts array (see HeftiResearch).
+ */
 export function createResearchShareActions({
   assistantContentRefs,
   chartCardRefs,

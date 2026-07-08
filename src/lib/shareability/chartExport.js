@@ -6,6 +6,16 @@ import {
 } from './shareActions';
 import { slugify } from '../slugify';
 
+/**
+ * chartExport — chart-specific export helpers, built on the generic
+ * shareActions primitives. Two flavors:
+ * - chartCsvEntry / chartPngEntry return a { name, content } object for
+ *   bundling into the charts.zip export (no download side effect).
+ * - downloadChartCsv / downloadChartPng trigger an immediate single-file
+ *   download, used by the per-chart inline share buttons.
+ * chartFilenameBase derives a safe filename slug shared by all of them.
+ */
+
 /* Falls back to a generic name when the title has no a-z0-9 characters for
    slugify to keep (e.g. emoji/symbols-only), so downloads don't become a bare
    ".csv"/".png" with no visible filename. */
