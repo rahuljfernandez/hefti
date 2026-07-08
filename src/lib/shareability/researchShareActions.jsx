@@ -15,8 +15,12 @@ import ResearchBriefDocument from './researchBriefPdf';
  * researchShareActions
  *
  * Owns the researcher's "Export Session" share actions — the logic behind the
- * three ShareWidget categories (copy the chat, export a PDF brief, download a
- * charts.zip). `createResearchShareActions` is the single public entry point;
+ * three ShareWidget categories
+ * -copy the chat
+ * -export a PDF brief
+ * -download acharts.zip
+ *
+ * `createResearchShareActions` is the single public entry point;
  * everything else here is a private helper for one of those three actions.
  */
 

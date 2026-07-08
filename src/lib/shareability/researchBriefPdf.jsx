@@ -11,6 +11,22 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 
+/**
+ * researchBriefPdf — the react-pdf template for the "Full session (PDF)"
+ * research brief export.
+ *
+ * Composed bottom-up from local helper components:
+ * -LogoMark (the brand mark redrawn with react-pdf primitives)
+ * -PdfImage
+ * -PdfTable (the two chart renderings)
+ * -ChartBlock (picks between them perchart)
+ * -Turn (one prompt/response/chart group)
+ *
+ * ResearchBriefDocument, the default export, assembles them into the paginated document.
+ *
+ * Rendered by researchShareActions.jsx, which prepares the turn/chart data.
+ */
+
 const BRAND_DARK = '#09090b'; // --content-primary
 const BRAND_SECONDARY = '#71717a'; // --content-secondary
 const BRAND_BORDER = '#e4e4e7';
@@ -299,7 +315,8 @@ PdfTable.propTypes = {
   }).isRequired,
 };
 
-/**ChartBlock is the dispatcher funtion that detects if the chart type is a table that requires a native PDF table build. */
+/* Dispatches each chart to a native PDF table (for `table` charts) or a
+   captured-image render (everything else). */
 function ChartBlock({ block }) {
   return block.type === 'table' ? (
     <PdfTable block={block} />
@@ -314,7 +331,8 @@ ChartBlock.propTypes = {
   }).isRequired,
 };
 
-/**Creates a section out of the "turn" i.e (prompt, response, chart) that belong together. Used in ResearchBriefDocument*/
+/* Renders one conversation turn — its prompt, the assistant's narrative, and
+   that turn's charts — as a single section of the brief. */
 function Turn({ turn }) {
   return (
     <View style={styles.turn}>
