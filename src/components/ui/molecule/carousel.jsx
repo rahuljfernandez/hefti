@@ -6,14 +6,43 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
 import LayoutCard from '../atom/layout-card';
 
+/** Circular prev/next control. Positioning is supplied by `className` so the
+ *  same button works both in the desktop side gutters and, on mobile, inline
+ *  beside the dot tracker. */
+function CarouselArrow({ direction, onClick, className }) {
+  const Icon = direction === 'prev' ? ArrowLeftIcon : ArrowRightIcon;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
+      className={clsx(
+        'focus-ring-light border-border-primary bg-core-white text-content-secondary hover:text-core-black flex size-10 items-center justify-center rounded-full border shadow-sm transition hover:cursor-pointer hover:shadow',
+        className,
+      )}
+    >
+      <Icon aria-hidden="true" className="size-5" />
+    </button>
+  );
+}
+
+CarouselArrow.propTypes = {
+  direction: PropTypes.oneOf(['prev', 'next']).isRequired,
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
 /**
  * Carousel — a single white "container" that houses one slide at a time.
  *
  * Reflecting the trending-charts design, the container owns all the chrome:
- * the active slide's title/subtitle header, the prev/next arrows in the side
- * gutters, and the dot tracker along the bottom. Only the slide body (a chart,
- * a placeholder tile, …) swaps as the user flips through. The carousel loops,
- * so the arrows never disable at the ends.
+ * the active slide's title/subtitle header, the prev/next arrows, and the dot
+ * tracker along the bottom. Only the slide body (a chart, a placeholder tile,
+ * …) swaps as the user flips through. The carousel loops, so the arrows never
+ * disable at the ends.
+ *
+ * The arrows sit in the side gutters on desktop; on mobile (where those gutters
+ * are dropped to give the slide full width) they move inline to flank the dots.
  *
  * @example
  * <Carousel
@@ -49,15 +78,12 @@ export default function Carousel({ slides, options, ariaLabel }) {
 
   const activeSlide = slides[selectedIndex] ?? slides[0];
 
-  const arrowClasses =
-    'focus-ring-light absolute top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border-primary bg-core-white text-content-secondary shadow-sm transition hover:cursor-pointer hover:text-core-black hover:shadow';
-
   return (
     <LayoutCard>
       <div role="group" aria-roledescription="carousel" aria-label={ariaLabel}>
         {/* Same horizontal inset as the viewport below so the title/subtitle
             line up with the slide body rather than the arrow gutters. */}
-        <div className="mx-12 mb-4">
+        <div className="mb-4 md:mx-12">
           <Heading level={3} className="text-heading-xs">
             {activeSlide.title}
           </Heading>
@@ -69,7 +95,7 @@ export default function Carousel({ slides, options, ariaLabel }) {
         </div>
 
         <div className="relative">
-          <div className="mx-12 overflow-hidden" ref={emblaRef}>
+          <div className="overflow-hidden md:mx-12" ref={emblaRef}>
             <div className="flex">
               {slides.map((slide, index) => (
                 <div
@@ -87,41 +113,49 @@ export default function Carousel({ slides, options, ariaLabel }) {
             </div>
           </div>
 
-          <button
-            type="button"
+          {/* Desktop: arrows in the side gutters. */}
+          <CarouselArrow
+            direction="prev"
             onClick={scrollPrev}
-            aria-label="Previous slide"
-            className={clsx(arrowClasses, 'left-0')}
-          >
-            <ArrowLeftIcon aria-hidden="true" className="size-5" />
-          </button>
-          <button
-            type="button"
+            className="absolute top-1/2 left-0 z-10 hidden -translate-y-1/2 lg:flex"
+          />
+          <CarouselArrow
+            direction="next"
             onClick={scrollNext}
-            aria-label="Next slide"
-            className={clsx(arrowClasses, 'right-0')}
-          >
-            <ArrowRightIcon aria-hidden="true" className="size-5" />
-          </button>
+            className="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 lg:flex"
+          />
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2.5">
-          {slides.map((_, index) => (
-            <button
-              /* Dots map one-to-one with the fixed slide list. */
-              key={index}
-              type="button"
-              onClick={() => scrollTo(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              aria-current={index === selectedIndex ? 'true' : undefined}
-              className={clsx(
-                'focus-ring-light size-2.5 rounded-full transition hover:cursor-pointer',
-                index === selectedIndex
-                  ? 'bg-content-primary'
-                  : 'bg-border-primary hover:bg-content-tertiary',
-              )}
-            />
-          ))}
+        {/* Mobile: arrows flank the dots; desktop: dots only, centered. */}
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <CarouselArrow
+            direction="prev"
+            onClick={scrollPrev}
+            className="lg:hidden"
+          />
+          <div className="flex items-center gap-2.5">
+            {slides.map((_, index) => (
+              <button
+                /* Dots map one-to-one with the fixed slide list. */
+                key={index}
+                type="button"
+                onClick={() => scrollTo(index)}
+                aria-label={`Go to slide ${index + 1}`}
+                aria-current={index === selectedIndex ? 'true' : undefined}
+                className={clsx(
+                  'focus-ring-light size-2.5 rounded-full transition hover:cursor-pointer',
+                  index === selectedIndex
+                    ? 'bg-content-primary'
+                    : 'bg-border-primary hover:bg-content-tertiary',
+                )}
+              />
+            ))}
+          </div>
+          <CarouselArrow
+            direction="next"
+            onClick={scrollNext}
+            className="lg:hidden"
+          />
         </div>
       </div>
     </LayoutCard>

@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 
 /**
  * @fileoverview Monthly SNF Ownership Change Volume chart.
@@ -21,6 +22,10 @@ import { ErrorBanner } from '../atom/errorBanner';
 
 const Y_AXIS_WIDTH = 130;
 const CHART_MARGIN = { top: 0, right: 120, bottom: 20, left: 10 };
+
+/* Mobile geometry for narrow cards below the md breakpoint we swap these in. */
+const MOBILE_Y_AXIS_WIDTH = 88;
+const MOBILE_CHART_MARGIN = { top: 0, right: 64, bottom: 20, left: 4 };
 
 const dataItemShape = PropTypes.shape({
   month: PropTypes.string.isRequired,
@@ -37,13 +42,15 @@ const dataItemShape = PropTypes.shape({
  * @param {number} props.y - SVG y coordinate provided by Recharts.
  * @param {{ value: string }} props.payload - Tick payload from Recharts (month string).
  * @param {Array<{month: string, count: number}>} props.data - Full chart dataset used to look up the count.
+ * @param {number} props.axisWidth - Width of the Y-axis gutter, so the month
+ *   label anchors to its left edge (varies between desktop and compact layouts).
  */
-function CustomYAxisTick({ x, y, payload, data: chartData }) {
+function CustomYAxisTick({ x, y, payload, data: chartData, axisWidth }) {
   const entry = chartData?.find((d) => d.month === payload.value);
   return (
     <g>
       <text
-        x={x - Y_AXIS_WIDTH + 5}
+        x={x - axisWidth + 5}
         y={y}
         textAnchor="start"
         dominantBaseline="middle"
@@ -73,6 +80,7 @@ CustomYAxisTick.propTypes = {
   y: PropTypes.number.isRequired,
   payload: PropTypes.shape({ value: PropTypes.string }).isRequired,
   data: PropTypes.arrayOf(dataItemShape).isRequired,
+  axisWidth: PropTypes.number.isRequired,
 };
 
 /**
@@ -125,6 +133,9 @@ PeakLowestLabel.propTypes = {
 function Chart({ data }) {
   const chartId = useId();
   const descId = `${chartId}-desc`;
+  const isMobile = useIsMobile(768);
+  const yAxisWidth = isMobile ? MOBILE_Y_AXIS_WIDTH : Y_AXIS_WIDTH;
+  const chartMargin = isMobile ? MOBILE_CHART_MARGIN : CHART_MARGIN;
   const peakMonth = data.find((d) => d.indicator === 'PEAK');
   const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
 
@@ -144,22 +155,26 @@ function Chart({ data }) {
       <div
         role="img"
         aria-describedby={descId}
-        className="rounded-lg bg-gray-200 px-6 py-4"
+        className="rounded-lg bg-gray-200 px-3 py-4 md:px-6"
       >
         <ResponsiveContainer width="100%" height={580}>
           <BarChart
             layout="vertical"
             data={data}
-            margin={CHART_MARGIN}
+            margin={chartMargin}
             barCategoryGap="25%"
           >
             <XAxis type="number" hide domain={[0, 'dataMax']} />
             <YAxis
               type="category"
               dataKey="month"
-              width={Y_AXIS_WIDTH}
+              width={yAxisWidth}
               tick={(tickProps) => (
-                <CustomYAxisTick {...tickProps} data={data} />
+                <CustomYAxisTick
+                  {...tickProps}
+                  data={data}
+                  axisWidth={yAxisWidth}
+                />
               )}
               axisLine={false}
               tickLine={false}
