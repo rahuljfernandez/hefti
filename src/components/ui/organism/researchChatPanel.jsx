@@ -37,58 +37,50 @@ export default function ResearchChatPanel({
       {dimmed && <DimOverlay />}
       <div className="ml-auto flex h-full min-h-0 w-full max-w-[640px] flex-col">
         {hasStarted ? (
-          <>
-            {/**Text Display */}
-            <div
-              ref={messagesContainerRef}
-              className="min-h-0 flex-1 overflow-y-auto px-6 py-8"
-            >
-              <div className="space-y-2">
-                {messages.map((message, i) => {
-                  const isLastUser =
-                    message.role === 'user' &&
-                    !messages.slice(i + 1).some((m) => m.role === 'user');
-                  const isLatestAssistant =
-                    message.role === 'assistant' && i === messages.length - 1;
-                  const showShareRow =
-                    message.role === 'assistant' &&
-                    !message.isError &&
-                    !(isLatestAssistant && isStreaming) &&
-                    message.content.trim().length > 0;
-                  return (
-                    <ResearchChatMessage
-                      key={message.id}
-                      message={message}
-                      isLastUser={isLastUser}
-                      isLatestAssistant={isLatestAssistant}
-                      showShareRow={showShareRow}
-                      assistantMinHeight={assistantMinHeight}
-                      lastUserMsgRef={lastUserMsgRef}
-                      assistantContentRefs={assistantContentRefs}
-                    />
-                  );
-                })}
-              </div>
+          <div
+            ref={messagesContainerRef}
+            className="min-h-0 flex-1 overflow-y-auto px-6 py-8"
+          >
+            <div className="space-y-2">
+              {messages.map((message, i) => {
+                const isLastUser =
+                  message.role === 'user' &&
+                  !messages.slice(i + 1).some((m) => m.role === 'user');
+                const isLatestAssistant =
+                  message.role === 'assistant' && i === messages.length - 1;
+                const showShareRow =
+                  message.role === 'assistant' &&
+                  !message.isError &&
+                  !(isLatestAssistant && isStreaming) &&
+                  message.content.trim().length > 0;
+                return (
+                  <ResearchChatMessage
+                    key={message.id}
+                    message={message}
+                    isLastUser={isLastUser}
+                    isLatestAssistant={isLatestAssistant}
+                    showShareRow={showShareRow}
+                    assistantMinHeight={assistantMinHeight}
+                    lastUserMsgRef={lastUserMsgRef}
+                    assistantContentRefs={assistantContentRefs}
+                  />
+                );
+              })}
             </div>
-            <ResearcherComposer
-              value={prompt}
-              onChange={onPromptChange}
-              onSubmit={onSubmitPrompt}
-            />
-          </>
-        ) : (
-          <div className="flex min-h-0 flex-1 flex-col">
-            <ResearchEmptyState
-              contextType={contextType}
-              onSelectPrompt={onSubmitPrompt}
-            />
-            <ResearcherComposer
-              value={prompt}
-              onChange={onPromptChange}
-              onSubmit={onSubmitPrompt}
-            />
           </div>
+        ) : (
+          <ResearchEmptyState
+            contextType={contextType}
+            onSelectPrompt={onSubmitPrompt}
+          />
         )}
+        {/* Single composer instance shared by both branches — staying mounted
+            across the empty→started flip preserves its focus/IME state. */}
+        <ResearcherComposer
+          value={prompt}
+          onChange={onPromptChange}
+          onSubmit={onSubmitPrompt}
+        />
       </div>
     </section>
   );
