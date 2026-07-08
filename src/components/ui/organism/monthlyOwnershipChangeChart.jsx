@@ -8,7 +8,6 @@ import {
   ResponsiveContainer,
   LabelList,
 } from 'recharts';
-import { Heading } from '../atom/heading';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
 
@@ -130,7 +129,7 @@ function Chart({ data }) {
   const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
 
   return (
-    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+    <div className="overflow-hidden">
       <p id={descId} className="sr-only">
         Horizontal bar chart showing monthly counts of facilities with ownership
         changes in recent months.
@@ -142,15 +141,11 @@ function Chart({ data }) {
           : ''}
       </p>
 
-      {/* Column headers — widths mirror chart axis areas for alignment */}
-      <div aria-hidden="true" className="flex items-baseline border-b-[3px] border-black pb-1 text-sm font-semibold">
-        <div style={{ width: Y_AXIS_WIDTH, flexShrink: 0, paddingLeft: 5 }}>
-          Month
-        </div>
-        <div>Facilities with Ownership Changes</div>
-      </div>
-
-      <div role="img" aria-describedby={descId}>
+      <div
+        role="img"
+        aria-describedby={descId}
+        className="rounded-lg bg-gray-200 px-6 py-4"
+      >
         <ResponsiveContainer width="100%" height={580}>
           <BarChart
             layout="vertical"
@@ -219,7 +214,9 @@ Chart.propTypes = {
 /**
  * Top-level data-fetching component for the monthly ownership change chart.
  * Manages fetch lifecycle (loading / error / success) and renders the
- * appropriate state: skeleton, error banner, or the Chart.
+ * appropriate state: skeleton, error banner, or the Chart. Renders bare (no
+ * card chrome) so its container — the trending carousel — supplies the card and
+ * title.
  *
  * @returns {JSX.Element}
  */
@@ -227,7 +224,6 @@ export default function MonthlyOwnershipChangeChart() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const headingId = useId();
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ??
@@ -262,31 +258,23 @@ export default function MonthlyOwnershipChangeChart() {
     return () => controller.abort();
   }, [API_BASE_URL]);
 
-  return (
-    <section aria-labelledby={headingId}>
-      <div>
-        <div className="mb-4">
-          <Heading id={headingId} level={3}>
-            Monthly SNF Ownership Change Volume
-          </Heading>
-        </div>
-
-        {loading ? (
-          <ChartSkeleton />
-        ) : error ? (
-          <>
-            <ErrorBanner
-              title="Chart data unavailable"
-              message="Ownership change data couldn't be fetched. Try refreshing the page."
-            />
-            <div className="pointer-events-none mt-4 opacity-60 select-none">
-              <ChartSkeleton error />
-            </div>
-          </>
-        ) : (
-          <Chart data={data} />
-        )}
+  const body = loading ? (
+    <ChartSkeleton />
+  ) : error ? (
+    <>
+      <ErrorBanner
+        title="Chart data unavailable"
+        message="Ownership change data couldn't be fetched. Try refreshing the page."
+      />
+      <div className="pointer-events-none mt-4 opacity-60 select-none">
+        <ChartSkeleton error />
       </div>
-    </section>
+    </>
+  ) : (
+    <Chart data={data} />
+  );
+
+  return (
+    <section aria-label="Monthly SNF ownership change volume">{body}</section>
   );
 }
