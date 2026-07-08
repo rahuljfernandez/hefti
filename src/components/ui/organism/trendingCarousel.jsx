@@ -9,9 +9,8 @@ import MonthlyOwnershipChangeChart from './monthlyOwnershipChangeChart';
  * Houses the trending charts in a single Embla carousel container. The
  * container supplies the title/subtitle, arrows, and dot tracker; each slide
  * only provides the body that swaps inside it. Today one real chart exists
- * (MonthlyOwnershipChangeChart, rendered bare via its `embedded` mode); the
- * remaining slides are placeholder tiles so the carousel stays navigable until
- * more charts are built.
+ * (MonthlyOwnershipChangeChart, which renders bare); the remaining slides are
+ * placeholder tiles so the carousel stays navigable until more charts are built.
  */
 
 /**

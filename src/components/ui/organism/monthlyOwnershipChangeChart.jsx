@@ -43,7 +43,7 @@ const dataItemShape = PropTypes.shape({
  * @param {{ value: string }} props.payload - Tick payload from Recharts (month string).
  * @param {Array<{month: string, count: number}>} props.data - Full chart dataset used to look up the count.
  * @param {number} props.axisWidth - Width of the Y-axis gutter, so the month
- *   label anchors to its left edge (varies between desktop and compact layouts).
+ *   label anchors to its left edge (varies between desktop and mobile layouts).
  */
 function CustomYAxisTick({ x, y, payload, data: chartData, axisWidth }) {
   const entry = chartData?.find((d) => d.month === payload.value);
@@ -124,7 +124,6 @@ PeakLowestLabel.propTypes = {
 /**
  * Accessible horizontal bar chart container. Wraps the Recharts BarChart with:
  * - A visually-hidden prose description (peak/lowest callouts).
- * - An aria-hidden visual column header row.
  * - A sr-only data table so screen readers can navigate individual values.
  *
  * @param {object} props
