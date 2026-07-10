@@ -5,7 +5,7 @@ import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';
 import UserGroupCircle from '../assets/userGroupCircle.jsx';
-import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
+import TrendingCarousel from '../components/ui/organism/trendingCarousel.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
@@ -227,11 +227,9 @@ export default function Home() {
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <StateRankingsHiLowViz />
       </section>
-      {/* Barchart Graphic Section */}
+      {/* Trending charts carousel section */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
-        <div className="mx-auto max-w-5xl">
-          <MonthlyOwnershipChangeChart />
-        </div>
+        <TrendingCarousel />
       </section>
     </div>
   );

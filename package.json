@@ -25,6 +25,7 @@
     "@tailwindcss/vite": "^4.1.7",
     "clsx": "^2.1.1",
     "deps": "^1.0.0",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.12.1",
     "graphology": "^0.26.0",
     "graphology-layout-forceatlas2": "^0.10.1",
