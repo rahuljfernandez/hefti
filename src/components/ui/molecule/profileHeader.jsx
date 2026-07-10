@@ -10,6 +10,7 @@ import {
   copyProfileLink,
   downloadProfileCsv,
 } from '../../../lib/shareability/profileShareActions';
+import { slugify } from '../../../lib/slugify';
 
 /*Custom component using Heading and Badge from TW Catalyst UI Kit  */
 /*Creates the header and badges w/ description atop profiles for Facilty or Owner*/
@@ -32,6 +33,11 @@ export default function ProfileHeader({
      associated facilities for an owner — the caller supplies the rows + column
      config via shareCsvRows/shareCsvConfig). Built only when a config is
      passed, so the widget can be omitted (e.g. in stories). */
+  /* Name the CSV after the profile subject (falls back to the config's static
+     filename when there's no title). */
+  const titleSlug = slugify(title);
+  const csvFilename = titleSlug ? `${titleSlug}.csv` : undefined;
+
   const shareCategories = shareCsvConfig
     ? [
         {
@@ -49,7 +55,8 @@ export default function ProfileHeader({
           loadingLabel: 'Preparing…',
           successLabel: 'Downloaded',
           emptyLabel: 'No data',
-          onClick: () => downloadProfileCsv(shareCsvRows, shareCsvConfig),
+          onClick: () =>
+            downloadProfileCsv(shareCsvRows, shareCsvConfig, csvFilename),
         },
       ]
     : null;

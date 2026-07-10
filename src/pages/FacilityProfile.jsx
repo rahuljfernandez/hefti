@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
@@ -28,7 +28,10 @@ import ListContainer, {
 import OwnershipFlowDiagram from '../components/ui/organism/ownershipFlowDiagram';
 import { OwnershipAndStakeholders } from '../components/ui/molecule/listContainerContent';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
-import { facilityStakeholdersExportConfig } from '../lib/shareability/profileShareActions';
+import {
+  facilityStatsExportConfig,
+  buildFacilityStatsRows,
+} from '../lib/shareability/profileShareActions';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -101,6 +104,12 @@ export default function FacilityProfile() {
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = facility?.facility_ownership_links || [];
 
+  // Flattened facility statistics powering the profile header's "Download CSV".
+  const facilityStatsRows = useMemo(
+    () => buildFacilityStatsRows(facility, nationalBenchmarks),
+    [facility, nationalBenchmarks],
+  );
+
   //click handler to open the AI chat
   const handleResearchClick = () => {
     navigate(
@@ -153,8 +162,8 @@ export default function FacilityProfile() {
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
               onYearChange={setSelectedYear}
-              shareCsvRows={ownershipLinks}
-              shareCsvConfig={facilityStakeholdersExportConfig}
+              shareCsvRows={facilityStatsRows}
+              shareCsvConfig={facilityStatsExportConfig}
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
