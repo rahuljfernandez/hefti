@@ -57,9 +57,9 @@ export default function ProfileHeader({
   const hasControls = years?.length > 0 || shareCategories;
 
   return (
-    <div className="bg-background-secondary my-6 flex flex-col gap-4 font-sans lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
-      <div>
-        <Heading className="text-display-xs" level={1}>
+    <div className="bg-background-secondary my-6 flex flex-col gap-4 font-sans lg:flex-row lg:items-start lg:justify-between">
+      <div className="lg:min-w-0">
+        <Heading className="text-display-xs wrap-break-word" level={1}>
           {title}
         </Heading>
         <div className="mt-4 flex flex-row gap-2">
@@ -75,7 +75,7 @@ export default function ProfileHeader({
       {/* Right column: data-year + share controls on top, researcher CTA below.
           Left-aligned on mobile (where it wraps under the title), right-aligned
           from lg up where it sits beside the title. */}
-      <div className="flex flex-col items-start gap-4 lg:items-end">
+      <div className="flex flex-col items-start gap-4 lg:shrink-0 lg:items-end">
         {hasControls && (
           <div className="flex items-center gap-3">
             {years?.length > 0 && (
