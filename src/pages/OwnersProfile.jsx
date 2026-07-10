@@ -24,7 +24,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import YearSelector from '../components/ui/molecule/yearSelector';
+import { ownerFacilitiesExportConfig } from '../lib/shareability/profileShareActions';
 
 /**
  * Owner profile page container.
@@ -141,6 +141,11 @@ export default function OwnersProfile() {
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
               subjectType="owner"
+              years={AVAILABLE_YEARS}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              shareCsvRows={relatedFacilities}
+              shareCsvConfig={ownerFacilitiesExportConfig}
             />
             <div className="pb-4">
               <OwnersNetworkGraphLauncher ownerId={owner.id} />
@@ -149,13 +154,6 @@ export default function OwnersProfile() {
             <TabsShell
               tabsData={profileTabsDescriptions}
               defaultTabName={'Provider Highlights'}
-              rightSlot={
-                <YearSelector
-                  years={AVAILABLE_YEARS}
-                  value={selectedYear}
-                  onChange={setSelectedYear}
-                />
-              }
             >
               {(activeTab) => {
                 switch (activeTab.name) {

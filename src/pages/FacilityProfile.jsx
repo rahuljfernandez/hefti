@@ -28,7 +28,7 @@ import ListContainer, {
 import OwnershipFlowDiagram from '../components/ui/organism/ownershipFlowDiagram';
 import { OwnershipAndStakeholders } from '../components/ui/molecule/listContainerContent';
 import AdditionalInformation from '../components/ui/molecule/additionalInformation';
-import YearSelector from '../components/ui/molecule/yearSelector';
+import { facilityStakeholdersExportConfig } from '../lib/shareability/profileShareActions';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -150,18 +150,16 @@ export default function FacilityProfile() {
               func={getBadgeColorOwnershipType}
               onClick={handleResearchClick}
               subjectType="facility"
+              years={AVAILABLE_YEARS}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              shareCsvRows={ownershipLinks}
+              shareCsvConfig={facilityStakeholdersExportConfig}
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
               tabsData={profileTabsDescriptions}
               defaultTabName={'Provider Highlights'}
-              rightSlot={
-                <YearSelector
-                  years={AVAILABLE_YEARS}
-                  value={selectedYear}
-                  onChange={setSelectedYear}
-                />
-              }
             >
               {(activeTab) => {
                 switch (activeTab.name) {
