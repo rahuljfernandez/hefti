@@ -190,3 +190,102 @@ export const facilityStatsExportConfig = {
   headers: ['Category', 'Statistic', 'Value'],
   toRow: (row) => [row.category, row.label, row.value],
 };
+
+/* Downloads the ownership diagram DOM node as a PNG. Returns false when there's
+   no node (a facility with no ownership data renders no diagram). */
+export function downloadDiagramPng(node, filename) {
+  if (!node) return false;
+  return downloadPng(node, filename);
+}
+
+/* Bundles the facility's exports into a single ZIP: the statistics CSV, the
+   ownership & stakeholders CSV, and a PNG of the ownership diagram. Each part is
+   included only when its data/node exists, so a facility with no ownership data
+   still yields a stats-only zip. `diagramRef` is a React ref read at click time,
+   so the node is resolved when the user exports rather than captured at render. */
+export async function downloadFacilityZip({
+  statsRows,
+  stakeholderRows,
+  diagramRef,
+  filename,
+}) {
+  try {
+    const entries = [];
+    if (statsRows?.length) {
+      entries.push({
+        name: facilityStatsExportConfig.filename,
+        content: rowsToCsv(
+          statsRows.map(facilityStatsExportConfig.toRow),
+          facilityStatsExportConfig.headers,
+        ),
+      });
+    }
+    if (stakeholderRows?.length) {
+      entries.push({
+        name: facilityStakeholdersExportConfig.filename,
+        content: rowsToCsv(
+          stakeholderRows.map(facilityStakeholdersExportConfig.toRow),
+          facilityStakeholdersExportConfig.headers,
+        ),
+      });
+    }
+    const diagramNode = diagramRef?.current;
+    if (diagramNode) {
+      entries.push({
+        name: 'ownership-diagram.png',
+        content: await nodeToPngDataUrl(diagramNode),
+      });
+    }
+    if (!entries.length) return false;
+    return downloadZip(entries, filename);
+  } catch {
+    return false;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   ShareWidget category factories. Each returns one telescoping-widget category
+   so pages compose their own header export set; ProfileHeader just renders the
+   array it's handed.
+   ──────────────────────────────────────────────────────────────────────── */
+
+export function copyLinkShareCategory() {
+  return {
+    icon: LinkIcon,
+    label: 'Copy link',
+    tooltip: 'Copy a link to this profile',
+    successLabel: 'Copied',
+    emptyLabel: 'Copy failed',
+    onClick: copyProfileLink,
+  };
+}
+
+export function csvShareCategory(rows, config, filename) {
+  return {
+    icon: TableCellsIcon,
+    label: 'Download CSV',
+    tooltip: config.tooltip ?? 'Download as CSV',
+    loadingLabel: 'Preparing…',
+    successLabel: 'Downloaded',
+    emptyLabel: 'No data',
+    onClick: () => downloadProfileCsv(rows, config, filename),
+  };
+}
+
+export function facilityZipShareCategory({
+  statsRows,
+  stakeholderRows,
+  diagramRef,
+  filename,
+}) {
+  return {
+    icon: ArchiveBoxArrowDownIcon,
+    label: 'Download all',
+    tooltip: 'Download stats, ownership & diagram as a ZIP',
+    loadingLabel: 'Zipping…',
+    successLabel: 'Downloaded',
+    emptyLabel: 'No data',
+    onClick: () =>
+      downloadFacilityZip({ statsRows, stakeholderRows, diagramRef, filename }),
+  };
+}

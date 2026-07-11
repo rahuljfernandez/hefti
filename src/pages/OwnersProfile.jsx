@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -24,7 +24,11 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import { ownerFacilitiesExportConfig } from '../lib/shareability/profileShareActions';
+import {
+  ownerFacilitiesExportConfig,
+  copyLinkShareCategory,
+  csvShareCategory,
+} from '../lib/shareability/profileShareActions';
 
 /**
  * Owner profile page container.
@@ -82,11 +86,14 @@ export default function OwnersProfile() {
   }, [slug, selectedYear]);
 
   // Use related facilities from API if available
-  const relatedFacilities =
-    owner?.facility_ownership_links?.map((link) => ({
-      ...link.facility,
-      cms_ownership_role: link.cms_ownership_role,
-    })) || [];
+  const relatedFacilities = useMemo(
+    () =>
+      owner?.facility_ownership_links?.map((link) => ({
+        ...link.facility,
+        cms_ownership_role: link.cms_ownership_role,
+      })) || [],
+    [owner],
+  );
 
   //click handler to open the AI chat
   const handleResearchClick = () => {
@@ -105,6 +112,19 @@ export default function OwnersProfile() {
     state?.from === 'rankings'
       ? getRankingsOwnerProfilePages(slug, ownerName)
       : getOwnerProfilePages(slug, ownerName);
+
+  // Header export set: copy link + the associated-facilities CSV.
+  const shareCategories = useMemo(
+    () => [
+      copyLinkShareCategory(),
+      csvShareCategory(
+        relatedFacilities,
+        ownerFacilitiesExportConfig,
+        `${slug}.csv`,
+      ),
+    ],
+    [relatedFacilities, slug],
+  );
 
   return (
     <div className="bg-background-secondary">
@@ -144,8 +164,7 @@ export default function OwnersProfile() {
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
               onYearChange={setSelectedYear}
-              shareCsvRows={relatedFacilities}
-              shareCsvConfig={ownerFacilitiesExportConfig}
+              shareCategories={shareCategories}
             />
             <div className="pb-4">
               <OwnersNetworkGraphLauncher ownerId={owner.id} />
