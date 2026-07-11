@@ -1,5 +1,5 @@
-import { downloadCsv } from './shareActions';
-import { toTitleCase } from '../toTitleCase';
+import { downloadCsv } from '../primitives/shareActions';
+import { toTitleCase } from '../../toTitleCase';
 
 /**
  * rankingShareActions

@@ -8,8 +8,8 @@ import {
   downloadZip,
   nodeToPngDataUrl,
   stripMarkdown,
-} from './shareActions';
-import { slugify } from '../slugify';
+} from '../primitives/shareActions';
+import { slugify } from '../../slugify';
 import ResearchBriefDocument from './researchBriefPdf';
 /**
  * researchShareActions

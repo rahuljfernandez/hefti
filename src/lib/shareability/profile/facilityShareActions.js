@@ -3,33 +3,33 @@ import {
   downloadZip,
   nodeToPngDataUrl,
   downloadPng,
-} from './shareActions';
-import { toTitleCase } from '../toTitleCase';
+} from '../primitives/shareActions';
+import { toTitleCase } from '../../toTitleCase';
 import {
   formatOwnershipPercentage,
   formatMetricValue,
   formatUSD,
-} from '../stringFormatters';
-import { buildFacilityCardStats } from '../providerHighlightsMetrics';
+} from '../../stringFormatters';
+import { buildFacilityCardStats } from '../../providerHighlightsMetrics';
 import {
   buildFacilityLongStayStats,
   buildFacilityShortStayStats,
-} from '../clinicalQualityMetrics';
+} from '../../clinicalQualityMetrics';
 import {
   buildFacilityStaffingLevels,
   buildFacilityStaffingTurnover,
-} from '../staffingMetrics';
+} from '../../staffingMetrics';
 import {
   buildFacilityProfitStats,
   buildFacilityRevenueStats,
   buildFacilityExpensesStats,
   buildFacilityLiquidityStats,
-} from '../financialMetrics';
+} from '../../financialMetrics';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
-} from '../deficienciesMetrics';
-import { buildAdditionalInformation } from '../additionalInformationFields';
+} from '../../deficienciesMetrics';
+import { buildAdditionalInformation } from '../../additionalInformationFields';
 import { ArchiveBoxArrowDownIcon } from '@heroicons/react/24/outline';
 
 /**

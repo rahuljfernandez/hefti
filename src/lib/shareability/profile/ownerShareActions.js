@@ -1,5 +1,5 @@
-import { toTitleCase } from '../toTitleCase';
-import { ownerRoleMap } from '../ownerRoleHelper';
+import { toTitleCase } from '../../toTitleCase';
+import { ownerRoleMap } from '../../ownerRoleHelper';
 
 /**
  * ownerShareActions

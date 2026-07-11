@@ -38,14 +38,14 @@ import {
   downloadProfileCsv,
   copyLinkShareCategory,
   csvShareCategory,
-} from '../lib/shareability/profileShareActions';
+} from '../lib/shareability/profile/profileShareActions';
 import {
   facilityStatsExportConfig,
   facilityStakeholdersExportConfig,
   buildFacilityStatsRows,
   downloadDiagramPng,
   facilityZipShareCategory,
-} from '../lib/shareability/facilityShareActions';
+} from '../lib/shareability/profile/facilityShareActions';
 
 /**
  * FacilityProfile

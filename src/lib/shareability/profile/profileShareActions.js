@@ -1,4 +1,4 @@
-import { copyText, downloadCsv } from './shareActions';
+import { copyText, downloadCsv } from '../primitives/shareActions';
 import { LinkIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 
 /**

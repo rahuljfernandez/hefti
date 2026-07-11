@@ -27,8 +27,8 @@ import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOvervi
 import {
   copyLinkShareCategory,
   csvShareCategory,
-} from '../lib/shareability/profileShareActions';
-import { ownerFacilitiesExportConfig } from '../lib/shareability/ownerShareActions';
+} from '../lib/shareability/profile/profileShareActions';
+import { ownerFacilitiesExportConfig } from '../lib/shareability/profile/ownerShareActions';
 
 /**
  * Owner profile page container.
