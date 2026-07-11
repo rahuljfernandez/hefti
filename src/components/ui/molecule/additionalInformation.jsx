@@ -21,7 +21,9 @@ export default function AdditionalInformation({ items }) {
         <dl className="grid grid-cols-1 sm:grid-cols-2">
           {additionalData.map(({ title, value }) => (
             <div key={title} className="px-4 pb-6 sm:col-span-1 sm:px-0">
-              <dt className="text-label-sm text-content-secondary">{title}</dt>
+              <dt className="text-label-sm text-content-secondary uppercase">
+                {title}
+              </dt>
               <dd className="text-paragraph-base text-content-primary mt-1">
                 {value}
               </dd>
