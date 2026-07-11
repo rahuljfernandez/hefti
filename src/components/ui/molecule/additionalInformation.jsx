@@ -5,8 +5,10 @@ import PropTypes from 'prop-types';
 import { buildAdditionalInformation } from '../../../lib/additionalInformationFields';
 
 /**
- * This component is placed at the bottom of Facilities Profiles page.
- *
+ * Metadata panel at the bottom of the facility profile — a two-column list of
+ * facility identifiers (legal business name, chain, certification date, CCN…).
+ * Fields come from buildAdditionalInformation, shared with the stats CSV; labels
+ * are stored in canonical case and upcased here via CSS.
  */
 
 export default function AdditionalInformation({ items }) {

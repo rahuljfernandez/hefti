@@ -25,10 +25,10 @@ import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTa
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import {
-  ownerFacilitiesExportConfig,
   copyLinkShareCategory,
   csvShareCategory,
 } from '../lib/shareability/profileShareActions';
+import { ownerFacilitiesExportConfig } from '../lib/shareability/ownerShareActions';
 
 /**
  * Owner profile page container.

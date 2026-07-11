@@ -35,15 +35,37 @@ import {
 } from '../components/ui/molecule/shareability';
 import { TableCellsIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import {
+  downloadProfileCsv,
+  copyLinkShareCategory,
+  csvShareCategory,
+} from '../lib/shareability/profileShareActions';
+import {
   facilityStatsExportConfig,
   facilityStakeholdersExportConfig,
   buildFacilityStatsRows,
-  downloadProfileCsv,
   downloadDiagramPng,
-  copyLinkShareCategory,
-  csvShareCategory,
   facilityZipShareCategory,
-} from '../lib/shareability/profileShareActions';
+} from '../lib/shareability/facilityShareActions';
+
+/**
+ * FacilityProfile
+ *
+ * Route container for a single nursing-home facility (/facilities/:slug). Fetches
+ * the facility by slug (re-fetching when the selected data year changes) plus the
+ * national benchmarks the tab comparisons use, then renders:
+ *
+ * - a ProfileHeader carrying the data-year selector and the export share widget
+ *   (copy link, full-stats CSV, and a ZIP bundling stats + stakeholders + the
+ *   ownership-diagram PNG);
+ * - the tabbed sections (Provider Highlights, Deficiencies & Penalties, Clinical
+ *   Quality, Staffing, Financial Overview);
+ * - the Ownership & Stakeholders list and the Ownership Diagram, each with a
+ *   hover-reveal local export (CSV and PNG respectively);
+ * - an Additional Information metadata panel.
+ *
+ * Loading, error, and not-found states each render a skeleton/banner in place of
+ * the body.
+ */
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -54,14 +76,6 @@ const AVAILABLE_YEARS = [
   2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
 ];
 
-/**
- * Facility profile page container.
- *
- * Responsibilities:
- * - Fetches facility data by route slug
- * - Renders profile header and tabbed content
- * - Shows ownership relationship sections and additional metadata
- */
 export default function FacilityProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
@@ -99,6 +113,7 @@ export default function FacilityProfile() {
       .finally(() => setLoading(false));
   }, [slug, selectedYear]);
 
+  //Fetch national benchmarks to compare faclity to national levels
   useEffect(() => {
     const fetchNationalBenchmarks = async () => {
       try {
@@ -216,7 +231,13 @@ export default function FacilityProfile() {
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':
-                    return <DeficienciesTab metricsSource={facility} status="facility" nationalBenchmarks={nationalBenchmarks} />;
+                    return (
+                      <DeficienciesTab
+                        metricsSource={facility}
+                        status="facility"
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
 
                   case 'Clinical Quality Measures':
                     return (
