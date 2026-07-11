@@ -229,12 +229,19 @@ export async function downloadFacilityZip({
         ),
       });
     }
+    /* Capture the diagram in its own try: html-to-image can fail on a given DOM
+       (tainted canvas, unloaded fonts, oversized SVG), and that shouldn't sink
+       the CSVs already built — degrade to a CSV-only zip rather than nothing. */
     const diagramNode = diagramRef?.current;
     if (diagramNode) {
-      entries.push({
-        name: 'ownership-diagram.png',
-        content: await nodeToPngDataUrl(diagramNode),
-      });
+      try {
+        entries.push({
+          name: 'ownership-diagram.png',
+          content: await nodeToPngDataUrl(diagramNode),
+        });
+      } catch {
+        /* diagram capture failed — ship the zip without the PNG */
+      }
     }
     if (!entries.length) return false;
     return downloadZip(entries, filename);
