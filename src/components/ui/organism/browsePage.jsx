@@ -37,6 +37,7 @@ export default function BrowsePage({
   apiEndpoint,
   suggestionsEndpoint,
   title,
+  searchHeading,
   searchPlaceholder,
   renderList,
   type,
@@ -171,6 +172,7 @@ export default function BrowsePage({
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}
         title={title}
+        searchHeading={searchHeading}
         searchPlaceholder={searchPlaceholder}
         type={type}
         sortOptions={sortOptions}
@@ -205,6 +207,7 @@ BrowsePage.propTypes = {
   apiEndpoint: PropTypes.string.isRequired,
   suggestionsEndpoint: PropTypes.string,
   title: PropTypes.string.isRequired,
+  searchHeading: PropTypes.string,
   searchPlaceholder: PropTypes.string,
   renderList: PropTypes.func.isRequired,
   type: PropTypes.oneOf(['facilities', 'owners', 'rankings']),

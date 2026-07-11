@@ -206,7 +206,9 @@ export default function SearchMenu({
         aria-expanded={showDropdown}
         aria-controls={showDropdown ? listboxId : undefined}
         aria-activedescendant={
-          activeSuggestion ? `${listboxId}-option-${activeSuggestion.id}` : undefined
+          activeSuggestion
+            ? `${listboxId}-option-${activeSuggestion.id}`
+            : undefined
         }
         aria-label={accessibleLabel}
         className="focus-ring-light text-paragraph-base text-core-black z-15 col-start-1 row-start-1 h-14 w-full appearance-none rounded-xl bg-white py-1.5 pr-8 pl-10 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6"
@@ -294,8 +296,11 @@ export default function SearchMenu({
               &times;
             </button>
           </div>
-          <Heading id={mobileDialogTitleId} className="text-label-lg mb-2 font-bold">
-            Search by name
+          <Heading
+            id={mobileDialogTitleId}
+            className="text-label-lg mb-2 font-bold"
+          >
+            {accessibleLabel}
           </Heading>
           <div className="relative">
             <input
@@ -304,7 +309,9 @@ export default function SearchMenu({
               role="combobox"
               aria-autocomplete="list"
               aria-expanded={debouncedQuery !== ''}
-              aria-controls={debouncedQuery !== '' ? mobileListboxId : undefined}
+              aria-controls={
+                debouncedQuery !== '' ? mobileListboxId : undefined
+              }
               aria-activedescendant={
                 activeSuggestion
                   ? `${mobileListboxId}-option-${activeSuggestion.id}`
