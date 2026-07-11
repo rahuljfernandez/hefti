@@ -8,9 +8,9 @@ import {
   ResponsiveContainer,
   LabelList,
 } from 'recharts';
-import { Heading } from '../atom/heading';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 
 /**
  * @fileoverview Monthly SNF Ownership Change Volume chart.
@@ -22,6 +22,10 @@ import { ErrorBanner } from '../atom/errorBanner';
 
 const Y_AXIS_WIDTH = 130;
 const CHART_MARGIN = { top: 0, right: 120, bottom: 20, left: 10 };
+
+/* Mobile geometry for narrow cards below the md breakpoint we swap these in. */
+const MOBILE_Y_AXIS_WIDTH = 88;
+const MOBILE_CHART_MARGIN = { top: 0, right: 64, bottom: 20, left: 4 };
 
 const dataItemShape = PropTypes.shape({
   month: PropTypes.string.isRequired,
@@ -38,13 +42,15 @@ const dataItemShape = PropTypes.shape({
  * @param {number} props.y - SVG y coordinate provided by Recharts.
  * @param {{ value: string }} props.payload - Tick payload from Recharts (month string).
  * @param {Array<{month: string, count: number}>} props.data - Full chart dataset used to look up the count.
+ * @param {number} props.axisWidth - Width of the Y-axis gutter, so the month
+ *   label anchors to its left edge (varies between desktop and mobile layouts).
  */
-function CustomYAxisTick({ x, y, payload, data: chartData }) {
+function CustomYAxisTick({ x, y, payload, data: chartData, axisWidth }) {
   const entry = chartData?.find((d) => d.month === payload.value);
   return (
     <g>
       <text
-        x={x - Y_AXIS_WIDTH + 5}
+        x={x - axisWidth + 5}
         y={y}
         textAnchor="start"
         dominantBaseline="middle"
@@ -74,6 +80,7 @@ CustomYAxisTick.propTypes = {
   y: PropTypes.number.isRequired,
   payload: PropTypes.shape({ value: PropTypes.string }).isRequired,
   data: PropTypes.arrayOf(dataItemShape).isRequired,
+  axisWidth: PropTypes.number.isRequired,
 };
 
 /**
@@ -117,7 +124,6 @@ PeakLowestLabel.propTypes = {
 /**
  * Accessible horizontal bar chart container. Wraps the Recharts BarChart with:
  * - A visually-hidden prose description (peak/lowest callouts).
- * - An aria-hidden visual column header row.
  * - A sr-only data table so screen readers can navigate individual values.
  *
  * @param {object} props
@@ -126,11 +132,14 @@ PeakLowestLabel.propTypes = {
 function Chart({ data }) {
   const chartId = useId();
   const descId = `${chartId}-desc`;
+  const isMobile = useIsMobile(768);
+  const yAxisWidth = isMobile ? MOBILE_Y_AXIS_WIDTH : Y_AXIS_WIDTH;
+  const chartMargin = isMobile ? MOBILE_CHART_MARGIN : CHART_MARGIN;
   const peakMonth = data.find((d) => d.indicator === 'PEAK');
   const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
 
   return (
-    <div className="bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6">
+    <div className="overflow-hidden">
       <p id={descId} className="sr-only">
         Horizontal bar chart showing monthly counts of facilities with ownership
         changes in recent months.
@@ -142,29 +151,29 @@ function Chart({ data }) {
           : ''}
       </p>
 
-      {/* Column headers — widths mirror chart axis areas for alignment */}
-      <div aria-hidden="true" className="flex items-baseline border-b-[3px] border-black pb-1 text-sm font-semibold">
-        <div style={{ width: Y_AXIS_WIDTH, flexShrink: 0, paddingLeft: 5 }}>
-          Month
-        </div>
-        <div>Facilities with Ownership Changes</div>
-      </div>
-
-      <div role="img" aria-describedby={descId}>
+      <div
+        role="img"
+        aria-describedby={descId}
+        className="bg-background-primary rounded-lg px-3 py-4 md:px-6"
+      >
         <ResponsiveContainer width="100%" height={580}>
           <BarChart
             layout="vertical"
             data={data}
-            margin={CHART_MARGIN}
+            margin={chartMargin}
             barCategoryGap="25%"
           >
             <XAxis type="number" hide domain={[0, 'dataMax']} />
             <YAxis
               type="category"
               dataKey="month"
-              width={Y_AXIS_WIDTH}
+              width={yAxisWidth}
               tick={(tickProps) => (
-                <CustomYAxisTick {...tickProps} data={data} />
+                <CustomYAxisTick
+                  {...tickProps}
+                  data={data}
+                  axisWidth={yAxisWidth}
+                />
               )}
               axisLine={false}
               tickLine={false}
@@ -219,7 +228,9 @@ Chart.propTypes = {
 /**
  * Top-level data-fetching component for the monthly ownership change chart.
  * Manages fetch lifecycle (loading / error / success) and renders the
- * appropriate state: skeleton, error banner, or the Chart.
+ * appropriate state: skeleton, error banner, or the Chart. Renders bare (no
+ * card chrome) so its container — the trending carousel — supplies the card and
+ * title.
  *
  * @returns {JSX.Element}
  */
@@ -227,7 +238,6 @@ export default function MonthlyOwnershipChangeChart() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const headingId = useId();
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ??
@@ -262,31 +272,23 @@ export default function MonthlyOwnershipChangeChart() {
     return () => controller.abort();
   }, [API_BASE_URL]);
 
-  return (
-    <section aria-labelledby={headingId}>
-      <div>
-        <div className="mb-4">
-          <Heading id={headingId} level={3}>
-            Monthly SNF Ownership Change Volume
-          </Heading>
-        </div>
-
-        {loading ? (
-          <ChartSkeleton />
-        ) : error ? (
-          <>
-            <ErrorBanner
-              title="Chart data unavailable"
-              message="Ownership change data couldn't be fetched. Try refreshing the page."
-            />
-            <div className="pointer-events-none mt-4 opacity-60 select-none">
-              <ChartSkeleton error />
-            </div>
-          </>
-        ) : (
-          <Chart data={data} />
-        )}
+  const body = loading ? (
+    <ChartSkeleton />
+  ) : error ? (
+    <>
+      <ErrorBanner
+        title="Chart data unavailable"
+        message="Ownership change data couldn't be fetched. Try refreshing the page."
+      />
+      <div className="pointer-events-none mt-4 opacity-60 select-none">
+        <ChartSkeleton error />
       </div>
-    </section>
+    </>
+  ) : (
+    <Chart data={data} />
+  );
+
+  return (
+    <section aria-label="Monthly SNF ownership change volume">{body}</section>
   );
 }

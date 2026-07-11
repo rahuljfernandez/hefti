@@ -72,7 +72,8 @@ function Facilities() {
       <BrowsePage
         apiEndpoint={`${API_BASE_URL}/facilities`}
         title="Nursing Homes"
-        searchPlaceholder="Nursing home name..."
+        searchHeading="Search by name or CCN"
+        searchPlaceholder="Nursing home name or CCN..."
         type="facilities"
         filterOptions={FACILITY_FILTER_OPTIONS}
         renderList={(items) => (
