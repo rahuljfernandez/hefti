@@ -1,4 +1,11 @@
-import { copyText, downloadCsv } from './shareActions';
+import {
+  copyText,
+  downloadCsv,
+  rowsToCsv,
+  downloadZip,
+  nodeToPngDataUrl,
+  downloadPng,
+} from './shareActions';
 import { toTitleCase } from '../toTitleCase';
 import {
   formatOwnershipPercentage,
@@ -25,19 +32,26 @@ import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
 } from '../deficienciesMetrics';
+import { buildAdditionalInformation } from '../additionalInformationFields';
+import {
+  LinkIcon,
+  TableCellsIcon,
+  ArchiveBoxArrowDownIcon,
+} from '@heroicons/react/24/outline';
 
 /**
  * profileShareActions
  *
- * Share actions for the facility and owner profile headers. Mirrors how
+ * Share actions for the facility and owner profiles. Mirrors how
  * rankingShareActions / researchShareActions sit on the generic shareActions.js
- * primitives: this file owns the profile-specific data shaping (the copy-link
- * action + the CSV column configs); ProfileHeader builds the ShareWidget
- * categories from these.
+ * primitives: this file owns the profile-specific data shaping (copy-link, the
+ * CSV column configs, the facility stats/zip builders) plus the ShareWidget
+ * category factories the pages compose into the header — ProfileHeader just
+ * renders the array it's given.
  *
- * The CSV for each profile is the primary tabular list on that page:
- * - Facility profile -> its ownership & stakeholders
- * - Owner profile    -> its associated facilities
+ * Facility exports: a full statistics CSV (all tabs + additional info), an
+ * ownership & stakeholders CSV, an ownership-diagram PNG, and a ZIP of all
+ * three. Owner export: its associated-facilities CSV.
  */
 
 /* Copies a link to the current profile to the clipboard. Reads the live URL so
@@ -159,6 +173,10 @@ export function buildFacilityStatsRows(facility, nationalBenchmarks) {
       s.key,
       s.isCurrency ? formatUSD(s.stat) : formatMetricValue(s.stat),
     ),
+  );
+
+  buildAdditionalInformation(facility).forEach((f) =>
+    add('Additional Information', f.title, f.value),
   );
 
   return rows;
