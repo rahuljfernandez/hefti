@@ -93,7 +93,10 @@ export default function ProfileHeader({
               />
             )}
             {shareCategories && (
-              <ShareWidget categories={shareCategories} minimizedLabel="Share" />
+              <ShareWidget
+                categories={shareCategories}
+                minimizedLabel="Export"
+              />
             )}
           </div>
         )}

@@ -2,6 +2,7 @@ import React from 'react';
 import LayoutCard from '../atom/layout-card';
 import { Heading } from '../atom/heading';
 import PropTypes from 'prop-types';
+import { buildAdditionalInformation } from '../../../lib/additionalInformationFields';
 
 /**
  * This component is placed at the bottom of Facilities Profiles page.
@@ -9,17 +10,7 @@ import PropTypes from 'prop-types';
  */
 
 export default function AdditionalInformation({ items }) {
-  const additionalData = [
-    { title: 'LEGAL BUSINESS NAME', value: items.parent_company_name || 'N/A' },
-    { title: 'CHAIN', value: items.chain_name || 'N/A' },
-    {
-      title: 'LATEST CERTIFICATION DATE',
-      value: items.certification_date || 'N/A',
-    },
-
-    { title: 'CHAIN SIZE', value: items.chain_size || 'N/A' },
-    { title: 'CCN', value: items.ccn || 'N/A' },
-  ];
+  const additionalData = buildAdditionalInformation(items);
 
   return (
     <LayoutCard>
