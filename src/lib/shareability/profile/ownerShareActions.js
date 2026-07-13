@@ -87,11 +87,15 @@ export function buildOwnerStatsRows(owner) {
     add('Owner Highlights', s.key, s.isCurrency ? formatUSD(s.stat) : s.stat),
   );
 
+  /* Clinical + financial owner builders attach the display-formatted string
+     (with % / suffix) on displayValue, which is what the on-page MetricCardLong
+     renders; export that so the CSV matches the screen. (The facility builders
+     expose only `value`, so their rows differ — see buildFacilityStatsRows.) */
   buildOwnerLongStayStats(owner).forEach((s) =>
-    add('Clinical Quality - Long Stay', s.title, s.value),
+    add('Clinical Quality - Long Stay', s.title, s.displayValue),
   );
   buildOwnerShortStayStats(owner).forEach((s) =>
-    add('Clinical Quality - Short Stay', s.title, s.value),
+    add('Clinical Quality - Short Stay', s.title, s.displayValue),
   );
 
   buildOwnerStaffingLevels(owner).forEach((s) =>
@@ -102,16 +106,16 @@ export function buildOwnerStatsRows(owner) {
   );
 
   buildOwnerProfitStats(owner).forEach((s) =>
-    add('Financial - Profitability', s.title, s.value),
+    add('Financial - Profitability', s.title, s.displayValue),
   );
   buildOwnerRevenueStats(owner).forEach((s) =>
-    add('Financial - Revenue', s.title, s.value),
+    add('Financial - Revenue', s.title, s.displayValue),
   );
   buildOwnerExpensesStats(owner).forEach((s) =>
-    add('Financial - Expenses', s.title, s.value),
+    add('Financial - Expenses', s.title, s.displayValue),
   );
   buildOwnerLiquidityStats(owner).forEach((s) =>
-    add('Financial - Liquidity', s.title, s.value),
+    add('Financial - Liquidity', s.title, s.displayValue),
   );
 
   [
