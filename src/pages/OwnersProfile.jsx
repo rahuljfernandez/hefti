@@ -28,7 +28,10 @@ import {
   copyLinkShareCategory,
   csvShareCategory,
 } from '../lib/shareability/profile/profileShareActions';
-import { ownerFacilitiesExportConfig } from '../lib/shareability/profile/ownerShareActions';
+import {
+  buildOwnerStatsRows,
+  ownerStatsExportConfig,
+} from '../lib/shareability/profile/ownerShareActions';
 
 /**
  * Owner profile page container.
@@ -113,17 +116,16 @@ export default function OwnersProfile() {
       ? getRankingsOwnerProfilePages(slug, ownerName)
       : getOwnerProfilePages(slug, ownerName);
 
-  // Header export set: copy link + the associated-facilities CSV.
+  // Flattened owner statistics powering the profile header's CSV export.
+  const ownerStatsRows = useMemo(() => buildOwnerStatsRows(owner), [owner]);
+
+  // Header export set: copy link + the full owner-statistics CSV.
   const shareCategories = useMemo(
     () => [
       copyLinkShareCategory(),
-      csvShareCategory(
-        relatedFacilities,
-        ownerFacilitiesExportConfig,
-        `${slug}.csv`,
-      ),
+      csvShareCategory(ownerStatsRows, ownerStatsExportConfig, `${slug}.csv`),
     ],
-    [relatedFacilities, slug],
+    [ownerStatsRows, slug],
   );
 
   return (
