@@ -1,3 +1,5 @@
+import { rowsToCsv, downloadZip } from '../primitives/shareActions';
+import { ArchiveBoxArrowDownIcon } from '@heroicons/react/24/outline';
 import { toTitleCase } from '../../toTitleCase';
 import { ownerRoleMap } from '../../ownerRoleHelper';
 import { formatMetricValue, formatUSD } from '../../stringFormatters';
@@ -26,9 +28,10 @@ import {
  *
  * Owner-profile export logic, layered on the generic shareActions.js primitives
  * and the shared helpers in profileShareActions.js (copy-link / generic CSV
- * category). Owns the owner-specific data shaping: the associated-facilities CSV
- * and the full owner-statistics CSV (reusing every per-tab owner metric
- * builder). OwnersProfile composes these into its header export set.
+ * category). Owns the owner-specific data shaping: the associated-facilities CSV,
+ * the full owner-statistics CSV (reusing every per-tab owner metric builder), and
+ * a ZIP bundling both, plus the "Download all" ShareWidget category. OwnersProfile
+ * composes these into its header export set.
  */
 
 /* Owner profile CSV: one row per associated facility. Rows are the
@@ -36,7 +39,7 @@ import {
    owner's role on that facility). Owner Role uses the same ownerRoleMap label
    as the on-page RelatedFacilities card. */
 export const ownerFacilitiesExportConfig = {
-  filename: 'associated-facilities.csv',
+  filename: 'related-facilities.csv',
   tooltip: 'Download associated facilities as CSV',
   headers: ['Name', 'Address', 'City', 'State', 'CMS Rating', 'Owner Role'],
   toRow: (facility) => [
@@ -69,7 +72,10 @@ export function buildOwnerStatsRows(owner) {
     });
 
   [
-    ['Average Rating Across All Facilities', 'cms_owner_average_overall_rating'],
+    [
+      'Average Rating Across All Facilities',
+      'cms_owner_average_overall_rating',
+    ],
     ['Health Inspection Rating', 'cms_owner_average_hi_rating'],
     ['Staffing Rating', 'cms_owner_average_staffing_rating'],
     ['Quality Measures Rating', 'cms_owner_average_quality_rating'],
@@ -124,3 +130,47 @@ export const ownerStatsExportConfig = {
   headers: ['Category', 'Statistic', 'Value'],
   toRow: (row) => [row.category, row.label, row.value],
 };
+
+/* Bundles the owner's exports into a single ZIP: the statistics CSV and the
+   associated-facilities CSV.*/
+export async function downloadOwnerZip({ statsRows, facilityRows, filename }) {
+  try {
+    const entries = [];
+    if (statsRows?.length) {
+      entries.push({
+        name: ownerStatsExportConfig.filename,
+        content: rowsToCsv(
+          statsRows.map(ownerStatsExportConfig.toRow),
+          ownerStatsExportConfig.headers,
+        ),
+      });
+    }
+    if (facilityRows?.length) {
+      entries.push({
+        name: ownerFacilitiesExportConfig.filename,
+        content: rowsToCsv(
+          facilityRows.map(ownerFacilitiesExportConfig.toRow),
+          ownerFacilitiesExportConfig.headers,
+        ),
+      });
+    }
+    if (!entries.length) return false;
+    return downloadZip(entries, filename);
+  } catch {
+    return false;
+  }
+}
+
+/* "Download all" ShareWidget category — the owner ZIP bundle. (Copy-link and the
+   plain CSV category are the shared ones in profileShareActions.js.) */
+export function ownerZipShareCategory({ statsRows, facilityRows, filename }) {
+  return {
+    icon: ArchiveBoxArrowDownIcon,
+    label: 'Download all',
+    tooltip: 'Download owner stats & associated facilities as a ZIP',
+    loadingLabel: 'Zipping…',
+    successLabel: 'Downloaded',
+    emptyLabel: 'No data',
+    onClick: () => downloadOwnerZip({ statsRows, facilityRows, filename }),
+  };
+}

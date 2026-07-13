@@ -39,6 +39,7 @@ import {
   buildOwnerStatsRows,
   ownerStatsExportConfig,
   ownerFacilitiesExportConfig,
+  ownerZipShareCategory,
 } from '../lib/shareability/profile/ownerShareActions';
 
 /**
@@ -127,13 +128,19 @@ export default function OwnersProfile() {
   // Flattened owner statistics powering the profile header's CSV export.
   const ownerStatsRows = useMemo(() => buildOwnerStatsRows(owner), [owner]);
 
-  // Header export set: copy link + the full owner-statistics CSV.
+  /* Header export set: copy link, the full owner-statistics CSV, and a zip
+     bundling the stats and the associated-facilities CSV. */
   const shareCategories = useMemo(
     () => [
       copyLinkShareCategory(),
       csvShareCategory(ownerStatsRows, ownerStatsExportConfig, `${slug}.csv`),
+      ownerZipShareCategory({
+        statsRows: ownerStatsRows,
+        facilityRows: relatedFacilities,
+        filename: `${slug}.zip`,
+      }),
     ],
-    [ownerStatsRows, slug],
+    [ownerStatsRows, relatedFacilities, slug],
   );
 
   return (
@@ -235,7 +242,7 @@ export default function OwnersProfile() {
                         downloadProfileCsv(
                           relatedFacilities,
                           ownerFacilitiesExportConfig,
-                          `${slug}-associated-facilities.csv`,
+                          `${slug}-related-facilities.csv`,
                         )
                       }
                     />
