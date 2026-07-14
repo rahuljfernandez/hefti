@@ -7,7 +7,7 @@ import {
   ShareButtonRow,
   HoverReveal,
 } from '../components/ui/molecule/shareability';
-import { downloadRankingCsv } from '../lib/shareability/rankingShareActions';
+import { downloadRankingCsv } from '../lib/shareability/rankings/rankingShareActions';
 import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';

@@ -2,24 +2,17 @@ import React from 'react';
 import LayoutCard from '../atom/layout-card';
 import { Heading } from '../atom/heading';
 import PropTypes from 'prop-types';
+import { buildAdditionalInformation } from '../../../lib/additionalInformationFields';
 
 /**
- * This component is placed at the bottom of Facilities Profiles page.
- *
+ * Metadata panel at the bottom of the facility profile — a two-column list of
+ * facility identifiers (legal business name, chain, certification date, CCN…).
+ * Fields come from buildAdditionalInformation, shared with the stats CSV; labels
+ * are stored in canonical case and upcased here via CSS.
  */
 
 export default function AdditionalInformation({ items }) {
-  const additionalData = [
-    { title: 'LEGAL BUSINESS NAME', value: items.parent_company_name || 'N/A' },
-    { title: 'CHAIN', value: items.chain_name || 'N/A' },
-    {
-      title: 'LATEST CERTIFICATION DATE',
-      value: items.certification_date || 'N/A',
-    },
-
-    { title: 'CHAIN SIZE', value: items.chain_size || 'N/A' },
-    { title: 'CCN', value: items.ccn || 'N/A' },
-  ];
+  const additionalData = buildAdditionalInformation(items);
 
   return (
     <LayoutCard>
@@ -30,7 +23,9 @@ export default function AdditionalInformation({ items }) {
         <dl className="grid grid-cols-1 sm:grid-cols-2">
           {additionalData.map(({ title, value }) => (
             <div key={title} className="px-4 pb-6 sm:col-span-1 sm:px-0">
-              <dt className="text-label-sm text-content-secondary">{title}</dt>
+              <dt className="text-label-sm text-content-secondary uppercase">
+                {title}
+              </dt>
               <dd className="text-paragraph-base text-content-primary mt-1">
                 {value}
               </dd>

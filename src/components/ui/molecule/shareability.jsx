@@ -45,7 +45,7 @@ const CLICK_FEEDBACK_MS = 1200;
  *
  * @example
  * import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
- * import { copyText, downloadCsv } from '../../../lib/shareability/shareActions';
+ * import { copyText, downloadCsv } from '../../../lib/shareability/primitives/shareActions';
  * import { DocumentTextIcon, TableCellsIcon } from '@heroicons/react/24/outline';
  *
  * <HoverReveal show={isLatest} className="mt-2">

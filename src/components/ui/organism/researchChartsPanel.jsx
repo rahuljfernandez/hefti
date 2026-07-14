@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import ResearchChart from '../molecule/researchChart';
 import ResearchExportWidget from '../molecule/researchExportWidget';
 import ResearchSessionDivider from '../molecule/researchSessionDivider';
-import DimOverlay from '../../../lib/shareability/researchPanelDimOverlay';
+import DimOverlay from '../../../lib/shareability/researcher/researchPanelDimOverlay';
 import { mapRefCallback } from '../../../lib/mapRefCallback';
 
 /**

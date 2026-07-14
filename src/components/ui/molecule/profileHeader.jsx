@@ -1,20 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LinkIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
 import HeftiResearcherCTA from './heftiResearcherCTA';
 import YearSelector from './yearSelector';
 import { ShareWidget } from './shareability';
-import {
-  copyProfileLink,
-  downloadProfileCsv,
-} from '../../../lib/shareability/profileShareActions';
-import { slugify } from '../../../lib/slugify';
 
-/*Custom component using Heading and Badge from TW Catalyst UI Kit  */
-/*Creates the header and badges w/ description atop profiles for Facilty or Owner*/
-
+/**
+ * Header atop the facility and owner profile pages. Renders the subject title,
+ * an ownership-type badge, and an optional data-freshness line on the left; a
+ * data-year selector, the export ShareWidget, and the HEFTI Researcher CTA on
+ * the right. Built on the Tailwind Catalyst Heading and Badge primitives.
+ *
+ * The export widget is caller-driven: each page composes its own share
+ * categories and passes them straight through, so the header owns no export
+ * logic — it only lays the controls out beside the year selector.
+ *
+ * Props:
+ *  - title:          profile subject name, shown as the H1
+ *  - ownershipType:  label rendered inside the badge
+ *  - freshness:      "Data as of …" node; hidden when falsy
+ *  - func:           maps ownershipType to a Badge color
+ *  - onClick:        opens the HEFTI Researcher chat
+ *  - subjectType:    'owner' | 'facility', tunes the CTA copy (default 'owner')
+ *  - years:          data years for the selector; omit to hide it
+ *  - selectedYear:   currently selected year (controlled)
+ *  - onYearChange:   called with the newly selected year
+ *  - shareCategories: ShareWidget category descriptors; omit to hide the widget
+ */
 export default function ProfileHeader({
   title,
   ownershipType,
@@ -25,46 +38,14 @@ export default function ProfileHeader({
   years,
   selectedYear,
   onYearChange,
-  shareCsvRows,
-  shareCsvConfig,
+  shareCategories,
 }) {
-  /* Both profile types get the same two share actions: copy a link to the
-     profile, and download its primary list as CSV (stakeholders for a facility,
-     associated facilities for an owner — the caller supplies the rows + column
-     config via shareCsvRows/shareCsvConfig). Built only when a config is
-     passed, so the widget can be omitted (e.g. in stories). */
-  /* Name the CSV after the profile subject (falls back to the config's static
-     filename when there's no title). */
-  const titleSlug = slugify(title);
-  const csvFilename = titleSlug ? `${titleSlug}.csv` : undefined;
-
-  const shareCategories = shareCsvConfig
-    ? [
-        {
-          icon: LinkIcon,
-          label: 'Copy link',
-          tooltip: 'Copy a link to this profile',
-          successLabel: 'Copied',
-          emptyLabel: 'Copy failed',
-          onClick: copyProfileLink,
-        },
-        {
-          icon: TableCellsIcon,
-          label: 'Download CSV',
-          tooltip: shareCsvConfig.tooltip ?? 'Download as CSV',
-          loadingLabel: 'Preparing…',
-          successLabel: 'Downloaded',
-          emptyLabel: 'No data',
-          onClick: () =>
-            downloadProfileCsv(shareCsvRows, shareCsvConfig, csvFilename),
-        },
-      ]
-    : null;
-
-  const hasControls = years?.length > 0 || shareCategories;
+  // Hide the controls row entirely when there's neither a year selector nor a widget.
+  const hasControls = years?.length > 0 || shareCategories?.length > 0;
 
   return (
     <div className="bg-background-secondary my-6 flex flex-col gap-4 font-sans lg:flex-row lg:items-start lg:justify-between">
+      {/* Left column: title + badge + data freshness */}
       <div className="lg:min-w-0">
         <Heading className="text-display-xs wrap-break-word" level={1}>
           {title}
@@ -79,9 +60,7 @@ export default function ProfileHeader({
         )}
       </div>
 
-      {/* Right column: data-year + share controls on top, researcher CTA below.
-          Left-aligned on mobile (where it wraps under the title), right-aligned
-          from lg up where it sits beside the title. */}
+      {/* Right column: data-year + share controls on top, researcher CTA below.*/}
       <div className="flex flex-col items-start gap-4 lg:shrink-0 lg:items-end">
         {hasControls && (
           <div className="flex items-center gap-3">
@@ -92,8 +71,11 @@ export default function ProfileHeader({
                 onChange={onYearChange}
               />
             )}
-            {shareCategories && (
-              <ShareWidget categories={shareCategories} minimizedLabel="Share" />
+            {shareCategories?.length > 0 && (
+              <ShareWidget
+                categories={shareCategories}
+                minimizedLabel="Export"
+              />
             )}
           </div>
         )}
@@ -115,11 +97,11 @@ ProfileHeader.propTypes = {
   ),
   selectedYear: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onYearChange: PropTypes.func,
-  shareCsvRows: PropTypes.array,
-  shareCsvConfig: PropTypes.shape({
-    filename: PropTypes.string.isRequired,
-    headers: PropTypes.arrayOf(PropTypes.string).isRequired,
-    toRow: PropTypes.func.isRequired,
-    tooltip: PropTypes.string,
-  }),
+  shareCategories: PropTypes.arrayOf(
+    PropTypes.shape({
+      icon: PropTypes.elementType.isRequired,
+      label: PropTypes.string.isRequired,
+      onClick: PropTypes.func.isRequired,
+    }),
+  ),
 };
