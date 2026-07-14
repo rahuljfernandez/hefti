@@ -20,14 +20,14 @@ import { Heading } from '../atom/heading';
  *  - years:    array of year values to display
  *  - value:    currently selected year (controlled)
  *  - onChange: called with the selected year when the user picks one
- *  - label:    display label, defaults to "Data Year"
+ *
+ * Renders just the select — no visible label. `label` below is an internal
+ * constant used only for accessible names (aria-label) and the mobile dialog
+ * heading, not shown as on-screen text.
  */
-export default function YearSelector({
-  years = [],
-  value,
-  onChange,
-  label = 'Data Year',
-}) {
+const label = 'Data year';
+
+export default function YearSelector({ years = [], value, onChange }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [pendingYear, setPendingYear] = useState(value);
   const headingId = useId();
@@ -92,15 +92,12 @@ export default function YearSelector({
     <div className="relative">
       {/* Desktop */}
       <div className="hidden items-center gap-2 md:flex">
-        <span className="text-paragraph-sm text-content-secondary">
-          {label}
-        </span>
         <div className="relative">
           <select
             value={value ?? ''}
             onChange={handleDesktopChange}
             aria-label={label}
-            className="focus-ring-light text-label-sm text-content-secondary appearance-none rounded-lg bg-white py-1 pr-8 pl-3 outline-1 -outline-offset-1 outline-gray-300"
+            className="focus-ring-light text-label-sm text-content-secondary h-10 appearance-none rounded-lg bg-white pr-8 pl-3 outline-1 -outline-offset-1 outline-gray-300"
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -121,10 +118,9 @@ export default function YearSelector({
           ref={mobileTriggerRef}
           type="button"
           onClick={handleMobileTrigger}
-          className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 flex items-center gap-2 rounded-md bg-white py-1.5 pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300"
+          className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 flex h-10 items-center gap-2 rounded-md bg-white pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300"
           aria-label={`${label}: ${value}. Activate to change.`}
         >
-          <span className="text-paragraph-base text-core-black">{label}</span>
           <span className="text-paragraph-base text-content-secondary">
             {value}
           </span>
@@ -212,5 +208,4 @@ YearSelector.propTypes = {
   ).isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
-  label: PropTypes.string,
 };
