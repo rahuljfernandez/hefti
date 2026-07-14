@@ -25,10 +25,22 @@ import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTa
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import {
+  ShareButton,
+  ShareButtonRow,
+  HoverReveal,
+} from '../components/ui/molecule/shareability';
+import { TableCellsIcon } from '@heroicons/react/24/outline';
+import {
   copyLinkShareCategory,
   csvShareCategory,
+  downloadProfileCsv,
 } from '../lib/shareability/profile/profileShareActions';
-import { ownerFacilitiesExportConfig } from '../lib/shareability/profile/ownerShareActions';
+import {
+  buildOwnerStatsRows,
+  ownerStatsExportConfig,
+  ownerFacilitiesExportConfig,
+  ownerZipShareCategory,
+} from '../lib/shareability/profile/ownerShareActions';
 
 /**
  * Owner profile page container.
@@ -113,17 +125,22 @@ export default function OwnersProfile() {
       ? getRankingsOwnerProfilePages(slug, ownerName)
       : getOwnerProfilePages(slug, ownerName);
 
-  // Header export set: copy link + the associated-facilities CSV.
+  // Flattened owner statistics powering the profile header's CSV export.
+  const ownerStatsRows = useMemo(() => buildOwnerStatsRows(owner), [owner]);
+
+  /* Header export set: copy link, the full owner-statistics CSV, and a zip
+     bundling the stats and the associated-facilities CSV. */
   const shareCategories = useMemo(
     () => [
       copyLinkShareCategory(),
-      csvShareCategory(
-        relatedFacilities,
-        ownerFacilitiesExportConfig,
-        `${slug}.csv`,
-      ),
+      csvShareCategory(ownerStatsRows, ownerStatsExportConfig, `${slug}.csv`),
+      ownerZipShareCategory({
+        statsRows: ownerStatsRows,
+        facilityRows: relatedFacilities,
+        filename: `${slug}.zip`,
+      }),
     ],
-    [relatedFacilities, slug],
+    [ownerStatsRows, relatedFacilities, slug],
   );
 
   return (
@@ -209,31 +226,52 @@ export default function OwnersProfile() {
               }}
             </TabsShell>
 
-            <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-              Facilities associated with {toTitleCase(owner.cms_ownership_name)}
-            </Heading>
-
-            <div className="pb-8">
-              <ListContainer
-                items={
-                  showAll ? relatedFacilities : relatedFacilities.slice(0, 20)
-                }
-                LayoutSelector={ListContainerDivider}
-                ListContent={RelatedFacilities}
-              />
-            </div>
-            {!showAll && relatedFacilities.length > 20 && (
-              <div className="pb-8 text-center">
-                <button
-                  onClick={() => setShowAll(true)}
-                  className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
-                  aria-label={`Show all ${relatedFacilities.length} facilities`}
-                  aria-expanded={showAll}
-                >
-                  Load All Facilities
-                </button>
+            {/* group enables the hover-reveal local CSV button on this section. */}
+            <div className="group">
+              <div className="mt-8 mb-4 flex items-center gap-3">
+                <Heading level={3} className="text-heading-sm font-bold">
+                  Facilities associated with{' '}
+                  {toTitleCase(owner.cms_ownership_name)}
+                </Heading>
+                <HoverReveal>
+                  <ShareButtonRow>
+                    <ShareButton
+                      icon={TableCellsIcon}
+                      label="Download CSV"
+                      onClick={() =>
+                        downloadProfileCsv(
+                          relatedFacilities,
+                          ownerFacilitiesExportConfig,
+                          `${slug}-related-facilities.csv`,
+                        )
+                      }
+                    />
+                  </ShareButtonRow>
+                </HoverReveal>
               </div>
-            )}
+
+              <div className="pb-8">
+                <ListContainer
+                  items={
+                    showAll ? relatedFacilities : relatedFacilities.slice(0, 20)
+                  }
+                  LayoutSelector={ListContainerDivider}
+                  ListContent={RelatedFacilities}
+                />
+              </div>
+              {!showAll && relatedFacilities.length > 20 && (
+                <div className="pb-8 text-center">
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+                    aria-label={`Show all ${relatedFacilities.length} facilities`}
+                    aria-expanded={showAll}
+                  >
+                    Load All Facilities
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
       </LayoutPage>
