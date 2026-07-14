@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -15,6 +15,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
+import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
 
 /**
  * State profile page container.
@@ -28,6 +29,11 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
+const AVAILABLE_YEARS = [
+  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
+];
+
 export default function StatesProfile() {
   const { state: stateParam } = useParams();
   const [stateStats, setStateStats] = useState(null);
@@ -35,6 +41,7 @@ export default function StatesProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   useEffect(() => {
     setLoading(true);
@@ -42,6 +49,7 @@ export default function StatesProfile() {
     setError(null);
     setNotFound(false);
 
+    // TODO: append ?year=${selectedYear} once the API supports year filtering.
     fetch(`${API_BASE_URL}/state-stats/${encodeURIComponent(stateParam)}`)
       .then((res) => {
         if (res.status === 404) return null;
@@ -57,7 +65,7 @@ export default function StatesProfile() {
       })
       .catch(() => setError('Failed to load state data.'))
       .finally(() => setLoading(false));
-  }, [stateParam]);
+  }, [stateParam, selectedYear]);
 
   useEffect(() => {
     /* National averages power the clinical-quality comparison badges; the
@@ -78,6 +86,10 @@ export default function StatesProfile() {
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
   };
+
+  /* Header export set. Copy-link works generically today; state-specific CSV/zip
+     exports are pending stateShareActions (see profile/stateShareActions.js). */
+  const shareCategories = useMemo(() => [copyLinkShareCategory()], []);
 
   const breadcrumbPages = [
     { name: 'Home', to: '/', current: false },
@@ -123,6 +135,10 @@ export default function StatesProfile() {
               outOf={stateStats.ranked_out_of}
               onClick={handleResearchClick}
               subjectType="state"
+              years={AVAILABLE_YEARS}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              shareCategories={shareCategories}
             />
 
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
