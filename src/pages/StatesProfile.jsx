@@ -143,6 +143,7 @@ export default function StatesProfile() {
                       <DeficienciesTab
                         metricsSource={stateStats}
                         status="state"
+                        nationalBenchmarks={nationalBenchmarks}
                       />
                     );
 

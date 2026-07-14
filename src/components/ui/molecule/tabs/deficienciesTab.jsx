@@ -12,6 +12,8 @@ import {
   buildFacilityPenaltiesStats,
   buildOwnerDeficienciesStats,
   buildOwnerPenaltiesStats,
+  buildStateDeficienciesStats,
+  buildStatePenaltiesStats,
 } from '../../../../lib/deficienciesMetrics';
 
 // Hardcoded placeholder until the API includes inspection_reports in the facility query and a date field is added to the inspection_reports table (pending Rahul).
@@ -45,12 +47,16 @@ export default function DeficienciesTab({
   const deficienciesStats =
     status === 'owner'
       ? buildOwnerDeficienciesStats(metricsSource)
-      : buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks);
+      : status === 'state'
+        ? buildStateDeficienciesStats(metricsSource, nationalBenchmarks)
+        : buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks);
 
   const penaltiesStats =
     status === 'owner'
       ? buildOwnerPenaltiesStats(metricsSource)
-      : buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks);
+      : status === 'state'
+        ? buildStatePenaltiesStats(metricsSource, nationalBenchmarks)
+        : buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks);
 
   return (
     <section>
@@ -103,6 +109,6 @@ export default function DeficienciesTab({
 
 DeficienciesTab.propTypes = {
   metricsSource: PropTypes.object,
-  status: PropTypes.oneOf(['facility', 'owner']),
+  status: PropTypes.oneOf(['facility', 'owner', 'state']),
   nationalBenchmarks: PropTypes.object,
 };

@@ -1,4 +1,5 @@
 import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
+import { buildNationalComparison } from './getBadgeColor';
 
 /**
  * Deficiencies & Penalties metric config and builder helpers.
@@ -142,4 +143,48 @@ export function buildOwnerDeficienciesStats(metricsSource) {
 
 export function buildOwnerPenaltiesStats(metricsSource) {
   return buildOwnerStats(ownerPenaltiesConfig, metricsSource);
+}
+
+/* State builders reuse the facility configs but benchmark each value against
+   the national average from /national, deriving the Above/Below National
+   Average badge like the other tabs. Every deficiency/penalty metric is
+   lower-is-better (fewer deficiencies, penalties, fines, and dollars are
+   better), so a value below the national average reads green. */
+function buildStateStats(config, metricsSource, nationalBenchmarks) {
+  return config.map((metric) => {
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const rawValue = metricsSource?.[metric.valueKey];
+    const rawNational = nationalBenchmarks?.[metric.nationalAvgKey];
+    const nationalAvg = format(rawNational);
+    const { comparison, comparisonColor } = buildNationalComparison(
+      rawValue,
+      rawNational,
+      false,
+    );
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat: rawValue ?? 'N/A',
+      isCurrency: metric.isCurrency,
+      rating: comparison,
+      ratingColor: comparisonColor,
+      detail1: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+    };
+  });
+}
+
+export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityDeficienciesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
+}
+
+export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityPenaltiesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
