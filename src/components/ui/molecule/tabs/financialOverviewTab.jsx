@@ -14,6 +14,10 @@ import {
   buildOwnerRevenueStats,
   buildOwnerExpensesStats,
   buildOwnerLiquidityStats,
+  buildStateProfitStats,
+  buildStateRevenueStats,
+  buildStateExpensesStats,
+  buildStateLiquidityStats,
 } from '../../../../lib/financialMetrics';
 
 /**
@@ -34,22 +38,30 @@ export default function FinancialOverviewTab({
   const profitStats =
     status === 'facility'
       ? buildFacilityProfitStats(items, nationalBenchmarks)
-      : buildOwnerProfitStats(items);
+      : status === 'state'
+        ? buildStateProfitStats(items, nationalBenchmarks)
+        : buildOwnerProfitStats(items);
 
   const revenueStats =
     status === 'facility'
       ? buildFacilityRevenueStats(items, nationalBenchmarks)
-      : buildOwnerRevenueStats(items);
+      : status === 'state'
+        ? buildStateRevenueStats(items, nationalBenchmarks)
+        : buildOwnerRevenueStats(items);
 
   const expensesStats =
     status === 'facility'
       ? buildFacilityExpensesStats(items, nationalBenchmarks)
-      : buildOwnerExpensesStats(items);
+      : status === 'state'
+        ? buildStateExpensesStats(items, nationalBenchmarks)
+        : buildOwnerExpensesStats(items);
 
   const liquidityStats =
     status === 'facility'
       ? buildFacilityLiquidityStats(items, nationalBenchmarks)
-      : buildOwnerLiquidityStats(items);
+      : status === 'state'
+        ? buildStateLiquidityStats(items, nationalBenchmarks)
+        : buildOwnerLiquidityStats(items);
 
   return (
     <section>

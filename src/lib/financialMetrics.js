@@ -3,7 +3,7 @@ import {
   expandStateAbbreviation,
   formatUSD,
 } from './stringFormatters';
-import { getCmprColor } from './getBadgeColor';
+import { getCmprColor, buildNationalComparison } from './getBadgeColor';
 
 /**
  * Financial metric config and builder helpers.
@@ -359,4 +359,80 @@ export function buildOwnerExpensesStats(metricsSource) {
 
 export function buildOwnerLiquidityStats(metricsSource) {
   return buildOwnerStats(ownerLiquidityConfig, metricsSource);
+}
+
+/* Per-metric direction and display suffix for the state financial cards.
+   Revenue/margins/net income/current ratio read as higher-is-better; expenses,
+   salaries, related-party shares, and the debt ratio read as lower-is-better,
+   so a state sitting below the national expense average shows green. Keyed by
+   valueKey so the state builder can reuse the facility configs unchanged. */
+const STATE_FINANCIAL_META = {
+  operating_margin: { higherIsBetter: true, suffix: '%' },
+  total_margin: { higherIsBetter: true, suffix: '%' },
+  net_income: { higherIsBetter: true },
+  net_patient_services_revenue: { higherIsBetter: true },
+  operating_expenses: { higherIsBetter: false },
+  total_salaries: { higherIsBetter: false },
+  total_expenses: { higherIsBetter: false },
+  related_party_to_total_op_expenses: { higherIsBetter: false, suffix: '%' },
+  related_party_to_net_op_expenses: { higherIsBetter: false, suffix: '%' },
+  current_ratio: { higherIsBetter: true },
+  long_term_debt_to_capital_ratio: { higherIsBetter: false },
+};
+
+// State builder benchmarks each value against the national average and derives
+// the Above/Below National Average badge, like the clinical and staffing tabs.
+function buildStateStats(config, metricsSource, nationalBenchmarks) {
+  return config.map((metric) => {
+    const meta = STATE_FINANCIAL_META[metric.valueKey] || {};
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
+    const rawNational = metric.nationalAvgKey
+      ? nationalBenchmarks?.[metric.nationalAvgKey]
+      : null;
+    const withSuffix = (formatted) =>
+      formatted === 'N/A' || !meta.suffix
+        ? formatted
+        : `${formatted}${meta.suffix}`;
+
+    const { comparison, comparisonColor } = metric.nationalAvgKey
+      ? buildNationalComparison(rawValue, rawNational, meta.higherIsBetter)
+      : { comparison: null, comparisonColor: null };
+
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: metric.valueKey ? withSuffix(format(rawValue)) : 'N/A',
+      comparison,
+      comparisonColor,
+      detail1: metric.nationalAvgKey
+        ? `National average: ${withSuffix(format(rawNational))}`
+        : undefined,
+    };
+  });
+}
+
+export function buildStateProfitStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(facilityProfitConfig, metricsSource, nationalBenchmarks);
+}
+
+export function buildStateRevenueStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(facilityRevenueConfig, metricsSource, nationalBenchmarks);
+}
+
+export function buildStateExpensesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityExpensesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
+}
+
+export function buildStateLiquidityStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityLiquidityConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }

@@ -169,6 +169,7 @@ export default function StatesProfile() {
                       <FinancialOverviewTab
                         items={stateStats}
                         status={'state'}
+                        nationalBenchmarks={nationalBenchmarks}
                       />
                     );
 
