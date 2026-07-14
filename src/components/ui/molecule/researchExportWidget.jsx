@@ -7,7 +7,7 @@ import {
   DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline';
 import { ShareWidget } from './shareability';
-import { SHARE_WIDGET_Z_CLASS } from '../../../lib/shareability/researchPanelAccent';
+import { SHARE_WIDGET_Z_CLASS } from '../../../lib/shareability/researcher/researchPanelAccent';
 
 /**
  * The right panel's "Export Session" telescoping widget, positioned absolutely

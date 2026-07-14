@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { TableCellsIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../components/ui/atom/heading';
+import {
+  ShareButton,
+  ShareButtonRow,
+  HoverReveal,
+} from '../components/ui/molecule/shareability';
+import { downloadRankingCsv } from '../lib/shareability/rankings/rankingShareActions';
 import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';
@@ -118,13 +125,30 @@ export default function Home() {
       {/* Bottom (lists) section with gray background */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <div className="mx-auto max-w-5xl">
-          <Heading level={2} className="text-heading-lg my-6 font-semibold text-center">
+          <Heading
+            level={2}
+            className="text-heading-lg my-6 text-center font-semibold"
+          >
             State of the Nursing Home Industry
           </Heading>
           <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
-            <div>
-              <div className="mb-4">
+            <div className="group">
+              <div>
                 <Heading level={3}>Top 10 Largest Chains</Heading>
+                <HoverReveal>
+                  <ShareButtonRow>
+                    <ShareButton
+                      icon={TableCellsIcon}
+                      label="Download data as CSV"
+                      onClick={() =>
+                        downloadRankingCsv(topChains, {
+                          entityLabel: 'Chain',
+                          filename: 'top-10-largest-chains.csv',
+                        })
+                      }
+                    />
+                  </ShareButtonRow>
+                </HoverReveal>
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -158,7 +182,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <div className="pb-8 pt-3 text-center">
+                  <div className="pt-3 pb-8 text-center">
                     <Link
                       to="/rankings/chains"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
@@ -169,9 +193,23 @@ export default function Home() {
                 </>
               )}
             </div>
-            <div>
-              <div className="mb-4">
+            <div className="group">
+              <div>
                 <Heading level={3}>Top 10 Largest Individual Owners</Heading>
+                <HoverReveal>
+                  <ShareButtonRow>
+                    <ShareButton
+                      icon={TableCellsIcon}
+                      label="Download data as CSV"
+                      onClick={() =>
+                        downloadRankingCsv(topOwners, {
+                          entityLabel: 'Owner',
+                          filename: 'top-10-largest-individual-owners.csv',
+                        })
+                      }
+                    />
+                  </ShareButtonRow>
+                </HoverReveal>
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -209,7 +247,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <div className="pb-8 pt-3 text-center">
+                  <div className="pt-3 pb-8 text-center">
                     <Link
                       to="/rankings/individual-owners"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"

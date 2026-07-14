@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { DocumentTextIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { MdComponents } from '../../../lib/mdComponents';
 import { mapRefCallback } from '../../../lib/mapRefCallback';
-import { copyText, copyRichText } from '../../../lib/shareability/shareActions';
+import { copyText, copyRichText } from '../../../lib/shareability/primitives/shareActions';
 import { ShareButton, ShareButtonRow, HoverReveal } from './shareability';
 
 /**

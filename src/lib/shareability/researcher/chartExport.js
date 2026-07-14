@@ -3,8 +3,8 @@ import {
   downloadPng,
   nodeToPngDataUrl,
   rowsToCsv,
-} from './shareActions';
-import { slugify } from '../slugify';
+} from '../primitives/shareActions';
+import { slugify } from '../../slugify';
 
 /**
  * chartExport — chart-specific export helpers, built on the generic

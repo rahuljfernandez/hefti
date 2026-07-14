@@ -24,7 +24,6 @@ export default function TabsSelector({
   activeTab,
   panelId,
   getTabId,
-  rightSlot,
 }) {
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
@@ -52,7 +51,6 @@ export default function TabsSelector({
             className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
           />
         </div>
-        {rightSlot && <div className="mt-3">{rightSlot}</div>}
       </div>
       {/** Desktop */}
       <div className="hidden lg:block">
@@ -84,7 +82,6 @@ export default function TabsSelector({
                 </button>
               ))}
             </div>
-            {rightSlot && <div className="mb-3">{rightSlot}</div>}
           </div>
         </div>
       </div>
@@ -104,7 +101,6 @@ TabsSelector.propTypes = {
   onTabChange: PropTypes.func,
   panelId: PropTypes.string,
   getTabId: PropTypes.func,
-  rightSlot: PropTypes.node,
   activeTab: PropTypes.shape({
     name: PropTypes.string.isRequired,
     href: PropTypes.string,
