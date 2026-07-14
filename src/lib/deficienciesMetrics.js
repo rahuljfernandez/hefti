@@ -145,11 +145,52 @@ export function buildOwnerPenaltiesStats(metricsSource) {
   return buildOwnerStats(ownerPenaltiesConfig, metricsSource);
 }
 
-/* State builders reuse the facility configs but benchmark each value against
-   the national average from /national, deriving the Above/Below National
-   Average badge like the other tabs. Every deficiency/penalty metric is
-   lower-is-better (fewer deficiencies, penalties, fines, and dollars are
-   better), so a value below the national average reads green. */
+/* State configs mirror the facility benchmark keys but use aggregate wording:
+   a state value is the average across the state's nursing homes, not a single
+   provider's counts. */
+const stateDeficienciesConfig = [
+  {
+    key: 'Average Deficiencies',
+    description:
+      'Average deficiencies found across nursing homes in this state over the past year',
+    valueKey: 'health_deficiencies',
+    nationalAvgKey: 'national_health_deficiencies',
+    isCurrency: false,
+  },
+];
+
+const statePenaltiesConfig = [
+  {
+    key: 'Average Penalties',
+    description:
+      'Average number of penalties issued across nursing homes in this state',
+    valueKey: 'total_penalties',
+    nationalAvgKey: 'national_total_penalties',
+    isCurrency: false,
+  },
+  {
+    key: 'Average Number of Fines',
+    description:
+      'Average number of fines issued across nursing homes in this state',
+    valueKey: 'number_of_fines',
+    nationalAvgKey: 'national_number_of_fines',
+    isCurrency: false,
+  },
+  {
+    key: 'Average Fine Amount',
+    description:
+      'Average dollar amount of fines issued across nursing homes in this state',
+    valueKey: 'total_amount_of_fines_in_usd',
+    nationalAvgKey: 'national_total_amount_of_fines_in_usd',
+    isCurrency: true,
+  },
+];
+
+/* State builders benchmark each value against the national average from
+   /national, deriving the Above/Below National Average badge like the other
+   tabs. Every deficiency/penalty metric is lower-is-better (fewer
+   deficiencies, penalties, fines, and dollars are better), so a value below
+   the national average reads green. */
 function buildStateStats(config, metricsSource, nationalBenchmarks) {
   return config.map((metric) => {
     const format = metric.isCurrency ? formatUSD : formatMetricValue;
@@ -175,16 +216,12 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
 
 export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
   return buildStateStats(
-    facilityDeficienciesConfig,
+    stateDeficienciesConfig,
     metricsSource,
     nationalBenchmarks,
   );
 }
 
 export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
-  return buildStateStats(
-    facilityPenaltiesConfig,
-    metricsSource,
-    nationalBenchmarks,
-  );
+  return buildStateStats(statePenaltiesConfig, metricsSource, nationalBenchmarks);
 }

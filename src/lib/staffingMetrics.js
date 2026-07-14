@@ -141,7 +141,8 @@ const stateStaffingLevelsConfig = [
   {
     id: 1,
     title: 'LPN hours/residents/day',
-    description: 'Reported total nurse staffing hours per resident per day.',
+    description:
+      'Average nurse staffing hours per resident per day across nursing homes in this state.',
     valueKey: 'lpn_hprd',
     nationalAvgKey: 'national_lpn_hprd',
     higherIsBetter: true,
@@ -150,7 +151,7 @@ const stateStaffingLevelsConfig = [
     id: 2,
     title: 'RN Hours/resident/day',
     description:
-      'Reported total Registered Nurse staffing hours per resident per day.',
+      'Average Registered Nurse staffing hours per resident per day across nursing homes in this state.',
     valueKey: 'rn_hprd',
     nationalAvgKey: 'national_rn_hprd',
     higherIsBetter: true,
@@ -159,7 +160,7 @@ const stateStaffingLevelsConfig = [
     id: 3,
     title: 'Nurse hours/resident/weekend',
     description:
-      'Reported total nurse staffing hours per resident on the weekend.',
+      'Average nurse staffing hours per resident on the weekend across nursing homes in this state.',
     valueKey: 'lpn_hprw',
     higherIsBetter: true,
   },
@@ -169,7 +170,7 @@ const stateStaffingTurnoverConfig = [
   {
     id: 1,
     title: 'Nursing Staff Turnover',
-    description: 'Total staff turnover for nursing staff',
+    description: 'Average nursing staff turnover across nursing homes in this state',
     valueKey: 'nursing_turnover',
     nationalAvgKey: 'national_nursing_turnover',
     suffix: '%',
@@ -178,14 +179,15 @@ const stateStaffingTurnoverConfig = [
   {
     id: 2,
     title: 'RN Turnover',
-    description: 'Total staff turnover for RN',
+    description: 'Average RN turnover across nursing homes in this state',
     valueKey: null,
     suffix: '%',
   },
   {
     id: 3,
     title: 'Administrator Turnover',
-    description: 'Total staff turnover for administrative staff',
+    description:
+      'Average administrative staff turnover across nursing homes in this state',
     valueKey: null,
     suffix: '%',
   },
