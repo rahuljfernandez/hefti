@@ -10,6 +10,8 @@ import {
   buildFacilityStaffingTurnover,
   buildOwnerStaffingLevels,
   buildOwnerStaffingTurnover,
+  buildStateStaffingLevels,
+  buildStateStaffingTurnover,
 } from '../../../../lib/staffingMetrics';
 
 /**
@@ -21,23 +23,27 @@ import {
  * - Selects the correct staffing rating field for the CMS rating display
  * - Renders the staffing summary and supporting cards in a single tab panel
  */
-export default function StaffingTab({ items, status }) {
+export default function StaffingTab({ items, status, nationalBenchmarks }) {
   // Build stat arrays from lib config — maps data keys to display-ready objects
   const staffingLevelsStats =
     status === 'facility'
       ? buildFacilityStaffingLevels(items)
-      : buildOwnerStaffingLevels(items);
+      : status === 'state'
+        ? buildStateStaffingLevels(items, nationalBenchmarks)
+        : buildOwnerStaffingLevels(items);
 
   const staffingTurnoverStats =
     status === 'facility'
       ? buildFacilityStaffingTurnover(items)
-      : buildOwnerStaffingTurnover(items);
+      : status === 'state'
+        ? buildStateStaffingTurnover(items, nationalBenchmarks)
+        : buildOwnerStaffingTurnover(items);
 
   // Select the rating field that matches the current profile type.
   const staffingRating =
-    status === 'facility'
-      ? items.staffing_rating
-      : items.cms_owner_average_staffing_rating;
+    status === 'owner'
+      ? items.cms_owner_average_staffing_rating
+      : items.staffing_rating;
 
   return (
     <section>
@@ -116,4 +122,5 @@ export default function StaffingTab({ items, status }) {
 StaffingTab.propTypes = {
   items: PropTypes.object.isRequired,
   status: PropTypes.string.isRequired,
+  nationalBenchmarks: PropTypes.object,
 };

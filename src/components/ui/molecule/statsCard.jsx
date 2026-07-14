@@ -51,7 +51,7 @@ function StatCardItem({ item }) {
         {item.rating && (
           <div className="flex items-center">
             <Badge
-              color={getBadgeColorAboveBelow(item.rating)}
+              color={item.ratingColor || getBadgeColorAboveBelow(item.rating)}
               className="text-label-xs leading-none"
             >
               {item.rating}
@@ -75,6 +75,7 @@ StatCardItem.propTypes = {
     key: PropTypes.string.isRequired,
     stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     rating: PropTypes.string,
+    ratingColor: PropTypes.string,
     isCurrency: PropTypes.bool,
     description: PropTypes.string,
     detail1: PropTypes.string,

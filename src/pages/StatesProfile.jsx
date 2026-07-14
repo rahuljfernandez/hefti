@@ -156,7 +156,13 @@ export default function StatesProfile() {
                     );
 
                   case 'Staffing':
-                    return <StaffingTab items={stateStats} status={'state'} />;
+                    return (
+                      <StaffingTab
+                        items={stateStats}
+                        status={'state'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
 
                   case 'Financial Overview':
                     return (
