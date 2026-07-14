@@ -64,6 +64,52 @@ const ownerCardStatsConfig = [
   },
 ];
 
+/* State configs mirror the owner shape: statewide averages, aggregate wording,
+   and no comparison rating (the state response carries no cmpr_ strings). */
+const stateCardStatsConfig = [
+  {
+    key: 'Average Deficiencies',
+    description:
+      'Average number of serious deficiencies found across nursing homes in this state',
+    valueKey: 'health_deficiencies',
+    isCurrency: false,
+    decimals: 1,
+  },
+  {
+    key: 'Average Number of Fines',
+    description:
+      'Average number of fines issued across nursing homes in this state',
+    valueKey: 'number_of_fines',
+    isCurrency: false,
+    decimals: 1,
+  },
+  {
+    key: 'Average Fine Amount',
+    description: 'Average total fines issued across nursing homes in this state.',
+    valueKey: 'total_amount_of_fines_in_usd',
+    isCurrency: true,
+  },
+];
+
+// State builders return the same summary-card shape from statewide averages.
+export function buildStateCardStats(metricsSource) {
+  return stateCardStatsConfig.map((metric) => {
+    const raw = metricsSource?.[metric.valueKey];
+    const stat =
+      raw == null
+        ? 'N/A'
+        : metric.decimals != null
+          ? raw.toFixed(metric.decimals)
+          : raw;
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat,
+      isCurrency: metric.isCurrency,
+    };
+  });
+}
+
 // Owner builders return a normalized summary-card shape from owner aggregate values.
 export function buildOwnerCardStats(metricsSource) {
   return ownerCardStatsConfig.map((metric) => {
