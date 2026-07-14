@@ -8,6 +8,13 @@ import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ProfileHeader from '../components/ui/molecule/profileHeader.jsx';
 import { expandStateAbbreviation } from '../lib/stringFormatters.js';
+import TabsShell from '../components/ui/molecule/tabsShell.jsx';
+import { profileTabsDescriptions } from '../lib/tabDescriptions.js';
+import ProviderHighlights from '../components/ui/organism/providerHighlights.jsx';
+import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
+import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
+import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
+import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 
 /**
  * State profile page container.
@@ -27,6 +34,7 @@ export default function StatesProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -51,13 +59,33 @@ export default function StatesProfile() {
       .finally(() => setLoading(false));
   }, [stateParam]);
 
+  useEffect(() => {
+    // National averages power the clinical-quality comparison badges; the
+    // state-stats endpoint doesn't include them, so fetch them separately.
+    const fetchNationalBenchmarks = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/national`);
+        const data = await res.json();
+        setNationalBenchmarks(data);
+      } catch (err) {
+        console.error('Failed to fetch national averages:', err);
+      }
+    };
+
+    fetchNationalBenchmarks();
+  }, []);
+
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
   };
 
   const breadcrumbPages = [
     { name: 'Home', to: '/', current: false },
-    { name: stateParam || '...', to: `/states/${stateParam}`, current: true },
+    {
+      name: stateParam ? expandStateAbbreviation(stateParam) : '...',
+      to: `/states/${stateParam}`,
+      current: true,
+    },
   ];
 
   return (
@@ -96,6 +124,57 @@ export default function StatesProfile() {
               onClick={handleResearchClick}
               subjectType="state"
             />
+
+            {/* Shared tab shell; active tab content is chosen in the render function below. */}
+            <TabsShell
+              tabsData={profileTabsDescriptions}
+              defaultTabName={'Provider Highlights'}
+            >
+              {(activeTab) => {
+                switch (activeTab.name) {
+                  case 'Provider Highlights':
+                    return (
+                      <ProviderHighlights items={stateStats} status="state" />
+                    );
+                  //As of 3/16/26 we are holding off on deficiencies
+                  //4/17 Tyler requested tab be visible with coming soon
+                  case 'Deficiencies & Penalties':
+                    return (
+                      <DeficienciesTab
+                        metricsSource={stateStats}
+                        status="state"
+                      />
+                    );
+
+                  case 'Clinical Quality Measures':
+                    return (
+                      <ClinicalQualityTab
+                        metricsSource={stateStats}
+                        status={'state'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
+
+                  case 'Staffing':
+                    return <StaffingTab items={stateStats} status={'state'} />;
+
+                  case 'Financial Overview':
+                    return (
+                      <FinancialOverviewTab
+                        items={stateStats}
+                        status={'state'}
+                      />
+                    );
+
+                  default:
+                    return (
+                      <p className="text-muted-foreground text-sm">
+                        This section is under development.
+                      </p>
+                    );
+                }
+              }}
+            </TabsShell>
           </>
         )}
       </LayoutPage>

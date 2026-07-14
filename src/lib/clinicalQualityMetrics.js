@@ -1,5 +1,5 @@
 import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
-import { getCmprColor } from './getBadgeColor';
+import { getCmprColor, buildNationalComparison } from './getBadgeColor';
 
 /**
  * Clinical quality metric config and builder helpers.
@@ -144,6 +144,7 @@ const facilityLongStayConfig = [
     comparisonKey: 'cmpr_num_ed_visits_per_1000',
     stateAvgKey: 'state_num_ed_visits_per_1000',
     nationalAvgKey: 'national_num_ed_visits_per_1000',
+    isRate: true,
   },
   {
     id: 15,
@@ -153,6 +154,7 @@ const facilityLongStayConfig = [
     comparisonKey: 'cmpr_num_hospitalizations_per_1000',
     stateAvgKey: 'state_num_hospitalizations_per_1000',
     nationalAvgKey: 'national_num_hospitalizations_per_1000',
+    isRate: true,
   },
 ];
 
@@ -192,6 +194,7 @@ const facilityShortStayConfig = [
     comparisonKey: 'cmpr_ss_pneumococcal_vaccine',
     stateAvgKey: 'state_ss_pneumococcal_vaccine',
     nationalAvgKey: 'national_ss_pneumococcal_vaccine',
+    higherIsBetter: true,
   },
 ];
 
@@ -363,10 +366,7 @@ function appendSuffix(value, suffix) {
 }
 
 // Facility builders add comparison labels and benchmark details for each metric card.
-export function buildFacilityLongStayStats(
-  metricsSource,
-  nationalBenchmarks,
-) {
+export function buildFacilityLongStayStats(metricsSource, nationalBenchmarks) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
   return facilityLongStayConfig.map((metric) => {
@@ -390,10 +390,7 @@ export function buildFacilityLongStayStats(
   });
 }
 
-export function buildFacilityShortStayStats(
-  metricsSource,
-  nationalBenchmarks,
-) {
+export function buildFacilityShortStayStats(metricsSource, nationalBenchmarks) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
 
   return facilityShortStayConfig.map((metric) => {
@@ -449,4 +446,50 @@ export function buildOwnerShortStayStats(metricsSource) {
       detail2: `Std Dev: ${metric.stdDevKey}`,
     };
   });
+}
+
+/* State builders reuse the facility configs (the state response carries the
+   same long-stay/short-stay value keys) but benchmark against the national
+   average from the /national endpoint. The state response has no precomputed
+   comparison string, so the Above/Below Average badge is derived via
+   buildNationalComparison (see getBadgeColor.js). */
+function buildStateStats(config, metricsSource, nationalBenchmarks) {
+  return config.map((metric) => {
+    const rawValue = metricsSource?.[metric.valueKey];
+    const rawNational = nationalBenchmarks?.[metric.nationalAvgKey];
+    const suffix = metric.isRate ? '' : '%';
+    const { comparison, comparisonColor } = buildNationalComparison(
+      rawValue,
+      rawNational,
+      metric.higherIsBetter,
+    );
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: appendSuffix(formatMetricValue(rawValue), suffix),
+      comparison,
+      comparisonColor,
+      detail1: `National average: ${appendSuffix(
+        formatMetricValue(rawNational),
+        suffix,
+      )}`,
+    };
+  });
+}
+
+export function buildStateLongStayStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityLongStayConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
+}
+
+export function buildStateShortStayStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    facilityShortStayConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
