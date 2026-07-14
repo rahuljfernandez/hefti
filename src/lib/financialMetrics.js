@@ -487,8 +487,8 @@ const stateLiquidityConfig = [
   },
 ];
 
-// State builder benchmarks each value against the national average and derives
-// the Above/Below National Average badge, like the clinical and staffing tabs.
+/* State builder benchmarks each value against the national average and derives
+   the Above/Below National Average badge, like the clinical and staffing tabs. */
 function buildStateStats(config, metricsSource, nationalBenchmarks) {
   return config.map((metric) => {
     const format = metric.isCurrency ? formatUSD : formatMetricValue;

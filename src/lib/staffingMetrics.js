@@ -277,9 +277,9 @@ export function buildOwnerStaffingTurnover(metricsSource) {
   });
 }
 
-// State builders benchmark the state's own value against the national average,
-// deriving the Above/Below National Average badge (color + label) the same way
-// the clinical tab does. Cards without a national key render badge-less.
+/* State builders benchmark the state's own value against the national average,
+   deriving the Above/Below National Average badge (color + label) the same way
+   the clinical tab does. Cards without a national key render badge-less. */
 function buildStateStaffingStat(metric, metricsSource, nationalBenchmarks) {
   const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
   const rawNational = metric.nationalAvgKey

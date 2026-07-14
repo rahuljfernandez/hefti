@@ -60,8 +60,8 @@ export default function StatesProfile() {
   }, [stateParam]);
 
   useEffect(() => {
-    // National averages power the clinical-quality comparison badges; the
-    // state-stats endpoint doesn't include them, so fetch them separately.
+    /* National averages power the clinical-quality comparison badges; the
+       state-stats endpoint doesn't include them, so fetch them separately. */
     const fetchNationalBenchmarks = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/national`);

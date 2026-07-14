@@ -119,6 +119,12 @@ const getCmprColor = (cmpr, higherIsBetter = false) => {
    { comparison, comparisonColor }; comparison is null when either value is
    missing so no badge renders. */
 const buildNationalComparison = (rawValue, rawBenchmark, higherIsBetter = false) => {
+  /* Guard nullish/empty first: Number(null) and Number('') both coerce to 0,
+     which would badge a genuinely-missing value as if it were 0 while the card
+     renders 'N/A'. Only real numbers should produce a badge. */
+  if (rawValue == null || rawValue === '' || rawBenchmark == null || rawBenchmark === '') {
+    return { comparison: null, comparisonColor: 'gray' };
+  }
   const value = Number(rawValue);
   const benchmark = Number(rawBenchmark);
   if (!Number.isFinite(value) || !Number.isFinite(benchmark)) {
