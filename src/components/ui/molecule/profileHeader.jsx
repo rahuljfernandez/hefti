@@ -4,6 +4,7 @@ import { Badge } from '../atom/badge';
 import { Heading } from '../atom/heading';
 import HeftiResearcherCTA from './heftiResearcherCTA';
 import YearSelector from './yearSelector';
+import StateSelector from './stateSelector';
 import { ShareWidget } from './shareability';
 
 /**
@@ -26,6 +27,8 @@ import { ShareWidget } from './shareability';
  *  - years:          data years for the selector; omit to hide it
  *  - selectedYear:   currently selected year (controlled)
  *  - onYearChange:   called with the newly selected year
+ *  - stateOptions:   [{ value, label }] for the "Change state" picker; omit to hide it
+ *  - onStateChange:  called with the newly selected state value
  *  - shareCategories: ShareWidget category descriptors; omit to hide the widget
  */
 export default function ProfileHeader({
@@ -38,12 +41,15 @@ export default function ProfileHeader({
   years,
   selectedYear,
   onYearChange,
+  stateOptions,
+  onStateChange,
   shareCategories,
   rank,
   outOf,
 }) {
-  // Hide the controls row entirely when there's neither a year selector nor a widget.
-  const hasControls = years?.length > 0 || shareCategories?.length > 0;
+  // Hide the controls row entirely when there's no selector or widget to show.
+  const hasControls =
+    years?.length > 0 || stateOptions?.length > 0 || shareCategories?.length > 0;
 
   // States show an overall rank line in place of the ownership-type badge.
   const isState = subjectType === 'state';
@@ -79,6 +85,9 @@ export default function ProfileHeader({
       <div className="flex flex-col items-start gap-4 lg:shrink-0 lg:items-end">
         {hasControls && (
           <div className="flex items-center gap-3">
+            {stateOptions?.length > 0 && (
+              <StateSelector states={stateOptions} onChange={onStateChange} />
+            )}
             {years?.length > 0 && (
               <YearSelector
                 years={years}
@@ -113,6 +122,13 @@ ProfileHeader.propTypes = {
   ),
   selectedYear: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onYearChange: PropTypes.func,
+  stateOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    }),
+  ),
+  onStateChange: PropTypes.func,
   shareCategories: PropTypes.arrayOf(
     PropTypes.shape({
       icon: PropTypes.elementType.isRequired,

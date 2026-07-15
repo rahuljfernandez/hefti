@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -7,7 +7,7 @@ import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ProfileHeader from '../components/ui/molecule/profileHeader.jsx';
-import { expandStateAbbreviation } from '../lib/stringFormatters.js';
+import { expandStateAbbreviation, US_STATES } from '../lib/stringFormatters.js';
 import TabsShell from '../components/ui/molecule/tabsShell.jsx';
 import { stateTabsDescriptions } from '../lib/tabDescriptions.js';
 import ProviderHighlights from '../components/ui/organism/providerHighlights.jsx';
@@ -42,6 +42,16 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+
+  const navigate = useNavigate();
+
+  /* Selecting a state routes to its profile; the fetch effect below is keyed on
+     the route param, so the page refetches and re-renders automatically. */
+  const handleStateChange = (nextState) => {
+    if (nextState && nextState !== stateParam) {
+      navigate(`/states/${nextState}`);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -138,6 +148,8 @@ export default function StatesProfile() {
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
               onYearChange={setSelectedYear}
+              stateOptions={US_STATES}
+              onStateChange={handleStateChange}
               shareCategories={shareCategories}
             />
 
