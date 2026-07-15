@@ -12,7 +12,7 @@ import {
 
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
-import { profileTabsDescriptions } from '../lib/tabDescriptions';
+import { facilityTabsDescriptions } from '../lib/tabDescriptions';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import ProviderHighlights from '../components/ui/organism/providerHighlights';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
@@ -219,7 +219,7 @@ export default function FacilityProfile() {
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              tabsData={profileTabsDescriptions}
+              tabsData={facilityTabsDescriptions}
               defaultTabName={'Provider Highlights'}
             >
               {(activeTab) => {

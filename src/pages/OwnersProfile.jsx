@@ -19,7 +19,7 @@ import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
-import { profileTabsDescriptions } from '../lib/tabDescriptions';
+import { ownerTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
@@ -188,12 +188,12 @@ export default function OwnersProfile() {
             </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              tabsData={profileTabsDescriptions}
-              defaultTabName={'Provider Highlights'}
+              tabsData={ownerTabsDescriptions}
+              defaultTabName={'Owner Highlights'}
             >
               {(activeTab) => {
                 switch (activeTab.name) {
-                  case 'Provider Highlights':
+                  case 'Owner Highlights':
                     return <ProviderHighlights items={owner} status="owner" />;
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon

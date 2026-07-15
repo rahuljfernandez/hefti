@@ -9,7 +9,7 @@ import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ProfileHeader from '../components/ui/molecule/profileHeader.jsx';
 import { expandStateAbbreviation } from '../lib/stringFormatters.js';
 import TabsShell from '../components/ui/molecule/tabsShell.jsx';
-import { profileTabsDescriptions } from '../lib/tabDescriptions.js';
+import { stateTabsDescriptions } from '../lib/tabDescriptions.js';
 import ProviderHighlights from '../components/ui/organism/providerHighlights.jsx';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
@@ -143,12 +143,12 @@ export default function StatesProfile() {
 
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              tabsData={profileTabsDescriptions}
-              defaultTabName={'Provider Highlights'}
+              tabsData={stateTabsDescriptions}
+              defaultTabName={'State Highlights'}
             >
               {(activeTab) => {
                 switch (activeTab.name) {
-                  case 'Provider Highlights':
+                  case 'State Highlights':
                     return (
                       <ProviderHighlights items={stateStats} status="state" />
                     );
