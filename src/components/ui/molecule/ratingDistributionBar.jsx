@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import Tooltip from '../atom/tooltip';
 
 /**
  * One metric row of the facility rating distribution: the metric label, a
@@ -17,24 +19,42 @@ export const RATING_ROW_GRID =
 export default function RatingDistributionBar({ metric }) {
   const { label, rated, segments, belowThreePct } = metric;
 
+  /* Round only the outer ends of the visible bar rather than clipping the whole
+     track with overflow-hidden — that clipping would also hide the hover
+     tooltips, which sit above each segment. */
+  const firstIdx = segments.findIndex((seg) => seg.count > 0);
+  const lastIdx = segments.findLastIndex((seg) => seg.count > 0);
+
   return (
     <div className={`${RATING_ROW_GRID} py-3`}>
       <span className="text-heading-xs text-core-black">{label}</span>
 
       <div
-        className="flex h-3.5 overflow-hidden rounded-full bg-background-secondary"
+        className="bg-background-secondary flex h-3.5 rounded-full"
         role="img"
         aria-label={`${label} rating distribution across ${rated} rated facilities`}
       >
-        {segments.map((seg) => (
+        {segments.map((seg, i) => (
           /* flex-grow proportional to count keeps the segments summing to the
              full bar width with no rounding drift; zero-count levels collapse. */
           <div
             key={seg.star}
-            className={seg.colorClass}
+            className={clsx(
+              'group relative',
+              seg.colorClass,
+              i === firstIdx && 'rounded-l-full',
+              i === lastIdx && 'rounded-r-full',
+            )}
             style={{ flexGrow: seg.count }}
-            title={`${seg.star}★: ${seg.count} (${Math.round(seg.pct)}%)`}
-          />
+          >
+            {seg.count > 0 && (
+              <Tooltip position="top">
+                {seg.star}★ — {seg.count}{' '}
+                {seg.count === 1 ? 'facility' : 'facilities'} (
+                {Math.round(seg.pct)}%)
+              </Tooltip>
+            )}
+          </div>
         ))}
       </div>
 

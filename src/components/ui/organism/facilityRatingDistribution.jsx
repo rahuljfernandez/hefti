@@ -35,7 +35,7 @@ export default function FacilityRatingDistribution({
 
       {/* Column headers: left over the metric labels, right over the percentages
           (both bar edges align to this row's edges). */}
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-8 flex items-center justify-between">
         <span className="text-label-sm text-content-secondary uppercase">
           Rating Type
         </span>
@@ -50,7 +50,7 @@ export default function FacilityRatingDistribution({
         ))}
       </div>
 
-      <div className="mt-5">
+      <div className="mt-8">
         <RatingDistributionLegend />
       </div>
     </section>
