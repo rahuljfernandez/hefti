@@ -7,7 +7,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
    many ownership changes were recorded across the state and links out to the
    acquisitions page. That page doesn't exist yet, so the link is a placeholder
    until the route is built. */
-export default function AcquisitionsCta({ stateName, changeCount, to }) {
+export default function StateAcquisitionsCta({ stateName, changeCount, to }) {
   return (
     <div className="border-border-primary mt-8 flex flex-col gap-4 rounded-xl border bg-linear-to-r from-purple-50 to-purple-200 px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <p className="text-paragraph-base text-content-primary">
@@ -26,12 +26,12 @@ export default function AcquisitionsCta({ stateName, changeCount, to }) {
   );
 }
 
-AcquisitionsCta.propTypes = {
+StateAcquisitionsCta.propTypes = {
   stateName: PropTypes.string.isRequired,
   changeCount: PropTypes.number.isRequired,
   to: PropTypes.string,
 };
 
-AcquisitionsCta.defaultProps = {
+StateAcquisitionsCta.defaultProps = {
   to: '/acquisitions',
 };
