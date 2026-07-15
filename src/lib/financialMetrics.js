@@ -172,8 +172,9 @@ function buildStats(config, metricsSource, nationalBenchmarks) {
       comparisonColor: metric.comparisonKey
         ? getCmprColor(metricsSource?.[metric.comparisonKey])
         : null,
-      detail1: `${stateName} average: ${stateAvg}`,
-      detail2: `National average: ${nationalAvg}`,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -492,6 +493,7 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
     const rawNational = metric.nationalAvgKey
       ? nationalBenchmarks?.[metric.nationalAvgKey]
       : null;
+    const nationalAvg = appendSuffix(format(rawNational), metric.suffix);
 
     const { comparison, comparisonColor } = metric.nationalAvgKey
       ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
@@ -506,9 +508,10 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
         : 'N/A',
       comparison,
       comparisonColor,
-      detail1: metric.nationalAvgKey
-        ? `National average: ${appendSuffix(format(rawNational), metric.suffix)}`
-        : undefined,
+      detail1:
+        metric.nationalAvgKey && nationalAvg !== 'N/A'
+          ? `National average: ${nationalAvg}`
+          : undefined,
     };
   });
 }

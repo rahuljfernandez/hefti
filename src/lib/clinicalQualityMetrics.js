@@ -384,8 +384,9 @@ export function buildFacilityLongStayStats(metricsSource, nationalBenchmarks) {
         metricsSource?.[metric.comparisonKey],
         metric.higherIsBetter,
       ),
-      detail1: `${stateName} average: ${stateAvg}`,
-      detail2: `National average: ${nationalAvg}`,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -408,8 +409,9 @@ export function buildFacilityShortStayStats(metricsSource, nationalBenchmarks) {
         metricsSource?.[metric.comparisonKey],
         metric.higherIsBetter,
       ),
-      detail1: `${stateName} average: ${stateAvg}`,
-      detail2: `National average: ${nationalAvg}`,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -458,6 +460,7 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
     const rawValue = metricsSource?.[metric.valueKey];
     const rawNational = nationalBenchmarks?.[metric.nationalAvgKey];
     const suffix = metric.isRate ? '' : '%';
+    const nationalAvg = appendSuffix(formatMetricValue(rawNational), suffix);
     const { comparison, comparisonColor } = buildNationalComparison(
       rawValue,
       rawNational,
@@ -470,10 +473,8 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
       value: appendSuffix(formatMetricValue(rawValue), suffix),
       comparison,
       comparisonColor,
-      detail1: `National average: ${appendSuffix(
-        formatMetricValue(rawNational),
-        suffix,
-      )}`,
+      detail1:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
