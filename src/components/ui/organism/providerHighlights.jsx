@@ -7,6 +7,7 @@ import StarRating from '../molecule/starRating';
 import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
 import FacilityRatingDistribution from './facilityRatingDistribution';
+import StateTrends from './stateTrends';
 import { Heading } from '../atom/heading';
 import {
   buildFacilityCardStats,
@@ -136,6 +137,8 @@ export default function ProviderHighlights({ items, status }) {
           <StatsCard variant="panel" stats={cardStats} />
         </div>
       </LayoutCard>
+
+      {status === 'state' && <StateTrends />}
     </section>
   );
 }
