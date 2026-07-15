@@ -61,7 +61,7 @@ export function buildRatingDistribution(distribution) {
       };
     });
 
-    const belowThreeCount = (counts[1] ?? 0) + (counts[2] ?? 0) + (counts[3] ?? 0);
+    const belowThreeCount = (counts[1] ?? 0) + (counts[2] ?? 0);
     const belowThreePct =
       rated > 0 ? Math.round((belowThreeCount / rated) * 100) : null;
 

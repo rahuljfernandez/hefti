@@ -50,7 +50,7 @@ export default function FacilityRatingDistribution({
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-5">
         <RatingDistributionLegend />
       </div>
     </section>

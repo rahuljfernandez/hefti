@@ -49,8 +49,8 @@ export default function RatingDistributionBar({ metric }) {
           >
             {seg.count > 0 && (
               <Tooltip position="top">
-                {seg.star}★ — {seg.count}{' '}
-                {seg.count === 1 ? 'facility' : 'facilities'} (
+                <span className="mr-1.5">{seg.star}★:</span>
+                {seg.count} {seg.count === 1 ? 'facility' : 'facilities'} (
                 {Math.round(seg.pct)}%)
               </Tooltip>
             )}
