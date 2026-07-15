@@ -1,4 +1,8 @@
-import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+  appendSuffix,
+} from './stringFormatters';
 import { getCmprColor, buildNationalComparison } from './getBadgeColor';
 
 /**
@@ -360,10 +364,6 @@ const ownerShortStayConfig = [
     stdDevKey: '.5',
   },
 ];
-
-function appendSuffix(value, suffix) {
-  return value === 'N/A' ? value : `${value}${suffix}`;
-}
 
 // Facility builders add comparison labels and benchmark details for each metric card.
 export function buildFacilityLongStayStats(metricsSource, nationalBenchmarks) {
