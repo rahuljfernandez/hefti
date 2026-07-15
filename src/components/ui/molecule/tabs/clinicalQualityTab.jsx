@@ -19,29 +19,40 @@ import {
  *
  * Responsibilities:
  * - Builds long-stay and short-stay metric groups from the provided data source
- * - Switches between facility and owner metric builders based on status
+ * - Switches between facility, state, and owner metric builders based on status
  * - Shows owner-specific context when values represent weighted averages
  * - Renders each metric group using the shared long-form metric card layout
  */
+
+/* Metric builders per subject type — each status maps its long/short-stay groups
+   to the matching lib builder. Owner builders take only `metricsSource` and
+   harmlessly ignore the benchmarks argument, so builders call uniformly. */
+const STATS_BUILDERS = {
+  facility: {
+    longStay: buildFacilityLongStayStats,
+    shortStay: buildFacilityShortStayStats,
+  },
+  state: {
+    longStay: buildStateLongStayStats,
+    shortStay: buildStateShortStayStats,
+  },
+  owner: {
+    longStay: buildOwnerLongStayStats,
+    shortStay: buildOwnerShortStayStats,
+  },
+};
+
 export default function ClinicalQualityTab({
   metricsSource,
   status,
   nationalBenchmarks,
 }) {
-  // Build stat arrays from lib config; maps data keys to display-ready objects.
-  const longStayStats =
-    status === 'facility'
-      ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
-      : status === 'state'
-        ? buildStateLongStayStats(metricsSource, nationalBenchmarks)
-        : buildOwnerLongStayStats(metricsSource);
+  // Pick the builder set for this subject type (owner is the default fallback).
+  const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
 
-  const shortStayStats =
-    status === 'facility'
-      ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
-      : status === 'state'
-        ? buildStateShortStayStats(metricsSource, nationalBenchmarks)
-        : buildOwnerShortStayStats(metricsSource);
+  // Build stat arrays from lib config; maps data keys to display-ready objects.
+  const longStayStats = builders.longStay(metricsSource, nationalBenchmarks);
+  const shortStayStats = builders.shortStay(metricsSource, nationalBenchmarks);
 
   return (
     <section>

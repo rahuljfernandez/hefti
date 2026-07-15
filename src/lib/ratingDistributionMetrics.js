@@ -41,7 +41,8 @@ const COLOR_BY_STAR = Object.fromEntries(
  * Each segment is { star, count, pct, colorClass }. `pct` is the raw share of
  * this metric's rated facilities (used for aria labels); bar widths are driven
  * by count so they always fill exactly 100%. `belowThreePct` is the cumulative
- * 1+2+3 star share, rounded, or null when the metric has no rated facilities.
+ * 1+2 star share (facilities below 3 stars), rounded, or null when the metric
+ * has no rated facilities.
  */
 export function buildRatingDistribution(distribution) {
   if (!distribution) return null;
