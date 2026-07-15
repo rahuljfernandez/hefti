@@ -31,16 +31,16 @@ import {
  * <line> segments.
  */
 
-const ROW_HEIGHT = 64;
+const ROW_HEIGHT = 80;
 // Vertical breathing room so the top and bottom ovals aren't clipped by the row.
-const ROW_PADDING = 14;
+const ROW_PADDING = 22;
 /* Horizontal inset, in percent, keeping the first and last ovals off the plot's
    edges. The oval is ~28px wide, so this also stops it colliding with the
    metric label and change columns. */
 const EDGE_INSET = 6;
 
-const OVAL_RX = 15;
-const OVAL_RY = 9;
+const OVAL_RX = 18;
+const OVAL_RY = 12;
 
 /* Evenly spaces points across the plot as a percentage string. A lone point
    would divide by zero, so it centers instead. */
@@ -220,7 +220,8 @@ export default function StateTrends() {
           </span>
         </div>
 
-        <div className="divide-border-primary divide-y">
+        {/* border-b closes off the last row — divide-y only draws between rows. */}
+        <div className="divide-border-primary border-border-primary divide-y border-b">
           {metrics.map((metric) => (
             <TrendRow key={metric.key} metric={metric} />
           ))}

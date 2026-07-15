@@ -14,7 +14,7 @@
  */
 
 // The year axis. Index-aligned with every series in TREND_SERIES below.
-export const TREND_YEARS = [2021, 2022, 2023, 2024, 2025];
+export const TREND_YEARS = [2022, 2023, 2024, 2025, 2026];
 
 /* PLACEHOLDER DATA — the state-stats endpoint only returns current-year
    ratings, so these series are invented and identical for every state. They are
