@@ -6,6 +6,7 @@ import LayoutCard from '../atom/layout-card';
 import StarRating from '../molecule/starRating';
 import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
+import FacilityRatingDistribution from './facilityRatingDistribution';
 import { Heading } from '../atom/heading';
 import {
   buildFacilityCardStats,
@@ -75,6 +76,7 @@ export default function ProviderHighlights({ items, status }) {
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
         {cfg.heading}
       </Heading>
+
       <LayoutCard>
         <div className="border-b border-gray-200 pb-5">
           {status === 'facility' ? (
@@ -82,10 +84,9 @@ export default function ProviderHighlights({ items, status }) {
           ) : status === 'owner' ? (
             <OwnerProfileDescription items={items} />
           ) : (
-            // TODO: build out the state description block.
-            <Heading level={2} className="text-heading-sm">
-              State Highlights
-            </Heading>
+            <FacilityRatingDistribution
+              distribution={items.rating_distribution}
+            />
           )}
         </div>
         {/*Star Rating Section */}
