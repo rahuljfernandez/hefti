@@ -13,6 +13,8 @@
  * than a half-built shape when the data can't support a render.
  */
 
+import { RATING_METRICS } from './ratingMetricsConfig';
+
 // The year axis. Index-aligned with every series in TREND_SERIES below.
 export const TREND_YEARS = [2022, 2023, 2024, 2025, 2026];
 
@@ -28,14 +30,6 @@ const TREND_SERIES = {
   staffing: [2.2, 2.1, 2.0, 1.9, 1.9],
   quality: [3.5, 3.6, 3.7, 3.8, 3.9],
 };
-
-// Which metrics render, in order, and their display label.
-const METRIC_CONFIG = [
-  { key: 'overall', label: 'Overall' },
-  { key: 'health_inspection', label: 'Health' },
-  { key: 'staffing', label: 'Staffing' },
-  { key: 'quality', label: 'Quality' },
-];
 
 /**
  * Formats a delta the way the design writes it: signed, one decimal, and no
@@ -61,11 +55,8 @@ export function formatTrendChange(change) {
  * show and no change to compute.
  */
 export function buildStateTrends() {
-  const metrics = METRIC_CONFIG.map(({ key, label }) => {
-    const values = TREND_SERIES[key] ?? [];
-    if (values.length < 2) return null;
-
-    const points = values
+  const metrics = RATING_METRICS.map(({ key, label }) => {
+    const points = (TREND_SERIES[key] ?? [])
       .map((value, i) => ({ year: TREND_YEARS[i], value }))
       .filter((point) => point.year != null && point.value != null);
     if (points.length < 2) return null;

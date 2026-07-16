@@ -35,8 +35,8 @@ const ROW_HEIGHT = 80;
 // Vertical breathing room so the top and bottom ovals aren't clipped by the row.
 const ROW_PADDING = 22;
 /* Horizontal inset, in percent, keeping the first and last ovals off the plot's
-   edges. The oval is ~28px wide, so this also stops it colliding with the
-   metric label and change columns. */
+   edges. The oval is 2 * OVAL_RX wide (36px), so this also stops it colliding
+   with the metric label and change columns. */
 const EDGE_INSET = 6;
 
 const OVAL_RX = 18;
@@ -75,39 +75,49 @@ function TrendSparkline({ metric }) {
   const min = Math.min(...values);
   const max = Math.max(...values);
 
+  /* Resolve each point to its plotted position once, so the line, oval, and
+     label for a given year all read the same x/y. Every mark below indexes
+     into this — nothing recomputes a coordinate. */
+  const coords = points.map((point, i) => ({
+    year: point.year,
+    value: point.value,
+    x: xPercent(i, points.length),
+    y: yFor(point.value, min, max),
+  }));
+
   return (
     <svg width="100%" height={ROW_HEIGHT} aria-hidden="true" focusable="false">
       {/* Connecting line first so the ovals sit on top of it. */}
-      {points.slice(1).map((point, i) => (
+      {coords.slice(1).map((coord, i) => (
         <line
-          key={point.year}
-          x1={xPercent(i, points.length)}
-          y1={yFor(points[i].value, min, max)}
-          x2={xPercent(i + 1, points.length)}
-          y2={yFor(point.value, min, max)}
+          key={coord.year}
+          x1={coords[i].x}
+          y1={coords[i].y}
+          x2={coord.x}
+          y2={coord.y}
           strokeWidth={2}
           className="stroke-content-primary"
         />
       ))}
 
-      {points.map((point, i) => (
-        <g key={point.year}>
+      {coords.map((coord) => (
+        <g key={coord.year}>
           <ellipse
-            cx={xPercent(i, points.length)}
-            cy={yFor(point.value, min, max)}
+            cx={coord.x}
+            cy={coord.y}
             rx={OVAL_RX}
             ry={OVAL_RY}
             strokeWidth={1.5}
             className="fill-white stroke-amber-500"
           />
           <text
-            x={xPercent(i, points.length)}
-            y={yFor(point.value, min, max)}
+            x={coord.x}
+            y={coord.y}
             textAnchor="middle"
             dominantBaseline="central"
             className="fill-core-black text-xs font-bold"
           >
-            {point.value.toFixed(1)}
+            {coord.value.toFixed(1)}
           </text>
         </g>
       ))}

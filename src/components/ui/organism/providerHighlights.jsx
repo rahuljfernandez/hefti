@@ -25,6 +25,8 @@ import { formatMetricValue } from '../../../lib/stringFormatters';
 /**
  * Drives all status-specific values — headings, data keys, and the stat builder.
  */
+
+//Todo find out if the 5 year trend ought to follow the year selector and move with it or if it ought to stay with 2026-2021
 const config = {
   facility: {
     heading: 'Provider Highlights',
