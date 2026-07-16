@@ -24,7 +24,7 @@ export { STAR_LEVELS };
    this box on load, so center and zoom are derived per state rather than
    hand-tuned. Boxes are approximate — good enough to frame a state, and the
    only thing this module needs until per-facility lat/long lands. */
-export const STATE_MAP_BOUNDS = {
+const STATE_MAP_BOUNDS = {
   Alabama: [
     [30.14, -88.47],
     [35.01, -84.89],

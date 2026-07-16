@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+/* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
+   handler on Leaflet's Map (enabled via the map option below) and brings its
+   overlay styles. Imported after leaflet so the plugin sees the same L instance. */
+import 'leaflet-gesture-handling';
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import FlushCard from '../atom/flushCard';
 import TabsSelector from '../molecule/tabsSelector';
 import { Select } from '../atom/select';
@@ -18,7 +23,7 @@ import {
 } from '../../../lib/facilitiesMapMetrics';
 
 /**
- * Facilities Across Virginia.
+ * Facilities Across {State}.
  *
  * An interactive Leaflet map that plots every facility in the state, wrapped in
  * a top control card (Color by / Narrow by) and a bottom card (count + star
@@ -49,7 +54,8 @@ function MapPanel({ stateName, viewport }) {
         minZoom={viewport.minZoom}
         maxZoom={viewport.maxZoom}
         maxBoundsViscosity={1}
-        scrollWheelZoom={true}
+        /* Wheel scroll pans the page; ctrl/⌘ + scroll zooms the map. */
+        gestureHandling={true}
         /* Fractional zoom so fitBounds fills the state box exactly instead of
            rounding down a whole level (which read as "zoomed out"). */
         zoomSnap={0}
