@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { MapContainer, TileLayer } from 'react-leaflet';
@@ -8,7 +8,7 @@ import TabsSelector from '../molecule/tabsSelector';
 import { Select } from '../atom/select';
 import { Heading } from '../atom/heading';
 import {
-  VA_MAP,
+  getStateMapViewport,
   COLOR_BY_TABS,
   DEFAULT_COLOR_BY,
   STAR_RATING_OPTIONS,
@@ -33,18 +33,26 @@ import {
 
 /* The Leaflet map. Kept flush (rounded-none) so the FlushCards above and below
    form the card's rounded corners. Leaflet needs an explicit height on its
-   container, hence the fixed h-80. */
-function MapPanel() {
+   container, hence the fixed h-80.
+
+   `key={stateName}` is load-bearing: MapContainer reads `bounds` only when it
+   creates the Leaflet instance (once, on mount), so changing the prop alone
+   would leave the map parked on the previous state. Keying on the state name
+   forces a fresh map — and a fresh mount-time fitBounds — whenever it changes. */
+function MapPanel({ stateName, viewport }) {
   return (
     <div className="h-80 w-full overflow-hidden">
       <MapContainer
-        center={VA_MAP.center}
-        zoom={VA_MAP.zoom}
-        minZoom={VA_MAP.minZoom}
-        maxZoom={VA_MAP.maxZoom}
-        maxBounds={VA_MAP.bounds}
+        key={stateName}
+        bounds={viewport.bounds}
+        maxBounds={viewport.maxBounds}
+        minZoom={viewport.minZoom}
+        maxZoom={viewport.maxZoom}
         maxBoundsViscosity={1}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
+        /* Fractional zoom so fitBounds fills the state box exactly instead of
+           rounding down a whole level (which read as "zoomed out"). */
+        zoomSnap={0}
         className="facilities-map h-full w-full rounded-none"
       >
         <TileLayer
@@ -58,6 +66,16 @@ function MapPanel() {
   );
 }
 
+MapPanel.propTypes = {
+  stateName: PropTypes.string.isRequired,
+  viewport: PropTypes.shape({
+    bounds: PropTypes.array.isRequired,
+    maxBounds: PropTypes.array.isRequired,
+    minZoom: PropTypes.number.isRequired,
+    maxZoom: PropTypes.number.isRequired,
+  }).isRequired,
+};
+
 function ControlLabel({ children }) {
   return (
     <span className="text-label-sm text-core-black shrink-0 font-medium">
@@ -70,10 +88,15 @@ ControlLabel.propTypes = { children: PropTypes.node };
 
 export default function FacilitiesMap({ stateName = 'Virginia' }) {
   const [colorBy, setColorBy] = useState(
-    COLOR_BY_TABS.find((tab) => tab.name === DEFAULT_COLOR_BY) ?? COLOR_BY_TABS[0],
+    COLOR_BY_TABS.find((tab) => tab.name === DEFAULT_COLOR_BY) ??
+      COLOR_BY_TABS[0],
   );
   const [starRating, setStarRating] = useState(STAR_RATING_OPTIONS[0].value);
   const [ownership, setOwnership] = useState(OWNERSHIP_OPTIONS[0].value);
+
+  /* Memoized per state so the bounds arrays keep a stable identity — StateFocus
+     only refits when the state actually changes, not on every render. */
+  const viewport = useMemo(() => getStateMapViewport(stateName), [stateName]);
 
   const { shownCount, totalCount } = buildFacilitiesMap();
 
@@ -125,13 +148,13 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
         </div>
       </FlushCard>
 
-      <MapPanel />
+      <MapPanel stateName={stateName} viewport={viewport} />
 
       <FlushCard position="bottom">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-label-sm text-content-secondary">
-            <span className="text-core-black font-semibold">{shownCount}</span> of{' '}
-            {totalCount} facilities
+            <span className="text-core-black font-semibold">{shownCount}</span>{' '}
+            of {totalCount} facilities
           </p>
 
           {/* Star legend — reuses the shared STAR_LEVELS palette so it matches
@@ -142,7 +165,9 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
                 key={star}
                 className="text-label-sm text-content-secondary flex items-center gap-1.5"
               >
-                <span className={clsx('h-2.5 w-2.5 rounded-full', colorClass)} />
+                <span
+                  className={clsx('h-2.5 w-2.5 rounded-full', colorClass)}
+                />
                 {star}★
               </span>
             ))}
