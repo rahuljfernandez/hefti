@@ -24,6 +24,7 @@ export default function TabsSelector({
   activeTab,
   panelId,
   getTabId,
+  containerClassName = 'bg-background-secondary',
 }) {
   const handleClick = (tabName) => {
     const newActive = tabsData.find((tab) => tab.name === tabName);
@@ -31,7 +32,7 @@ export default function TabsSelector({
   };
 
   return (
-    <div className="bg-background-secondary">
+    <div className={containerClassName}>
       {/** Mobile */}
       <div className="lg:hidden">
         <div className="grid grid-cols-1">
@@ -101,6 +102,7 @@ TabsSelector.propTypes = {
   onTabChange: PropTypes.func,
   panelId: PropTypes.string,
   getTabId: PropTypes.func,
+  containerClassName: PropTypes.string,
   activeTab: PropTypes.shape({
     name: PropTypes.string.isRequired,
     href: PropTypes.string,

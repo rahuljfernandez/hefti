@@ -8,13 +8,17 @@ import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
 import FacilityRatingDistribution from './facilityRatingDistribution';
 import StateTrends from './stateTrends';
+import FacilitiesMap from './facilitiesMap';
 import { Heading } from '../atom/heading';
 import {
   buildFacilityCardStats,
   buildOwnerCardStats,
   buildStateCardStats,
 } from '../../../lib/providerHighlightsMetrics';
-import { formatMetricValue } from '../../../lib/stringFormatters';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+} from '../../../lib/stringFormatters';
 
 /**
  * Shared highlights component for both facility and owner profile pages.
@@ -140,6 +144,9 @@ export default function ProviderHighlights({ items, status }) {
         </div>
       </LayoutCard>
 
+      {status === 'state' && (
+        <FacilitiesMap stateName={expandStateAbbreviation(items.state)} />
+      )}
       {status === 'state' && <StateTrends />}
     </section>
   );
