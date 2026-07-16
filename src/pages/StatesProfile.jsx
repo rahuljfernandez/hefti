@@ -162,7 +162,11 @@ export default function StatesProfile() {
                 switch (activeTab.name) {
                   case 'State Highlights':
                     return (
-                      <ProviderHighlights items={stateStats} status="state" />
+                      <ProviderHighlights
+                        items={stateStats}
+                        status="state"
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
                     );
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon

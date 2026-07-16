@@ -96,14 +96,16 @@ function StatCardLayout({ stats }) {
               <dd className="text-heading-lg text-core-black leading-none">
                 {formatValue(item.stat, item.isCurrency)}
               </dd>
-              <div className="flex items-center">
-                <Badge
-                  color={getBadgeColorAboveBelow(item.rating)}
-                  className="text-label-xs leading-none"
-                >
-                  {item.rating}
-                </Badge>
-              </div>
+              {item.rating && (
+                <div className="flex items-center">
+                  <Badge
+                    color={item.ratingColor || getBadgeColorAboveBelow(item.rating)}
+                    className="text-label-xs leading-none"
+                  >
+                    {item.rating}
+                  </Badge>
+                </div>
+              )}
             </div>
             <div className="text-paragraph-base text-content-secondary">{item.description}</div>
             {(item.detail1 || item.detail2) && (
@@ -125,6 +127,7 @@ StatCardLayout.propTypes = {
       key: PropTypes.string.isRequired,
       stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       rating: PropTypes.string,
+      ratingColor: PropTypes.string,
       isCurrency: PropTypes.bool,
       description: PropTypes.string,
       detail1: PropTypes.string,
