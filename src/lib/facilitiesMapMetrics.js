@@ -13,7 +13,6 @@
  * lands, only the builder below should need to change.
  */
 
-import { RATING_METRICS } from './ratingMetricsConfig';
 import { STAR_LEVELS } from './ratingDistributionMetrics';
 
 // Re-exported so the map legend reads the same star palette as the rest of the app.
@@ -47,12 +46,16 @@ export const COLOR_BY_TABS = [
 
 export const DEFAULT_COLOR_BY = 'Default';
 
-/* Narrow-by: rating metric. "All" is the default (no narrowing); the rest reuse
-   the shared RATING_METRICS labels so they never drift from the other sections.
-   `value` doubles as the data-lookup key; 'all' means unfiltered. */
-export const NARROW_BY_RATING_OPTIONS = [
-  { value: 'all', label: 'Rating Metric' },
-  ...RATING_METRICS.map(({ key, label }) => ({ value: key, label })),
+/* Narrow-by: overall star rating. "All" is the default (no narrowing); the rest
+   are the 1–5 star levels, derived from STAR_LEVELS so they stay in lockstep
+   with the legend. `value` is the star count as a string; 'all' means
+   unfiltered. */
+export const STAR_RATING_OPTIONS = [
+  { value: 'all', label: 'Star Rating' },
+  ...STAR_LEVELS.map(({ star }) => ({
+    value: String(star),
+    label: `${star} ${star === 1 ? 'Star' : 'Stars'}`,
+  })),
 ];
 
 /* Narrow-by: ownership type. Collapsed to the three top-level buckets the CMS

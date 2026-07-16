@@ -11,7 +11,7 @@ import {
   VA_MAP,
   COLOR_BY_TABS,
   DEFAULT_COLOR_BY,
-  NARROW_BY_RATING_OPTIONS,
+  STAR_RATING_OPTIONS,
   OWNERSHIP_OPTIONS,
   STAR_LEVELS,
   buildFacilitiesMap,
@@ -72,9 +72,7 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
   const [colorBy, setColorBy] = useState(
     COLOR_BY_TABS.find((tab) => tab.name === DEFAULT_COLOR_BY) ?? COLOR_BY_TABS[0],
   );
-  const [ratingMetric, setRatingMetric] = useState(
-    NARROW_BY_RATING_OPTIONS[0].value,
-  );
+  const [starRating, setStarRating] = useState(STAR_RATING_OPTIONS[0].value);
   const [ownership, setOwnership] = useState(OWNERSHIP_OPTIONS[0].value);
 
   const { shownCount, totalCount } = buildFacilitiesMap();
@@ -102,11 +100,11 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
           <ControlLabel>Narrow by</ControlLabel>
           <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
             <Select
-              aria-label="Rating Metric"
-              value={ratingMetric}
-              onChange={(e) => setRatingMetric(e.target.value)}
+              aria-label="Star Rating"
+              value={starRating}
+              onChange={(e) => setStarRating(e.target.value)}
             >
-              {NARROW_BY_RATING_OPTIONS.map((option) => (
+              {STAR_RATING_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
