@@ -45,7 +45,7 @@ function MapPanel() {
         maxBounds={VA_MAP.bounds}
         maxBoundsViscosity={1}
         scrollWheelZoom={false}
-        className="h-full w-full rounded-none"
+        className="facilities-map h-full w-full rounded-none"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

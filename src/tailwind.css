@@ -84,6 +84,39 @@
   background-color: #ffffff !important;
 }
 
+/* Align Leaflet's overlay controls with the facilities map's flush-card text
+   inset. The map is edge-to-edge, but the cards above and below pad their
+   content by 16px (24px at the sm breakpoint, matching px-4 sm:px-6), while
+   Leaflet positions its controls 10px from the map edge — so the zoom +/-
+   buttons land left of where the card text starts. Match the control margins to
+   the card padding so they line up with the text on every edge. */
+.facilities-map .leaflet-top .leaflet-control {
+  margin-top: 1rem;
+}
+.facilities-map .leaflet-left .leaflet-control {
+  margin-left: 1rem;
+}
+.facilities-map .leaflet-right .leaflet-control {
+  margin-right: 1rem;
+}
+.facilities-map .leaflet-bottom .leaflet-control {
+  margin-bottom: 1rem;
+}
+@media (min-width: 640px) {
+  .facilities-map .leaflet-top .leaflet-control {
+    margin-top: 1.5rem;
+  }
+  .facilities-map .leaflet-left .leaflet-control {
+    margin-left: 1.5rem;
+  }
+  .facilities-map .leaflet-right .leaflet-control {
+    margin-right: 1.5rem;
+  }
+  .facilities-map .leaflet-bottom .leaflet-control {
+    margin-bottom: 1.5rem;
+  }
+}
+
 /* HeftiResearcherCTA spinning gradient border — static linear-gradient as fallback,
    animated conic-gradient for browsers that support @property + conic-gradient. */
 @property --hefti-angle {
