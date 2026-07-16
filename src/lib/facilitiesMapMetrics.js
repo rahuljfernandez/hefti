@@ -274,10 +274,10 @@ export function getStateMapViewport(stateName) {
    is the resting state (uniform markers); the rest recolor markers by that
    dimension once facility data lands. "Financial" is operating-margin based. */
 export const COLOR_BY_TABS = [
-  { name: 'Default' },
   { name: 'Overall' },
   { name: 'Health' },
   { name: 'Staffing' },
+  { name: 'Quality' },
   { name: 'Financial' },
 ];
 
