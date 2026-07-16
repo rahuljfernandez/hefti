@@ -94,8 +94,8 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
   const [starRating, setStarRating] = useState(STAR_RATING_OPTIONS[0].value);
   const [ownership, setOwnership] = useState(OWNERSHIP_OPTIONS[0].value);
 
-  /* Memoized per state so the bounds arrays keep a stable identity — StateFocus
-     only refits when the state actually changes, not on every render. */
+  /* Memoized so toggling the controls (colorBy / narrow-by) doesn't recompute
+     the viewport; it only changes when the state does. */
   const viewport = useMemo(() => getStateMapViewport(stateName), [stateName]);
 
   const { shownCount, totalCount } = buildFacilitiesMap();
@@ -115,6 +115,7 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
             activeTab={colorBy}
             onTabChange={setColorBy}
             containerClassName="bg-transparent flex-1"
+            variant="inline"
           />
         </div>
 
