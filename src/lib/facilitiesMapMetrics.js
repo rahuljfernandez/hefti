@@ -270,9 +270,9 @@ export function getStateMapViewport(stateName) {
   };
 }
 
-/* Color-by tabs. Shape matches TabsSelector's `tabsData` ({ name }). "Default"
-   is the resting state (uniform markers); the rest recolor markers by that
-   dimension once facility data lands. "Financial" is operating-margin based. */
+/* Color-by tabs. Shape matches TabsSelector's `tabsData` ({ name }). Each tab
+   recolors the markers by that dimension once facility data lands; "Overall" is
+   the default view and "Financial" is operating-margin based. */
 export const COLOR_BY_TABS = [
   { name: 'Overall' },
   { name: 'Health' },
@@ -281,7 +281,7 @@ export const COLOR_BY_TABS = [
   { name: 'Financial' },
 ];
 
-export const DEFAULT_COLOR_BY = 'Default';
+export const DEFAULT_COLOR_BY = 'Overall';
 
 /* Narrow-by: overall star rating. "All" is the default (no narrowing); the rest
    are the 1–5 star levels, derived from STAR_LEVELS so they stay in lockstep
