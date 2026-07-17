@@ -25,7 +25,3 @@ export const STATE_PATHS = (() => {
     .map((f) => ({ name: f.properties.name, d: toPath(f) }))
     .filter((s) => Boolean(s.d));
 })();
-
-/* The state names AlbersUSA actually renders — the join key the data builder
-   assigns buckets over, so the map and its data stay in lockstep. */
-export const US_STATE_NAMES = STATE_PATHS.map((s) => s.name);

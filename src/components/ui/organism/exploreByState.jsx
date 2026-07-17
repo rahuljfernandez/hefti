@@ -23,8 +23,10 @@ const API_BASE_URL =
  * Owns the active Color-by tab, derives the per-state choropleth buckets for
  * that tab, and lays out the heading, subtitle, tab control, legend, and map.
  *
- * The per-state data is PLACEHOLDER (see stateChoroplethMetrics.js); this pass
- * is layout + interaction only — no live API, tooltip, or state selection.
+ * Fetches all five metrics from /state-metrics once on mount; switching tabs is
+ * then a client-side lookup (no refetch). Hovering a state shows its card;
+ * clicking a state routes to /states/:code. Shows a skeleton while loading and a
+ * red-tinted skeleton on fetch error.
  */
 export default function ExploreByState() {
   const [activeTab, setActiveTab] = useState(

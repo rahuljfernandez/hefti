@@ -1,16 +1,16 @@
 /**
- * Config and placeholder data for the "Explore by State" choropleth section.
+ * Config and selectors for the "Explore by State" choropleth section.
  *
  * Purpose:
  * - Holds the static config behind the home-page state map: the Color-by tabs
  *   and the 5-bucket sequential color scale the map and legend both read from.
- * - Produces a display-ready per-state bucket assignment the map renders without
- *   further computation.
+ * - Selectors that reduce one metric's /state-metrics `states` array into the
+ *   display-ready shapes the map renders: `{ [stateName]: bucket }` for fills
+ *   and `{ [stateName]: cardItem }` for the hover/tap cards.
  *
- * Pattern matches the other metric builders in this folder (see
- * facilitiesMapMetrics.js): config up top, a builder that returns normalized UI
- * data, and a shape the component reads as-is. When the state-metrics endpoint
- * lands, only the builder below should need to change.
+ * Pattern matches the other metric modules in this folder (see
+ * facilitiesMapMetrics.js): config up top, selectors that return normalized UI
+ * data the component reads as-is.
  */
 
 /* Color-by tabs for the choropleth. Shape matches TabsSelector's `tabsData`

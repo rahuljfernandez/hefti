@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { STATE_PATHS, VIEW_W, VIEW_H } from '../../../lib/usStatesGeo';
 import { bucketColor } from '../../../lib/stateChoroplethMetrics';
 import { StateMapCard } from './listContainerContent';
@@ -14,6 +15,18 @@ import { StateMapCard } from './listContainerContent';
 /* Gap (px) between the cursor and the floating tooltip so the card never sits
    directly under the pointer. */
 const TOOLTIP_GAP = 12;
+
+/* Spoken/keyboard label for a state's link in the accessible list: name, its
+   metric value, facility count, and national rank. Mirrors the visual card. */
+function stateLinkLabel(c) {
+  const parts = [c.stateName];
+  if (c.ratingLabel && c.displayValue != null) {
+    parts.push(`${c.ratingLabel} ${c.displayValue}`);
+  }
+  if (c.facilityCount != null) parts.push(`${c.facilityCount} facilities`);
+  if (c.rank != null) parts.push(`ranked ${c.rank} of ${c.totalRanked}`);
+  return parts.join(', ');
+}
 
 /* True on touch/no-hover devices (phones, iPads in touch mode). Drives the
    interaction model: hover is impossible there, so tapping must do the work.
@@ -44,6 +57,9 @@ function useCoarsePointer() {
  *   (outline persists) and its StateMapCard renders in a fixed panel below the
  *   map with a real, tappable profile link. Tapping another state moves the
  *   selection.
+ *
+ * The SVG interactions are pointer-only, so a visually-hidden <nav> of profile
+ * links (revealed on focus) is the keyboard/screen-reader equivalent.
  */
 export default function UsStatesMap({
   data = {},
@@ -118,6 +134,18 @@ export default function UsStatesMap({
   const floatingCard = !coarse && hovered ? cards[hovered] : null;
   const panelCard = coarse && selected ? cards[selected] : null;
 
+  /* Accessible equivalent of the map: an alphabetical list of real profile
+     links. The SVG interactions are mouse/touch only (paths aren't focusable and
+     sit inside role="img"), so keyboard and screen-reader users navigate states
+     through this list instead. */
+  const stateLinks = useMemo(
+    () =>
+      Object.values(cards).sort((a, b) =>
+        a.stateName.localeCompare(b.stateName),
+      ),
+    [cards],
+  );
+
   /* Place the tooltip the moment it mounts (or switches states), using the last
      tracked cursor point, before paint — avoids a one-frame flash at 0,0. */
   useLayoutEffect(() => {
@@ -164,6 +192,24 @@ export default function UsStatesMap({
             <StateMapCard item={floatingCard} />
           </div>
         )}
+
+        {/* Keyboard/screen-reader equivalent of the map. Each link is off-screen
+            until focused, then reveals as a pill at the map's top-left so sighted
+            keyboard users can see which state they're on. */}
+        <nav aria-label="View a state profile">
+          <ul>
+            {stateLinks.map((c) => (
+              <li key={c.stateCode}>
+                <Link
+                  to={`/states/${c.stateCode}`}
+                  className="focus-ring-light sr-only rounded-md focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-20 focus:border focus:border-blue-600 focus:bg-white focus:px-3 focus:py-2 focus:text-paragraph-sm focus:font-medium focus:text-blue-700 focus:shadow-lg"
+                >
+                  {stateLinkLabel(c)} — view profile
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
       {/* Touch: selected-state card in a fixed panel below the map. */}
