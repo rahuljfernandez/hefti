@@ -11,6 +11,7 @@ import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon } from '@heroicons/react/16/solid';
 import clsx from 'clsx';
 
 /**
@@ -1113,4 +1114,101 @@ RankingTableRow.propTypes = {
     badgeColor: PropTypes.string,
   }).isRequired,
   to: PropTypes.string,
+};
+
+/**
+ * Hover card for the home-page "Explore by State" choropleth.
+ *
+ * Renders one state's stats for the active metric: facility count, the metric
+ * value, and the state's national rank, plus a link to the state profile.
+ *
+ * Expected item shape (built by buildStateMapCards in stateChoroplethMetrics.js):
+ * - stateName, stateCode: display name + route key for /states/:state
+ * - facilityCount: total facilities in the state
+ * - ratingLabel: label for the value row (e.g. "Overall rating", "Op. margin")
+ * - format: 'stars' | 'percent' | 'number'
+ * - value: numeric value (used for the star fill)
+ * - displayValue: preformatted value string (e.g. "3.1", "7.5%", "-5.1%")
+ * - rank, totalRanked: national rank shown as "{rank} of {totalRanked}"
+ */
+export function StateMapCard({ item }) {
+  if (!item) return null;
+
+  const stateName = toTitleCase(item.stateName || '');
+
+  return (
+    <div className="border-border-primary w-64 rounded-lg border bg-white p-4 shadow-lg">
+      <p className="text-label-lg text-core-black mb-3 font-bold">
+        {stateName}
+      </p>
+
+      <dl className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            Facilities
+          </dt>
+          <dd className="text-paragraph-sm text-core-black">
+            {item.facilityCount ?? '—'}
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            {item.ratingLabel}
+          </dt>
+          <dd className="text-paragraph-sm text-core-black flex items-center">
+            {item.format === 'stars' ? (
+              /* dd is flex so the stars have no baseline line-box lifting them
+                 above the label. -mr-2 cancels StarRating's trailing px-2 so the
+                 number sits flush right; [&_span]:pt-0 drops its top padding so
+                 the stars/number center vertically instead of riding high. */
+              <span className="-mr-2 inline-block [&_span]:pt-0">
+                <StarRating
+                  title=""
+                  rating={typeof item.value === 'number' ? item.value : 0}
+                  size="h-3.5 w-3.5"
+                  ratingSize="xs"
+                />
+              </span>
+            ) : (
+              <span className="font-bold">{item.displayValue ?? '—'}</span>
+            )}
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            National rank
+          </dt>
+          <dd className="text-paragraph-sm text-core-black">
+            {item.rank != null ? `${item.rank} of ${item.totalRanked}` : '—'}
+          </dd>
+        </div>
+      </dl>
+
+      <Divider className="my-3" />
+
+      {/* The tooltip follows the cursor and is pointer-events-none, so this is a
+          hint, not a link — the whole state is the click target (see the map's
+          onStateSelect). */}
+      <p className="text-paragraph-sm inline-flex items-center gap-1 font-medium text-blue-600">
+        Click to view {stateName} profile
+        <ArrowRightIcon aria-hidden="true" className="size-4" />
+      </p>
+    </div>
+  );
+}
+
+StateMapCard.propTypes = {
+  item: PropTypes.shape({
+    stateName: PropTypes.string,
+    stateCode: PropTypes.string,
+    facilityCount: PropTypes.number,
+    ratingLabel: PropTypes.string,
+    format: PropTypes.oneOf(['stars', 'percent', 'number']),
+    value: PropTypes.number,
+    displayValue: PropTypes.string,
+    rank: PropTypes.number,
+    totalRanked: PropTypes.number,
+  }),
 };

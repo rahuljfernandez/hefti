@@ -65,3 +65,33 @@ export function statesToBuckets(states = []) {
 export function bucketColor(bucketIndex) {
   return CHOROPLETH_SCALE[bucketIndex]?.hex ?? CHOROPLETH_NO_DATA;
 }
+
+/**
+ * Builds the per-state hover-card lookup for one metric: a
+ * `{ [stateName]: cardItem }` map the map reads on hover for an O(1) lookup (no
+ * refetch on tab switch). Each cardItem is display-ready and metric-agnostic —
+ * StateMapCard branches only on `format` to decide stars vs. a plain value.
+ *
+ * `ratingLabel`/`format`/`totalRanked` come from the metric's `meta`; the rest
+ * come from the per-state record. `stateName` is the join key with the geometry.
+ */
+export function buildStateMapCards(metric) {
+  if (!metric?.states) return {};
+  const { meta, states } = metric;
+  const cards = {};
+  for (const s of states) {
+    if (!s?.stateName) continue;
+    cards[s.stateName] = {
+      stateName: s.stateName,
+      stateCode: s.stateCode,
+      facilityCount: s.facilityCount,
+      ratingLabel: meta?.valueLabel ?? meta?.label ?? '',
+      format: meta?.format ?? 'number',
+      value: s.value,
+      displayValue: s.displayValue,
+      rank: s.rank,
+      totalRanked: meta?.totalRanked ?? states.length,
+    };
+  }
+  return cards;
+}

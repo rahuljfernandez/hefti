@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import TabsSelector from '../molecule/tabsSelector';
 import ChoroplethLegend from '../molecule/choroplethLegend';
@@ -8,6 +9,7 @@ import {
   DEFAULT_STATE_TAB,
   metricKeyForTab,
   statesToBuckets,
+  buildStateMapCards,
 } from '../../../lib/stateChoroplethMetrics';
 
 const API_BASE_URL =
@@ -50,10 +52,28 @@ export default function ExploreByState() {
     };
   }, []);
 
-  const data = useMemo(() => {
-    const metric = payload?.metrics?.[metricKeyForTab(activeTab.name)];
-    return metric ? statesToBuckets(metric.states) : {};
-  }, [payload, activeTab.name]);
+  const metric = payload?.metrics?.[metricKeyForTab(activeTab.name)];
+
+  const data = useMemo(
+    () => (metric ? statesToBuckets(metric.states) : {}),
+    [metric],
+  );
+
+  /* Per-state hover-card content for the active tab, keyed by state name for an
+     O(1) lookup on hover — switching tabs re-derives this without a refetch. */
+  const cards = useMemo(
+    () => (metric ? buildStateMapCards(metric) : {}),
+    [metric],
+  );
+
+  /* Clicking a state routes to its profile. The card lookup carries the state
+     code (the /states/:state route key); states with no data (e.g. DC) have no
+     card and are inert. */
+  const navigate = useNavigate();
+  const handleStateSelect = (stateName) => {
+    const code = cards[stateName]?.stateCode;
+    if (code) navigate(`/states/${code}`);
+  };
 
   return (
     <div
@@ -91,7 +111,12 @@ export default function ExploreByState() {
       </div>
 
       {/* Map */}
-      <UsStatesMap data={data} className="mx-auto max-w-5xl" />
+      <UsStatesMap
+        data={data}
+        cards={cards}
+        onStateSelect={handleStateSelect}
+        className="mx-auto max-w-5xl"
+      />
     </div>
   );
 }
