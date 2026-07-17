@@ -40,31 +40,23 @@ export const CHOROPLETH_SCALE = [
 
 export const CHOROPLETH_NO_DATA = '#f1f5f9'; // slate-100, for states with no value
 
-/* Deterministic pseudo-random hash so the placeholder buckets look varied but
-   are stable across renders, and differ per tab. Not meaningful data. */
-function hashToBucket(stateName, tabName) {
-  const seed = `${stateName}|${tabName}`;
-  let h = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return h % CHOROPLETH_SCALE.length;
+/* Map a Color-by tab name to its key in the /api/state-metrics response
+   (`metrics.overall`, `metrics.health`, …). The tabs and metric keys line up
+   case-insensitively, so the key is just the lowercased tab name. */
+export function metricKeyForTab(tabName = DEFAULT_STATE_TAB) {
+  return tabName.toLowerCase();
 }
 
 /**
- * Normalizes state ratings into `{ [stateName]: bucketIndex }` for the active
- * tab. `bucketIndex` (0–4) indexes CHOROPLETH_SCALE.
- *
- * PLACEHOLDER DATA — the API does not yet expose per-state, per-metric ratings,
- * so the buckets are deterministically invented from the state name. They are
- * not real and must not be presented as such.
- * TODO: replace with the state-metrics endpoint once it lands. The map reads
- * whatever shape this returns; only this builder should need to change.
+ * Reduces one metric's `states` array from /api/state-metrics into the
+ * `{ [stateName]: bucketIndex }` shape UsStatesMap fills from. States with a
+ * null bucket (no data) are left out, so the map renders them in the no-data
+ * color. `stateName` is the join key and must match the map geometry's spelling.
  */
-export function buildStateChoropleth(tabName = DEFAULT_STATE_TAB, stateNames = []) {
+export function statesToBuckets(states = []) {
   const byState = {};
-  for (const name of stateNames) {
-    byState[name] = hashToBucket(name, tabName);
+  for (const s of states) {
+    if (s?.bucket != null) byState[s.stateName] = s.bucket;
   }
   return byState;
 }

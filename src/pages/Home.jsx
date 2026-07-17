@@ -124,7 +124,9 @@ export default function Home() {
       </section>
 
       {/* Explore by State — choropleth map section */}
-      <ExploreByState />
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <ExploreByState />
+      </section>
 
       {/* Bottom (lists) section with gray background */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">

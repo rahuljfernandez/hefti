@@ -1,14 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Heading } from '../atom/heading';
 import TabsSelector from '../molecule/tabsSelector';
 import ChoroplethLegend from '../molecule/choroplethLegend';
 import UsStatesMap from '../molecule/usStatesMap';
-import { US_STATE_NAMES } from '../../../lib/usStatesGeo';
 import {
   EXPLORE_BY_STATE_TABS,
   DEFAULT_STATE_TAB,
-  buildStateChoropleth,
+  metricKeyForTab,
+  statesToBuckets,
 } from '../../../lib/stateChoroplethMetrics';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://hefti-data-api.ddev.site:3000/api';
 
 /**
  * "Explore by State" home-page section.
@@ -25,22 +29,43 @@ export default function ExploreByState() {
       EXPLORE_BY_STATE_TABS[0],
   );
 
-  const data = useMemo(
-    () => buildStateChoropleth(activeTab.name, US_STATE_NAMES),
-    [activeTab.name],
-  );
+  const [payload, setPayload] = useState(null);
+
+  /* Fetch all five metrics once; tab switching is then a client-side lookup. */
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/state-metrics`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load state metrics');
+        return res.json();
+      })
+      .then((json) => {
+        if (!cancelled) setPayload(json);
+      })
+      .catch(() => {
+        if (!cancelled) setPayload(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const data = useMemo(() => {
+    const metric = payload?.metrics?.[metricKeyForTab(activeTab.name)];
+    return metric ? statesToBuckets(metric.states) : {};
+  }, [payload, activeTab.name]);
 
   return (
-    <section
+    <div
       aria-labelledby="explore-by-state-heading"
-      className="mx-auto max-w-[960px] px-4 py-16 font-sans sm:px-6 lg:px-8 xl:px-0"
+      className="bg-background-secondary mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 xl:px-0"
     >
       {/* Header */}
       <div className="mx-auto mb-8 max-w-2xl text-center">
         <Heading
           level={2}
           id="explore-by-state-heading"
-          className="text-heading-lg font-serif font-bold"
+          className="text-heading-lg font-bold"
         >
           Explore by State
         </Heading>
@@ -55,8 +80,8 @@ export default function ExploreByState() {
           tabsData={EXPLORE_BY_STATE_TABS}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          containerClassName="bg-transparent"
-          variant="inline"
+          containerClassName="w-full max-w-2xl bg-transparent"
+          variant="bar"
         />
       </div>
 
@@ -66,7 +91,7 @@ export default function ExploreByState() {
       </div>
 
       {/* Map */}
-      <UsStatesMap data={data} className="mx-auto max-w-4xl" />
-    </section>
+      <UsStatesMap data={data} className="mx-auto max-w-5xl" />
+    </div>
   );
 }
