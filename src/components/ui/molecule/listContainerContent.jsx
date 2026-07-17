@@ -1183,7 +1183,19 @@ export function StateMapCard({ item, interactive = false, className }) {
                 />
               </span>
             ) : (
-              <span className="font-bold">{item.displayValue ?? '—'}</span>
+              /* Op. margin: green for positive, red for negative */
+              <span
+                className={clsx(
+                  'font-bold',
+                  typeof item.value === 'number' && item.value > 0
+                    ? 'text-green-700'
+                    : typeof item.value === 'number' && item.value < 0
+                      ? 'text-red-700'
+                      : 'text-core-black',
+                )}
+              >
+                {item.displayValue ?? '—'}
+              </span>
             )}
           </dd>
         </div>

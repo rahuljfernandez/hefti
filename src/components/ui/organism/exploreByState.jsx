@@ -67,8 +67,7 @@ export default function ExploreByState() {
   );
 
   /* Clicking a state routes to its profile. The card lookup carries the state
-     code (the /states/:state route key); states with no data (e.g. DC) have no
-     card and are inert. */
+     code (the /states/:state route key)*/
   const navigate = useNavigate();
   const handleStateSelect = (stateName) => {
     const code = cards[stateName]?.stateCode;
