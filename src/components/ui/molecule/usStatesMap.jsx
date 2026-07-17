@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -70,6 +71,7 @@ export default function UsStatesMap({
   const coarse = useCoarsePointer();
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
+  const skipTargetId = useId();
   const containerRef = useRef(null);
   const tooltipRef = useRef(null);
   /* Last cursor position in container-relative px + container size, captured on
@@ -195,8 +197,15 @@ export default function UsStatesMap({
 
         {/* Keyboard/screen-reader equivalent of the map. Each link is off-screen
             until focused, then reveals as a pill at the map's top-left so sighted
-            keyboard users can see which state they're on. */}
+            keyboard users can see which state they're on. A leading skip link
+            jumps past the 50 links to the sentinel after the list. */}
         <nav aria-label="View a state profile">
+          <a
+            href={`#${skipTargetId}`}
+            className="focus-ring-light sr-only rounded-md focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-20 focus:border focus:border-blue-600 focus:bg-white focus:px-3 focus:py-2 focus:text-paragraph-sm focus:font-medium focus:text-blue-700 focus:shadow-lg"
+          >
+            Skip state list
+          </a>
           <ul>
             {stateLinks.map((c) => (
               <li key={c.stateCode}>
@@ -210,6 +219,9 @@ export default function UsStatesMap({
             ))}
           </ul>
         </nav>
+        {/* Skip-link target: focus lands here, so the next Tab continues past
+            the state list to the rest of the page. */}
+        <span id={skipTargetId} tabIndex={-1} />
       </div>
 
       {/* Touch: selected-state card in a fixed panel below the map. */}
