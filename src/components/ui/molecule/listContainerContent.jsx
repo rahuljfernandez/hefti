@@ -1117,10 +1117,17 @@ RankingTableRow.propTypes = {
 };
 
 /**
- * Hover card for the home-page "Explore by State" choropleth.
+ * Card for the home-page "Explore by State" choropleth.
  *
  * Renders one state's stats for the active metric: facility count, the metric
- * value, and the state's national rank, plus a link to the state profile.
+ * value, and the state's national rank, plus the profile call-to-action.
+ *
+ * `interactive` controls the CTA because the two placements have opposite click
+ * semantics: the desktop card floats under the cursor and is pointer-events-none,
+ * so it can only be a hint ("Click to view …") while the state itself is the
+ * click target. The touch card sits in a fixed panel below the map, so it can be
+ * a real, tappable <Link>. `className` lets the panel widen past the floating
+ * card's fixed width.
  *
  * Expected item shape (built by buildStateMapCards in stateChoroplethMetrics.js):
  * - stateName, stateCode: display name + route key for /states/:state
@@ -1131,13 +1138,18 @@ RankingTableRow.propTypes = {
  * - displayValue: preformatted value string (e.g. "3.1", "7.5%", "-5.1%")
  * - rank, totalRanked: national rank shown as "{rank} of {totalRanked}"
  */
-export function StateMapCard({ item }) {
+export function StateMapCard({ item, interactive = false, className }) {
   if (!item) return null;
 
   const stateName = toTitleCase(item.stateName || '');
 
   return (
-    <div className="border-border-primary w-64 rounded-lg border bg-white p-4 shadow-lg">
+    <div
+      className={clsx(
+        'border-border-primary rounded-lg border bg-white p-4 shadow-lg',
+        className || 'w-64',
+      )}
+    >
       <p className="text-label-lg text-core-black mb-3 font-bold">
         {stateName}
       </p>
@@ -1188,13 +1200,23 @@ export function StateMapCard({ item }) {
 
       <Divider className="my-3" />
 
-      {/* The tooltip follows the cursor and is pointer-events-none, so this is a
-          hint, not a link — the whole state is the click target (see the map's
-          onStateSelect). */}
-      <p className="text-paragraph-sm inline-flex items-center gap-1 font-medium text-blue-600">
-        Click to view {stateName} profile
-        <ArrowRightIcon aria-hidden="true" className="size-4" />
-      </p>
+      {interactive ? (
+        <Link
+          to={`/states/${item.stateCode}`}
+          className="focus-ring-light text-paragraph-sm inline-flex items-center gap-1 rounded-sm font-medium text-blue-600"
+        >
+          View {stateName} profile
+          <ArrowRightIcon aria-hidden="true" className="size-4" />
+        </Link>
+      ) : (
+        /* The floating desktop card follows the cursor and is pointer-events-none,
+           so this is a hint, not a link — the whole state is the click target
+           (see the map's onStateSelect). */
+        <p className="text-paragraph-sm inline-flex items-center gap-1 font-medium text-blue-600">
+          Click to view {stateName} profile
+          <ArrowRightIcon aria-hidden="true" className="size-4" />
+        </p>
+      )}
     </div>
   );
 }
@@ -1211,4 +1233,6 @@ StateMapCard.propTypes = {
     rank: PropTypes.number,
     totalRanked: PropTypes.number,
   }),
+  interactive: PropTypes.bool,
+  className: PropTypes.string,
 };
