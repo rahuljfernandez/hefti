@@ -82,15 +82,12 @@ export default function UsStatesMap({
   /* The state to outline/lift: the tapped one on touch, the hovered one on mouse. */
   const active = coarse ? selected : hovered;
 
-  /* Render order: everything except the active state first, then the active
-     state last so its outline paints on top of adjacent borders. */
-  const ordered = useMemo(() => {
-    if (!active) return STATE_PATHS;
-    return [
-      ...STATE_PATHS.filter((s) => s.name !== active),
-      ...STATE_PATHS.filter((s) => s.name === active),
-    ];
-  }, [active]);
+  /* The active state's path, drawn once more on top of the others so its outline
+     is never clipped by adjacent borders — cheaper than reordering the 51 keyed
+     <path> nodes on every hover (which forces DOM moves), and simpler. */
+  const activePath = active
+    ? STATE_PATHS.find((s) => s.name === active)
+    : null;
 
   /* Write the tooltip's position straight to the DOM from the last known cursor
      point. Flips toward the interior once the cursor crosses each midline so the
@@ -167,23 +164,34 @@ export default function UsStatesMap({
           role="img"
           aria-label="Choropleth map of the United States by state rating"
         >
-          {ordered.map((state) => {
-            const isActive = state.name === active;
-            return (
-              <path
-                key={state.name}
-                d={state.d}
-                fill={bucketColor(data[state.name])}
-                stroke={isActive ? '#3b82f6' : '#ffffff'}
-                strokeWidth={isActive ? 2 : 0.75}
-                className="cursor-pointer transition-colors duration-150"
-                onMouseEnter={() => setHovered(state.name)}
-                onMouseLeave={() => setHovered(null)}
-                onClick={() => handlePathClick(state.name)}
-                aria-label={state.name}
-              />
-            );
-          })}
+          {STATE_PATHS.map((state) => (
+            <path
+              key={state.name}
+              d={state.d}
+              fill={bucketColor(data[state.name])}
+              stroke="#ffffff"
+              strokeWidth={0.75}
+              className="cursor-pointer transition-colors duration-150"
+              onMouseEnter={() => setHovered(state.name)}
+              onMouseLeave={() => setHovered(null)}
+              onClick={() => handlePathClick(state.name)}
+              aria-label={state.name}
+            />
+          ))}
+
+          {/* Active state redrawn on top so its blue outline sits above every
+              neighbor's border. pointer-events-none so hover/click still land on
+              the base path underneath. */}
+          {activePath && (
+            <path
+              d={activePath.d}
+              fill={bucketColor(data[activePath.name])}
+              stroke="#3b82f6"
+              strokeWidth={2}
+              className="pointer-events-none transition-colors duration-150"
+              aria-hidden="true"
+            />
+          )}
         </svg>
 
         {floatingCard && (
