@@ -162,7 +162,7 @@ export default function UsStatesMap({
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           className="h-auto w-full"
           role="img"
-          aria-label="Choropleth map of the United States by state rating"
+          aria-label="Choropleth map of the United States by state rating. Use the following list of links to open a state profile."
         >
           {STATE_PATHS.map((state) => (
             <path
@@ -175,7 +175,6 @@ export default function UsStatesMap({
               onMouseEnter={() => setHovered(state.name)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => handlePathClick(state.name)}
-              aria-label={state.name}
             />
           ))}
 
