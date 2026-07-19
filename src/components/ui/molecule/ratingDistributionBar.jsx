@@ -7,13 +7,10 @@ import Tooltip from '../atom/tooltip';
  * One metric row of the facility rating distribution: the metric label, a
  * 100%-wide stacked bar of its star-level shares, and the cumulative
  * "below 3 stars" percentage.
- *
- * The shared grid template is exported so the section header ("Rating Type" /
- * "Below 3 Stars") can align its columns to these rows.
  */
 
-// Column template shared with the section header so the three columns line up.
-export const RATING_ROW_GRID =
+// Three-column template (label / bar / below-3-stars) for the metric row.
+const RATING_ROW_GRID =
   'grid grid-cols-[6.5rem_1fr_3.75rem] items-center gap-4';
 
 export default function RatingDistributionBar({ metric }) {
