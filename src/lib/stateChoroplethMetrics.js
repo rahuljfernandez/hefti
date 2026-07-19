@@ -13,15 +13,11 @@
  * data the component reads as-is.
  */
 
-/* Color-by tabs for the choropleth. Shape matches TabsSelector's `tabsData`
-   ({ name }). Each dimension recolors the states by that metric's rating. */
-export const EXPLORE_BY_STATE_TABS = [
-  { name: 'Overall' },
-  { name: 'Health' },
-  { name: 'Staffing' },
-  { name: 'Quality' },
-  { name: 'Financial' },
-];
+/* Color-by tabs for the choropleth — re-exported from the shared
+   COLOR_BY_DIMENSIONS so the choropleth and the facilities map stay in lockstep.
+   Shape matches TabsSelector's `tabsData` ({ name }); each dimension recolors the
+   states by that metric's rating. */
+export { COLOR_BY_DIMENSIONS as EXPLORE_BY_STATE_TABS } from './ratingMetricsConfig';
 
 export const DEFAULT_STATE_TAB = 'Overall';
 
