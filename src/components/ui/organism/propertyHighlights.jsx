@@ -16,9 +16,6 @@ import {
  * Two blocks inside one card: the owner/parcel fields, then Key Financials
  * (transfer date and LTV as fields, the three dated figures as stat cards).
  *
- * Mirrors providerHighlights' outer shape — heading above a LayoutCard — so
- * the two sections sit consistently when a user tabs between them.
- *
  * `source` is optional; the builders fall back to placeholder data until the
  * property API lands. See lib/propertyMetrics.js.
  */
@@ -34,15 +31,13 @@ export default function PropertyHighlights({ source }) {
       </Heading>
 
       <LayoutCard>
-        {/* TEMPORARY —  Revisit once the global card
-            padding is settled — at that point this div should disappear, not
-            grow more breakpoints. */}
+        {/* TEMPORARY — revisit once global card padding is settled. This div
+            should disappear, not grow more breakpoints. */}
         <div className="py-5 sm:py-4">
           <FieldGrid fields={highlights} valueClassName="uppercase" />
 
-          {/* Key Financials shares the card rather than standing alone — the
-              transfer figures only read correctly next to the owner they belong
-              to. Ruled off so the two blocks stay visually distinct. */}
+          {/* Key Financials shares the card because the transfer figures only
+              read correctly next to the owner they belong to. */}
           <div className="border-border-primary border-t pt-6">
             <Heading level={4} className="text-heading-xs mb-6">
               Key Financials

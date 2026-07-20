@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-/* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
-   handler on Leaflet's Map (enabled via the map option below) and brings its
-   overlay styles. Imported after leaflet so the plugin sees the same L instance. */
+/* Side-effect import: self-registers the `gestureHandling` map option used
+   below. Must come after leaflet so the plugin sees the same L instance. */
 import 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
@@ -24,22 +23,18 @@ import {
  * Location Information — the second section of the Property Details tab.
  *
  * A single-marker map sitting flush on top of a card of address fields, so the
- * two read as one unit. Same flush idiom as facilitiesMap, inverted: there the
- * controls sit above the map, here the map is the top of the card.
+ * two read as one unit. Same flush idiom as facilitiesMap, inverted.
  *
- * The map is pointer-only by configuration, not by nature: Leaflet makes both
- * the container and the marker keyboard-focusable by default, and both are
- * disabled below. That is deliberate — every fact the map conveys (address,
- * county, lat/long, parcel) is also in the FieldGrid beneath it, so the
- * information already has a keyboard and screen-reader path. Re-enabling
- * `keyboard` would put back two focus stops that announce nothing useful.
+ * Leaflet makes the container and marker keyboard-focusable by default; both
+ * are disabled below because every fact the map conveys is also in the FieldGrid
+ * beneath it. Re-enabling `keyboard` restores two focus stops that announce
+ * nothing useful.
  */
 
-/* Leaflet's default marker resolves its icons from a relative path that Vite's
-   bundler rewrites, leaving markers invisible. Building the icon from imported
-   asset URLs is the standard fix — Vite hashes them and hands back real URLs.
-   This is the first Marker in the codebase, so the fix lives here; move it to a
-   shared module if a second map ever needs it. */
+/* Leaflet's default marker resolves icons from a relative path Vite rewrites,
+   leaving markers invisible; building the icon from imported asset URLs is the
+   standard fix. First Marker in the codebase — move this to a shared module if
+   a second map needs it. */
 const propertyMarkerIcon = L.icon({
   iconUrl: markerIconUrl,
   iconRetinaUrl: markerIconRetinaUrl,
@@ -52,18 +47,12 @@ const propertyMarkerIcon = L.icon({
 
 const MAP_ZOOM = 16;
 
-/* Rounded on top only, so the FlushCard below closes the shape. Leaflet needs an
-   explicit height on its container, hence the fixed h-80.
+/* `key` is load-bearing: MapContainer reads `center` only when it creates the
+   Leaflet instance on mount, so changing the prop alone would leave the map
+   parked on the previous property.
 
-   `key` is load-bearing: MapContainer reads `center` only when it creates the
-   Leaflet instance (once, on mount), so changing the prop alone would leave the
-   map parked on the previous property. Keying on the coordinates forces a fresh
-   map whenever they change.
-
-   The zoom buttons keep their focus stops on purpose — Leaflet labels them
-   properly and they're useful to a sighted keyboard user, which is also why
-   this is role="group" rather than role="img": an image role must not contain
-   focusable children. */
+   role="group" rather than role="img" because the zoom buttons keep their focus
+   stops, and an image role must not contain focusable children. */
 function PropertyMapPanel({ position, label }) {
   return (
     <div
@@ -117,8 +106,8 @@ export default function PropertyLocationMap({ source }) {
         Location Information
       </Heading>
 
-      {/* Without coordinates there's nothing to plot, so the address fields
-          stand alone as a whole card rather than leaving an empty map frame. */}
+      {/* Without coordinates the address fields stand alone as a whole card
+          rather than leaving an empty map frame. */}
       {coordinates ? (
         <>
           <PropertyMapPanel

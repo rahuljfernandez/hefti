@@ -5,40 +5,20 @@ import clsx from 'clsx';
 /**
  * Two-column label/value grid — the plain, ruleless metadata layout used for
  * blocks of identifiers (addresses, parcel numbers, certification dates).
+ * Fields flow row-major: left, right, left, right…
  *
- * Fields flow in row-major order, so `fields` reads top-to-bottom as
- * left, right, left, right… Labels are stored in canonical case and upcased
- * here via CSS, so exports and screen readers get real words rather than
- * shouted ones.
+ * Not to be confused with DetailTable, the ruled label/value design used inside
+ * the Property Details disclosures.
  *
- * Not to be confused with DetailTable, which is the ruled label/value design
- * used inside the Property Details disclosures. Two similar-looking layouts,
- * two different components, deliberately.
+ * TODO: additionalInformation.jsx and facilityProfileDescription.jsx hand-roll
+ * byte-identical markup and should be swapped over in a standalone PR. Note
+ * facilityProfileDescription hardcodes its labels uppercase in the JSX; those
+ * need lowering to canonical case as part of the move.
  */
 
-/* `value` is a node, not a string. Existing call sites render a <Badge> for
-   ownership affiliation and a multi-line address broken by <br />, so anything
-   narrower than PropTypes.node would fail the migration described below. */
-
-/* Pending migration — this component was extracted while building Location
-   Information on the Property Details tab, and is intentionally used only
-   there for now. Two existing sections hand-roll this exact markup and should
-   be swapped over in a separate, standalone PR:
-
-     - molecule/additionalInformation.jsx  (the <dl> around the field map)
-     - molecule/facilityProfileDescription.jsx  (the <dl> of profile fields)
-
-   Both carry byte-identical grid and row classes, so each swap is a pure
-   refactor with no visual diff. One divergence to reconcile when it happens:
-   additionalInformation upcases labels via CSS (as this component does), while
-   facilityProfileDescription hardcodes them uppercase in the JSX — those
-   literals need lowering to canonical case as part of the move. */
-
-/* `valueClassName` exists so a section can display values in caps (pass
-   'uppercase') without the shouting being baked into the string. Same technique
-   the labels above already use: CSS transforms the rendering, the DOM keeps real
-   words. Uppercasing in JS instead would reach copy/paste and CSV exports, and
-   some screen readers spell all-caps multi-word strings out letter by letter. */
+/* Caps are applied via CSS (`valueClassName="uppercase"`), never baked into the
+   string — an all-caps DOM value follows the text into copy/paste and exports,
+   and some screen readers spell it out letter by letter. */
 export default function FieldGrid({ fields, className, valueClassName }) {
   return (
     <dl className={clsx('grid grid-cols-1 sm:grid-cols-2', className)}>

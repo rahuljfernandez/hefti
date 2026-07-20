@@ -6,10 +6,9 @@ import clsx from 'clsx';
  * A single headline figure with a dated caption — used for the Key Financials
  * row (Transfer Price / Assessed Value / Market Value).
  *
- * Separate from statsCard rather than a third variant of it: both existing
- * variants there are built around a comparison Badge and a description line,
- * neither of which this design has, and the "As of {year}" caption has no
- * counterpart in that component.
+ * Separate from statsCard rather than a third variant of it: both variants
+ * there are built around a comparison Badge and a description line, neither of
+ * which this design has.
  *
  * Values arrive pre-formatted from propertyMetrics — this renders, it does not
  * format.

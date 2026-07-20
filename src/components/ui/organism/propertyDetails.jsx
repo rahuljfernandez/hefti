@@ -8,14 +8,10 @@ import { buildPropertyDetailSections } from '../../../lib/propertyMetrics';
 /**
  * Property Details — the third section of the Property Details tab.
  *
- * Three collapsed subsections (Financial / Building / Land), each a
- * DisclosureCard holding a two-column ruled table. The section shares its name
- * with the tab because the tab is named for it; the other two sections
- * (Highlights, Location) are context around this one.
- *
- * The tables carry a lot of low-salience fields, which is why every card starts
- * collapsed — the page opens as three scannable headers rather than a wall of
- * rows. Nothing here is critical-path enough to warrant defaultOpen.
+ * Three subsections (Financial / Building / Land), each a DisclosureCard
+ * holding a two-column ruled table. All start collapsed — the tables carry a
+ * lot of low-salience fields, so the page opens as three scannable headers
+ * rather than a wall of rows.
  *
  * `source` is optional; the builders fall back to placeholder data until the
  * property API lands. See lib/propertyMetrics.js.

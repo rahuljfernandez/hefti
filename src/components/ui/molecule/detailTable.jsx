@@ -11,8 +11,7 @@ import DetailRow from '../atom/detailRow';
  * - DetailTableSplit: two columns divided by a vertical rule (the default
  *   export, since every current caller wants the split form)
  *
- * The split stacks to one column below `md`, where the vertical divider would
- * have nothing to divide.
+ * The split stacks to one column below `md`.
  */
 
 const rowShape = PropTypes.shape({
@@ -35,17 +34,11 @@ DetailTable.propTypes = {
   className: PropTypes.string,
 };
 
-/* The divider is a pseudo-element on the left column rather than a border, so
-   it can inset from the top and bottom (inset-y-4) instead of running the full
-   column height — a border would have to hug the box edges. It still hangs off
-   the left column so it inherits the grid's stretch height, which means it
-   spans the taller side. Columns are expected to be uneven — the mocks pair a
-   value with its year across the divider, which rarely balances.
-
-   The top border closes the table: DetailRow rules sit under each row, so
-   without it the first row would float free of whatever sits above. It lives
-   here rather than on DetailRow so a single column of rows doesn't get a
-   doubled line where the two tables meet. */
+/* The divider is a pseudo-element, not a border, so it can inset from top and
+   bottom (inset-y-4) — a border would have to hug the box edges. It hangs off
+   the left column to inherit the grid's stretch height, so it spans the taller
+   side. `border-t` lives on the outer grid rather than on DetailRow so the two
+   tables don't meet in a doubled line. */
 export default function DetailTableSplit({ left, right, className }) {
   return (
     <div
