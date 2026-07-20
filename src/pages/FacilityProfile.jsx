@@ -262,12 +262,7 @@ export default function FacilityProfile() {
                     );
 
                   case 'Property Details':
-                    return (
-                      <PropertyDetailsTab
-                        items={facility}
-                        status={'facility'}
-                      />
-                    );
+                    return <PropertyDetailsTab status={'facility'} />;
 
                   default:
                     return (

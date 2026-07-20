@@ -12,6 +12,7 @@ import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
 import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import FlushCard from '../atom/flushCard';
+import LayoutCard from '../atom/layout-card';
 import FieldGrid from '../molecule/fieldGrid';
 import { Heading } from '../atom/heading';
 import {
@@ -26,9 +27,12 @@ import {
  * two read as one unit. Same flush idiom as facilitiesMap, inverted: there the
  * controls sit above the map, here the map is the top of the card.
  *
- * The map is pointer-only by nature; every fact it conveys (address, county,
- * lat/long, parcel) is also in the FieldGrid below it, which is the keyboard-
- * and screen-reader-accessible path to the same information.
+ * The map is pointer-only by configuration, not by nature: Leaflet makes both
+ * the container and the marker keyboard-focusable by default, and both are
+ * disabled below. That is deliberate — every fact the map conveys (address,
+ * county, lat/long, parcel) is also in the FieldGrid beneath it, so the
+ * information already has a keyboard and screen-reader path. Re-enabling
+ * `keyboard` would put back two focus stops that announce nothing useful.
  */
 
 /* Leaflet's default marker resolves its icons from a relative path that Vite's
@@ -54,23 +58,43 @@ const MAP_ZOOM = 16;
    `key` is load-bearing: MapContainer reads `center` only when it creates the
    Leaflet instance (once, on mount), so changing the prop alone would leave the
    map parked on the previous property. Keying on the coordinates forces a fresh
-   map whenever they change. */
+   map whenever they change.
+
+   The zoom buttons keep their focus stops on purpose — Leaflet labels them
+   properly and they're useful to a sighted keyboard user, which is also why
+   this is role="group" rather than role="img": an image role must not contain
+   focusable children. */
 function PropertyMapPanel({ position, label }) {
   return (
-    <div className="h-80 w-full overflow-hidden rounded-t-lg">
+    <div
+      className="h-80 w-full overflow-hidden rounded-t-lg"
+      role="group"
+      aria-label={
+        label
+          ? `Map showing the location of ${label}. The full address, coordinates, and parcel number are listed below the map.`
+          : 'Map showing the property location. The full address, coordinates, and parcel number are listed below the map.'
+      }
+    >
       <MapContainer
         key={position.join(',')}
         center={position}
         zoom={MAP_ZOOM}
         /* Wheel scroll pans the page; ctrl/⌘ + scroll zooms the map. */
         gestureHandling={true}
+        keyboard={false}
         className="map-control-inset h-full w-full rounded-none"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={position} icon={propertyMarkerIcon}>
+
+        <Marker
+          position={position}
+          icon={propertyMarkerIcon}
+          keyboard={false}
+          alt=""
+        >
           {label && <Popup>{label}</Popup>}
         </Marker>
       </MapContainer>
@@ -106,9 +130,9 @@ export default function PropertyLocationMap({ source }) {
           </FlushCard>
         </>
       ) : (
-        <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6">
+        <LayoutCard>
           <FieldGrid fields={locationFields} valueClassName="uppercase" />
-        </div>
+        </LayoutCard>
       )}
     </section>
   );

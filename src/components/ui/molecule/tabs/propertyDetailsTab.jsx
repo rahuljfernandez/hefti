@@ -19,8 +19,11 @@ import PropertyDetails from '../../organism/propertyDetails';
  * `status` mirrors the other tabs so the owner and state contexts can slot in
  * without reshaping the call site. Only 'facility' renders content today.
  *
- * All values are placeholders until the property API lands — see the mock in
- * lib/propertyMetrics.js.
+ * No data prop yet, deliberately. The facility record this tab sits inside has
+ * nothing to do with the property record it displays, so accepting `items` here
+ * would only look like the two were connected. Every value comes from the mock
+ * in lib/propertyMetrics.js until the property API lands; at that point the
+ * property object arrives as a prop and threads into each section's `source`.
  */
 export default function PropertyDetailsTab({ status }) {
   if (status !== 'facility') {
@@ -41,6 +44,5 @@ export default function PropertyDetailsTab({ status }) {
 }
 
 PropertyDetailsTab.propTypes = {
-  items: PropTypes.object,
   status: PropTypes.string,
 };
