@@ -64,7 +64,7 @@ function PropertyMapPanel({ position, label }) {
         zoom={MAP_ZOOM}
         /* Wheel scroll pans the page; ctrl/⌘ + scroll zooms the map. */
         gestureHandling={true}
-        className="h-full w-full rounded-none"
+        className="map-control-inset h-full w-full rounded-none"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
