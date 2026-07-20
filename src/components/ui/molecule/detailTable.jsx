@@ -35,10 +35,12 @@ DetailTable.propTypes = {
   className: PropTypes.string,
 };
 
-/* The divider lives on the left column rather than between the two, so it
-   inherits the grid's stretch height and runs the full height of the taller
-   side. Columns are expected to be uneven — the mocks pair a value with its
-   year across the divider, which rarely balances.
+/* The divider is a pseudo-element on the left column rather than a border, so
+   it can inset from the top and bottom (inset-y-4) instead of running the full
+   column height — a border would have to hug the box edges. It still hangs off
+   the left column so it inherits the grid's stretch height, which means it
+   spans the taller side. Columns are expected to be uneven — the mocks pair a
+   value with its year across the divider, which rarely balances.
 
    The top border closes the table: DetailRow rules sit under each row, so
    without it the first row would float free of whatever sits above. It lives
@@ -54,7 +56,7 @@ export default function DetailTableSplit({ left, right, className }) {
     >
       <DetailTable
         rows={left}
-        className="md:border-border-primary md:border-r md:pr-8"
+        className="md:after:bg-border-primary relative md:pr-8 md:after:absolute md:after:inset-y-4 md:after:right-0 md:after:w-px md:after:content-['']"
       />
       <DetailTable rows={right} className="md:pl-8" />
     </div>
