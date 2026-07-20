@@ -21,17 +21,18 @@ import { formatUSD } from './stringFormatters';
  * into the builders and delete this constant. None of it is derived from the
  * facility record currently on the page, and nothing here should be read as
  * live data in review or in screenshots. */
+
 const MOCK_PROPERTY = {
   // Property Highlights
-  owner_name: 'RHODES HOMES',
-  owner_address: '350 BOULEVARD SE',
-  owner_city_state: 'ATLANTA, GA',
+  owner_name: 'Rhodes Homes',
+  owner_address: '350 Boulevard SE',
+  owner_city_state: 'Atlanta, GA',
   owner_zip_code: '30312',
   official_description: 'Retired, Handicap, Convalescent, Nursing Home',
   use_code: '9106',
 
   // Key Financials
-  most_recent_transfer_date: 'MARCH 14, 2021',
+  most_recent_transfer_date: 'March 14, 2021',
   purchase_ltv: 'Private',
   transfer_price: 35125000,
   transfer_price_year: '2021',
@@ -44,7 +45,7 @@ const MOCK_PROPERTY = {
   address: '350 Boulevard SE',
   street_name: 'Boulevard SE',
   state: 'GA',
-  county: 'FULTON',
+  county: 'Fulton',
   city: 'Atlanta',
   zip_code: '30312',
   latitude: 33.744864,
@@ -94,8 +95,6 @@ function formatFieldValue(value, format) {
       return Number(value).toLocaleString('en-US');
     case 'boolean':
       return value ? 'True' : 'False';
-    case 'uppercase':
-      return String(value).toUpperCase();
     default:
       return value;
   }
@@ -148,20 +147,22 @@ const keyFinancialStatsConfig = [
   },
 ];
 
-/* Address parts are upcased for consistency with the Property Highlights
-   fields, which the mocks show in caps. Coordinates, zip, and the parcel number
-   are left alone — they carry no case to normalize. */
+/* Values stay in canonical case here. The tab displays them in caps, but that
+   is applied visually by the FieldGrid's valueClassName, not baked into the
+   string — an all-caps DOM value is read letter-by-letter by some screen
+   readers, and it would follow the text into copy/paste and exports. Same
+   reasoning FieldGrid already applies to its labels. */
 const locationFieldsConfig = [
-  { label: 'Address', valueKey: 'address', format: 'uppercase' },
-  { label: 'Street Name', valueKey: 'street_name', format: 'uppercase' },
-  { label: 'State', valueKey: 'state', format: 'uppercase' },
-  { label: 'County', valueKey: 'county', format: 'uppercase' },
-  { label: 'City', valueKey: 'city', format: 'uppercase' },
+  { label: 'Address', valueKey: 'address' },
+  { label: 'Street Name', valueKey: 'street_name' },
+  { label: 'State', valueKey: 'state' },
+  { label: 'County', valueKey: 'county' },
+  { label: 'City', valueKey: 'city' },
   { label: 'Zip Code', valueKey: 'zip_code' },
   { label: 'Latitude', valueKey: 'latitude' },
   { label: 'Longitude', valueKey: 'longitude' },
-  { label: 'Parcel Number', valueKey: 'parcel_number', format: 'uppercase' },
-  { label: 'Jurisdiction', valueKey: 'jurisdiction', format: 'uppercase' },
+  { label: 'Parcel Number', valueKey: 'parcel_number' },
+  { label: 'Jurisdiction', valueKey: 'jurisdiction' },
 ];
 
 /* Each disclosure splits into a left and right column. The split is editorial,

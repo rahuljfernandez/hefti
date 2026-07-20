@@ -102,12 +102,12 @@ export default function PropertyLocationMap({ source }) {
             label={coordinates.label}
           />
           <FlushCard position="bottom">
-            <FieldGrid fields={locationFields} />
+            <FieldGrid fields={locationFields} valueClassName="uppercase" />
           </FlushCard>
         </>
       ) : (
         <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm sm:p-6">
-          <FieldGrid fields={locationFields} />
+          <FieldGrid fields={locationFields} valueClassName="uppercase" />
         </div>
       )}
     </section>

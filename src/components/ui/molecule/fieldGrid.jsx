@@ -34,7 +34,12 @@ import clsx from 'clsx';
    facilityProfileDescription hardcodes them uppercase in the JSX — those
    literals need lowering to canonical case as part of the move. */
 
-export default function FieldGrid({ fields, className }) {
+/* `valueClassName` exists so a section can display values in caps (pass
+   'uppercase') without the shouting being baked into the string. Same technique
+   the labels above already use: CSS transforms the rendering, the DOM keeps real
+   words. Uppercasing in JS instead would reach copy/paste and CSV exports, and
+   some screen readers spell all-caps multi-word strings out letter by letter. */
+export default function FieldGrid({ fields, className, valueClassName }) {
   return (
     <dl className={clsx('grid grid-cols-1 sm:grid-cols-2', className)}>
       {fields.map(({ label, value }) => (
@@ -42,7 +47,12 @@ export default function FieldGrid({ fields, className }) {
           <dt className="text-label-sm text-content-secondary uppercase">
             {label}
           </dt>
-          <dd className="text-paragraph-base text-content-primary mt-1">
+          <dd
+            className={clsx(
+              'text-paragraph-base text-content-primary mt-1',
+              valueClassName,
+            )}
+          >
             {value}
           </dd>
         </div>
@@ -59,4 +69,5 @@ FieldGrid.propTypes = {
     }),
   ).isRequired,
   className: PropTypes.string,
+  valueClassName: PropTypes.string,
 };
