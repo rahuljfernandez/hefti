@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import PropertyHighlights from '../../organism/propertyHighlights';
 
 /**
  * Property Details tab content.
@@ -28,7 +29,11 @@ export default function PropertyDetailsTab({ status }) {
     );
   }
 
-  return <section />;
+  return (
+    <section>
+      <PropertyHighlights />
+    </section>
+  );
 }
 
 PropertyDetailsTab.propTypes = {
