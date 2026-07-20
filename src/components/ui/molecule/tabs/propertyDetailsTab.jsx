@@ -25,7 +25,7 @@ import PropertyDetails from '../../organism/propertyDetails';
 export default function PropertyDetailsTab({ status }) {
   if (status !== 'facility') {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p className="text-paragraph-sm text-content-secondary">
         This section is under development.
       </p>
     );
