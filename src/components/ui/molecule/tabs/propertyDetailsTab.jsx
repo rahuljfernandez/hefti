@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PropertyHighlights from '../../organism/propertyHighlights';
 import PropertyLocationMap from '../../organism/propertyLocationMap';
+import PropertyDetails from '../../organism/propertyDetails';
 
 /**
  * Property Details tab content.
@@ -34,6 +35,7 @@ export default function PropertyDetailsTab({ status }) {
     <section>
       <PropertyHighlights />
       <PropertyLocationMap />
+      <PropertyDetails />
     </section>
   );
 }
