@@ -234,11 +234,13 @@ export function buildKeyFinancialsMeta(source = MOCK_PROPERTY) {
 }
 
 export function buildKeyFinancialStats(source = MOCK_PROPERTY) {
-  return keyFinancialStatsConfig.map(({ label, valueKey, asOfKey, format }) => ({
-    label,
-    value: formatFieldValue(source?.[valueKey], format),
-    asOf: source?.[asOfKey] ?? null,
-  }));
+  return keyFinancialStatsConfig.map(
+    ({ label, valueKey, asOfKey, format }) => ({
+      label,
+      value: formatFieldValue(source?.[valueKey], format),
+      asOf: source?.[asOfKey] ?? null,
+    }),
+  );
 }
 
 export function buildLocationFields(source = MOCK_PROPERTY) {
