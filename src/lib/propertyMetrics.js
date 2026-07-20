@@ -82,17 +82,40 @@ const MOCK_PROPERTY = {
   depth: 0,
 };
 
-/* Format dispatch for every config below. Currency defers to the shared
-   formatUSD so the tab can't drift from the rest of the app's money
-   formatting; 'raw' passes strings through untouched. */
+/* Coerces an incoming value to a number for the numeric formats.
+
+   Returns null — not NaN or 0 — when the value genuinely isn't numeric, so
+   callers can tell "not a number" from "the number zero" and fall back to
+   showing the raw text rather than inventing a figure. */
+function toNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string') return null;
+
+  const cleaned = value.replace(/[$,\s]/g, '');
+  if (cleaned === '') return null;
+
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/* Format dispatch for every config below. Both numeric formats go through
+   toNumber first so they coerce identically — otherwise currency and number
+   fields disagree about what counts as a valid figure, and a source that sends
+   strings renders 'N/A' in one column and a formatted value in the next.
+   Currency defers to the shared formatUSD so the tab can't drift from the rest
+   of the app's money formatting. */
 function formatFieldValue(value, format) {
   if (value === null || value === undefined || value === '') return 'N/A';
 
   switch (format) {
-    case 'currency':
-      return formatUSD(value);
-    case 'number':
-      return Number(value).toLocaleString('en-US');
+    case 'currency': {
+      const amount = toNumber(value);
+      return amount === null ? String(value) : formatUSD(amount);
+    }
+    case 'number': {
+      const amount = toNumber(value);
+      return amount === null ? String(value) : amount.toLocaleString('en-US');
+    }
     case 'boolean':
       return value ? 'True' : 'False';
     default:
@@ -125,25 +148,29 @@ const keyFinancialsMetaConfig = [
 ];
 
 /* The three headline stat cards. `asOfKey` drives the "As of {year}" caption,
-   which is per-card here because each figure is dated independently. */
+   which is per-card here because each figure is dated independently.
+
+   All three are money and use 'currency' — the same fields appear again in the
+   Financial Information disclosure below, so formatting them differently would
+   show one tab two dollar figures under identical labels. */
 const keyFinancialStatsConfig = [
   {
     label: 'Transfer Price',
     valueKey: 'transfer_price',
     asOfKey: 'transfer_price_year',
-    format: 'number',
+    format: 'currency',
   },
   {
     label: 'Assessed Value',
     valueKey: 'assessed_value_highlight',
     asOfKey: 'assessed_value_highlight_year',
-    format: 'number',
+    format: 'currency',
   },
   {
     label: 'Market Value',
     valueKey: 'market_value_highlight',
     asOfKey: 'market_value_highlight_year',
-    format: 'number',
+    format: 'currency',
   },
 ];
 
@@ -173,7 +200,7 @@ const propertyDetailSectionsConfig = [
   {
     title: 'Financial Information',
     left: [
-      { label: 'Tax Value', valueKey: 'tax_value', format: 'number' },
+      { label: 'Tax Value', valueKey: 'tax_value', format: 'currency' },
       { label: 'Market Value', valueKey: 'market_value', format: 'currency' },
       {
         label: 'Assessed Value',
@@ -254,13 +281,14 @@ export function buildLocationFields(source = MOCK_PROPERTY) {
 }
 
 /* Returns the map marker's position and label. Separate from the address field
-   list because the map needs raw numbers, not formatted display strings. */
+   list because the map needs raw numbers, not formatted display strings.
+ */
 export function buildLocationCoordinates(source = MOCK_PROPERTY) {
-  const { latitude, longitude, address } = source ?? {};
-  if (typeof latitude !== 'number' || typeof longitude !== 'number') {
-    return null;
-  }
-  return { position: [latitude, longitude], label: address ?? '' };
+  const latitude = toNumber(source?.latitude);
+  const longitude = toNumber(source?.longitude);
+  if (latitude === null || longitude === null) return null;
+
+  return { position: [latitude, longitude], label: source?.address ?? '' };
 }
 
 export function buildPropertyDetailSections(source = MOCK_PROPERTY) {
