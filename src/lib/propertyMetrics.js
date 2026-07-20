@@ -94,6 +94,8 @@ function formatFieldValue(value, format) {
       return Number(value).toLocaleString('en-US');
     case 'boolean':
       return value ? 'True' : 'False';
+    case 'uppercase':
+      return String(value).toUpperCase();
     default:
       return value;
   }
@@ -146,17 +148,20 @@ const keyFinancialStatsConfig = [
   },
 ];
 
+/* Address parts are upcased for consistency with the Property Highlights
+   fields, which the mocks show in caps. Coordinates, zip, and the parcel number
+   are left alone — they carry no case to normalize. */
 const locationFieldsConfig = [
-  { label: 'Address', valueKey: 'address' },
-  { label: 'Street Name', valueKey: 'street_name' },
-  { label: 'State', valueKey: 'state' },
-  { label: 'County', valueKey: 'county' },
-  { label: 'City', valueKey: 'city' },
+  { label: 'Address', valueKey: 'address', format: 'uppercase' },
+  { label: 'Street Name', valueKey: 'street_name', format: 'uppercase' },
+  { label: 'State', valueKey: 'state', format: 'uppercase' },
+  { label: 'County', valueKey: 'county', format: 'uppercase' },
+  { label: 'City', valueKey: 'city', format: 'uppercase' },
   { label: 'Zip Code', valueKey: 'zip_code' },
   { label: 'Latitude', valueKey: 'latitude' },
   { label: 'Longitude', valueKey: 'longitude' },
-  { label: 'Parcel Number', valueKey: 'parcel_number' },
-  { label: 'Jurisdiction', valueKey: 'jurisdiction' },
+  { label: 'Parcel Number', valueKey: 'parcel_number', format: 'uppercase' },
+  { label: 'Jurisdiction', valueKey: 'jurisdiction', format: 'uppercase' },
 ];
 
 /* Each disclosure splits into a left and right column. The split is editorial,
