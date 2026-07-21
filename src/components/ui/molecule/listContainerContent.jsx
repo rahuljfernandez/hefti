@@ -1251,15 +1251,20 @@ StateMapCard.propTypes = {
   className: PropTypes.string,
 };
 
+/* Row layout for the Property Details flag banners */
+const FLAG_BANNER_ROW =
+  'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4';
+
 /**
  * One matched entity in the Property Details tab's related-party banner: the
  * entity, what it matched on, and its ownership role.
  */
 export function RelatedPartyMatch({ item }) {
   const badge = badgeConfig[item.cms_ownership_role];
+  const matchedOn = item.matched_on ?? [];
 
   return (
-    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className={FLAG_BANNER_ROW}>
       <div>
         <Link
           to={`/owners/${item.entity_slug}`}
@@ -1268,14 +1273,16 @@ export function RelatedPartyMatch({ item }) {
           {item.entity_name}
         </Link>
 
-        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          <span className="text-paragraph-sm text-content-secondary">
-            Matched on
-          </span>
-          {item.matched_on.map((type) => (
-            <MatchChip key={type} type={type} />
-          ))}
-        </div>
+        {matchedOn.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="text-paragraph-sm text-content-secondary">
+              Matched on
+            </span>
+            {matchedOn.map((type) => (
+              <MatchChip key={type} type={type} />
+            ))}
+          </div>
+        )}
       </div>
 
       {badge && (
@@ -1291,7 +1298,7 @@ RelatedPartyMatch.propTypes = {
   item: PropTypes.shape({
     entity_name: PropTypes.string.isRequired,
     entity_slug: PropTypes.string.isRequired,
-    matched_on: PropTypes.arrayOf(PropTypes.string).isRequired,
+    matched_on: PropTypes.arrayOf(PropTypes.string),
     cms_ownership_role: PropTypes.string,
   }).isRequired,
 };
@@ -1305,7 +1312,7 @@ RelatedPartyMatch.propTypes = {
  */
 export function AssociatedProperty({ item }) {
   return (
-    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className={FLAG_BANNER_ROW}>
       <div>
         <p className="text-paragraph-base text-content-primary">
           {item.address}
