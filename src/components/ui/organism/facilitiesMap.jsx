@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 /* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
@@ -10,6 +9,7 @@ import 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import FlushCard from '../atom/flushCard';
 import TabsSelector from '../molecule/tabsSelector';
+import RatingDistributionLegend from '../molecule/ratingDistributionLegend';
 import { Select } from '../atom/select';
 import { Heading } from '../atom/heading';
 import {
@@ -18,7 +18,6 @@ import {
   DEFAULT_COLOR_BY,
   STAR_RATING_OPTIONS,
   OWNERSHIP_OPTIONS,
-  STAR_LEVELS,
   buildFacilitiesMap,
 } from '../../../lib/facilitiesMapMetrics';
 
@@ -163,22 +162,7 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
             <span className="text-core-black font-semibold">{shownCount}</span>{' '}
             of {totalCount} facilities
           </p>
-
-          {/* Star legend — reuses the shared STAR_LEVELS palette so it matches
-              the rating distribution legend elsewhere on the page. */}
-          <div className="border-border-primary inline-flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-full border px-3 py-1.5">
-            {STAR_LEVELS.map(({ star, colorClass }) => (
-              <span
-                key={star}
-                className="text-label-sm text-content-secondary flex items-center gap-1.5"
-              >
-                <span
-                  className={clsx('h-2.5 w-2.5 rounded-full', colorClass)}
-                />
-                {star}★
-              </span>
-            ))}
-          </div>
+          <RatingDistributionLegend />
         </div>
       </FlushCard>
     </section>

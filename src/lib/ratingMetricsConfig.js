@@ -18,3 +18,17 @@ export const RATING_METRICS = [
   { key: 'staffing', label: 'Staffing' },
   { key: 'quality', label: 'Quality' },
 ];
+
+/**
+ * Color-by dimensions for the state choropleth and the facilities map: the four
+ * rating dimensions above plus Financial. Single source so both maps' Color-by
+ * selectors stay in lockstep — adding or renaming a dimension happens once here.
+ * Shape matches TabsSelector's `tabsData` ({ name }).
+ */
+export const COLOR_BY_DIMENSIONS = [
+  { name: 'Overall' },
+  { name: 'Health' },
+  { name: 'Staffing' },
+  { name: 'Quality' },
+  { name: 'Financial' },
+];

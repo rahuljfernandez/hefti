@@ -6,6 +6,10 @@ import { STAR_LEVELS } from '../../../lib/ratingDistributionMetrics';
  * Legend for the facility rating distribution: a color dot and star label for
  * each of the five rating levels. Reads its color config from STAR_LEVELS so it
  * always matches the bar segments.
+ *
+ * Currently used by:
+ * - organism/facilityRatingDistribution.jsx (the rating distribution section)
+ * - organism/facilitiesMap.jsx (the "N of M facilities" footer card)
  */
 export default function RatingDistributionLegend() {
   return (

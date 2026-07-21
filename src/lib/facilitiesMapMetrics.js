@@ -270,16 +270,11 @@ export function getStateMapViewport(stateName) {
   };
 }
 
-/* Color-by tabs. Shape matches TabsSelector's `tabsData` ({ name }). Each tab
-   recolors the markers by that dimension once facility data lands; "Overall" is
-   the default view and "Financial" is operating-margin based. */
-export const COLOR_BY_TABS = [
-  { name: 'Overall' },
-  { name: 'Health' },
-  { name: 'Staffing' },
-  { name: 'Quality' },
-  { name: 'Financial' },
-];
+/* Color-by tabs — re-exported from the shared COLOR_BY_DIMENSIONS so this map and
+   the state choropleth recolor by the same five dimensions. Each tab recolors the
+   markers by that dimension once facility data lands; "Overall" is the default
+   view and "Financial" is operating-margin based. */
+export { COLOR_BY_DIMENSIONS as COLOR_BY_TABS } from './ratingMetricsConfig';
 
 export const DEFAULT_COLOR_BY = 'Overall';
 
