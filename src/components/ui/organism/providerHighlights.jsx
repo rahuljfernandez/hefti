@@ -6,10 +6,12 @@ import LayoutCard from '../atom/layout-card';
 import StarRating from '../molecule/starRating';
 import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
+import FacilityRatingDistribution from './facilityRatingDistribution';
 import { Heading } from '../atom/heading';
 import {
   buildFacilityCardStats,
   buildOwnerCardStats,
+  buildStateCardStats,
 } from '../../../lib/providerHighlightsMetrics';
 import { formatMetricValue } from '../../../lib/stringFormatters';
 
@@ -41,9 +43,18 @@ const config = {
     qualityKey: 'cms_owner_average_quality_rating',
     buildCardStats: buildOwnerCardStats,
   },
+  state: {
+    heading: 'State Highlights',
+    overallRatingTitle: 'Average Rating Across Nursing Homes',
+    overallRatingKey: 'overall_rating',
+    healthInspectionKey: 'health_inspection_rating',
+    staffingKey: 'staffing_rating',
+    qualityKey: 'quality_rating',
+    buildCardStats: buildStateCardStats,
+  },
 };
 
-export default function ProviderHighlights({ items, status }) {
+export default function ProviderHighlights({ items, status, nationalBenchmarks }) {
   if (!items) return <div>No data available.</div>;
 
   const cfg = config[status];
@@ -57,20 +68,29 @@ export default function ProviderHighlights({ items, status }) {
   const staffingRating = formatMetricValue(items[cfg.staffingKey]);
   const qualityRating = formatMetricValue(items[cfg.qualityKey]);
 
-  // Build stat arrays from lib config — maps data keys to display-ready objects
-  const cardStats = cfg.buildCardStats(items);
+  /* Build stat arrays from lib config — maps data keys to display-ready
+     objects. The state and owner builders read nationalBenchmarks for their
+     Above/Below National Average badges; the facility builder (which uses the
+     cmpr_ state-average strings in its own response) ignores the extra
+     argument. */
+  const cardStats = cfg.buildCardStats(items, nationalBenchmarks);
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
         {cfg.heading}
       </Heading>
+
       <LayoutCard>
         <div className="border-b border-gray-200 pb-5">
           {status === 'facility' ? (
             <FacilityProfileDescription items={items} />
-          ) : (
+          ) : status === 'owner' ? (
             <OwnerProfileDescription items={items} />
+          ) : (
+            <FacilityRatingDistribution
+              distribution={items.rating_distribution}
+            />
           )}
         </div>
         {/*Star Rating Section */}
@@ -126,5 +146,6 @@ export default function ProviderHighlights({ items, status }) {
 
 ProviderHighlights.propTypes = {
   items: PropTypes.object.isRequired,
-  status: PropTypes.oneOf(['facility', 'owner']).isRequired,
+  status: PropTypes.oneOf(['facility', 'owner', 'state']).isRequired,
+  nationalBenchmarks: PropTypes.object,
 };

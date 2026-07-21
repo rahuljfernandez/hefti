@@ -17,6 +17,14 @@ export function expandStateAbbreviation(abbr) {
   return STATE_ABBREVIATIONS[abbr.toUpperCase()] ?? abbr;
 }
 
+/* Canonical 50-state list ({ value: abbreviation, label: full name }), sorted
+   alphabetically by name, for state pickers. DC is excluded to match the browse
+   state filter, which the state-stats endpoint is built around. */
+export const US_STATES = Object.entries(STATE_ABBREVIATIONS)
+  .filter(([abbr]) => abbr !== 'DC')
+  .map(([value, label]) => ({ value, label }))
+  .sort((a, b) => a.label.localeCompare(b.label));
+
 export function toSentenceCase(str) {
   if (!str || typeof str !== 'string') return '';
 
@@ -64,4 +72,13 @@ export function formatMetricValue(metricValue) {
   }
 
   return numericValue.toFixed(1);
+}
+
+/* Appends a display suffix (e.g. '%') to an already-formatted value. Returns the
+   value untouched when it's the 'N/A' sentinel or when no suffix is given, so
+   'N/A' never becomes 'N/A%'. Single source of truth for the metric builders'
+   suffix handling — keep this the only place that rule lives. */
+export function appendSuffix(value, suffix) {
+  if (value === 'N/A' || !suffix) return value;
+  return `${value}${suffix}`;
 }

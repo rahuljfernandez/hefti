@@ -19,7 +19,7 @@ import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
 import TabsShell from '../components/ui/molecule/tabsShell';
-import { profileTabsDescriptions } from '../lib/tabDescriptions';
+import { ownerTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
@@ -70,6 +70,7 @@ export default function OwnersProfile() {
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+  const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
 
   const navigate = useNavigate();
 
@@ -96,6 +97,22 @@ export default function OwnersProfile() {
       .catch(() => setError('Failed to load owner data.'))
       .finally(() => setLoading(false));
   }, [slug, selectedYear]);
+
+  useEffect(() => {
+    /* National averages power the highlights comparison badges; the owner
+       endpoint doesn't include them, so fetch them separately. */
+    const fetchNationalBenchmarks = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/national`);
+        const data = await res.json();
+        setNationalBenchmarks(data);
+      } catch (err) {
+        console.error('Failed to fetch national averages:', err);
+      }
+    };
+
+    fetchNationalBenchmarks();
+  }, []);
 
   // Use related facilities from API if available
   const relatedFacilities = useMemo(
@@ -188,13 +205,19 @@ export default function OwnersProfile() {
             </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              tabsData={profileTabsDescriptions}
-              defaultTabName={'Provider Highlights'}
+              tabsData={ownerTabsDescriptions}
+              defaultTabName={'Owner Highlights'}
             >
               {(activeTab) => {
                 switch (activeTab.name) {
-                  case 'Provider Highlights':
-                    return <ProviderHighlights items={owner} status="owner" />;
+                  case 'Owner Highlights':
+                    return (
+                      <ProviderHighlights
+                        items={owner}
+                        status="owner"
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
                   //As of 3/16/26 we are holding off on deficiencies
                   //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':

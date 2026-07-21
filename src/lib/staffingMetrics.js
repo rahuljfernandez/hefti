@@ -1,4 +1,8 @@
-import { formatMetricValue, expandStateAbbreviation } from './stringFormatters';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+  appendSuffix,
+} from './stringFormatters';
 import { buildNationalComparison } from './getBadgeColor';
 
 /**
@@ -199,9 +203,9 @@ function formatStaffingValue(metric, metricsSource) {
     : 'N/A';
 }
 
+// Thin wrapper so call sites can pass the metric; suffix rule lives in appendSuffix.
 function formatDisplayValue(metric, value) {
-  if (value === 'N/A') return value;
-  return metric.suffix ? `${value}${metric.suffix}` : value;
+  return appendSuffix(value, metric.suffix);
 }
 
 // Facility builders add state benchmark details and comparison values for staffing cards.

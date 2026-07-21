@@ -2,6 +2,7 @@ import {
   formatMetricValue,
   expandStateAbbreviation,
   formatUSD,
+  appendSuffix,
 } from './stringFormatters';
 import { getCmprColor, buildNationalComparison } from './getBadgeColor';
 
@@ -171,8 +172,9 @@ function buildStats(config, metricsSource, nationalBenchmarks) {
       comparisonColor: metric.comparisonKey
         ? getCmprColor(metricsSource?.[metric.comparisonKey])
         : null,
-      detail1: `${stateName} average: ${stateAvg}`,
-      detail2: `National average: ${nationalAvg}`,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -323,11 +325,6 @@ function buildOwnerStats(config, metricsSource) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
-  const formatDisplayValue = (metric, value) => {
-    if (value === 'N/A') return value;
-    return metric.suffix ? `${value}${metric.suffix}` : value;
-  };
-
   return config.map((metric) => {
     const value = metric.valueKey
       ? format(metric, metricsSource?.[metric.valueKey])
@@ -338,7 +335,7 @@ function buildOwnerStats(config, metricsSource) {
       title: metric.title,
       subtitle: metric.subtitle,
       value,
-      displayValue: formatDisplayValue(metric, value),
+      displayValue: appendSuffix(value, metric.suffix),
       detail1: `Median: ${metric.medianKey}`,
       detail2: `Std Dev: ${metric.stdDevKey}`,
     };
@@ -496,10 +493,7 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
     const rawNational = metric.nationalAvgKey
       ? nationalBenchmarks?.[metric.nationalAvgKey]
       : null;
-    const withSuffix = (formatted) =>
-      formatted === 'N/A' || !metric.suffix
-        ? formatted
-        : `${formatted}${metric.suffix}`;
+    const nationalAvg = appendSuffix(format(rawNational), metric.suffix);
 
     const { comparison, comparisonColor } = metric.nationalAvgKey
       ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
@@ -509,12 +503,15 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
       id: metric.id,
       title: metric.title,
       subtitle: metric.subtitle,
-      value: metric.valueKey ? withSuffix(format(rawValue)) : 'N/A',
+      value: metric.valueKey
+        ? appendSuffix(format(rawValue), metric.suffix)
+        : 'N/A',
       comparison,
       comparisonColor,
-      detail1: metric.nationalAvgKey
-        ? `National average: ${withSuffix(format(rawNational))}`
-        : undefined,
+      detail1:
+        metric.nationalAvgKey && nationalAvg !== 'N/A'
+          ? `National average: ${nationalAvg}`
+          : undefined,
     };
   });
 }
