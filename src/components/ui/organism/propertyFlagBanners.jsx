@@ -36,10 +36,10 @@ function MatchChip({ type }) {
 
   const Icon = match.icon;
   return (
-    <span className="border-border-primary text-paragraph-xs text-content-secondary inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5">
-      <Icon className="h-3.5 w-3.5 shrink-0" />
+    <Badge color="zinc">
+      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
       {match.label}
-    </span>
+    </Badge>
   );
 }
 

@@ -46,9 +46,6 @@ export default function PropertyDetailsTab({ status }) {
 
   return (
     <section>
-      {/* The wrapper is conditional, not just its children: an empty div would
-          still contribute its mt-8 and leave a gap above Property Highlights on
-          the common facility, which carries no flags at all. */}
       {hasFlags && (
         <div className="mt-8 flex flex-col gap-4">
           <RelatedPartyBanner matches={relatedPartyMatches} />
