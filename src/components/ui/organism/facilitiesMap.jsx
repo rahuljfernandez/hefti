@@ -58,7 +58,7 @@ function MapPanel({ stateName, viewport }) {
         /* Fractional zoom so fitBounds fills the state box exactly instead of
            rounding down a whole level (which read as "zoomed out"). */
         zoomSnap={0}
-        className="facilities-map h-full w-full rounded-none"
+        className="map-control-inset h-full w-full rounded-none"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

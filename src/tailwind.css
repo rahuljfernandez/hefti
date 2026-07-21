@@ -84,35 +84,40 @@
   background-color: #ffffff !important;
 }
 
-/* Align Leaflet's overlay controls with the facilities map's flush-card text
-   inset. The map is edge-to-edge, but the cards above and below pad their
-   content by 16px (24px at the sm breakpoint, matching px-4 sm:px-6), while
-   Leaflet positions its controls 10px from the map edge — so the zoom +/-
-   buttons land left of where the card text starts. Match the control margins to
-   the card padding so they line up with the text on every edge. */
-.facilities-map .leaflet-top .leaflet-control {
+/* Align Leaflet's overlay controls with the surrounding card's text inset.
+   The map is edge-to-edge, but the cards above and below pad their content by
+   16px (24px at the sm breakpoint, matching px-4 sm:px-6), while Leaflet
+   positions its controls 10px from the map edge — so the zoom +/- buttons land
+   left of where the card text starts, and the attribution sits tight against
+   the bottom-right. Match the control margins to the card padding so both line
+   up with the text on every edge.
+
+   Applied by class rather than to .leaflet-container globally, so a map that
+   genuinely wants Leaflet's default 10px can opt out. Shared by the facilities
+   map and the property location map. */
+.map-control-inset .leaflet-top .leaflet-control {
   margin-top: 1rem;
 }
-.facilities-map .leaflet-left .leaflet-control {
+.map-control-inset .leaflet-left .leaflet-control {
   margin-left: 1rem;
 }
-.facilities-map .leaflet-right .leaflet-control {
+.map-control-inset .leaflet-right .leaflet-control {
   margin-right: 1rem;
 }
-.facilities-map .leaflet-bottom .leaflet-control {
+.map-control-inset .leaflet-bottom .leaflet-control {
   margin-bottom: 1rem;
 }
 @media (min-width: 640px) {
-  .facilities-map .leaflet-top .leaflet-control {
+  .map-control-inset .leaflet-top .leaflet-control {
     margin-top: 1.5rem;
   }
-  .facilities-map .leaflet-left .leaflet-control {
+  .map-control-inset .leaflet-left .leaflet-control {
     margin-left: 1.5rem;
   }
-  .facilities-map .leaflet-right .leaflet-control {
+  .map-control-inset .leaflet-right .leaflet-control {
     margin-right: 1.5rem;
   }
-  .facilities-map .leaflet-bottom .leaflet-control {
+  .map-control-inset .leaflet-bottom .leaflet-control {
     margin-bottom: 1.5rem;
   }
 }
