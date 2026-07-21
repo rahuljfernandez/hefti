@@ -11,6 +11,8 @@
  * `rating_distribution` object of this shape (state, owner, etc.) can feed it.
  */
 
+import { RATING_METRICS } from './ratingMetricsConfig';
+
 /* Star levels 1-5 with their bar/dot color. Order here is the render order for
    both the stacked bar segments and the legend. */
 export const STAR_LEVELS = [
@@ -19,15 +21,6 @@ export const STAR_LEVELS = [
   { star: 3, colorClass: 'bg-amber-500' },
   { star: 4, colorClass: 'bg-blue-500' },
   { star: 5, colorClass: 'bg-blue-700' },
-];
-
-/* Which metrics render, in order, and their display label. Keys match the
-   `rating_distribution` object returned by the API. */
-const METRIC_CONFIG = [
-  { key: 'overall', label: 'Overall' },
-  { key: 'health_inspection', label: 'Health' },
-  { key: 'staffing', label: 'Staffing' },
-  { key: 'quality', label: 'Quality' },
 ];
 
 const COLOR_BY_STAR = Object.fromEntries(
@@ -47,7 +40,7 @@ const COLOR_BY_STAR = Object.fromEntries(
 export function buildRatingDistribution(distribution) {
   if (!distribution) return null;
 
-  const metrics = METRIC_CONFIG.map(({ key, label }) => {
+  const metrics = RATING_METRICS.map(({ key, label }) => {
     const entry = distribution[key];
     const rated = entry?.rated ?? 0;
     const counts = entry?.counts ?? {};

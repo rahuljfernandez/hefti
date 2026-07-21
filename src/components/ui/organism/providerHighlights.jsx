@@ -7,6 +7,7 @@ import StarRating from '../molecule/starRating';
 import FacilityProfileDescription from '../molecule/facilityProfileDescription';
 import OwnerProfileDescription from '../molecule/ownerProfileDescription';
 import FacilityRatingDistribution from './facilityRatingDistribution';
+import StateTrends from './stateTrends';
 import { Heading } from '../atom/heading';
 import {
   buildFacilityCardStats,
@@ -24,6 +25,8 @@ import { formatMetricValue } from '../../../lib/stringFormatters';
 /**
  * Drives all status-specific values — headings, data keys, and the stat builder.
  */
+
+//Todo find out if the 5 year trend ought to follow the year selector and move with it or if it ought to stay with 2026-2021
 const config = {
   facility: {
     heading: 'Provider Highlights',
@@ -140,6 +143,8 @@ export default function ProviderHighlights({ items, status, nationalBenchmarks }
           <StatsCard variant="panel" stats={cardStats} />
         </div>
       </LayoutCard>
+
+      {status === 'state' && <StateTrends />}
     </section>
   );
 }
