@@ -16,6 +16,7 @@ import TrendingCarousel from '../components/ui/organism/trendingCarousel.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
+import ExploreByState from '../components/ui/organism/exploreByState.jsx';
 
 /**
  * Home page
@@ -120,6 +121,11 @@ export default function Home() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Explore by State — choropleth map section */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <ExploreByState />
       </section>
 
       {/* Bottom (lists) section with gray background */}

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { STATE_PATHS, VIEW_W, VIEW_H } from '../../../lib/usStatesGeo';
 
 /**
  * Skeleton loading components for data-dependent UI sections.
@@ -307,6 +308,40 @@ export function RankingTablesSkeleton({ error = false }) {
 
 RankingTablesSkeleton.propTypes = {
   error: PropTypes.bool,
+};
+
+/**
+ * Skeleton for the "Explore by State" choropleth. Renders the real state
+ * geometry filled with a pulsing gray so the placeholder is the exact map
+ * silhouette (not a generic box), keeping the near-top-of-page layout stable
+ * while /state-metrics is in flight. error={true} swaps to static red fills.
+ *
+ * Used in: src/components/ui/organism/exploreByState.jsx
+ */
+export function StateMapSkeleton({ error = false, className = '' }) {
+  return (
+    <svg
+      viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      className={`h-auto w-full ${error ? '' : 'animate-pulse'} ${className}`}
+      role="status"
+      aria-label={error ? 'Failed to load state map' : 'Loading state map'}
+    >
+      {STATE_PATHS.map((state) => (
+        <path
+          key={state.name}
+          d={state.d}
+          fill={error ? '#FEE2E2' : '#E5E7EB'}
+          stroke="#ffffff"
+          strokeWidth={0.75}
+        />
+      ))}
+    </svg>
+  );
+}
+
+StateMapSkeleton.propTypes = {
+  error: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 // Used in: src/pages/Home.jsx
