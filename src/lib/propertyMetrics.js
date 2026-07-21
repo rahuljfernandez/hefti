@@ -72,6 +72,44 @@ const MOCK_PROPERTY = {
   block_number: '1299',
   lot_number: '1034',
   depth: 0,
+
+  /* Conditional flag banners. Both lists are normally empty — these are
+     populated here so the banners can be seen during development. */
+  related_party_matches: [
+    {
+      id: 'boulevard-se-propco-llc',
+      entity_name: 'Boulevard SE Propco LLC',
+      entity_slug: 'boulevard-se-propco-llc',
+      matched_on: ['entity_name', 'mailing_address'],
+      cms_ownership_role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
+    },
+    {
+      id: 'grant-park-holdings-llc',
+      entity_name: 'Grant Park Holdings LLC',
+      entity_slug: 'grant-park-holdings-llc',
+      matched_on: ['mailing_address'],
+      cms_ownership_role: 'OPERATIONAL/MANAGERIAL CONTROL',
+    },
+  ],
+
+  /* Two parcels at one street address — the nursing home and the adjacent
+     vacant land — which is why the addresses repeat. */
+  associated_properties: [
+    {
+      id: 'parcel-14-002100010740',
+      address: '350 Boulevard SE',
+      description: 'Retired, Handicap, Convalescent, Nursing Home',
+      related_party: true,
+      is_current: true,
+    },
+    {
+      id: 'parcel-14-002100010741',
+      address: '350 Boulevard SE',
+      description: 'Residential, Vacant Land',
+      related_party: false,
+      is_current: false,
+    },
+  ],
 };
 
 /* Returns null — not NaN or 0 — for non-numeric input, so callers can tell
@@ -264,6 +302,21 @@ export function buildLocationCoordinates(source = MOCK_PROPERTY) {
   if (latitude === null || longitude === null) return null;
 
   return { position: [latitude, longitude], label: source?.address ?? '' };
+}
+
+/* The two banner conditions, resolved here rather than in the components so the
+   thresholds live next to the data they read. Both return an array and the
+   banners render on length, so "no flag" and "no data" collapse to one case.
+
+   Associated properties are only worth showing when there is something to
+   switch between — a facility with a single property is the norm, not a flag. */
+export function buildRelatedPartyMatches(source = MOCK_PROPERTY) {
+  return source?.related_party_matches ?? [];
+}
+
+export function buildAssociatedProperties(source = MOCK_PROPERTY) {
+  const properties = source?.associated_properties ?? [];
+  return properties.length > 1 ? properties : [];
 }
 
 export function buildPropertyDetailSections(source = MOCK_PROPERTY) {

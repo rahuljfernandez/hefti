@@ -11,6 +11,8 @@ import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import MatchChip from './matchChip';
 import { ArrowRightIcon } from '@heroicons/react/16/solid';
 import clsx from 'clsx';
 
@@ -1247,4 +1249,107 @@ StateMapCard.propTypes = {
   }),
   interactive: PropTypes.bool,
   className: PropTypes.string,
+};
+
+/* Row layout for the Property Details flag banners */
+const FLAG_BANNER_ROW =
+  'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4';
+
+/**
+ * One matched entity in the Property Details tab's related-party banner: the
+ * entity, what it matched on, and its ownership role.
+ */
+export function RelatedPartyMatch({ item }) {
+  const badge = badgeConfig[item.cms_ownership_role];
+  const matchedOn = item.matched_on ?? [];
+
+  return (
+    <div className={FLAG_BANNER_ROW}>
+      <div>
+        <Link
+          to={`/owners/${item.entity_slug}`}
+          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
+        >
+          {item.entity_name}
+        </Link>
+
+        {matchedOn.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="text-paragraph-sm text-content-secondary">
+              Matched on
+            </span>
+            {matchedOn.map((type) => (
+              <MatchChip key={type} type={type} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {badge && (
+        <Badge color={badge.color} className="shrink-0">
+          {badge.label}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+RelatedPartyMatch.propTypes = {
+  item: PropTypes.shape({
+    entity_name: PropTypes.string.isRequired,
+    entity_slug: PropTypes.string.isRequired,
+    matched_on: PropTypes.arrayOf(PropTypes.string),
+    cms_ownership_role: PropTypes.string,
+  }).isRequired,
+};
+
+/**
+ * One property in the Property Details tab's associated-properties banner.
+ *
+ * The trailing VIEW is a span, not a link or button: it is inert until the
+ * property API can serve a second property, and a focusable control that does
+ * nothing is worse than plain text for a keyboard user.
+ */
+export function AssociatedProperty({ item }) {
+  return (
+    <div className={FLAG_BANNER_ROW}>
+      <div>
+        <p className="text-paragraph-base text-content-primary">
+          {item.address}
+        </p>
+
+        <div className="text-paragraph-sm text-content-secondary mt-0.5 flex flex-wrap items-center gap-2">
+          <span>{item.description}</span>
+          {item.related_party && (
+            <>
+              <span aria-hidden="true">|</span>
+              <span className="inline-flex items-center gap-1">
+                <ExclamationTriangleIcon className="size-4 shrink-0 text-amber-500" />
+                Related Party
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {item.is_current ? (
+        <span className="text-label-sm text-content-secondary shrink-0 uppercase">
+          Viewing
+        </span>
+      ) : (
+        <span className="text-label-sm shrink-0 text-blue-600 uppercase">
+          View
+        </span>
+      )}
+    </div>
+  );
+}
+
+AssociatedProperty.propTypes = {
+  item: PropTypes.shape({
+    address: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    related_party: PropTypes.bool,
+    is_current: PropTypes.bool,
+  }).isRequired,
 };

@@ -67,7 +67,11 @@ export default function ListContainer({
 
   return (
     <div>
-      <LayoutSelector items={items} renderItem={renderListItem} {...layoutProps} />
+      <LayoutSelector
+        items={items}
+        renderItem={renderListItem}
+        {...layoutProps}
+      />
     </div>
   );
 }
@@ -98,6 +102,36 @@ export function ListContainerDivider({ items = [], renderItem }) {
 }
 
 ListContainerDivider.propTypes = {
+  items: PropTypes.array,
+  renderItem: PropTypes.func.isRequired,
+};
+
+/**
+ * Flush list layout for rows that sit inside a card the caller already owns —
+ * a DisclosureCard panel, for example. Same row metrics as ListContainerDivider
+ * but without the card chrome, which would otherwise nest a bordered, rounded,
+ * shadowed card inside another one.
+ *
+ * The rule above the first row is the caller's business as much as the
+ * dividers between rows: the panel needs a line separating it from the header
+ * it opens beneath, so this carries border-t as well as divide-y.
+ */
+export function ListContainerFlush({ items = [], renderItem }) {
+  return (
+    <ul
+      role="list"
+      className="divide-border-primary border-border-primary divide-y border-t"
+    >
+      {items.map((item, i) => (
+        <li key={item.id || i} className="px-4 py-4 sm:px-6">
+          {renderItem(item)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+ListContainerFlush.propTypes = {
   items: PropTypes.array,
   renderItem: PropTypes.func.isRequired,
 };
@@ -137,12 +171,10 @@ const gridColsClass = {
  * Without cols, defaults to md:grid-cols-2 xl:grid-cols-3.
  */
 export function ListContainerGrid({ items = [], renderItem, cols }) {
-  const colsClass = cols != null ? gridColsClass[cols] : 'md:grid-cols-2 xl:grid-cols-3';
+  const colsClass =
+    cols != null ? gridColsClass[cols] : 'md:grid-cols-2 xl:grid-cols-3';
   return (
-    <ul
-      role="list"
-      className={`mt-4 grid grid-cols-1 gap-4 ${colsClass}`}
-    >
+    <ul role="list" className={`mt-4 grid grid-cols-1 gap-4 ${colsClass}`}>
       {items.map((item, i) => (
         <li key={item.id || i}>{renderItem(item)}</li>
       ))}
