@@ -11,6 +11,7 @@ import { expandStateAbbreviation, US_STATES } from '../lib/stringFormatters.js';
 import TabsShell from '../components/ui/molecule/tabsShell.jsx';
 import { stateTabsDescriptions } from '../lib/tabDescriptions.js';
 import ProviderHighlights from '../components/ui/organism/providerHighlights.jsx';
+import StateAcquisitionsCta from '../components/ui/molecule/stateAcquisitionsCta.jsx';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
@@ -111,7 +112,7 @@ export default function StatesProfile() {
   ];
 
   return (
-    <div className="bg-background-secondary font-sans">
+    <div className="bg-background-secondary font-sans pb-8">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
@@ -215,6 +216,13 @@ export default function StatesProfile() {
                 }
               }}
             </TabsShell>
+
+            {/* Ownership-changes CTA. changeCount is a placeholder until the
+                state-stats API exposes an annual ownership-change total. */}
+            <StateAcquisitionsCta
+              stateName={expandStateAbbreviation(stateStats.state)}
+              changeCount={15}
+            />
           </>
         )}
       </LayoutPage>
