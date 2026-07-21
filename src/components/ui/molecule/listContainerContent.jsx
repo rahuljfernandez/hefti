@@ -1259,7 +1259,7 @@ export function RelatedPartyMatch({ item }) {
   const badge = badgeConfig[item.cms_ownership_role];
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div>
         <Link
           to={`/owners/${item.entity_slug}`}
@@ -1305,7 +1305,7 @@ RelatedPartyMatch.propTypes = {
  */
 export function AssociatedProperty({ item }) {
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div>
         <p className="text-paragraph-base text-content-primary">
           {item.address}

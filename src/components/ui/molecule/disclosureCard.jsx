@@ -45,7 +45,7 @@ export default function DisclosureCard({
       {({ open }) => (
         <div
           className={clsx(
-            'overflow-hidden rounded-lg bg-white shadow-sm',
+            'bg-core-white overflow-hidden rounded-lg shadow-sm',
             className,
           )}
         >
