@@ -77,12 +77,14 @@ const MOCK_PROPERTY = {
      populated here so the banners can be seen during development. */
   related_party_matches: [
     {
+      id: 'boulevard-se-propco-llc',
       entity_name: 'Boulevard SE Propco LLC',
       entity_slug: 'boulevard-se-propco-llc',
       matched_on: ['entity_name', 'mailing_address'],
       cms_ownership_role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
     },
     {
+      id: 'grant-park-holdings-llc',
       entity_name: 'Grant Park Holdings LLC',
       entity_slug: 'grant-park-holdings-llc',
       matched_on: ['mailing_address'],
