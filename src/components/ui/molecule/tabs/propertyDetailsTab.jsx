@@ -3,11 +3,21 @@ import PropTypes from 'prop-types';
 import PropertyHighlights from '../../organism/propertyHighlights';
 import PropertyLocationMap from '../../organism/propertyLocationMap';
 import PropertyDetails from '../../organism/propertyDetails';
+import {
+  RelatedPartyBanner,
+  AssociatedPropertiesBanner,
+} from '../../organism/propertyFlagBanners';
+import {
+  buildRelatedPartyMatches,
+  buildAssociatedProperties,
+} from '../../../../lib/propertyMetrics';
 
 /**
  * Property Details tab content.
  *
- * Three sections:
+ * Two conditional flag banners, then three sections:
+ * - Possible related-party ownership / multiple associated properties (both
+ *   render only when their condition holds; most facilities show neither)
  * - Property Highlights (owner fields + Key Financials stat cards)
  * - Location Information (property map + address fields)
  * - Property Details (Financial / Building / Land disclosures)
@@ -29,8 +39,23 @@ export default function PropertyDetailsTab({ status }) {
     );
   }
 
+  const relatedPartyMatches = buildRelatedPartyMatches();
+  const associatedProperties = buildAssociatedProperties();
+  const hasFlags =
+    relatedPartyMatches.length > 0 || associatedProperties.length > 0;
+
   return (
     <section>
+      {/* The wrapper is conditional, not just its children: an empty div would
+          still contribute its mt-8 and leave a gap above Property Highlights on
+          the common facility, which carries no flags at all. */}
+      {hasFlags && (
+        <div className="mt-8 flex flex-col gap-4">
+          <RelatedPartyBanner matches={relatedPartyMatches} />
+          <AssociatedPropertiesBanner properties={associatedProperties} />
+        </div>
+      )}
+
       <PropertyHighlights />
       <PropertyLocationMap />
       <PropertyDetails />
