@@ -109,10 +109,43 @@ const getCmprColor = (cmpr, higherIsBetter = false) => {
   if (lower.includes('below')) return higherIsBetter ? 'red' : 'green';
   return 'yellow';
 };
+
+/* Derives a comparison badge for a subject's value against the national
+   average when the API provides no precomputed comparison string (e.g. a
+   state's metric vs. the /national benchmark). Mirrors the facility badge:
+   the label states numeric direction ("Above/Below National Average") while the
+   color reflects performance — for a lower-is-better metric, sitting above the
+   benchmark is worse, so the badge reads "Above National Average" in red. Returns
+   { comparison, comparisonColor }; comparison is null when either value is
+   missing so no badge renders. */
+const buildNationalComparison = (rawValue, rawBenchmark, higherIsBetter = false) => {
+  /* Guard nullish/empty first: Number(null) and Number('') both coerce to 0,
+     which would badge a genuinely-missing value as if it were 0 while the card
+     renders 'N/A'. Only real numbers should produce a badge. */
+  if (rawValue == null || rawValue === '' || rawBenchmark == null || rawBenchmark === '') {
+    return { comparison: null, comparisonColor: 'gray' };
+  }
+  const value = Number(rawValue);
+  const benchmark = Number(rawBenchmark);
+  if (!Number.isFinite(value) || !Number.isFinite(benchmark)) {
+    return { comparison: null, comparisonColor: 'gray' };
+  }
+  if (value === benchmark) {
+    return { comparison: 'Same As National Average', comparisonColor: 'yellow' };
+  }
+  const isAbove = value > benchmark;
+  const isBetter = higherIsBetter ? isAbove : !isAbove;
+  return {
+    comparison: isAbove ? 'Above National Average' : 'Below National Average',
+    comparisonColor: isBetter ? 'green' : 'red',
+  };
+};
+
 export {
   getBadgeColorAboveBelow,
   getBadgeColorOwnershipType,
   badgeConfig,
   getBadgeColorOwnerProfile,
   getCmprColor,
+  buildNationalComparison,
 };

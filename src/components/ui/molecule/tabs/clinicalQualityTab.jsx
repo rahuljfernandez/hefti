@@ -10,6 +10,8 @@ import {
   buildFacilityShortStayStats,
   buildOwnerLongStayStats,
   buildOwnerShortStayStats,
+  buildStateLongStayStats,
+  buildStateShortStayStats,
 } from '../../../../lib/clinicalQualityMetrics';
 
 /**
@@ -30,12 +32,16 @@ export default function ClinicalQualityTab({
   const longStayStats =
     status === 'facility'
       ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerLongStayStats(metricsSource);
+      : status === 'state'
+        ? buildStateLongStayStats(metricsSource, nationalBenchmarks)
+        : buildOwnerLongStayStats(metricsSource);
 
   const shortStayStats =
     status === 'facility'
       ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerShortStayStats(metricsSource);
+      : status === 'state'
+        ? buildStateShortStayStats(metricsSource, nationalBenchmarks)
+        : buildOwnerShortStayStats(metricsSource);
 
   return (
     <section>
