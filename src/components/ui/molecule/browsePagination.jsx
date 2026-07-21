@@ -38,7 +38,7 @@ export default function BrowsePagination({
           onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
           disabled={currentPage === 1}
           aria-label="Go to previous page"
-          className="focus-ring-light text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center rounded-sm border-t-2 border-transparent pt-4 pr-1 hover:cursor-pointer hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="focus-ring-light text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pr-1 hover:cursor-pointer hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ArrowLongLeftIcon
             aria-hidden="true"
@@ -63,7 +63,7 @@ export default function BrowsePagination({
               onClick={() => onPageChange(page)}
               aria-label={`Go to page ${page}`}
               aria-current={page === currentPage ? 'page' : undefined}
-              className={`focus-ring-light text-paragraph-base inline-flex items-center rounded-sm border-t-2 px-4 pt-4 ${
+              className={`focus-ring-light text-paragraph-base inline-flex items-center border-t-2 px-4 pt-4 ${
                 page === currentPage
                   ? 'border-blue-700 text-blue-700'
                   : 'hover:border-content-secondary border-transparent text-gray-500 hover:cursor-pointer hover:text-gray-700'
@@ -80,7 +80,7 @@ export default function BrowsePagination({
           onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
           disabled={currentPage === totalPages}
           aria-label="Go to next page"
-          className="focus-ring-light text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center rounded-sm border-t-2 border-transparent pt-4 pl-1 hover:cursor-pointer hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="focus-ring-light text-paragraph-base text-content-secondary hover:border-content-secondary inline-flex items-center border-t-2 border-transparent pt-4 pl-1 hover:cursor-pointer hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next
           <ArrowLongRightIcon
