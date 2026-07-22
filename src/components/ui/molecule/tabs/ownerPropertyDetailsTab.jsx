@@ -20,9 +20,7 @@ export default function OwnerPropertyDetailsTab() {
   return (
     <section>
       <PortfolioHighlights />
-
       <PropertyFootprint />
-
       <OwnerPropertiesList />
     </section>
   );
