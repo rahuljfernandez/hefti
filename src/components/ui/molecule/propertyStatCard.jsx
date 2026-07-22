@@ -3,17 +3,32 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
 /**
- * A single headline figure with a dated caption — used for the Key Financials
- * row (Transfer Price / Assessed Value / Market Value).
+ * A single headline figure with a caption.
  *
- * Separate from statsCard rather than a third variant of it: both variants
- * there are built around a comparison Badge and a description line, neither of
- * which this design has.
+ * Two sizes: the default (Key Financials on the facility tab) and `emphasis`,
+ * which enlarges the value for the two lead cards of the owner Portfolio
+ * Highlights row. Both share one card so the five-card row reads as one set.
  *
- * Values arrive pre-formatted from propertyMetrics — this renders, it does not
- * format.
+ * The caption is either `asOf` ("As of {asOf}", the facility use) or a freeform
+ * `description`; `aside` sits inline after the value (e.g. "8 of 23"). `accent`
+ * tints the value and icon amber to carry the related-party color used
+ * elsewhere on the tab.
+ *
+ * Values arrive pre-formatted — this renders, it does not format.
  */
-export default function PropertyStatCard({ label, value, asOf, className }) {
+export default function PropertyStatCard({
+  label,
+  value,
+  asOf,
+  description,
+  aside,
+  icon: Icon,
+  emphasis = false,
+  accent,
+  className,
+}) {
+  const isAmber = accent === 'amber';
+
   return (
     <div
       className={clsx(
@@ -21,11 +36,38 @@ export default function PropertyStatCard({ label, value, asOf, className }) {
         className,
       )}
     >
-      <p className="text-label-sm text-content-secondary">{label}</p>
-      <p className="text-heading-sm text-core-black mt-2">{value}</p>
-      {asOf && (
+      <div className="flex items-center gap-1.5">
+        {Icon && (
+          <Icon
+            aria-hidden="true"
+            className={clsx(
+              'size-5 shrink-0',
+              isAmber ? 'text-amber-500' : 'text-content-secondary',
+            )}
+          />
+        )}
+        <p className="text-label-sm text-content-secondary">{label}</p>
+      </div>
+
+      <div className="mt-2 flex items-baseline gap-2">
+        <p
+          className={clsx(
+            emphasis ? 'text-heading-lg' : 'text-heading-sm',
+            isAmber ? 'text-amber-500' : 'text-core-black',
+          )}
+        >
+          {value}
+        </p>
+        {aside && (
+          <span className="text-paragraph-sm text-content-secondary">
+            {aside}
+          </span>
+        )}
+      </div>
+
+      {(asOf || description) && (
         <p className="text-paragraph-xs text-content-secondary mt-1">
-          As of {asOf}
+          {asOf ? `As of ${asOf}` : description}
         </p>
       )}
     </div>
@@ -36,5 +78,10 @@ PropertyStatCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   asOf: PropTypes.string,
+  description: PropTypes.string,
+  aside: PropTypes.string,
+  icon: PropTypes.elementType,
+  emphasis: PropTypes.bool,
+  accent: PropTypes.oneOf(['amber']),
   className: PropTypes.string,
 };

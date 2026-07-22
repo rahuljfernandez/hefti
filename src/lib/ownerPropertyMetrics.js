@@ -112,10 +112,73 @@ const MOCK_OWNER_PROPERTIES = [
   },
 ];
 
-/* Headline stats for Portfolio Highlights. Returns the raw summary; the section
-   branch maps these into stat cards. */
+/* Headline stats for Portfolio Highlights. Returns the raw summary. */
 export function buildPortfolioSummary(source = MOCK_PORTFOLIO_SUMMARY) {
   return source ?? MOCK_PORTFOLIO_SUMMARY;
+}
+
+/* Display-ready cards for the Portfolio Highlights row: two lead `emphasis`
+   cards and three plain `stats` cards. Formatting (USD, "%", "n of m") lives
+   here; `icon` is a string token the organism maps to a component so this
+   module stays free of JSX. */
+export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
+  const summary = source ?? MOCK_PORTFOLIO_SUMMARY;
+  const {
+    related_party_percentage,
+    related_party_count,
+    total_properties,
+    portfolio_value,
+    states = [],
+    distinct_owners,
+  } = summary;
+
+  const emphasis = [
+    {
+      id: 'related-party',
+      label: 'Related Party',
+      value:
+        related_party_percentage != null
+          ? `${related_party_percentage}%`
+          : 'N/A',
+      aside:
+        related_party_count != null && total_properties != null
+          ? `${related_party_count} of ${total_properties}`
+          : null,
+      description: 'Possible related party owned',
+      accent: 'amber',
+      icon: 'warning',
+    },
+    {
+      id: 'portfolio-value',
+      label: 'Portfolio Value',
+      value: portfolio_value != null ? formatUSD(portfolio_value) : 'N/A',
+      description: 'Total market value',
+    },
+  ];
+
+  const stats = [
+    {
+      id: 'states',
+      label: 'States',
+      value: states.length || 'N/A',
+      description: states.join(', '),
+    },
+    {
+      id: 'properties',
+      label: 'Properties',
+      value: total_properties ?? 'N/A',
+      description:
+        total_properties != null ? `Across ${total_properties} facilities` : '',
+    },
+    {
+      id: 'property-owners',
+      label: 'Property Owners',
+      value: distinct_owners ?? 'N/A',
+      description: 'Distinct landlord entities',
+    },
+  ];
+
+  return { emphasis, stats };
 }
 
 /* The owner's property rows, used by both the footprint map and the Properties
