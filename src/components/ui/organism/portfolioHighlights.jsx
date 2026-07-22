@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
-import PropertyStatCard from '../molecule/propertyStatCard';
+import StatFigureCard from '../molecule/statFigureCard';
 import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
 
 /**
@@ -26,12 +26,12 @@ export default function PortfolioHighlights({ source }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {emphasis.map((card) => (
-          <PropertyStatCard
+          <StatFigureCard
             key={card.id}
             label={card.label}
             value={card.value}
             aside={card.aside}
-            description={card.description}
+            caption={card.caption}
             accent={card.accent}
             icon={ICONS[card.icon]}
           />
@@ -40,11 +40,11 @@ export default function PortfolioHighlights({ source }) {
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map((card) => (
-          <PropertyStatCard
+          <StatFigureCard
             key={card.id}
             label={card.label}
             value={card.value}
-            description={card.description}
+            caption={card.caption}
           />
         ))}
       </div>

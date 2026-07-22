@@ -139,7 +139,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
         related_party_count != null && total_properties != null
           ? `${related_party_count} of ${total_properties}`
           : null,
-      description: 'Possible related party owned',
+      caption: 'Possible related party owned',
       accent: 'amber',
       icon: 'warning',
     },
@@ -147,7 +147,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
       id: 'portfolio-value',
       label: 'Portfolio Value',
       value: formatUSD(portfolio_value),
-      description: 'Total market value',
+      caption: 'Total market value',
     },
   ];
 
@@ -156,19 +156,19 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
       id: 'states',
       label: 'States',
       value: states.length,
-      description: states.join(', '),
+      caption: states.join(', '),
     },
     {
       id: 'properties',
       label: 'Properties',
       value: total_properties ?? 'N/A',
-      description: 'Real estate parcels',
+      caption: 'Real estate parcels',
     },
     {
       id: 'property-owners',
       label: 'Property Owners',
       value: distinct_owners ?? 'N/A',
-      description: 'Distinct landlord entities',
+      caption: 'Distinct landlord entities',
     },
   ];
 

@@ -3,19 +3,20 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
 /**
- * A single headline figure with a caption.
+ * A single headline figure: label, value, and an optional caption line, plus an
+ * optional inline `aside` after the value, a leading `icon`, and an `accent`
+ * tint.
  *
- * Shared by the facility Key Financials row and the owner Portfolio Highlights
- * row, so the two read as one card family at one size.
- *
+ * Purely presentational — no domain knowledge. Captions arrive fully formed
+ * (e.g. "As of 2025"), so the caller owns any prefixing and the card stays
+ * reusable anywhere.
  *
  * Values arrive pre-formatted — this renders, it does not format.
  */
-export default function PropertyStatCard({
+export default function StatFigureCard({
   label,
   value,
-  asOf,
-  description,
+  caption,
   aside,
   icon: Icon,
   accent,
@@ -59,20 +60,19 @@ export default function PropertyStatCard({
         )}
       </div>
 
-      {(asOf || description) && (
+      {caption && (
         <p className="text-paragraph-base text-content-secondary mt-1">
-          {asOf ? `As of ${asOf}` : description}
+          {caption}
         </p>
       )}
     </div>
   );
 }
 
-PropertyStatCard.propTypes = {
+StatFigureCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  asOf: PropTypes.string,
-  description: PropTypes.string,
+  caption: PropTypes.node,
   aside: PropTypes.string,
   icon: PropTypes.elementType,
   accent: PropTypes.oneOf(['amber']),
