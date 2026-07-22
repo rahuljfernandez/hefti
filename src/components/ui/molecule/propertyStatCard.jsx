@@ -8,10 +8,6 @@ import clsx from 'clsx';
  * Shared by the facility Key Financials row and the owner Portfolio Highlights
  * row, so the two read as one card family at one size.
  *
- * The caption is either `asOf` ("As of {asOf}", the facility use) or a freeform
- * `description`; `aside` sits inline after the value (e.g. "8 of 23"). `accent`
- * tints the value and icon amber to carry the related-party color used
- * elsewhere on the tab.
  *
  * Values arrive pre-formatted — this renders, it does not format.
  */

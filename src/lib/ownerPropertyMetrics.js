@@ -123,9 +123,9 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
     related_party_count,
     total_properties,
     portfolio_value,
-    states = [],
     distinct_owners,
   } = summary;
+  const states = summary.states ?? [];
 
   const emphasis = [
     {
@@ -155,15 +155,14 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
     {
       id: 'states',
       label: 'States',
-      value: states.length || 'N/A',
+      value: states.length,
       description: states.join(', '),
     },
     {
       id: 'properties',
       label: 'Properties',
       value: total_properties ?? 'N/A',
-      description:
-        total_properties != null ? `Across ${total_properties} facilities` : '',
+      description: 'Real estate parcels',
     },
     {
       id: 'property-owners',
