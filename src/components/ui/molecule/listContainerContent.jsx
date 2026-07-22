@@ -374,7 +374,7 @@ export function OwnerProperty({ item }) {
         <Divider className="md:col-span-3" />
 
         {/* Market value + conditional related-party flag */}
-        <div className="md:col-span-3 md:flex md:items-center md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="md:col-span-3 md:flex md:items-center">
           <p className="text-paragraph-base text-content-secondary md:pr-6">
             Market Value:{' '}
             <span className="text-core-black font-bold">
@@ -382,7 +382,7 @@ export function OwnerProperty({ item }) {
             </span>
           </p>
           {item.related_party && (
-            <span className="flex items-center gap-1.5 md:pl-6">
+            <span className="flex items-center gap-1.5 md:border-l md:border-gray-400 md:pl-6">
               <ExclamationTriangleIcon
                 aria-hidden="true"
                 className="size-5 shrink-0 text-amber-500"
