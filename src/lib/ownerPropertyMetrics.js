@@ -112,10 +112,11 @@ const MOCK_OWNER_PROPERTIES = [
   },
 ];
 
-/* Display-ready cards for the Portfolio Highlights row: two lead `emphasis`
-   cards and three plain `stats` cards. Formatting (USD, "%", "n of m") lives
-   here; `icon` is a string token the organism maps to a component so this
-   module stays free of JSX. */
+/* Display-ready cards for the Portfolio Highlights row, split by importance:
+   two `primary` headline figures (related-party risk, portfolio value) and
+   three `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon`
+   is a string token the organism maps to a component so this module stays free
+   of JSX. */
 export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
   const summary = source ?? MOCK_PORTFOLIO_SUMMARY;
   const {
@@ -127,7 +128,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
   } = summary;
   const states = summary.states ?? [];
 
-  const emphasis = [
+  const primary = [
     {
       id: 'related-party',
       label: 'Related Party',
@@ -151,7 +152,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
     },
   ];
 
-  const stats = [
+  const supporting = [
     {
       id: 'states',
       label: 'States',
@@ -172,7 +173,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
     },
   ];
 
-  return { emphasis, stats };
+  return { primary, supporting };
 }
 
 /* The owner's property rows, used by both the footprint map and the Properties

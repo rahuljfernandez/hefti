@@ -8,15 +8,15 @@ import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
 /**
  * Portfolio Highlights — the first section of the owner Property Details tab.
  *
- * Two lead emphasis cards (Related Party, Portfolio Value) over a row of three
- * plain stat cards (States, Properties, Property Owners). `source` is optional;
- * the builder falls back to mock data until the property API lands.
+ * Two primary headline cards (Related Party, Portfolio Value) over a row of
+ * three supporting stat cards (States, Properties, Property Owners). `source`
+ * is optional; the builder falls back to mock data until the property API lands.
  */
 
 const ICONS = { warning: ExclamationTriangleIcon };
 
 export default function PortfolioHighlights({ source }) {
-  const { emphasis, stats } = buildPortfolioHighlights(source);
+  const { primary, supporting } = buildPortfolioHighlights(source);
 
   return (
     <section>
@@ -25,7 +25,7 @@ export default function PortfolioHighlights({ source }) {
       </Heading>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {emphasis.map((card) => (
+        {primary.map((card) => (
           <StatFigureCard
             key={card.id}
             label={card.label}
@@ -39,7 +39,7 @@ export default function PortfolioHighlights({ source }) {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {stats.map((card) => (
+        {supporting.map((card) => (
           <StatFigureCard
             key={card.id}
             label={card.label}
