@@ -176,6 +176,43 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
   return { primary, supporting };
 }
 
+/* Map-ready footprint: one marker per property that has coordinates, plus the
+   lat/long bounding box the map fits on load. Bounds are a plain
+   [[minLat, minLng], [maxLat, maxLng]] box so this module stays Leaflet-free —
+   the map turns it into a LatLngBounds. Null when nothing has coordinates, so
+   the map can fall back to a default viewport instead of fitting an empty box. */
+export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
+  const properties = source ?? [];
+  const markers = properties
+    .filter((p) => p.latitude != null && p.longitude != null)
+    .map((p) => ({
+      id: p.id,
+      position: [p.latitude, p.longitude],
+      label: p.facility_name,
+      relatedParty: Boolean(p.related_party),
+    }));
+
+  const bounds = markers.reduce((box, { position: [lat, lng] }) => {
+    if (box === null) {
+      return [
+        [lat, lng],
+        [lat, lng],
+      ];
+    }
+    return [
+      [Math.min(box[0][0], lat), Math.min(box[0][1], lng)],
+      [Math.max(box[1][0], lat), Math.max(box[1][1], lng)],
+    ];
+  }, null);
+
+  return {
+    markers,
+    bounds,
+    relatedPartyCount: markers.filter((m) => m.relatedParty).length,
+    totalCount: markers.length,
+  };
+}
+
 /* The owner's property rows, used by both the footprint map and the Properties
    list. Rows carry a preformatted `market_value_display` so the card renders
    without reaching for a formatter. */
