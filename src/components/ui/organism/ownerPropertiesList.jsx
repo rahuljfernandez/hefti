@@ -25,7 +25,10 @@ import {
 const INITIAL_VISIBLE = 20;
 
 export default function OwnerPropertiesList({ source }) {
-  const properties = buildOwnerProperties(source);
+  const properties = useMemo(
+    () => buildOwnerProperties(source),
+    [source],
+  );
   const [sort, setSort] = useState(null);
   const [relatedParty, setRelatedParty] = useState(null);
   const [value, setValue] = useState(null);

@@ -346,7 +346,9 @@ export function OwnerProperty({ item }) {
     <Link
       to={facilityHref}
       className="focus-ring-light block rounded-lg"
-      aria-label={`View profile for ${facilityName}`}
+      aria-label={`View profile for ${facilityName}, market value ${
+        item.market_value_display
+      }${item.related_party ? ', related party' : ''}`}
     >
       <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
         {/* Name + Address */}
