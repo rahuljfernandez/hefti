@@ -34,7 +34,6 @@ export default function PortfolioHighlights({ source }) {
             description={card.description}
             accent={card.accent}
             icon={ICONS[card.icon]}
-            emphasis
           />
         ))}
       </div>

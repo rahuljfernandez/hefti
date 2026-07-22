@@ -112,11 +112,6 @@ const MOCK_OWNER_PROPERTIES = [
   },
 ];
 
-/* Headline stats for Portfolio Highlights. Returns the raw summary. */
-export function buildPortfolioSummary(source = MOCK_PORTFOLIO_SUMMARY) {
-  return source ?? MOCK_PORTFOLIO_SUMMARY;
-}
-
 /* Display-ready cards for the Portfolio Highlights row: two lead `emphasis`
    cards and three plain `stats` cards. Formatting (USD, "%", "n of m") lives
    here; `icon` is a string token the organism maps to a component so this
@@ -151,7 +146,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
     {
       id: 'portfolio-value',
       label: 'Portfolio Value',
-      value: portfolio_value != null ? formatUSD(portfolio_value) : 'N/A',
+      value: formatUSD(portfolio_value),
       description: 'Total market value',
     },
   ];

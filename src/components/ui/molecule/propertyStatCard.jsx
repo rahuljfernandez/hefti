@@ -5,9 +5,8 @@ import clsx from 'clsx';
 /**
  * A single headline figure with a caption.
  *
- * Two sizes: the default (Key Financials on the facility tab) and `emphasis`,
- * which enlarges the value for the two lead cards of the owner Portfolio
- * Highlights row. Both share one card so the five-card row reads as one set.
+ * Shared by the facility Key Financials row and the owner Portfolio Highlights
+ * row, so the two read as one card family at one size.
  *
  * The caption is either `asOf` ("As of {asOf}", the facility use) or a freeform
  * `description`; `aside` sits inline after the value (e.g. "8 of 23"). `accent`
@@ -23,7 +22,6 @@ export default function PropertyStatCard({
   description,
   aside,
   icon: Icon,
-  emphasis = false,
   accent,
   className,
 }) {
@@ -32,7 +30,7 @@ export default function PropertyStatCard({
   return (
     <div
       className={clsx(
-        'border-border-primary rounded-lg border bg-white px-4 py-5 sm:px-6',
+        'border-border-primary bg-core-white rounded-lg border px-4 py-5 shadow-sm sm:px-6',
         className,
       )}
     >
@@ -46,27 +44,27 @@ export default function PropertyStatCard({
             )}
           />
         )}
-        <p className="text-label-sm text-content-secondary">{label}</p>
+        <p className="text-label-lg text-content-secondary">{label}</p>
       </div>
 
       <div className="mt-2 flex items-baseline gap-2">
         <p
           className={clsx(
-            emphasis ? 'text-heading-lg' : 'text-heading-sm',
-            isAmber ? 'text-amber-500' : 'text-core-black',
+            'text-heading-md',
+            isAmber ? 'text-amber-700' : 'text-core-black',
           )}
         >
           {value}
         </p>
         {aside && (
-          <span className="text-paragraph-sm text-content-secondary">
+          <span className="text-paragraph-base text-content-secondary">
             {aside}
           </span>
         )}
       </div>
 
       {(asOf || description) && (
-        <p className="text-paragraph-xs text-content-secondary mt-1">
+        <p className="text-paragraph-base text-content-secondary mt-1">
           {asOf ? `As of ${asOf}` : description}
         </p>
       )}
@@ -81,7 +79,6 @@ PropertyStatCard.propTypes = {
   description: PropTypes.string,
   aside: PropTypes.string,
   icon: PropTypes.elementType,
-  emphasis: PropTypes.bool,
   accent: PropTypes.oneOf(['amber']),
   className: PropTypes.string,
 };
