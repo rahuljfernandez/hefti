@@ -45,14 +45,7 @@ export default function StatFigureCard({
       </div>
 
       <div className="mt-2 flex items-baseline gap-2">
-        <p
-          className={clsx(
-            'text-heading-md',
-            isAmber ? 'text-amber-700' : 'text-core-black',
-          )}
-        >
-          {value}
-        </p>
+        <p className="text-heading-md text-core-black">{value}</p>
         {aside && (
           <span className="text-paragraph-base text-content-secondary">
             {aside}
