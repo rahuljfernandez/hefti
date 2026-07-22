@@ -45,9 +45,11 @@ const RELATED_PARTY_ICON = dotIcon('bg-amber-500');
 const US_CENTER = [39.5, -98.35];
 const US_ZOOM = 4;
 
-/* Leaflet reads `bounds`/`center` only at mount, but neither changes here (the
-   owner's properties are fixed for the section's life), so no remount key is
-   needed. Toggling the highlight only swaps marker icons. */
+/* Leaflet reads `bounds`/`center` only when it builds the map on mount, so a
+   changed `source` (a different owner) would move the markers but leave the map
+   parked on the previous viewport. Keying on the bounds forces a fresh mount —
+   and a fresh fit — whenever they change. Toggling the highlight only swaps
+   marker icons, so it keeps the same key and does not remount. */
 function FootprintMapPanel({ markers, bounds, highlight }) {
   const viewProps = bounds
     ? { bounds, boundsOptions: { padding: [48, 48], maxZoom: 12 } }
@@ -60,6 +62,7 @@ function FootprintMapPanel({ markers, bounds, highlight }) {
       aria-label="Map of the owner's properties. Each property and its market value are listed in the Properties section below."
     >
       <MapContainer
+        key={bounds ? bounds.join(',') : 'us'}
         {...viewProps}
         /* Wheel scroll pans the page; ctrl/⌘ + scroll zooms the map. */
         gestureHandling={true}
