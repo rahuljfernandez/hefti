@@ -217,24 +217,20 @@ export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
    list. Rows carry a preformatted `market_value_display` so the card renders
    without reaching for a formatter. */
 export function buildOwnerProperties(source = MOCK_OWNER_PROPERTIES) {
-  const properties = source ?? [];
+  const properties = Array.isArray(source) ? source : [];
   return properties.map((property) => ({
     ...property,
-    market_value_display:
-      property.market_value != null ? formatUSD(property.market_value) : 'N/A',
+    market_value_display: Number.isFinite(property.market_value)
+      ? formatUSD(property.market_value)
+      : 'N/A',
   }));
 }
 
-/* Sort/filter options for the Properties list. The option arrays feed the
-   SelectMenu controls and `selectOwnerProperties` reads the same values, so the
-   dropdowns and the logic stay one source of truth. */
-/* Ascending/descending by market value — the only sortable figure the cards
-   show; related-party ordering is covered by its own filter. */
-export const OWNER_PROPERTY_SORT_OPTIONS = [
-  { label: 'Ascending', value: 'asc' },
-  { label: 'Descending', value: 'desc' },
-];
-
+/* Filter options for the Properties list. The option arrays feed the SelectMenu
+   controls and `selectOwnerProperties` reads the same values, so the dropdowns
+   and the logic stay one source of truth. Sort reuses SelectMenu's built-in
+   'asc'/'desc' options — the only sortable figure the cards show is market value,
+   which those defaults already cover. */
 export const OWNER_PROPERTY_RELATED_PARTY_OPTIONS = [
   { label: 'Related Party', value: 'related' },
   { label: 'Not Related Party', value: 'not-related' },

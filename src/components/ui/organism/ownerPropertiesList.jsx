@@ -7,7 +7,6 @@ import { OwnerProperty } from '../molecule/listContainerContent';
 import {
   buildOwnerProperties,
   selectOwnerProperties,
-  OWNER_PROPERTY_SORT_OPTIONS,
   OWNER_PROPERTY_RELATED_PARTY_OPTIONS,
   OWNER_PROPERTY_VALUE_OPTIONS,
 } from '../../../lib/ownerPropertyMetrics';
@@ -53,7 +52,6 @@ export default function OwnerPropertiesList({ source }) {
             <SelectMenu
               variant="sort"
               label="Sort"
-              sortOptions={OWNER_PROPERTY_SORT_OPTIONS}
               value={sort ?? ''}
               onSortChange={setSort}
               accessibleLabel="Sort properties"
@@ -106,5 +104,5 @@ export default function OwnerPropertiesList({ source }) {
 }
 
 OwnerPropertiesList.propTypes = {
-  source: PropTypes.object,
+  source: PropTypes.arrayOf(PropTypes.object),
 };
