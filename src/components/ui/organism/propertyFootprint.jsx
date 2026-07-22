@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
    below. Must come after leaflet so the plugin sees the same L instance. */
 import 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+import * as Headless from '@headlessui/react';
 import FlushCard from '../atom/flushCard';
 import { Heading } from '../atom/heading';
 import { Switch } from '../atom/switch';
@@ -16,7 +17,7 @@ import { buildOwnerFootprint } from '../../../lib/ownerPropertyMetrics';
  * Property Footprint — the second section of the owner Property Details tab.
  *
  * Every owner property with coordinates plotted on one map, over a flush control
- * bar whose amber toggle repaints the related-party markers without hiding the
+ * bar whose toggle repaints the related-party markers amber without hiding the
  * rest. `source` is optional; the builder falls back to mock data until the
  * property API lands.
  */
@@ -24,19 +25,19 @@ import { buildOwnerFootprint } from '../../../lib/ownerPropertyMetrics';
 /* A plain colored dot. Passing a custom className drops Leaflet's default
    `.leaflet-div-icon` white box, so the span is the whole marker. The color
    classes live in template literals here on purpose — Tailwind scans this file,
-   so `bg-amber-500`/`bg-core-black` are generated even though they never appear
-   as a standalone className attribute. */
+   so `bg-amber-500`/`bg-content-secondary` are generated even though they never
+   appear as a standalone className attribute. */
 function dotIcon(colorClass) {
   return L.divIcon({
     className: 'owner-footprint-marker',
-    html: `<span class="block size-3.5 rounded-full border-2 border-white shadow ${colorClass}"></span>`,
+    html: `<span class="block size-3.5 rounded-full border-2 border-core-white shadow ${colorClass}"></span>`,
     iconSize: [14, 14],
     iconAnchor: [7, 7],
     popupAnchor: [0, -8],
   });
 }
 
-const NEUTRAL_ICON = dotIcon('bg-core-black');
+const NEUTRAL_ICON = dotIcon('bg-content-secondary');
 const RELATED_PARTY_ICON = dotIcon('bg-amber-500');
 
 /* Fallback when no property has coordinates — a continental-US view rather than
@@ -81,7 +82,10 @@ function FootprintMapPanel({ markers, bounds, highlight }) {
             keyboard={false}
             alt=""
           >
-            <Popup>{marker.label}</Popup>
+            <Popup>
+              {marker.label}
+              {marker.relatedParty && ' · Related party'}
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
@@ -121,17 +125,13 @@ export default function PropertyFootprint({ source }) {
 
       <FlushCard position="bottom">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Switch
-              color="amber"
-              checked={highlight}
-              onChange={setHighlight}
-              aria-label="Highlight related party"
-            />
-            <span aria-hidden="true" className="text-label-sm text-core-black">
+          {/* Field ties the Label to the Switch so clicking the text toggles it. */}
+          <Headless.Field className="flex items-center gap-2">
+            <Switch checked={highlight} onChange={setHighlight} />
+            <Headless.Label className="text-label-sm text-core-black cursor-pointer select-none">
               Highlight related party
-            </span>
-          </div>
+            </Headless.Label>
+          </Headless.Field>
           <p className="text-label-sm text-content-secondary">
             <span className="text-core-black font-semibold">
               {relatedPartyCount}

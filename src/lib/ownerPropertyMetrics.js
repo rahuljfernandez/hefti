@@ -184,7 +184,7 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
 export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
   const properties = source ?? [];
   const markers = properties
-    .filter((p) => p.latitude != null && p.longitude != null)
+    .filter((p) => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))
     .map((p) => ({
       id: p.id,
       position: [p.latitude, p.longitude],
