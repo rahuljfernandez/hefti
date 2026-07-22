@@ -86,12 +86,14 @@ export default function SelectMenu({
   sortOptions,
   filterOptions,
   value,
+  label: labelProp,
 }) {
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const headingId = useId();
   const mobileTriggerRef = useRef(null);
 
-  const label = variant.charAt(0).toUpperCase() + variant.slice(1);
+  const label =
+    labelProp ?? variant.charAt(0).toUpperCase() + variant.slice(1);
   const options =
     variant === 'sort' && sortOptions ? sortOptions :
     filterOptions ? filterOptions :
@@ -196,7 +198,7 @@ export default function SelectMenu({
           </div>
 
           <Heading id={headingId} className="text-label-lg mb-2 font-bold">
-            {variant === 'state' ? label : `${label} By`}
+            {variant === 'state' || labelProp ? label : `${label} By`}
           </Heading>
 
           <div className="flex-1 overflow-y-auto">
@@ -275,4 +277,6 @@ SelectMenu.propTypes = {
   filterOptions: PropTypes.arrayOf(PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })),
   /** The currently active option value (from URL params). Keeps the control in sync on load/navigation. */
   value: PropTypes.string,
+  /** Overrides the control's visible label/placeholder (defaults to the capitalized variant). */
+  label: PropTypes.string,
 };
