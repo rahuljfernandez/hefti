@@ -252,6 +252,11 @@ const VALUE_BUCKETS = {
   'under-10m': (v) => v < 10_000_000,
 };
 
+/* A non-finite market value sorts as 0 (same rows the value filter would drop),
+   so the comparator can't return NaN and scramble the whole order. */
+const marketValueKey = (row) =>
+  Number.isFinite(row.market_value) ? row.market_value : 0;
+
 /* Filters then sorts the display rows for the Properties list. Each argument is
    an option value or null ("no selection"); unrecognized values are ignored so a
    stale control can't blank the list. Returns a new array — never mutates rows. */
@@ -276,11 +281,11 @@ export function selectOwnerProperties(
 
   if (sort === 'desc') {
     result = [...result].sort(
-      (a, b) => (b.market_value ?? 0) - (a.market_value ?? 0),
+      (a, b) => marketValueKey(b) - marketValueKey(a),
     );
   } else if (sort === 'asc') {
     result = [...result].sort(
-      (a, b) => (a.market_value ?? 0) - (b.market_value ?? 0),
+      (a, b) => marketValueKey(a) - marketValueKey(b),
     );
   }
 

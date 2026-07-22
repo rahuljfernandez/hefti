@@ -94,9 +94,8 @@ export default function OwnerPropertiesList({ source }) {
         <div className="pb-8 text-center">
           <button
             onClick={() => setShowAll(true)}
-            className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
+            className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
             aria-label={`Show all ${filtered.length} properties`}
-            aria-expanded={showAll}
           >
             Load All Properties
           </button>
