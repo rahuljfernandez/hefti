@@ -1,4 +1,5 @@
 import { formatUSD } from './stringFormatters';
+import { buildFootprint } from './footprintMetrics';
 
 /**
  * State-context real estate metrics: the Real Estate tab on the state profile.
@@ -89,4 +90,19 @@ export function buildRealEstateHighlights(source = MOCK_REAL_ESTATE_SUMMARY) {
   ];
 
   return { primary, supporting };
+}
+
+/* No facility coordinates yet — the footprint is a blank map on purpose (the API
+   isn't live). An empty list yields no markers, so the map falls back to its
+   continental-US view. The builder still maps records the way the owner one does
+   so it works unchanged the day the endpoint returns the state's facilities. */
+const MOCK_STATE_FACILITIES = [];
+
+/* Map-ready footprint for the state's facilities. Shares its lat/lng shaping
+   with the owner context via footprintMetrics.js; this wrapper only supplies the
+   state mock, which is empty on purpose — no coordinates yet, so the map falls
+   back to its continental-US view and works unchanged once the endpoint returns
+   the state's facilities. */
+export function buildStateFootprint(source = MOCK_STATE_FACILITIES) {
+  return buildFootprint(source);
 }

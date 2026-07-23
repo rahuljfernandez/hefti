@@ -1,4 +1,5 @@
 import { formatUSD } from './stringFormatters';
+import { buildFootprint } from './footprintMetrics';
 
 /**
  * Owner-context property metrics: the Property Details tab on the owner profile.
@@ -176,41 +177,12 @@ export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
   return { primary, supporting };
 }
 
-/* Map-ready footprint: one marker per property that has coordinates, plus the
-   lat/long bounding box the map fits on load. Bounds are a plain
-   [[minLat, minLng], [maxLat, maxLng]] box so this module stays Leaflet-free —
-   the map turns it into a LatLngBounds. Null when nothing has coordinates, so
-   the map can fall back to a default viewport instead of fitting an empty box. */
+/* Map-ready footprint for the owner's properties — one marker per property with
+   coordinates, plus the box the map fits on load. The lat/lng shaping is shared
+   with the state context in footprintMetrics.js; this wrapper only supplies the
+   owner mock default. */
 export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
-  const properties = source ?? [];
-  const markers = properties
-    .filter((p) => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))
-    .map((p) => ({
-      id: p.id,
-      position: [p.latitude, p.longitude],
-      label: p.facility_name,
-      relatedParty: Boolean(p.related_party),
-    }));
-
-  const bounds = markers.reduce((box, { position: [lat, lng] }) => {
-    if (box === null) {
-      return [
-        [lat, lng],
-        [lat, lng],
-      ];
-    }
-    return [
-      [Math.min(box[0][0], lat), Math.min(box[0][1], lng)],
-      [Math.max(box[1][0], lat), Math.max(box[1][1], lng)],
-    ];
-  }, null);
-
-  return {
-    markers,
-    bounds,
-    relatedPartyCount: markers.filter((m) => m.relatedParty).length,
-    totalCount: markers.length,
-  };
+  return buildFootprint(source);
 }
 
 /* The owner's property rows, used by both the footprint map and the Properties
