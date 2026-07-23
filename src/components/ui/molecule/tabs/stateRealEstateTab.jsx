@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Heading } from '../../atom/heading';
 import RealEstateHighlights from '../../organism/realEstateHighlights';
 import PropertyFootprint from '../../organism/propertyFootprint';
+import LargestRelatedPartyHoldings from '../../organism/largestRelatedPartyHoldings';
 import { buildStateFootprint } from '../../../../lib/stateRealEstateMetrics';
 
 /**
@@ -10,15 +10,13 @@ import { buildStateFootprint } from '../../../../lib/stateRealEstateMetrics';
  *
  * Mirrors the owner Property Details tab (see ownerPropertyDetailsTab.jsx):
  * three sections — Real Estate Highlights, Property Footprint, and the Largest
- * Related-Party Holdings table. The holdings table lands in its own follow-up
- * branch, so it renders as a placeholder for now.
+ * Related-Party Holdings table.
  *
- * `items`/`status` mirror the other state tabs so the call site in StatesProfile
- * stays uniform. The section builders take `items` as their `source`; today they
- * fall back to mock data, so nothing is threaded in yet.
+ * `stateAbbr` is the only live input today: it targets the "View all owners"
+ * link at the owners browse page filtered to this state. The section builders
+ * still fall back to mock data until the state real estate endpoint lands.
  */
-
-export default function StateRealEstateTab() {
+export default function StateRealEstateTab({ stateAbbr }) {
   return (
     <section>
       <RealEstateHighlights />
@@ -28,19 +26,11 @@ export default function StateRealEstateTab() {
         mapLabel="Map of the state's nursing home facilities. Related-party owned facilities are highlighted when the toggle is on."
       />
 
-      <section>
-        <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-          Largest Related-Party Holdings
-        </Heading>
-        <p className="text-paragraph-sm text-content-secondary">
-          This section is under development.
-        </p>
-      </section>
+      <LargestRelatedPartyHoldings stateAbbr={stateAbbr} />
     </section>
   );
 }
 
 StateRealEstateTab.propTypes = {
-  items: PropTypes.object,
-  status: PropTypes.string,
+  stateAbbr: PropTypes.string,
 };

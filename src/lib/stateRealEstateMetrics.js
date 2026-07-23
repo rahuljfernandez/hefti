@@ -106,3 +106,111 @@ const MOCK_STATE_FACILITIES = [];
 export function buildStateFootprint(source = MOCK_STATE_FACILITIES) {
   return buildFootprint(source);
 }
+
+/* PLACEHOLDER DATA — the state real estate API is not live yet. The owners,
+   counts, and values come from the design mocks, not from any live record; do
+   not read them as real data in review or screenshots. */
+const MOCK_LARGEST_HOLDINGS = [
+  {
+    id: 'snf-care-centers',
+    owner_name: 'SNF Care Centers LLC',
+    owner_slug: 'snf-care-centers-llc',
+    facility_count: 5,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 160520100,
+  },
+  {
+    id: 'commonwealth-senior-living',
+    owner_name: 'Commonwealth Senior Living Grp',
+    owner_slug: 'commonwealth-senior-living-grp',
+    facility_count: 11,
+    related_party_count: 9,
+    related_party_total: 11,
+    re_value: 140520100,
+  },
+  {
+    id: 'dominion-care-holdings',
+    owner_name: 'Dominion Care Holdings LLC',
+    owner_slug: 'dominion-care-holdings-llc',
+    facility_count: 8,
+    related_party_count: 8,
+    related_party_total: 8,
+    re_value: 120520100,
+  },
+  {
+    id: 'saber-healthcare-holdings',
+    owner_name: 'Saber Healthcare Holdings LLC',
+    owner_slug: 'saber-healthcare-holdings-llc',
+    facility_count: 8,
+    related_party_count: 23,
+    related_party_total: 30,
+    re_value: 110520100,
+  },
+  {
+    id: 'piedmont-operating-partners',
+    owner_name: 'Piedmont Operating Partners LLC',
+    owner_slug: 'piedmont-operating-partners-llc',
+    facility_count: 8,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 16520100,
+  },
+  {
+    id: 'valley-health-services',
+    owner_name: 'Valley Health Services',
+    owner_slug: 'valley-health-services',
+    facility_count: 8,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 16520100,
+  },
+  {
+    id: 'beach-health-services',
+    owner_name: 'Beach Health Services',
+    owner_slug: 'beach-health-services',
+    facility_count: 8,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 16520100,
+  },
+  {
+    id: 'alter-tzvi',
+    owner_name: 'Alter, Tzvi',
+    owner_slug: 'alter-tzvi',
+    facility_count: 4,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 16520100,
+  },
+  {
+    id: 'wwbv-holdings',
+    owner_name: 'Wwbv Holdings LLC',
+    owner_slug: 'wwbv-holdings-llc',
+    facility_count: 6,
+    related_party_count: 5,
+    related_party_total: 5,
+    re_value: 16520100,
+  },
+  {
+    id: 'tidewater-care-group',
+    owner_name: 'Tidewater Care Group LLC',
+    owner_slug: 'tidewater-care-group-llc',
+    facility_count: 7,
+    related_party_count: 4,
+    related_party_total: 7,
+    re_value: 16520100,
+  },
+];
+
+/* Display-ready rows for the Largest Related-Party Holdings table. Attaches a
+   preformatted facility label and USD value so the table cells render without
+   reaching for a formatter, matching buildOwnerProperties in the owner context. */
+export function buildLargestHoldings(source = MOCK_LARGEST_HOLDINGS) {
+  const holdings = Array.isArray(source) ? source : [];
+  return holdings.map((holding) => ({
+    ...holding,
+    facility_label: `${holding.facility_count} facilities`,
+    re_value_display: formatUSD(holding.re_value),
+  }));
+}

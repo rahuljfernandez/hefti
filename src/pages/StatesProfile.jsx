@@ -210,7 +210,7 @@ export default function StatesProfile() {
 
                   case 'Real Estate':
                     return (
-                      <StateRealEstateTab items={stateStats} status={'state'} />
+                      <StateRealEstateTab stateAbbr={stateStats?.state} />
                     );
 
                   default:
