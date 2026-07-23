@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { Heading } from '../atom/heading';
 import StatFigureCard from './statFigureCard';
 
 /**
- * A titled highlights block: a row of `primary` headline cards over a row of
- * `supporting` cards. Purely presentational — it renders view-models built
- * elsewhere and holds no domain knowledge, so any context (owner portfolio,
- * state real estate, …) can feed it its own figures.
+ * A row of `primary` headline cards over a row of `supporting` cards. Purely
+ * presentational — it renders view-models built elsewhere and holds no domain
+ * knowledge, so any context (owner portfolio, state real estate, …) can feed it
+ * its own figures. The section heading is the consumer's to render.
  *
  * Cards carry an `icon` string token rather than a component so callers stay
  * free of JSX; the map below is the one place that turns a token into an icon.
@@ -50,17 +49,9 @@ Cards.propTypes = {
   columnsClassName: PropTypes.string.isRequired,
 };
 
-export default function StatHighlightsGrid({
-  title,
-  primary,
-  supporting = [],
-}) {
+export default function StatHighlightsGrid({ primary, supporting = [] }) {
   return (
-    <section>
-      <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        {title}
-      </Heading>
-
+    <>
       <Cards cards={primary} columnsClassName="sm:grid-cols-2" />
 
       {supporting.length > 0 && (
@@ -68,12 +59,11 @@ export default function StatHighlightsGrid({
           <Cards cards={supporting} columnsClassName="sm:grid-cols-3" />
         </div>
       )}
-    </section>
+    </>
   );
 }
 
 StatHighlightsGrid.propTypes = {
-  title: PropTypes.string.isRequired,
   primary: PropTypes.arrayOf(cardShape).isRequired,
   supporting: PropTypes.arrayOf(cardShape),
 };

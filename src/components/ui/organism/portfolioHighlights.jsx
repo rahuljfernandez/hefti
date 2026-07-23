@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Heading } from '../atom/heading';
 import StatHighlightsGrid from '../molecule/statHighlightsGrid';
 import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
 
@@ -14,11 +15,12 @@ export default function PortfolioHighlights({ source }) {
   const { primary, supporting } = buildPortfolioHighlights(source);
 
   return (
-    <StatHighlightsGrid
-      title="Portfolio Highlights"
-      primary={primary}
-      supporting={supporting}
-    />
+    <section>
+      <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
+        Portfolio Highlights
+      </Heading>
+      <StatHighlightsGrid primary={primary} supporting={supporting} />
+    </section>
   );
 }
 
