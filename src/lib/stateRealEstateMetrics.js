@@ -189,6 +189,15 @@ const MOCK_LARGEST_HOLDINGS = [
     related_party_total: 5,
     re_value: 16520100,
   },
+  {
+    id: 'tidewater-care-group',
+    owner_name: 'Tidewater Care Group LLC',
+    owner_slug: 'tidewater-care-group-llc',
+    facility_count: 7,
+    related_party_count: 4,
+    related_party_total: 7,
+    re_value: 16520100,
+  },
 ];
 
 /* Display-ready rows for the Largest Related-Party Holdings table. Attaches a
