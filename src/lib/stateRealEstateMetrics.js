@@ -1,4 +1,5 @@
 import { formatUSD } from './stringFormatters';
+import { buildFootprint } from './footprintMetrics';
 
 /**
  * State-context real estate metrics: the Real Estate tab on the state profile.
@@ -97,38 +98,11 @@ export function buildRealEstateHighlights(source = MOCK_REAL_ESTATE_SUMMARY) {
    so it works unchanged the day the endpoint returns the state's facilities. */
 const MOCK_STATE_FACILITIES = [];
 
-/* Map-ready footprint for the state's facilities: one marker per facility with
-   coordinates, plus the [[minLat,minLng],[maxLat,maxLng]] box the map fits on
-   load (null when nothing has coordinates). Mirrors buildOwnerFootprint so the
-   shared PropertyFootprint renders it without any state-specific branch. */
+/* Map-ready footprint for the state's facilities. Shares its lat/lng shaping
+   with the owner context via footprintMetrics.js; this wrapper only supplies the
+   state mock, which is empty on purpose — no coordinates yet, so the map falls
+   back to its continental-US view and works unchanged once the endpoint returns
+   the state's facilities. */
 export function buildStateFootprint(source = MOCK_STATE_FACILITIES) {
-  const facilities = Array.isArray(source) ? source : [];
-  const markers = facilities
-    .filter((f) => Number.isFinite(f.latitude) && Number.isFinite(f.longitude))
-    .map((f) => ({
-      id: f.id,
-      position: [f.latitude, f.longitude],
-      label: f.facility_name,
-      relatedParty: Boolean(f.related_party),
-    }));
-
-  const bounds = markers.reduce((box, { position: [lat, lng] }) => {
-    if (box === null) {
-      return [
-        [lat, lng],
-        [lat, lng],
-      ];
-    }
-    return [
-      [Math.min(box[0][0], lat), Math.min(box[0][1], lng)],
-      [Math.max(box[1][0], lat), Math.max(box[1][1], lng)],
-    ];
-  }, null);
-
-  return {
-    markers,
-    bounds,
-    relatedPartyCount: markers.filter((m) => m.relatedParty).length,
-    totalCount: markers.length,
-  };
+  return buildFootprint(source);
 }
