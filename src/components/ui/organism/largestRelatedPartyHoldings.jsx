@@ -19,15 +19,20 @@ const holdingsColumns = [
   {
     key: 'owner',
     header: 'Owner',
+    flex: true,
     cell: (row) => (
       <div>
         <Link
           to={`/owners/${row.owner_slug}`}
-          className="focus-ring-light text-paragraph-sm rounded-sm font-medium text-blue-700 underline hover:text-blue-800"
+          className="focus-ring-light text-paragraph-base rounded-sm text-blue-600 underline"
+          style={{
+            textDecorationThickness: '2px',
+            textUnderlineOffset: '2px',
+          }}
         >
           {row.owner_name}
         </Link>
-        <p className="text-paragraph-xs text-content-secondary">
+        <p className="text-paragraph-sm text-content-secondary">
           {row.facility_label}
         </p>
       </div>
@@ -35,21 +40,23 @@ const holdingsColumns = [
   },
   {
     key: 'related-party',
+    width: 'w-56',
+    align: 'left',
     header: (
       <span className="inline-flex items-center gap-1">
         <ExclamationTriangleIcon
           aria-hidden="true"
-          className="size-4 shrink-0 text-amber-500"
+          className="size-5 shrink-0 text-amber-500"
         />
         Related-Party
       </span>
     ),
     cell: (row) => (
-      <span>
-        <span className="font-medium text-amber-500">
-          {row.related_party_count}
-        </span>{' '}
-        of {row.related_party_total} facilities
+      <span className="text-paragraph-base text-core-black">
+        <span className="font-semibold">{row.related_party_count}</span>{' '}
+        <span className="text-content-secondary">
+          of {row.related_party_total} facilities
+        </span>
       </span>
     ),
   },
@@ -57,6 +64,7 @@ const holdingsColumns = [
     key: 're-value',
     header: 'RE Value',
     align: 'right',
+    width: 'w-48',
     cell: (row) => row.re_value_display,
   },
 ];
@@ -73,12 +81,17 @@ export default function LargestRelatedPartyHoldings({ source, stateAbbr }) {
         columns={holdingsColumns}
         rows={rows}
         caption="Largest Related-Party Holdings"
-        footerLink={
-          stateAbbr
-            ? { to: `/owners?state=${stateAbbr}`, label: 'View all owners' }
-            : undefined
-        }
       />
+      {stateAbbr && (
+        <div className="pt-4 text-center">
+          <Link
+            to={`/owners?state=${stateAbbr}`}
+            className="focus-ring-light text-paragraph-base rounded-sm text-blue-700 underline hover:text-blue-800"
+          >
+            View all owners
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

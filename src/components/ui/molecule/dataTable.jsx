@@ -8,13 +8,16 @@ import clsx from 'clsx';
  *
  * Each column owns its own header, alignment, and a `cell(row, index)` renderer,
  * so a cell can return anything — plain text, a Link, an emphasized figure, an
- * inline bar. The same column objects also carry the CSV fields (`csvHeader`,
- * `csv`) that DataTableCard reads for export; this component ignores them.
+ * inline bar. The table uses a fixed layout so column widths are honored: give
+ * each column an explicit `width` (a Tailwind width class), and mark exactly one
+ * column `flex` to take the leftover space (e.g. the name column stretches while
+ * the numeric columns hold their set widths). The built-in Rank column is
+ * fixed-width.
  *
  * `showRank` prepends a 1-based Rank column derived from row order, since every
  * ranked table wants the same leading position column.
  *
- * columns: [{ key, header, align?, cell, csvHeader?, csv? }]
+ * columns: [{ key, header, align?, flex?, width?, cell }]
  * rows:    display-ready objects, each with a unique `id`
  */
 const alignClass = { left: 'text-left', right: 'text-right' };
@@ -23,6 +26,7 @@ const RANK_COLUMN = {
   key: '__rank',
   header: 'Rank',
   align: 'left',
+  width: 'w-16',
   cell: (_row, index) => index + 1,
 };
 
@@ -31,7 +35,7 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full table-fixed">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
           <tr className="border-border-primary border-b">
@@ -40,7 +44,9 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
                 key={col.key}
                 scope="col"
                 className={clsx(
-                  'text-label-sm text-content-secondary px-4 py-3 font-medium',
+                  'text-label-base text-core-black px-4 py-3 first:pl-0 last:pr-0',
+                  !col.flex && 'whitespace-nowrap',
+                  col.width,
                   alignClass[col.align] ?? 'text-left',
                 )}
               >
@@ -56,7 +62,9 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
                 <td
                   key={col.key}
                   className={clsx(
-                    'text-paragraph-sm text-core-black px-4 py-4 align-top',
+                    'text-paragraph-base text-core-black items-center px-4 py-4 first:pl-0 last:pr-0',
+                    !col.flex && 'whitespace-nowrap',
+                    col.width,
                     alignClass[col.align] ?? 'text-left',
                   )}
                 >
@@ -77,6 +85,8 @@ DataTable.propTypes = {
       key: PropTypes.string.isRequired,
       header: PropTypes.node,
       align: PropTypes.oneOf(['left', 'right']),
+      flex: PropTypes.bool,
+      width: PropTypes.string,
       cell: PropTypes.func.isRequired,
     }),
   ).isRequired,
