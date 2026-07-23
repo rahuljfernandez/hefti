@@ -4,17 +4,34 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import StatFigureCard from './statFigureCard';
 
 /**
- * A row of `primary` headline cards over a row of `supporting` cards. Purely
- * presentational — it renders view-models built elsewhere and holds no domain
- * knowledge, so any context (owner portfolio, state real estate, …) can feed it
- * its own figures. The section heading is the consumer's to render.
+ * A row of `primary` headline cards over a row of `supporting` cards — the
+ * 2-over-3 highlights layout. Purely presentational: it renders view-models
+ * built elsewhere. The section heading is the consumer's to render.
  *
- * Cards carry an `icon` string token rather than a component so callers stay
- * free of JSX; the map below is the one place that turns a token into an icon.
+ * Cards carry an `icon` string token rather than a component so builders in
+ * lib/ stay free of JSX; ICONS below is the one place a token becomes an icon.
  * Add a token here when a new figure needs one.
+ *
+ * Usage — the consumer owns the heading:
+ *
+ *   const { primary, supporting } = buildRealEstateHighlights(source);
+ *   <section>
+ *     <Heading level={3}>Real Estate Highlights</Heading>
+ *     <StatHighlightsGrid primary={primary} supporting={supporting} />
+ *   </section>
  */
 
 const ICONS = { warning: ExclamationTriangleIcon };
+
+const cardShape = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  aside: PropTypes.string,
+  caption: PropTypes.node,
+  accent: PropTypes.oneOf(['amber']),
+  icon: PropTypes.string,
+});
 
 function Cards({ cards, columnsClassName }) {
   return (
@@ -33,16 +50,6 @@ function Cards({ cards, columnsClassName }) {
     </div>
   );
 }
-
-const cardShape = PropTypes.shape({
-  id: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  aside: PropTypes.string,
-  caption: PropTypes.node,
-  accent: PropTypes.oneOf(['amber']),
-  icon: PropTypes.string,
-});
 
 Cards.propTypes = {
   cards: PropTypes.arrayOf(cardShape).isRequired,
