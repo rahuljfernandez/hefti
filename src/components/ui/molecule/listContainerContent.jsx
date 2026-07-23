@@ -77,8 +77,8 @@ export function OwnershipAndStakeholders({ item }) {
       <Divider className="order-2 md:order-none md:col-span-3" />
 
       {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="gap-2 md:flex md:flex-col md:pr-6">
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+        <div className="gap-2 md:flex md:flex-col">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
             OWNERSHIP PERCENTAGE
           </p>
@@ -87,7 +87,7 @@ export function OwnershipAndStakeholders({ item }) {
           </p>
         </div>
 
-        <div className="gap-2 md:flex md:flex-col">
+        <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
             OWNERSHIP MINIMUM
           </p>
@@ -301,9 +301,9 @@ export function RelatedFacilities({ item }) {
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Col 2 - spans both rows */}
-        <div className="order-3 md:order-none md:col-span-3 md:flex md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="order-3 md:order-none md:col-span-3 md:flex md:items-center md:justify-start md:gap-6">
           {/* CMS Rating */}
-          <div className="flex flex-col items-start pr-6 md:flex-row md:items-center md:gap-2">
+          <div className="flex flex-col items-start md:flex-row md:items-center md:gap-2">
             <p className="text-paragraph-base text-content-secondary">
               CMS Rating
             </p>
@@ -314,7 +314,7 @@ export function RelatedFacilities({ item }) {
           </div>
 
           {/* Owner Role */}
-          <div className="flex flex-col md:flex-row md:gap-2">
+          <div className="flex flex-col md:flex-row md:gap-2 md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1">
               Owners Role:
             </p>
@@ -464,8 +464,8 @@ export function BrowseNursingHomes({ item, linkState }) {
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="md:flex md:flex-row md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="md:flex md:flex-row">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Owned by:
             </p>
@@ -478,7 +478,7 @@ export function BrowseNursingHomes({ item, linkState }) {
             </p>
           </div>
 
-          <div className="md:flex md:flex-row">
+          <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Ownership Type:
             </p>
@@ -736,8 +736,8 @@ export function BrowseChains({ item }) {
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row — States */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="flex flex-row items-baseline gap-1 md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="flex flex-row items-baseline gap-1">
             <p className="text-paragraph-base text-content-secondary">
               States:
             </p>
@@ -746,7 +746,7 @@ export function BrowseChains({ item }) {
             </p>
           </div>
           {states.length > 0 && (
-            <div className="md:flex md:flex-row">
+            <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
               <p className="text-paragraph-base text-core-black">
                 {visibleStates.join(', ')}
                 {extraCount > 0 && (
@@ -846,8 +846,8 @@ export function BrowseOwners({ item, linkState }) {
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="md:flex md:flex-row md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="md:flex md:flex-row">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Total Facilities:
             </p>
@@ -858,7 +858,7 @@ export function BrowseOwners({ item, linkState }) {
             </p>
           </div>
 
-          <div className="md:flex md:flex-row">
+          <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Ownership Type:
             </p>
