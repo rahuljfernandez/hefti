@@ -16,6 +16,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
+import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
 
 /**
@@ -205,6 +206,11 @@ export default function StatesProfile() {
                         status={'state'}
                         nationalBenchmarks={nationalBenchmarks}
                       />
+                    );
+
+                  case 'Real Estate':
+                    return (
+                      <StateRealEstateTab items={stateStats} status={'state'} />
                     );
 
                   default:

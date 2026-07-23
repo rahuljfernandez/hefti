@@ -96,4 +96,9 @@ export const stateTabsDescriptions = [
     displayTitle: 'Financial Snapshot',
     href: '#',
   },
+  {
+    name: 'Real Estate',
+    displayTitle: 'Real Estate',
+    href: '#',
+  },
 ];
