@@ -24,6 +24,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
+import OwnerPropertyDetailsTab from '../components/ui/molecule/tabs/ownerPropertyDetailsTab';
 import {
   ShareButton,
   ShareButtonRow,
@@ -238,6 +239,9 @@ export default function OwnersProfile() {
                     return (
                       <FinancialOverviewTab items={owner} status={'owner'} />
                     );
+
+                  case 'Property Details':
+                    return <OwnerPropertyDetailsTab />;
 
                   default:
                     return (

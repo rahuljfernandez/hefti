@@ -63,6 +63,11 @@ export const ownerTabsDescriptions = [
     displayTitle: 'Financial Snapshot',
     href: '#',
   },
+  {
+    name: 'Property Details',
+    displayTitle: 'Property Details',
+    href: '#',
+  },
 ];
 
 export const stateTabsDescriptions = [
