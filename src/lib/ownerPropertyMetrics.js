@@ -217,10 +217,73 @@ export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
    list. Rows carry a preformatted `market_value_display` so the card renders
    without reaching for a formatter. */
 export function buildOwnerProperties(source = MOCK_OWNER_PROPERTIES) {
-  const properties = source ?? [];
+  const properties = Array.isArray(source) ? source : [];
   return properties.map((property) => ({
     ...property,
-    market_value_display:
-      property.market_value != null ? formatUSD(property.market_value) : 'N/A',
+    market_value_display: Number.isFinite(property.market_value)
+      ? formatUSD(property.market_value)
+      : 'N/A',
   }));
+}
+
+/* Filter options for the Properties list. The option arrays feed the SelectMenu
+   controls and `selectOwnerProperties` reads the same values, so the dropdowns
+   and the logic stay one source of truth. Sort reuses SelectMenu's built-in
+   'asc'/'desc' options — the only sortable figure the cards show is market value,
+   which those defaults already cover. */
+export const OWNER_PROPERTY_RELATED_PARTY_OPTIONS = [
+  { label: 'Related Party', value: 'related' },
+  { label: 'Not Related Party', value: 'not-related' },
+];
+
+export const OWNER_PROPERTY_VALUE_OPTIONS = [
+  { label: 'Over $20M', value: 'over-20m' },
+  { label: '$10M – $20M', value: '10m-20m' },
+  { label: 'Under $10M', value: 'under-10m' },
+];
+
+const VALUE_BUCKETS = {
+  'over-20m': (v) => v > 20_000_000,
+  '10m-20m': (v) => v >= 10_000_000 && v <= 20_000_000,
+  'under-10m': (v) => v < 10_000_000,
+};
+
+/* A non-finite market value sorts as 0 (same rows the value filter would drop),
+   so the comparator can't return NaN and scramble the whole order. */
+const marketValueKey = (row) =>
+  Number.isFinite(row.market_value) ? row.market_value : 0;
+
+/* Filters then sorts the display rows for the Properties list. Each argument is
+   an option value or null ("no selection"); unrecognized values are ignored so a
+   stale control can't blank the list. Returns a new array — never mutates rows. */
+export function selectOwnerProperties(
+  rows,
+  { sort, relatedParty, value } = {},
+) {
+  let result = rows;
+
+  if (relatedParty === 'related') {
+    result = result.filter((r) => r.related_party);
+  } else if (relatedParty === 'not-related') {
+    result = result.filter((r) => !r.related_party);
+  }
+
+  const inBucket = VALUE_BUCKETS[value];
+  if (inBucket) {
+    result = result.filter(
+      (r) => Number.isFinite(r.market_value) && inBucket(r.market_value),
+    );
+  }
+
+  if (sort === 'desc') {
+    result = [...result].sort(
+      (a, b) => marketValueKey(b) - marketValueKey(a),
+    );
+  } else if (sort === 'asc') {
+    result = [...result].sort(
+      (a, b) => marketValueKey(a) - marketValueKey(b),
+    );
+  }
+
+  return result;
 }

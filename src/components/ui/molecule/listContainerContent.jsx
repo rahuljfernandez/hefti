@@ -333,6 +333,76 @@ RelatedFacilities.propTypes = {
 };
 
 /**
+ * Owner property card used on the owner Property Details tab.
+ *
+ * One property as a single interactive card: name, address, market value, and a
+ * conditional related-party flag. One outer link, like RelatedFacilities, so
+ * keyboard users tab through the list one card at a time.
+ */
+export function OwnerProperty({ item }) {
+  const facilityHref = `/facilities/${item.facility_slug}`;
+  const facilityName = toTitleCase(item.facility_name);
+  return (
+    <Link
+      to={facilityHref}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}, market value ${
+        item.market_value_display
+      }${item.related_party ? ', related party' : ''}`}
+    >
+      <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span className="text-paragraph-base font-bold text-blue-700 underline">
+            {facilityName}
+          </span>
+          <div className="text-paragraph-base text-content-secondary">
+            {`${toTitleCase(item.street_address)}, ${toTitleCase(item.city)}, ${item.state} ${
+              item.zip_code
+            }`}
+          </div>
+        </div>
+
+        {/* Button — top right on desktop, bottom on mobile */}
+        <div className="md:flex md:items-center md:justify-end">
+          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+            View Profile
+          </span>
+        </div>
+
+        {/* Divider */}
+        <Divider className="md:col-span-3" />
+
+        {/* Market value + conditional related-party flag */}
+        <div className="md:col-span-3 md:flex md:items-center">
+          <p className="text-paragraph-base text-content-secondary md:pr-6">
+            Market Value:{' '}
+            <span className="text-core-black font-bold">
+              {item.market_value_display}
+            </span>
+          </p>
+          {item.related_party && (
+            <span className="flex items-center gap-1.5 md:border-l md:border-gray-400 md:pl-6">
+              <ExclamationTriangleIcon
+                aria-hidden="true"
+                className="size-5 shrink-0 text-amber-500"
+              />
+              <span className="text-paragraph-base text-core-black">
+                Related Party
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+OwnerProperty.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+/**
  *TODO:zip code needs to be added to dataset to match design
  * Need to get data from owner table
  *  link needs to be working
