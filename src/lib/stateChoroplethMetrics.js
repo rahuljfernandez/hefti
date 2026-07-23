@@ -21,17 +21,19 @@ export { COLOR_BY_DIMENSIONS as EXPLORE_BY_STATE_TABS } from './ratingMetricsCon
 
 export const DEFAULT_STATE_TAB = 'Overall';
 
-/* Sequential 5-bucket scale, light → dark, using slate 200/400/500/700/900.
-   Light is the best-rated end, dark is the worst-rated end — the encoding the
-   legend labels "Higher-rated → Lower-rated". Both the map fills and the legend
-   swatches read this single array so they can never drift apart. Hex values are
-   used directly so the SVG `fill` renders without a Tailwind class round-trip. */
+/* Sequential 5-bucket scale, light → dark, using slate 200/300/400/500/600.
+   Light is the best-rated end, dark is the worst-rated end; the legend renders
+   this array reversed so it reads "Lower-rated → Higher-rated". Both the map
+   fills and the legend swatches read this single array so they can never drift
+   apart. Hex values are used directly so the SVG `fill` renders without a
+   Tailwind class round-trip — they are the sRGB equivalents of Tailwind v4's
+   oklch slate, so update them together with the tokens. */
 export const CHOROPLETH_SCALE = [
   { bucket: 0, hex: '#e2e8f0', token: 'slate-200' },
-  { bucket: 1, hex: '#94a3b8', token: 'slate-400' },
-  { bucket: 2, hex: '#64748b', token: 'slate-500' },
-  { bucket: 3, hex: '#334155', token: 'slate-700' },
-  { bucket: 4, hex: '#0f172a', token: 'slate-900' },
+  { bucket: 1, hex: '#cad5e2', token: 'slate-300' },
+  { bucket: 2, hex: '#90a1b9', token: 'slate-400' },
+  { bucket: 3, hex: '#62748e', token: 'slate-500' },
+  { bucket: 4, hex: '#45556c', token: 'slate-600' },
 ];
 
 export const CHOROPLETH_NO_DATA = '#f1f5f9'; // slate-100, for states with no value
