@@ -112,10 +112,68 @@ const MOCK_OWNER_PROPERTIES = [
   },
 ];
 
-/* Headline stats for Portfolio Highlights. Returns the raw summary; the section
-   branch maps these into stat cards. */
-export function buildPortfolioSummary(source = MOCK_PORTFOLIO_SUMMARY) {
-  return source ?? MOCK_PORTFOLIO_SUMMARY;
+/* Display-ready cards for the Portfolio Highlights row, split by importance:
+   two `primary` headline figures (related-party risk, portfolio value) and
+   three `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon`
+   is a string token the organism maps to a component so this module stays free
+   of JSX. */
+export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
+  const summary = source ?? MOCK_PORTFOLIO_SUMMARY;
+  const {
+    related_party_percentage,
+    related_party_count,
+    total_properties,
+    portfolio_value,
+    distinct_owners,
+  } = summary;
+  const states = summary.states ?? [];
+
+  const primary = [
+    {
+      id: 'related-party',
+      label: 'Related Party',
+      value:
+        related_party_percentage != null
+          ? `${related_party_percentage}%`
+          : 'N/A',
+      aside:
+        related_party_count != null && total_properties != null
+          ? `${related_party_count} of ${total_properties}`
+          : null,
+      caption: 'Possible related party owned',
+      accent: 'amber',
+      icon: 'warning',
+    },
+    {
+      id: 'portfolio-value',
+      label: 'Portfolio Value',
+      value: formatUSD(portfolio_value),
+      caption: 'Total market value',
+    },
+  ];
+
+  const supporting = [
+    {
+      id: 'states',
+      label: 'States',
+      value: states.length,
+      caption: states.join(', '),
+    },
+    {
+      id: 'properties',
+      label: 'Properties',
+      value: total_properties ?? 'N/A',
+      caption: 'Real estate parcels',
+    },
+    {
+      id: 'property-owners',
+      label: 'Property Owners',
+      value: distinct_owners ?? 'N/A',
+      caption: 'Distinct landlord entities',
+    },
+  ];
+
+  return { primary, supporting };
 }
 
 /* The owner's property rows, used by both the footprint map and the Properties

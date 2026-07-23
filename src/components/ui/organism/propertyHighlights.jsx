@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LayoutCard from '../atom/layout-card';
 import FieldGrid from '../molecule/fieldGrid';
-import PropertyStatCard from '../molecule/propertyStatCard';
+import StatFigureCard from '../molecule/statFigureCard';
 import { Heading } from '../atom/heading';
 import {
   buildPropertyHighlights,
@@ -46,12 +46,12 @@ export default function PropertyHighlights({ source }) {
             <FieldGrid fields={keyFinancialsMeta} valueClassName="uppercase" />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {keyFinancialStats.map(({ label, value, asOf }) => (
-                <PropertyStatCard
+              {keyFinancialStats.map(({ label, value, caption }) => (
+                <StatFigureCard
                   key={label}
                   label={label}
                   value={value}
-                  asOf={asOf}
+                  caption={caption}
                 />
               ))}
             </div>

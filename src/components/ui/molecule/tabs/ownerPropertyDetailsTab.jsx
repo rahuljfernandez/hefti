@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Heading } from '../../atom/heading';
+import PortfolioHighlights from '../../organism/portfolioHighlights';
 
 /**
  * Property Details tab content for the owner context.
@@ -19,8 +20,7 @@ import { Heading } from '../../atom/heading';
 export default function OwnerPropertyDetailsTab() {
   return (
     <section>
-      {/* Section 1 — Portfolio Highlights (branch 2 swaps this) */}
-      <SectionPlaceholder title="Portfolio Highlights" />
+      <PortfolioHighlights />
 
       {/* Section 2 — Property Footprint (branch 3 swaps this) */}
       <SectionPlaceholder title="Property Footprint" />
