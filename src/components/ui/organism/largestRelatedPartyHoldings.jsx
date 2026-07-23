@@ -20,6 +20,7 @@ const holdingsColumns = [
     key: 'owner',
     header: 'Owner',
     flex: true,
+    rowHeader: true,
     cell: (row) => (
       <div>
         <Link

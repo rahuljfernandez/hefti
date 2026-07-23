@@ -15,9 +15,11 @@ import clsx from 'clsx';
  * fixed-width.
  *
  * `showRank` prepends a 1-based Rank column derived from row order, since every
- * ranked table wants the same leading position column.
+ * ranked table wants the same leading position column. Mark the identifying
+ * column (e.g. the name) `rowHeader` so its cell renders as `<th scope="row">`,
+ * giving screen readers row context for the other cells.
  *
- * columns: [{ key, header, align?, flex?, width?, cell }]
+ * columns: [{ key, header, align?, flex?, width?, rowHeader?, cell }]
  * rows:    display-ready objects, each with a unique `id`
  */
 const alignClass = { left: 'text-left', right: 'text-right' };
@@ -58,19 +60,24 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
         <tbody className="divide-border-primary divide-y">
           {rows.map((row, index) => (
             <tr key={row.id}>
-              {allColumns.map((col) => (
-                <td
-                  key={col.key}
-                  className={clsx(
-                    'text-paragraph-base text-core-black items-center px-4 py-4 first:pl-0 last:pr-0',
-                    !col.flex && 'whitespace-nowrap',
-                    col.width,
-                    alignClass[col.align] ?? 'text-left',
-                  )}
-                >
-                  {col.cell(row, index)}
-                </td>
-              ))}
+              {allColumns.map((col) => {
+                const Cell = col.rowHeader ? 'th' : 'td';
+                return (
+                  <Cell
+                    key={col.key}
+                    scope={col.rowHeader ? 'row' : undefined}
+                    className={clsx(
+                      'text-paragraph-base text-core-black px-4 py-4 first:pl-0 last:pr-0',
+                      !col.flex && 'whitespace-nowrap',
+                      col.width,
+                      alignClass[col.align] ?? 'text-left',
+                      col.rowHeader && 'font-normal',
+                    )}
+                  >
+                    {col.cell(row, index)}
+                  </Cell>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -87,6 +94,7 @@ DataTable.propTypes = {
       align: PropTypes.oneOf(['left', 'right']),
       flex: PropTypes.bool,
       width: PropTypes.string,
+      rowHeader: PropTypes.bool,
       cell: PropTypes.func.isRequired,
     }),
   ).isRequired,

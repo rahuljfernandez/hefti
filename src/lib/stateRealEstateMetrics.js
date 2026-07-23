@@ -107,6 +107,9 @@ export function buildStateFootprint(source = MOCK_STATE_FACILITIES) {
   return buildFootprint(source);
 }
 
+/* PLACEHOLDER DATA — the state real estate API is not live yet. The owners,
+   counts, and values come from the design mocks, not from any live record; do
+   not read them as real data in review or screenshots. */
 const MOCK_LARGEST_HOLDINGS = [
   {
     id: 'snf-care-centers',
