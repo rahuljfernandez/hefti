@@ -2,6 +2,7 @@ import React from 'react';
 import PortfolioHighlights from '../../organism/portfolioHighlights';
 import PropertyFootprint from '../../organism/propertyFootprint';
 import OwnerPropertiesList from '../../organism/ownerPropertiesList';
+import { buildOwnerFootprint } from '../../../../lib/ownerPropertyMetrics';
 
 /**
  * Property Details tab content for the owner context.
@@ -20,7 +21,10 @@ export default function OwnerPropertyDetailsTab() {
   return (
     <section>
       <PortfolioHighlights />
-      <PropertyFootprint />
+      <PropertyFootprint
+        data={buildOwnerFootprint()}
+        mapLabel="Map of the owner's properties. Each property and its market value are listed in the Properties section below."
+      />
       <OwnerPropertiesList />
     </section>
   );

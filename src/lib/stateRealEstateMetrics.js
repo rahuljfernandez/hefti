@@ -90,3 +90,45 @@ export function buildRealEstateHighlights(source = MOCK_REAL_ESTATE_SUMMARY) {
 
   return { primary, supporting };
 }
+
+/* No facility coordinates yet — the footprint is a blank map on purpose (the API
+   isn't live). An empty list yields no markers, so the map falls back to its
+   continental-US view. The builder still maps records the way the owner one does
+   so it works unchanged the day the endpoint returns the state's facilities. */
+const MOCK_STATE_FACILITIES = [];
+
+/* Map-ready footprint for the state's facilities: one marker per facility with
+   coordinates, plus the [[minLat,minLng],[maxLat,maxLng]] box the map fits on
+   load (null when nothing has coordinates). Mirrors buildOwnerFootprint so the
+   shared PropertyFootprint renders it without any state-specific branch. */
+export function buildStateFootprint(source = MOCK_STATE_FACILITIES) {
+  const facilities = Array.isArray(source) ? source : [];
+  const markers = facilities
+    .filter((f) => Number.isFinite(f.latitude) && Number.isFinite(f.longitude))
+    .map((f) => ({
+      id: f.id,
+      position: [f.latitude, f.longitude],
+      label: f.facility_name,
+      relatedParty: Boolean(f.related_party),
+    }));
+
+  const bounds = markers.reduce((box, { position: [lat, lng] }) => {
+    if (box === null) {
+      return [
+        [lat, lng],
+        [lat, lng],
+      ];
+    }
+    return [
+      [Math.min(box[0][0], lat), Math.min(box[0][1], lng)],
+      [Math.max(box[1][0], lat), Math.max(box[1][1], lng)],
+    ];
+  }, null);
+
+  return {
+    markers,
+    bounds,
+    relatedPartyCount: markers.filter((m) => m.relatedParty).length,
+    totalCount: markers.length,
+  };
+}

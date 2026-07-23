@@ -11,15 +11,18 @@ import * as Headless from '@headlessui/react';
 import FlushCard from '../atom/flushCard';
 import { Heading } from '../atom/heading';
 import { Switch } from '../atom/switch';
-import { buildOwnerFootprint } from '../../../lib/ownerPropertyMetrics';
 
 /**
- * Property Footprint — the second section of the owner Property Details tab.
+ * Property Footprint — the map section shared by the owner Property Details tab
+ * and the state Real Estate tab.
  *
- * Every owner property with coordinates plotted on one map, over a flush control
- * bar whose toggle repaints the related-party markers amber without hiding the
- * rest. `source` is optional; the builder falls back to mock data until the
- * property API lands.
+ * Every property with coordinates plotted on one map, over a flush control bar
+ * whose toggle repaints the related-party markers amber without hiding the rest.
+ *
+ * Purely presentational: `data` (`{ markers, bounds, relatedPartyCount,
+ * totalCount }`) is built by each context's own footprint builder, so this
+ * component stays free of any owner/state knowledge. `mapLabel` is the map
+ * region's aria-label, which the caller phrases for its context.
  */
 
 /* A plain colored dot. Passing a custom className drops Leaflet's default
@@ -29,7 +32,7 @@ import { buildOwnerFootprint } from '../../../lib/ownerPropertyMetrics';
    appear as a standalone className attribute. */
 function dotIcon(colorClass) {
   return L.divIcon({
-    className: 'owner-footprint-marker',
+    className: 'footprint-marker',
     html: `<span class="block size-3.5 rounded-full border-2 border-core-white shadow ${colorClass}"></span>`,
     iconSize: [14, 14],
     iconAnchor: [7, 7],
@@ -50,7 +53,7 @@ const US_ZOOM = 4;
    parked on the previous viewport. Keying on the bounds forces a fresh mount —
    and a fresh fit — whenever they change. Toggling the highlight only swaps
    marker icons, so it keeps the same key and does not remount. */
-function FootprintMapPanel({ markers, bounds, highlight }) {
+function FootprintMapPanel({ markers, bounds, highlight, label }) {
   const viewProps = bounds
     ? { bounds, boundsOptions: { padding: [48, 48], maxZoom: 12 } }
     : { center: US_CENTER, zoom: US_ZOOM };
@@ -59,7 +62,7 @@ function FootprintMapPanel({ markers, bounds, highlight }) {
     <div
       className="h-80 w-full overflow-hidden rounded-t-lg"
       role="group"
-      aria-label="Map of the owner's properties. Each property and its market value are listed in the Properties section below."
+      aria-label={label}
     >
       <MapContainer
         key={bounds ? bounds.join(',') : 'us'}
@@ -107,11 +110,11 @@ FootprintMapPanel.propTypes = {
   ).isRequired,
   bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
   highlight: PropTypes.bool.isRequired,
+  label: PropTypes.string,
 };
 
-export default function PropertyFootprint({ source }) {
-  const { markers, bounds, relatedPartyCount, totalCount } =
-    buildOwnerFootprint(source);
+export default function PropertyFootprint({ data, mapLabel }) {
+  const { markers, bounds, relatedPartyCount, totalCount } = data;
   const [highlight, setHighlight] = useState(false);
 
   return (
@@ -124,6 +127,7 @@ export default function PropertyFootprint({ source }) {
         markers={markers}
         bounds={bounds}
         highlight={highlight}
+        label={mapLabel}
       />
 
       <FlushCard position="bottom">
@@ -148,5 +152,11 @@ export default function PropertyFootprint({ source }) {
 }
 
 PropertyFootprint.propTypes = {
-  source: PropTypes.object,
+  data: PropTypes.shape({
+    markers: PropTypes.array.isRequired,
+    bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+    relatedPartyCount: PropTypes.number.isRequired,
+    totalCount: PropTypes.number.isRequired,
+  }).isRequired,
+  mapLabel: PropTypes.string.isRequired,
 };
