@@ -34,6 +34,7 @@ export default function CtaLinkButton({
     return (
       <a href={to} target="_blank" rel="noopener noreferrer" className={classes}>
         {content}
+        <span className="sr-only"> (opens in new tab)</span>
       </a>
     );
   }
