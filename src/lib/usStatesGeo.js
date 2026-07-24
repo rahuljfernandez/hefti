@@ -16,12 +16,19 @@ import usTopology from 'us-atlas/states-10m.json';
 export const VIEW_W = 960;
 export const VIEW_H = 600;
 
-/* [{ name, d }] — one entry per rendered state, in topology order. */
+/* [{ name, d, bounds }] — one entry per rendered state, in topology order.
+   `bounds` is the state's [[x0, y0], [x1, y1]] extent in the projected viewport,
+   used as a per-state SVG viewBox so a single state can be cropped and centered
+   into a card instead of drawn tiny inside the full US frame. */
 export const STATE_PATHS = (() => {
   const collection = feature(usTopology, usTopology.objects.states);
   const projection = geoAlbersUsa().fitSize([VIEW_W, VIEW_H], collection);
   const toPath = geoPath(projection);
   return collection.features
-    .map((f) => ({ name: f.properties.name, d: toPath(f) }))
+    .map((f) => ({
+      name: f.properties.name,
+      d: toPath(f),
+      bounds: toPath.bounds(f),
+    }))
     .filter((s) => Boolean(s.d));
 })();
