@@ -17,6 +17,7 @@ import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
 import ExploreByState from '../components/ui/organism/exploreByState.jsx';
+import HomeAcquisitionsCta from '../components/ui/organism/homeAcquisitionsCta.jsx';
 
 /**
  * Home page
@@ -267,6 +268,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Latest ownership changes feed + acquisitions-tracker CTA */}
+      <HomeAcquisitionsCta />
       {/*State Ranking Data Table Visuals */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <StateRankingsHiLowViz />
