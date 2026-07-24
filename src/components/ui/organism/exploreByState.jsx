@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import TabsSelector from '../molecule/tabsSelector';
 import ChoroplethLegend from '../molecule/choroplethLegend';
 import UsStatesMap from '../molecule/usStatesMap';
 import { StateMapSkeleton } from '../atom/skeletons';
+import { useStateMetrics } from '../../../hooks/useStateMetrics';
 import {
   EXPLORE_BY_STATE_TABS,
   DEFAULT_STATE_TAB,
@@ -13,20 +14,16 @@ import {
   buildStateMapCards,
 } from '../../../lib/stateChoroplethMetrics';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://hefti-data-api.ddev.site:3000/api';
-
 /**
  * "Explore by State" home-page section.
  *
  * Owns the active Color-by tab, derives the per-state choropleth buckets for
  * that tab, and lays out the heading, subtitle, tab control, legend, and map.
  *
- * Fetches all five metrics from /state-metrics once on mount; switching tabs is
- * then a client-side lookup (no refetch). Hovering a state shows its card;
- * clicking a state routes to /states/:code. Shows a skeleton while loading and a
- * red-tinted skeleton on fetch error.
+ * Reads all five metrics from the shared useStateMetrics hook (one /state-metrics
+ * request for the whole page); switching tabs is then a client-side lookup (no
+ * refetch). Hovering a state shows its card; clicking a state routes to
+ * /states/:code. Shows a skeleton while loading and a red-tinted skeleton on error.
  */
 export default function ExploreByState() {
   const [activeTab, setActiveTab] = useState(
@@ -34,31 +31,7 @@ export default function ExploreByState() {
       EXPLORE_BY_STATE_TABS[0],
   );
 
-  const [payload, setPayload] = useState(null);
-  const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
-
-  /* Fetch all five metrics once; tab switching is then a client-side lookup. */
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE_URL}/state-metrics`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load state metrics');
-        return res.json();
-      })
-      .then((json) => {
-        if (cancelled) return;
-        setPayload(json);
-        setStatus('ready');
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setPayload(null);
-        setStatus('error');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { payload, status } = useStateMetrics();
 
   const metric = payload?.metrics?.[metricKeyForTab(activeTab.name)];
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/16/solid';
 import { Heading } from '../atom/heading';
 import { Select } from '../atom/select';
@@ -7,14 +7,11 @@ import BestWorstToggle from '../molecule/bestWorstToggle';
 import SimplePagination from '../molecule/simplePagination';
 import StateShapeCard from '../molecule/stateShapeCard';
 import { StateRankingsSkeleton } from '../atom/skeletons';
+import { useStateMetrics } from '../../../hooks/useStateMetrics';
 import {
   STATE_RANKING_DIMENSIONS,
   buildStateRankingCards,
 } from '../../../lib/stateRankingsMetrics';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://hefti-data-api.ddev.site:3000/api';
 
 const PAGE_SIZE = 10;
 
@@ -27,9 +24,10 @@ const PAGE_SIZE = 10;
  * bucket, matching the "Explore by State" map above. Clicking a card opens the
  * facilities browse pre-filtered by state and pre-sorted by the metric.
  *
- * Fetches all five metrics from /state-metrics once on mount; switching the
- * "Rank by" dimension is then a client-side lookup (no refetch), mirroring
- * ExploreByState. Shows a skeleton while loading and a red-tinted skeleton on error.
+ * Reads all five metrics from the shared useStateMetrics hook (one /state-metrics
+ * request for the whole page); switching the "Rank by" dimension is then a
+ * client-side lookup (no refetch). Shows a skeleton while loading and a red-tinted
+ * skeleton on error.
  */
 export default function StateRankingsHiLowViz() {
   const [dimId, setDimId] = useState(STATE_RANKING_DIMENSIONS[0].id);
@@ -37,31 +35,7 @@ export default function StateRankingsHiLowViz() {
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState(false);
 
-  const [payload, setPayload] = useState(null);
-  const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
-
-  /* Fetch all five metrics once; dimension switching is then a client-side lookup. */
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE_URL}/state-metrics`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load state metrics');
-        return res.json();
-      })
-      .then((json) => {
-        if (cancelled) return;
-        setPayload(json);
-        setStatus('ready');
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setPayload(null);
-        setStatus('error');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { payload, status } = useStateMetrics();
 
   const dim = useMemo(
     () => STATE_RANKING_DIMENSIONS.find((d) => d.id === dimId),
