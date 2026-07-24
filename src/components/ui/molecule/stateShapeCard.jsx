@@ -14,7 +14,9 @@ const badgeTextColor = (bucket) => (bucket >= 3 ? '#ffffff' : '#1e293b');
  * facilities browse pre-filtered by state and pre-sorted by the active metric.
  *
  * Silhouette fill and badge share the state's choropleth bucket color, so the grid
- * reads like the "Explore by State" map. The card lifts slightly on hover.
+ * reads like the "Explore by State" map. On hover the card lifts slightly and its
+ * border takes that same bucket color (via the --card-accent custom property, since
+ * the color is data-driven per state and can't be a static class).
  *
  * Expected item (from buildStateRankingCards in stateRankingsMetrics.js):
  * - stateName, stateCode, rank, bucket, displayValue, valueSuffix, to
@@ -32,7 +34,8 @@ export default function StateShapeCard({ item }) {
       to={item.to}
       state={{ from: 'rankings' }}
       aria-label={`${item.stateName}, ranked number ${item.rank}, ${valueText}`}
-      className="focus-ring-light border-border-primary flex flex-col items-center rounded-lg border bg-white p-3 text-center transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+      style={{ '--card-accent': fill }}
+      className="focus-ring-light border-border-primary bg-core-white flex flex-col items-center rounded-lg border p-3 text-center transition-all duration-150 hover:-translate-y-0.5 hover:border-(--card-accent) hover:shadow-md"
     >
       <div className="mb-1 flex w-full justify-end">
         <span
