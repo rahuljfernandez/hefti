@@ -1,25 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { STATE_PATHS } from '../../../lib/usStatesGeo';
+import { STATE_CARD_SHAPES, CARD_VIEW } from '../../../lib/usStatesGeo';
 import { bucketColor } from '../../../lib/stateChoroplethMetrics';
-
-/* stateName → { d, bounds } for an O(1) lookup when rendering a single-state
-   silhouette. bounds ([[x0,y0],[x1,y1]]) becomes the card's own viewBox so the
-   state is cropped and centered instead of drawn tiny inside the full US frame. */
-const GEO_BY_NAME = new Map(STATE_PATHS.map((s) => [s.name, s]));
 
 /* Buckets 3–4 are dark enough to need white text on the rank badge; 0–2 keep
    near-black. Keeps the badge legible across the full slate scale. */
 const badgeTextColor = (bucket) => (bucket >= 3 ? '#ffffff' : '#1e293b');
-
-/* Padded viewBox around a state's projected bounds. */
-function boundsViewBox([[x0, y0], [x1, y1]]) {
-  const w = x1 - x0;
-  const h = y1 - y0;
-  const pad = Math.max(w, h) * 0.08;
-  return `${x0 - pad} ${y0 - pad} ${w + pad * 2} ${h + pad * 2}`;
-}
 
 /**
  * One state in the home-page State Rankings grid: a bucket-colored silhouette,
@@ -33,7 +20,7 @@ function boundsViewBox([[x0, y0], [x1, y1]]) {
  * - stateName, stateCode, rank, bucket, displayValue, valueSuffix, to
  */
 export default function StateShapeCard({ item }) {
-  const geo = GEO_BY_NAME.get(item.stateName);
+  const shapeD = STATE_CARD_SHAPES[item.stateName];
   const fill = bucketColor(item.bucket);
 
   const valueText = item.valueSuffix
@@ -57,15 +44,15 @@ export default function StateShapeCard({ item }) {
         </span>
       </div>
 
-      {geo ? (
+      {shapeD ? (
         <svg
-          viewBox={boundsViewBox(geo.bounds)}
+          viewBox={`0 0 ${CARD_VIEW} ${CARD_VIEW}`}
           preserveAspectRatio="xMidYMid meet"
           className="h-12 w-full"
           role="img"
           aria-hidden="true"
         >
-          <path d={geo.d} fill={fill} />
+          <path d={shapeD} fill={fill} />
         </svg>
       ) : (
         <div className="h-12" />
