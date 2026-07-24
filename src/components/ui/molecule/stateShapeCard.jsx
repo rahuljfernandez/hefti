@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { STATE_PATHS } from '../../../lib/usStatesGeo';
@@ -27,14 +27,12 @@ function boundsViewBox([[x0, y0], [x1, y1]]) {
  * facilities browse pre-filtered by state and pre-sorted by the active metric.
  *
  * Silhouette fill and badge share the state's choropleth bucket color, so the grid
- * reads like the "Explore by State" map. On hover/focus the card tints to that same
- * color and lifts slightly.
+ * reads like the "Explore by State" map. The card lifts slightly on hover.
  *
  * Expected item (from buildStateRankingCards in stateRankingsMetrics.js):
  * - stateName, stateCode, rank, bucket, displayValue, valueSuffix, to
  */
 export default function StateShapeCard({ item }) {
-  const [active, setActive] = useState(false);
   const geo = GEO_BY_NAME.get(item.stateName);
   const fill = bucketColor(item.bucket);
 
@@ -46,16 +44,8 @@ export default function StateShapeCard({ item }) {
     <Link
       to={item.to}
       state={{ from: 'rankings' }}
-      onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => setActive(false)}
-      onFocus={() => setActive(true)}
-      onBlur={() => setActive(false)}
       aria-label={`${item.stateName}, ranked number ${item.rank}, ${valueText}`}
       className="focus-ring-light border-border-primary flex flex-col items-center rounded-lg border bg-white p-3 text-center transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
-      style={{
-        backgroundColor: active ? `${fill}24` : undefined,
-        borderColor: active ? fill : undefined,
-      }}
     >
       <div className="mb-1 flex w-full justify-end">
         <span

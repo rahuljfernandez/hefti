@@ -157,6 +157,7 @@ export default function StateRankingsHiLowViz() {
               currentPage={page}
               totalItems={totalItems}
               pageSize={PAGE_SIZE}
+              divider={false}
               onPrev={() => setPage((p) => Math.max(p - 1, 1))}
               onNext={() =>
                 setPage((p) =>

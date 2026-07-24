@@ -15,7 +15,11 @@ import { STATE_PATHS, VIEW_W, VIEW_H } from '../../../lib/usStatesGeo';
  */
 
 function SkeletonBar({ className = '', error = false }) {
-  return <div className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`} />;
+  return (
+    <div
+      className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`}
+    />
+  );
 }
 
 SkeletonBar.propTypes = {
@@ -160,7 +164,9 @@ function GraphSVG({ className = '', error = false }) {
             stroke={error ? '#FECACA' : '#D1D5DB'}
             strokeWidth="1.5"
             className={error ? undefined : 'gp-edge'}
-            style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
+            style={
+              error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }
+            }
           />
         );
       })}
@@ -171,8 +177,12 @@ function GraphSVG({ className = '', error = false }) {
           cy={n.cy}
           r={n.r}
           fill={error ? '#FCA5A5' : n.id === 'hub' ? '#FCD34D' : '#9CA3AF'}
-          className={error ? undefined : n.id === 'hub' ? 'gp-node-hub' : 'gp-node'}
-          style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
+          className={
+            error ? undefined : n.id === 'hub' ? 'gp-node-hub' : 'gp-node'
+          }
+          style={
+            error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }
+          }
         />
       ))}
     </svg>
@@ -187,7 +197,9 @@ GraphSVG.propTypes = {
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx, src/components/ui/molecule/ownerNetworkGraphMobileLayout.jsx
 export function NetworkGraphSkeleton({ error = false }) {
   return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${error ? 'bg-red-50' : 'bg-gray-50'}`}>
+    <div
+      className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${error ? 'bg-red-50' : 'bg-gray-50'}`}
+    >
       <GraphSVG className="w-[280px] opacity-50 sm:w-[520px]" error={error} />
       {!error && (
         <p className="animate-pulse text-base text-gray-500" role="status">
@@ -299,7 +311,7 @@ export function StateRankingsSkeleton({ count = 10, error = false }) {
         ))}
       </ul>
       {/* Pagination */}
-      <div className="border-border-primary mt-3 flex items-center justify-between border-t pt-3">
+      <div className="mt-3 flex items-center justify-between py-3">
         <SkeletonBar className="h-4 w-32" error={error} />
         <div className="flex gap-3">
           <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
