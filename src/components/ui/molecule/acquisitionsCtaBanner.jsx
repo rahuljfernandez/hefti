@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
+import CtaLinkButton from '../atom/ctaLinkButton';
 
 /* Shared purple call-to-action banner for ownership-change / acquisitions
    sections. Renders the gradient panel and dark link button; the message is
@@ -25,13 +25,9 @@ export default function AcquisitionsCtaBanner({
       )}
     >
       <p className="text-paragraph-base text-content-primary">{children}</p>
-      <Link
-        to={to}
-        className="focus-ring-light inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
-      >
+      <CtaLinkButton to={to} icon={ArrowRightIcon}>
         {label}
-        <ArrowRightIcon className="size-5" aria-hidden="true" />
-      </Link>
+      </CtaLinkButton>
     </div>
   );
 }
