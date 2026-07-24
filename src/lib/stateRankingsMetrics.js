@@ -12,14 +12,14 @@
 /* The five "Rank by" dimensions, in choropleth order (matches COLOR_BY_DIMENSIONS
    in ratingMetricsConfig.js and the metric keys in the /api/state-metrics payload).
    `sort` is the facilities-browse pre-sort field for the card link — Quality has no
-   sortable facilities field, so it links state-only. `format` drives value display:
-   stars → "X.X avg", percent → "X.X%". */
+   sortable facilities field, so it links state-only. Value formatting comes from the
+   payload's meta.format, not from here. */
 export const STATE_RANKING_DIMENSIONS = [
-  { id: 'overall', name: 'Overall', valueLabel: 'Overall rating', format: 'stars', sort: 'overall_rating' },
-  { id: 'health', name: 'Health', valueLabel: 'Health rating', format: 'stars', sort: 'health_inspection_rating' },
-  { id: 'staffing', name: 'Staffing', valueLabel: 'Staffing rating', format: 'stars', sort: 'staffing_rating' },
-  { id: 'quality', name: 'Quality', valueLabel: 'Quality rating', format: 'stars', sort: null },
-  { id: 'financial', name: 'Financial', valueLabel: 'Operating margin', format: 'percent', sort: 'operating_margin' },
+  { id: 'overall', name: 'Overall', sort: 'overall_rating' },
+  { id: 'health', name: 'Health', sort: 'health_inspection_rating' },
+  { id: 'staffing', name: 'Staffing', sort: 'staffing_rating' },
+  { id: 'quality', name: 'Quality', sort: null },
+  { id: 'financial', name: 'Financial', sort: 'operating_margin' },
 ];
 
 function facilitiesLink(stateCode, sortField) {
@@ -46,7 +46,7 @@ export function buildStateRankingCards(metric, def, order = 'best') {
       rank: s.rank,
       bucket: s.bucket,
       displayValue: s.displayValue,
-      valueSuffix: def.format === 'stars' ? 'avg' : null,
+      valueSuffix: metric.meta?.format === 'stars' ? 'avg' : null,
       to: facilitiesLink(s.stateCode, def.sort),
     }));
   items.sort((a, b) => (order === 'best' ? a.rank - b.rank : b.rank - a.rank));

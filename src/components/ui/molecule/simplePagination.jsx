@@ -46,10 +46,10 @@ export default function SimplePagination({
           aria-label="Go to previous page"
           aria-disabled={isFirst}
           className={clsx(
-            'focus-ring-light text-paragraph-base text-content-secondary relative inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
+            'focus-ring-light text-paragraph-base text-content-secondary relative inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-border-primary',
             isFirst
               ? 'cursor-not-allowed opacity-50'
-              : 'hover:cursor-pointer hover:bg-gray-50',
+              : 'hover:cursor-pointer hover:bg-background-tertiary',
           )}
         >
           ← Previous
@@ -61,10 +61,10 @@ export default function SimplePagination({
           aria-label="Go to next page"
           aria-disabled={isLast}
           className={clsx(
-            'focus-ring-light text-paragraph-base text-content-secondary relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-gray-300',
+            'focus-ring-light text-paragraph-base text-content-secondary relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 inset-ring inset-ring-border-primary',
             isLast
               ? 'cursor-not-allowed opacity-50'
-              : 'hover:cursor-pointer hover:bg-gray-50',
+              : 'hover:cursor-pointer hover:bg-background-tertiary',
           )}
         >
           Next →

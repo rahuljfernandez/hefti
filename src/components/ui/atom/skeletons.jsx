@@ -285,7 +285,11 @@ ChartSkeleton.propTypes = {
  */
 export function StateRankingsSkeleton({ count = 10, error = false }) {
   return (
-    <div className={error ? '' : 'animate-pulse'}>
+    <div
+      className={error ? '' : 'animate-pulse'}
+      role="status"
+      aria-label={error ? 'Failed to load state rankings' : 'Loading state rankings'}
+    >
       {/* Controls row: Rank by + toggle (left), legend (right) */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
