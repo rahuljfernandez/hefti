@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/16/solid';
 import { Heading } from '../atom/heading';
 import { Select } from '../atom/select';
@@ -37,6 +37,8 @@ export default function StateRankingsHiLowViz() {
 
   const { payload, status } = useStateMetrics();
 
+  const sectionRef = useRef(null);
+
   const dim = useMemo(
     () => STATE_RANKING_DIMENSIONS.find((d) => d.id === dimId),
     [dimId],
@@ -63,12 +65,23 @@ export default function StateRankingsHiLowViz() {
   };
 
   const toggleExpanded = () => {
+    const collapsing = expanded;
     setExpanded((prev) => !prev);
     setPage(1);
+    /* Collapsing drops ~40 cards and the content below jumps up, leaving the
+       viewport past this section; pull the section top back into view. */
+    if (collapsing) {
+      requestAnimationFrame(() =>
+        sectionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        }),
+      );
+    }
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div ref={sectionRef} className="mx-auto max-w-5xl scroll-mt-6">
       {/* Title / subtitle — left-aligned */}
       <div className="mb-6">
         <Heading level={2} className="text-heading-lg mb-2 font-semibold">
