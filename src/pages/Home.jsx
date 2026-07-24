@@ -17,6 +17,8 @@ import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
 import ExploreByState from '../components/ui/organism/exploreByState.jsx';
+import HomeAcquisitionsCta from '../components/ui/organism/homeAcquisitionsCta.jsx';
+import CtaLinkButton from '../components/ui/atom/ctaLinkButton';
 
 /**
  * Home page
@@ -36,9 +38,6 @@ export default function Home() {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
-
-  const heroCtaClasses =
-    'focus-ring-light inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800';
 
   useEffect(() => {
     setLoading(true);
@@ -97,9 +96,9 @@ export default function Home() {
                 <span>View nursing home profile pages</span>
               </li>
             </ul>
-            <Link to="/facilities" className={heroCtaClasses}>
+            <CtaLinkButton to="/facilities" fullWidth>
               Browse Nursing Homes
-            </Link>
+            </CtaLinkButton>
           </div>
           <div className="border-content-tertiary flex flex-1 flex-col items-center rounded-xl border bg-[radial-gradient(circle_at_top_right,_#E9D5FF_20%,_#FAF5FF_60%)] p-5 shadow-sm">
             <UserGroupCircle className="mb-3 h-16 w-16" />
@@ -116,9 +115,9 @@ export default function Home() {
                 <span>View profile pages for owners</span>
               </li>
             </ul>
-            <Link to="/owners" className={heroCtaClasses}>
+            <CtaLinkButton to="/owners" fullWidth>
               Browse Owners
-            </Link>
+            </CtaLinkButton>
           </div>
         </div>
       </section>
@@ -267,6 +266,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Latest ownership changes feed + acquisitions-tracker CTA.
+          TEMP: `to` points at an external demo until the /acquisitions route ships. */}
+      <HomeAcquisitionsCta to="https://yutingfan1209.github.io/nursing-home-live-feed/" />
       {/*State Ranking Data Table Visuals */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <StateRankingsHiLowViz />
