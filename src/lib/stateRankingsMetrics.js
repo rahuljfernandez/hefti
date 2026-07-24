@@ -31,7 +31,7 @@ function facilitiesLink(stateCode, sortField) {
  * Reduces a fetched /api/state-metrics metric (`{ meta, states[] }`) into
  * display-ready card items for the grid, ordered by rank ascending (`best`) or
  * descending (`worst`). `to` is the facilities pre-filter/pre-sort link;
- * `valueSuffix` is "avg" for star metrics and null for percent. States with no
+ * `valueSuffix` is "avg" for star metrics and "op margin" for percent. States with no
  * rank/bucket (no data) are skipped. Fill/badge color is derived at render time
  * from `bucket` via bucketColor, so switching Best/Worst never changes a state's
  * color.
@@ -46,7 +46,7 @@ export function buildStateRankingCards(metric, def, order = 'best') {
       rank: s.rank,
       bucket: s.bucket,
       displayValue: s.displayValue,
-      valueSuffix: metric.meta?.format === 'stars' ? 'avg' : null,
+      valueSuffix: metric.meta?.format === 'stars' ? 'avg' : 'op margin',
       to: facilitiesLink(s.stateCode, def.sort),
     }));
   items.sort((a, b) => (order === 'best' ? a.rank - b.rank : b.rank - a.rank));
