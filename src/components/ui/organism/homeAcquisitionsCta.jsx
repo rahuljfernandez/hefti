@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
+import LayoutCard from '../atom/layout-card';
+import AcquisitionsCtaBanner from '../molecule/acquisitionsCtaBanner';
 
 const WINDOW_DAYS = 30;
 const TOTAL_CHANGES = 16;
@@ -114,12 +114,12 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
         <Heading level={2} className="text-heading-lg font-semibold">
           Latest Ownership Changes
         </Heading>
-        <p className="text-content-secondary text-paragraph-base mt-1.5">
+        <p className="text-content-primary text-paragraph-base mt-1.5">
           Facility acquisitions and ownership transitions, as reported to CMS.
         </p>
 
-        <div className="border-border-primary mt-5 rounded-xl border bg-white shadow-sm">
-          <div className="px-6 pt-6">
+        <div className="mt-5">
+          <LayoutCard>
             {deals.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-content-primary text-label-base">
@@ -140,24 +140,19 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
                 ))}
               </ul>
             )}
-          </div>
 
-          <div className="border-border-primary mt-6 flex flex-col gap-4 border-t px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <p className="text-content-secondary text-paragraph-base">
+            <AcquisitionsCtaBanner
+              to={to}
+              label="View all ownership changes"
+              className="mt-6"
+            >
               <b className="text-content-primary text-heading-sm mr-1">
                 {TOTAL_CHANGES}
               </b>
               ownership {TOTAL_CHANGES === 1 ? 'change' : 'changes'} in the last{' '}
               {WINDOW_DAYS} days
-            </p>
-            <Link
-              to={to}
-              className="focus-ring-light inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
-            >
-              View all ownership changes
-              <ArrowRightIcon className="size-5" aria-hidden="true" />
-            </Link>
-          </div>
+            </AcquisitionsCtaBanner>
+          </LayoutCard>
         </div>
       </div>
     </section>
