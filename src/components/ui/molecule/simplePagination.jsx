@@ -6,7 +6,7 @@ import clsx from 'clsx';
  * Simple previous / next pagination bar with a "Showing X–Y of Z" summary.
  * Buttons are disabled and marked aria-disabled at the first and last pages.
  *
- * Used in: src/components/ui/molecule/rankingTables.jsx
+ * Used in: src/components/ui/organism/stateRankingsHiLowViz.jsx
  */
 export default function SimplePagination({ currentPage, totalItems, pageSize, onPrev, onNext }) {
   const start = (currentPage - 1) * pageSize + 1;

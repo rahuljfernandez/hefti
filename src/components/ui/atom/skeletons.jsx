@@ -264,28 +264,37 @@ ChartSkeleton.propTypes = {
 };
 
 /**
- * Skeleton for RankingTables — mirrors the header, 5-row list, and pagination layout.
- * Pass error={true} to swap the pulse animation for static red bars and an error message.
+ * Skeleton for the home-page State Rankings card grid — mirrors the controls row,
+ * a 10-card grid, and the pagination bar. Pass error={true} to swap the pulse for
+ * static red fills and an error message. The section title is rendered by the
+ * organism above this, so it is intentionally omitted here.
  *
- * Used in: src/components/ui/molecule/rankingTables.jsx
+ * Used in: src/components/ui/organism/stateRankingsHiLowViz.jsx
  */
-export function RankingTablesSkeleton({ error = false }) {
+export function StateRankingsSkeleton({ count = 10, error = false }) {
   return (
-    <div className={`bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6 ${error ? '' : 'animate-pulse'}`}>
-      {/* Title / Toggle */}
-      <div className="mb-4 flex items-center justify-between">
-        <SkeletonBar className="h-5 w-36" error={error} />
-        <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
+    <div className={error ? '' : 'animate-pulse'}>
+      {/* Controls row: Rank by + toggle (left), legend (right) */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <SkeletonBar className="h-9 w-32 rounded-md" error={error} />
+          <SkeletonBar className="h-9 w-28 rounded-md" error={error} />
+        </div>
+        <SkeletonBar className="h-4 w-56 rounded-sm" error={error} />
       </div>
-      {/* Rows */}
-      <ul className="divide-y divide-gray-200">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <li key={i} className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-4">
-              <SkeletonBar className="h-4 w-4" error={error} />
-              <SkeletonBar className="h-4 w-32" error={error} />
+      {/* Card grid */}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+        {Array.from({ length: count }).map((_, i) => (
+          <li
+            key={i}
+            className="border-border-primary flex flex-col items-center rounded-lg border bg-white p-3"
+          >
+            <div className="mb-1 flex w-full justify-end">
+              <SkeletonBar className="h-4 w-8 rounded-md" error={error} />
             </div>
-            <SkeletonBar className="h-6 w-10 rounded-full" error={error} />
+            <SkeletonBar className="h-12 w-12 rounded-md" error={error} />
+            <SkeletonBar className="mt-2 h-4 w-20" error={error} />
+            <SkeletonBar className="mt-1 h-3 w-12" error={error} />
           </li>
         ))}
       </ul>
@@ -306,7 +315,8 @@ export function RankingTablesSkeleton({ error = false }) {
   );
 }
 
-RankingTablesSkeleton.propTypes = {
+StateRankingsSkeleton.propTypes = {
+  count: PropTypes.number,
   error: PropTypes.bool,
 };
 

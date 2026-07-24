@@ -1,15 +1,20 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/16/solid';
 import { Heading } from '../atom/heading';
+import { Select } from '../atom/select';
 import ChoroplethLegend from '../molecule/choroplethLegend';
 import BestWorstToggle from '../molecule/bestWorstToggle';
 import SimplePagination from '../molecule/simplePagination';
 import StateShapeCard from '../molecule/stateShapeCard';
+import { StateRankingsSkeleton } from '../atom/skeletons';
 import {
   STATE_RANKING_DIMENSIONS,
-  buildStateRankingMetric,
   buildStateRankingCards,
 } from '../../../lib/stateRankingsMetrics';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://hefti-data-api.ddev.site:3000/api';
 
 const PAGE_SIZE = 10;
 
@@ -22,9 +27,9 @@ const PAGE_SIZE = 10;
  * bucket, matching the "Explore by State" map above. Clicking a card opens the
  * facilities browse pre-filtered by state and pre-sorted by the metric.
  *
- * Stage 1: data comes from hardcoded placeholder values (stateRankingsMetrics.js).
- * Stage 2 swaps in the /api/state-metrics payload — its per-dimension shape already
- * matches what buildStateRankingCards consumes.
+ * Fetches all five metrics from /state-metrics once on mount; switching the
+ * "Rank by" dimension is then a client-side lookup (no refetch), mirroring
+ * ExploreByState. Shows a skeleton while loading and a red-tinted skeleton on error.
  */
 export default function StateRankingsHiLowViz() {
   const [dimId, setDimId] = useState(STATE_RANKING_DIMENSIONS[0].id);
@@ -32,15 +37,41 @@ export default function StateRankingsHiLowViz() {
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState(false);
 
+  const [payload, setPayload] = useState(null);
+  const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+
+  /* Fetch all five metrics once; dimension switching is then a client-side lookup. */
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/state-metrics`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load state metrics');
+        return res.json();
+      })
+      .then((json) => {
+        if (cancelled) return;
+        setPayload(json);
+        setStatus('ready');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPayload(null);
+        setStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const dim = useMemo(
     () => STATE_RANKING_DIMENSIONS.find((d) => d.id === dimId),
     [dimId],
   );
 
   const cards = useMemo(() => {
-    const metric = buildStateRankingMetric(dim);
-    return buildStateRankingCards(metric, dim, order);
-  }, [dim, order]);
+    const metric = payload?.metrics?.[dim.id];
+    return metric ? buildStateRankingCards(metric, dim, order) : [];
+  }, [payload, dim, order]);
 
   const totalItems = cards.length;
   const visible = expanded
@@ -69,91 +100,94 @@ export default function StateRankingsHiLowViz() {
         <Heading level={2} className="text-heading-lg mb-2 font-semibold">
           State Rankings
         </Heading>
-        <p className="text-paragraph-lg text-content-secondary">
-          Rankings based on cohorts of CMS measures including financial, staffing,
-          and health outcomes
+        <p className="text-paragraph-lg text-content-primary">
+          Rankings based on cohorts of CMS measures including financial,
+          staffing, and health outcomes
         </p>
       </div>
 
-      {/* Controls: Rank by + Best/Worst on the left, legend on the right */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <label
-            htmlFor="rank-by"
-            className="text-label-sm text-content-secondary whitespace-nowrap"
-          >
-            Rank by
-          </label>
-          <div className="relative">
-            <select
-              id="rank-by"
-              value={dimId}
-              onChange={handleDimChange}
-              className="focus-ring-light text-label-sm text-core-black border-border-primary appearance-none rounded-md border bg-white py-1.5 pr-8 pl-3"
-            >
-              {STATE_RANKING_DIMENSIONS.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-gray-500"
-            />
+      {status !== 'ready' ? (
+        <StateRankingsSkeleton error={status === 'error'} />
+      ) : (
+        <>
+          {/* Controls: Rank by + Best/Worst on the left, legend on the right */}
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <label
+                htmlFor="rank-by"
+                className="text-label-sm text-core-black shrink-0 font-medium"
+              >
+                Rank by
+              </label>
+              <Select
+                id="rank-by"
+                aria-label="Rank by"
+                value={dimId}
+                onChange={handleDimChange}
+                className="w-full sm:w-52"
+              >
+                {STATE_RANKING_DIMENSIONS.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </Select>
+              <BestWorstToggle value={order} onChange={handleOrder} />
+            </div>
+
+            <ChoroplethLegend />
           </div>
-          <BestWorstToggle value={order} onChange={handleOrder} />
-        </div>
 
-        <ChoroplethLegend />
-      </div>
+          {/* Card grid */}
+          <ul
+            role="list"
+            aria-label={`States ranked by ${dim.name}`}
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5"
+          >
+            {visible.map((item) => (
+              <li key={item.stateCode}>
+                <StateShapeCard item={item} />
+              </li>
+            ))}
+          </ul>
 
-      {/* Card grid */}
-      <ul
-        role="list"
-        aria-label={`States ranked by ${dim.name}`}
-        className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5"
-      >
-        {visible.map((item) => (
-          <li key={item.stateCode}>
-            <StateShapeCard item={item} />
-          </li>
-        ))}
-      </ul>
-
-      {/* Pagination (collapsed only) + expand/collapse */}
-      {!expanded && (
-        <SimplePagination
-          currentPage={page}
-          totalItems={totalItems}
-          pageSize={PAGE_SIZE}
-          onPrev={() => setPage((p) => Math.max(p - 1, 1))}
-          onNext={() =>
-            setPage((p) => Math.min(p + 1, Math.ceil(totalItems / PAGE_SIZE)))
-          }
-        />
-      )}
-
-      <div className="mt-3 flex justify-center">
-        <button
-          type="button"
-          onClick={toggleExpanded}
-          aria-expanded={expanded}
-          className="focus-ring-light text-label-sm inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-blue-700 hover:cursor-pointer hover:text-blue-800"
-        >
-          {expanded ? (
-            <>
-              Collapse
-              <ChevronUpIcon aria-hidden="true" className="size-4" />
-            </>
-          ) : (
-            <>
-              View all {totalItems}
-              <ChevronDownIcon aria-hidden="true" className="size-4" />
-            </>
+          {/* Pagination (collapsed only) + expand/collapse */}
+          {!expanded && (
+            <SimplePagination
+              currentPage={page}
+              totalItems={totalItems}
+              pageSize={PAGE_SIZE}
+              onPrev={() => setPage((p) => Math.max(p - 1, 1))}
+              onNext={() =>
+                setPage((p) =>
+                  Math.min(p + 1, Math.ceil(totalItems / PAGE_SIZE)),
+                )
+              }
+            />
           )}
-        </button>
-      </div>
+
+          <div className="mt-3 flex justify-center">
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              aria-expanded={expanded}
+              className="focus-ring-light text-label-sm inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-blue-700 hover:cursor-pointer hover:text-blue-800"
+            >
+              {expanded ? (
+                <>
+                  Collapse
+                  <ChevronUpIcon aria-hidden="true" className="size-4" />
+                </>
+              ) : (
+                <>
+                  View all {totalItems}
+                  <ChevronDownIcon aria-hidden="true" className="size-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
