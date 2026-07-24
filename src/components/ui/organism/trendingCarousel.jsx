@@ -22,10 +22,10 @@ import MonthlyOwnershipChangeChart from './monthlyOwnershipChangeChart';
 function PlaceholderChart() {
   return (
     <div
-      className="bg-background-primary rounded-lg px-3 py-4 md:px-6"
+      className="bg-core-white rounded-lg px-3 py-4 md:px-6"
       aria-hidden="true"
     >
-      <div className="h-[580px] w-full" />
+      <div className="h-[440px] w-full" />
     </div>
   );
 }

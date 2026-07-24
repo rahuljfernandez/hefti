@@ -20,6 +20,24 @@ import { useIsMobile } from '../../../hooks/useIsMobile';
  * a screen-reader-only data table, and ARIA roles on the SVG wrapper.
  */
 
+/* TEMP local-dev mock: this environment lacks the full 12 months, so tune the
+   layout against realistic proportions. Gated on DEV; delete before shipping. */
+const USE_MOCK_DATA = import.meta.env.DEV;
+const MOCK_DATA = [
+  { month: 'Jan', count: 1488, indicator: 'PEAK' },
+  { month: 'Feb', count: 485 },
+  { month: 'Mar', count: 554 },
+  { month: 'Apr', count: 390 },
+  { month: 'May', count: 270 },
+  { month: 'Jun', count: 305 },
+  { month: 'Jul', count: 233 },
+  { month: 'Aug', count: 198 },
+  { month: 'Sep', count: 122 },
+  { month: 'Oct', count: 137 },
+  { month: 'Nov', count: 83 },
+  { month: 'Dec', count: 80, indicator: 'LOWEST' },
+];
+
 const Y_AXIS_WIDTH = 130;
 const CHART_MARGIN = { top: 0, right: 120, bottom: 20, left: 10 };
 
@@ -154,9 +172,9 @@ function Chart({ data }) {
       <div
         role="img"
         aria-describedby={descId}
-        className="bg-background-primary rounded-lg px-3 py-4 md:px-6"
+        className="bg-core-white rounded-lg px-3 py-4 md:px-6"
       >
-        <ResponsiveContainer width="100%" height={580}>
+        <ResponsiveContainer width="100%" height={440}>
           <BarChart
             layout="vertical"
             data={data}
@@ -249,6 +267,12 @@ export default function MonthlyOwnershipChangeChart() {
     async function load() {
       setLoading(true);
       setError(null);
+
+      if (USE_MOCK_DATA) {
+        setData(MOCK_DATA);
+        setLoading(false);
+        return;
+      }
 
       try {
         const res = await fetch(`${API_BASE_URL}/ownership-change-volume`, {
