@@ -4,10 +4,9 @@ import clsx from 'clsx';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
+import LayoutCard from '../atom/layout-card';
 
-/** Circular prev/next control. Positioning is supplied by `className` so the
- *  same button works both in the desktop side gutters and, on mobile, inline
- *  beside the dot tracker. */
+/** Circular prev/next control for the carousel. */
 function CarouselArrow({ direction, onClick, className }) {
   const Icon = direction === 'prev' ? ArrowLeftIcon : ArrowRightIcon;
   return (
@@ -32,16 +31,13 @@ CarouselArrow.propTypes = {
 };
 
 /**
- * Carousel — a single "container" that houses one slide at a time.
+ * Carousel — a card that houses one slide at a time, with its navigation
+ * controls in a separate row beneath the card.
  *
- * Reflecting the trending-charts design, the container owns all the chrome:
- * the active slide's title/subtitle header, the prev/next arrows, and the dot
- * tracker along the bottom. Only the slide body (a chart, a placeholder tile,
- * …) swaps as the user flips through. The carousel loops, so the arrows never
- * disable at the ends.
- *
- * The prev/next arrows sit at the two edges of the row beneath the slide, with
- * the dot tracker centered between them.
+ * The card shows the active slide's title/subtitle header above the slide body;
+ * only the body (a chart, a placeholder tile, …) swaps as the user flips
+ * through. The carousel loops, so the arrows never disable at the ends. Below
+ * the card, the prev/next arrows flank a centered dot tracker.
  *
  * @example
  * <Carousel
@@ -81,34 +77,37 @@ export default function Carousel({ slides, options, ariaLabel }) {
 
   return (
     <div role="group" aria-roledescription="carousel" aria-label={ariaLabel}>
-      <div className="mb-4">
-        <Heading level={3} className="text-heading-xs">
-          {activeSlide.title}
-        </Heading>
-        {activeSlide.subtitle && (
-          <p className="text-paragraph-sm text-content-secondary mt-1">
-            {activeSlide.subtitle}
-          </p>
-        )}
-      </div>
-
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {slides.map((slide, index) => (
-            <div
-              /* Slides are a fixed, caller-ordered list; index keys are stable. */
-              key={index}
-              className="min-w-0 flex-[0_0_100%]"
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${index + 1} of ${slides.length}`}
-              aria-hidden={index !== selectedIndex}
-            >
-              {slide.content}
-            </div>
-          ))}
+      {/* Title and slide share one card surface; the controls sit below it. */}
+      <LayoutCard>
+        <div className="mb-4" aria-live="polite" aria-atomic="true">
+          <Heading level={3} className="text-heading-xs">
+            {activeSlide.title}
+          </Heading>
+          {activeSlide.subtitle && (
+            <p className="text-paragraph-sm text-content-secondary mt-1">
+              {activeSlide.subtitle}
+            </p>
+          )}
         </div>
-      </div>
+
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {slides.map((slide, index) => (
+              <div
+                /* Slides are a fixed, caller-ordered list; index keys are stable. */
+                key={index}
+                className="min-w-0 flex-[0_0_100%]"
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${index + 1} of ${slides.length}`}
+                aria-hidden={index !== selectedIndex}
+              >
+                {slide.content}
+              </div>
+            ))}
+          </div>
+        </div>
+      </LayoutCard>
 
       {/* Arrows flank the dot tracker, the group centered as a whole. */}
       <div className="mt-6 flex items-center justify-center gap-4">
