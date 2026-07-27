@@ -84,12 +84,12 @@ export default function StateRankingsHiLowViz() {
     <div ref={sectionRef} className="mx-auto max-w-5xl scroll-mt-6">
       {/* Title / subtitle — left-aligned */}
       <div className="mb-6">
-        <Heading level={2} className="text-heading-lg mb-2 font-semibold">
+        <Heading level={2} className="text-heading-sm">
           State Rankings
         </Heading>
         <p className="text-paragraph-lg text-content-primary">
           Rankings based on cohorts of CMS measures including financial,
-          staffing, and health outcomes
+          staffing, quality and health outcomes
         </p>
       </div>
 
