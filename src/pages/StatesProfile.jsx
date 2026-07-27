@@ -224,10 +224,12 @@ export default function StatesProfile() {
             </TabsShell>
 
             {/* Ownership-changes CTA. changeCount is a placeholder until the
-                state-stats API exposes an annual ownership-change total. */}
+                state-stats API exposes an annual ownership-change total.
+                TEMP: `to` points at an external demo until the /acquisitions route ships. */}
             <StateAcquisitionsCta
               stateName={expandStateAbbreviation(stateStats.state)}
               changeCount={15}
+              to="https://yutingfan1209.github.io/nursing-home-live-feed/"
             />
           </>
         )}

@@ -103,7 +103,7 @@ export default function TabsSelector({
                   <span
                     aria-hidden="true"
                     className={classNames(
-                      active ? 'bg-indigo-700' : 'bg-transparent',
+                      active ? 'bg-purple-600' : 'bg-transparent',
                       'absolute inset-x-0 bottom-0 h-0.5',
                     )}
                   />
