@@ -114,7 +114,7 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
         <Heading level={2} className="text-heading-sm">
           Latest Ownership Changes
         </Heading>
-        <p className="text-content-primary text-paragraph-lg">
+        <p className="text-paragraph-lg text-content-primary">
           Facility acquisitions and ownership transitions.
         </p>
 
