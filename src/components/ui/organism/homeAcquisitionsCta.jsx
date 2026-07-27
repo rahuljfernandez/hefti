@@ -109,12 +109,12 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
   const deals = RECENT_DEALS;
 
   return (
-    <section className="bg-background-secondary w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+    <section className="bg-background-secondary w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
       <div className="mx-auto max-w-5xl">
-        <Heading level={2} className="text-heading-sm font-semibold">
+        <Heading level={2} className="text-heading-sm">
           Latest Ownership Changes
         </Heading>
-        <p className="text-content-primary text-paragraph-base mt-1.5">
+        <p className="text-content-primary text-paragraph-lg">
           Facility acquisitions and ownership transitions.
         </p>
 

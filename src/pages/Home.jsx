@@ -267,11 +267,11 @@ export default function Home() {
           TEMP: `to` points at an external demo until the /acquisitions route ships. */}
       <HomeAcquisitionsCta to="https://yutingfan1209.github.io/nursing-home-live-feed/" />
       {/*State Ranking Data Table Visuals */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <StateRankingsHiLowViz />
       </section>
       {/* Trending charts carousel section */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <TrendingCarousel />
       </section>
     </div>
