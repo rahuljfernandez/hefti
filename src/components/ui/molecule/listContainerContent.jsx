@@ -14,6 +14,7 @@ import { UserIcon } from '@heroicons/react/24/outline';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import MatchChip from './matchChip';
 import { ArrowRightIcon } from '@heroicons/react/16/solid';
+import { SparklesIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
 /**
@@ -132,6 +133,37 @@ export function OwnershipAndStakeholders({ item }) {
 
 OwnershipAndStakeholders.propTypes = {
   item: PropTypes.object.isRequired,
+};
+
+/**
+ * AI-generated summary card shown beside the deficiency stat card on the
+ * facility, owner, and state profiles.
+ *
+ * Renders an item of { title, body, subtitle } with a fixed sparkle icon.
+ * Content is mock until the summary becomes a real API field — see the
+ * placeholder object in deficienciesTab.jsx.
+ */
+export function AiSummaryCard({ item }) {
+  return (
+    <div className="border-border-primary h-full overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-6 shadow-sm">
+      <div className="flex items-center gap-2">
+        <SparklesIcon aria-hidden="true" className="size-5 text-blue-600" />
+        <p className="text-label-lg text-core-black">{item.title}</p>
+      </div>
+      <p className="text-paragraph-base text-core-black mt-4">{item.body}</p>
+      <p className="text-paragraph-sm text-content-secondary mt-4">
+        {item.subtitle}
+      </p>
+    </div>
+  );
+}
+
+AiSummaryCard.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    body: PropTypes.string,
+    subtitle: PropTypes.string,
+  }).isRequired,
 };
 
 // V1 placeholder — Rahul will split into separate report_date + report_url fields.
