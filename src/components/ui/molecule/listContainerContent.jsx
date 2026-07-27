@@ -9,6 +9,7 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
+import OutlineButton from '../atom/outlineButton';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
@@ -170,8 +171,8 @@ AiSummaryCard.propTypes = {
 // Update field names here once the backend change lands.
 export function DeficiencyReportItem({ item }) {
   return (
-    <div className="flex items-center justify-between">
-      <p className="text-paragraph-base text-core-black">
+    <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-4">
+      <p className="text-paragraph-base text-core-black font-bold">
         {item.report_date ?? '—'}
       </p>
       {item.report_url ? (
@@ -188,6 +189,10 @@ export function DeficiencyReportItem({ item }) {
           No report available
         </span>
       )}
+      {/* Opens an AI summary dropdown once that feature lands. */}
+      <OutlineButton icon={SparklesIcon} iconClassName="text-blue-600">
+        AI Summary
+      </OutlineButton>
     </div>
   );
 }
@@ -324,9 +329,9 @@ export function RelatedFacilities({ item }) {
         </div>
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -397,9 +402,9 @@ export function OwnerProperty({ item }) {
 
         {/* Button — top right on desktop, bottom on mobile */}
         <div className="md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -487,9 +492,9 @@ export function BrowseNursingHomes({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -624,9 +629,9 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -759,9 +764,9 @@ export function BrowseChains({ item }) {
 
         {/* Button */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Facilities
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -869,9 +874,9 @@ export function BrowseOwners({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
