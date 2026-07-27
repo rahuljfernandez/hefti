@@ -65,11 +65,11 @@ export default function ExploreByState() {
         <Heading
           level={2}
           id="explore-by-state-heading"
-          className="text-heading-lg font-bold"
+          className="text-heading-lg"
         >
           Explore by State
         </Heading>
-        <p className="text-label-base text-content-secondary mt-3">
+        <p className="text-label-base text-content-primary mt-3">
           State-level statistics, acquisitions, and related-party properties
         </p>
       </div>

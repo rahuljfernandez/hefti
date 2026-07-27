@@ -111,7 +111,7 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
   return (
     <section className="bg-background-secondary w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
       <div className="mx-auto max-w-5xl">
-        <Heading level={2} className="text-heading-lg font-semibold">
+        <Heading level={2} className="text-heading-sm font-semibold">
           Latest Ownership Changes
         </Heading>
         <p className="text-content-primary text-paragraph-base mt-1.5">

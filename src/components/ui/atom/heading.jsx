@@ -19,11 +19,16 @@ export function Heading({ className, level = 1, ...props }) {
     5: 'text-lg font-semibold',
     6: 'text-base font-semibold',
   };
+  /* clsx doesn't merge conflicting Tailwind utilities, so let a semantic type
+     token in className replace the level default rather than fight it. */
+  const hasTypeToken = /\btext-(display|heading|label|paragraph)-/.test(
+    className ?? '',
+  );
   return (
     <Element
       {...props}
       className={clsx(
-        sizeMap[level],
+        !hasTypeToken && sizeMap[level],
         className,
         'text-core-black',
       )}
