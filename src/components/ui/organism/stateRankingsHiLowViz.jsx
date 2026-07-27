@@ -89,7 +89,7 @@ export default function StateRankingsHiLowViz() {
         </Heading>
         <p className="text-paragraph-lg text-content-primary">
           Rankings based on cohorts of CMS measures including financial,
-          staffing, and health outcomes
+          staffing, quality and health outcomes
         </p>
       </div>
 

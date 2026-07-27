@@ -115,7 +115,7 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
           Latest Ownership Changes
         </Heading>
         <p className="text-content-primary text-paragraph-base mt-1.5">
-          Facility acquisitions and ownership transitions, as reported to CMS.
+          Facility acquisitions and ownership transitions.
         </p>
 
         <div className="mt-5">
