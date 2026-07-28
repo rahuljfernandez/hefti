@@ -152,7 +152,7 @@ export function AiSummaryCard({ item }) {
         <p className="text-label-lg text-core-black">{item.title}</p>
       </div>
       <p className="text-paragraph-base text-core-black mt-4">{item.body}</p>
-      <p className="text-paragraph-sm text-content-secondary mt-4">
+      <p className="text-paragraph-base text-content-secondary mt-4">
         {item.subtitle}
       </p>
     </div>
@@ -178,7 +178,7 @@ export function DeficiencyReportItem({ item }) {
       {item.report_url ? (
         <a
           href={item.report_url}
-          className="text-paragraph-base font-medium text-blue-600 underline"
+          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-700 underline hover:text-blue-800"
           target="_blank"
           rel="noreferrer"
         >
@@ -224,7 +224,7 @@ export function Deficiencies({ item }) {
 
         {/* Full Report spans both rows*/}
         <div className="order-last sm:order-none sm:col-span-1 sm:row-span-2 sm:flex sm:h-full sm:items-center sm:justify-end">
-          <span className="text-paragraph-base text-blue-600 underline">
+          <span className="text-paragraph-base font-medium text-blue-600 underline">
             Full Report
           </span>
         </div>

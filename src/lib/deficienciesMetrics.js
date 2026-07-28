@@ -1,5 +1,6 @@
 import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
 import { buildNationalComparison } from './getBadgeColor';
+import { toTitleCase } from './toTitleCase';
 
 /**
  * Deficiencies & Penalties metric config and builder helpers.
@@ -224,4 +225,50 @@ export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
 
 export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
   return buildStateStats(statePenaltiesConfig, metricsSource, nationalBenchmarks);
+}
+
+/* Display-ready rows for the "Facilities Driving Deficiency Burden" table on the
+   owner profile. `facilities` is the owner's linked facility records (full CMS
+   rows); `nationalBenchmarks` is the /national row. Ranks by deficiency count
+   descending and attaches the red/gray bar fraction (each count scaled to the
+   worst in the set), the deficiencies-vs-national multiple and above/below flag,
+   and a preformatted fine amount so the table cells render without a formatter.
+   `vs_national_label` is null when the national benchmark hasn't loaded — the
+   cell then omits the caption rather than guessing a direction. */
+export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
+  const nationalAvg = Number(nationalBenchmarks?.national_health_deficiencies);
+  const hasNational = Number.isFinite(nationalAvg) && nationalAvg > 0;
+
+  const ranked = (Array.isArray(facilities) ? facilities : [])
+    .filter(Boolean)
+    .map((facility) => ({
+      id: facility.slug ?? facility.provider_name,
+      facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
+      facility_slug: facility.slug,
+      state: facility.state ?? '',
+      deficiencies: facility.health_deficiencies ?? 0,
+      penalties: facility.total_penalties ?? 0,
+      fine_display: formatUSD(facility.total_amount_of_fines_in_usd),
+    }))
+    .sort((a, b) => b.deficiencies - a.deficiencies);
+
+  const maxDeficiencies = ranked.reduce(
+    (max, facility) => Math.max(max, facility.deficiencies),
+    0,
+  );
+
+  return ranked.map((facility) => {
+    const aboveNational = hasNational && facility.deficiencies > nationalAvg;
+    return {
+      ...facility,
+      above_national: aboveNational,
+      vs_national_label: !hasNational
+        ? null
+        : aboveNational
+          ? `${(facility.deficiencies / nationalAvg).toFixed(1)}x national`
+          : 'below national',
+      bar_fraction:
+        maxDeficiencies > 0 ? facility.deficiencies / maxDeficiencies : 0,
+    };
+  });
 }

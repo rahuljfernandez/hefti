@@ -7,6 +7,7 @@ import ListContainer, {
   ListContainerDivider,
 } from '../../organism/ListContainer';
 import { AiSummaryCard, DeficiencyReportItem } from '../listContainerContent';
+import FacilitiesDeficiencyBurden from '../../organism/facilitiesDeficiencyBurden';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -81,6 +82,14 @@ export default function DeficienciesTab({
   );
   const penaltiesStats = builders.penalties(metricsSource, nationalBenchmarks);
 
+  // Owner-context deficiency table ranks the owner's linked facilities.
+  const burdenFacilities =
+    status === 'owner'
+      ? (metricsSource?.facility_ownership_links
+          ?.map((link) => link.facility)
+          .filter(Boolean) ?? [])
+      : [];
+
   return (
     <section>
       {status === 'owner' && (
@@ -105,15 +114,23 @@ export default function DeficienciesTab({
             </div>
             <AiSummaryCard item={PLACEHOLDER_AI_SUMMARY} />
           </div>
-          {/* DeficiencyReportItem is a placeholder — item shape and field names will
-            need updating once the API exposes real inspection_reports fields. */}
-          <div className="py-4">
-            <ListContainer
-              items={PLACEHOLDER_INSPECTION_REPORTS}
-              LayoutSelector={ListContainerDivider}
-              ListContent={DeficiencyReportItem}
+          {status === 'owner' ? (
+            <FacilitiesDeficiencyBurden
+              facilities={burdenFacilities}
+              nationalBenchmarks={nationalBenchmarks}
             />
-          </div>
+          ) : (
+            /* DeficiencyReportItem is a placeholder — item shape and field names
+               will need updating once the API exposes real inspection_reports
+               fields. */
+            <div className="py-4">
+              <ListContainer
+                items={PLACEHOLDER_INSPECTION_REPORTS}
+                LayoutSelector={ListContainerDivider}
+                ListContent={DeficiencyReportItem}
+              />
+            </div>
+          )}
         </div>
 
         <div className="pb-8">
