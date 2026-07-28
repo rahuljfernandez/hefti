@@ -32,7 +32,10 @@ function DeficiencyVsNationalCell({ row }) {
       >
         {row.deficiencies}
       </p>
-      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+      <div
+        aria-hidden="true"
+        className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200"
+      >
         <div
           className={clsx(
             'h-full rounded-full',
@@ -125,7 +128,7 @@ export default function FacilitiesDeficiencyBurden({
           <button
             onClick={() => setShowAll(true)}
             className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
-            aria-label={`Show all ${rows.length} facilities`}
+            aria-label={`Load All Facilities (${rows.length} total)`}
           >
             Load All Facilities
           </button>

@@ -146,7 +146,7 @@ OwnershipAndStakeholders.propTypes = {
  */
 export function AiSummaryCard({ item }) {
   return (
-    <div className="border-border-primary h-full overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-6 shadow-sm">
+    <div className="border-border-primary bg-core-white h-full overflow-hidden rounded-lg border px-4 pt-5 pb-6 shadow-sm">
       <div className="flex items-center gap-2">
         <SparklesIcon aria-hidden="true" className="size-5 text-blue-600" />
         <p className="text-label-lg text-core-black">{item.title}</p>
