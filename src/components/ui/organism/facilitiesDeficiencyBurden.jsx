@@ -80,6 +80,7 @@ const columns = [
     key: 'deficiencies',
     header: "Deficiencies Vs Nat'l",
     width: 'w-48',
+    mobileBlock: true,
     cell: (row) => <DeficiencyVsNationalCell row={row} />,
   },
   {

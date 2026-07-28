@@ -19,7 +19,13 @@ import clsx from 'clsx';
  * column (e.g. the name) `rowHeader` so its cell renders as `<th scope="row">`,
  * giving screen readers row context for the other cells.
  *
- * columns: [{ key, header, align?, flex?, width?, rowHeader?, cell }]
+ * Below `md` the table is too wide, so each row instead renders as a stacked card
+ * (the rowHeader column is the card title, the rest are label/value pairs). Give a
+ * column `label` when its `header` is JSX/an icon, since the card needs a plain
+ * string; a column with `mobileBlock` renders its value full-width under the label
+ * instead of right-aligned beside it (e.g. an inline bar).
+ *
+ * columns: [{ key, header, label?, align?, flex?, width?, rowHeader?, mobileBlock?, cell }]
  * rows:    display-ready objects, each with a unique `id`
  */
 const alignClass = { left: 'text-left', right: 'text-right' };
@@ -32,57 +38,107 @@ const RANK_COLUMN = {
   cell: (_row, index) => index + 1,
 };
 
+const columnLabel = (col) =>
+  col.label ?? (typeof col.header === 'string' ? col.header : '');
+
 export default function DataTable({ columns, rows, showRank = true, caption }) {
   const allColumns = showRank ? [RANK_COLUMN, ...columns] : columns;
+  const titleColumn = columns.find((col) => col.rowHeader) ?? columns[0];
+  const detailColumns = columns.filter((col) => col !== titleColumn);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full table-fixed">
-        {caption && <caption className="sr-only">{caption}</caption>}
-        <thead>
-          <tr className="border-border-primary border-b">
-            {allColumns.map((col) => (
-              <th
-                key={col.key}
-                scope="col"
-                className={clsx(
-                  'text-label-base text-core-black px-4 py-3 first:pl-0 last:pr-0',
-                  !col.flex && 'whitespace-nowrap',
-                  col.width,
-                  alignClass[col.align] ?? 'text-left',
-                )}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-border-primary divide-y">
-          {rows.map((row, index) => (
-            <tr key={row.id}>
-              {allColumns.map((col) => {
-                const Cell = col.rowHeader ? 'th' : 'td';
-                return (
-                  <Cell
-                    key={col.key}
-                    scope={col.rowHeader ? 'row' : undefined}
-                    className={clsx(
-                      'text-paragraph-base text-core-black px-4 py-4 first:pl-0 last:pr-0',
-                      !col.flex && 'whitespace-nowrap',
-                      col.width,
-                      alignClass[col.align] ?? 'text-left',
-                      col.rowHeader && 'font-normal',
-                    )}
-                  >
-                    {col.cell(row, index)}
-                  </Cell>
-                );
-              })}
+    <>
+      {/* Desktop: real table */}
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full table-fixed">
+          {caption && <caption className="sr-only">{caption}</caption>}
+          <thead>
+            <tr className="border-border-primary border-b">
+              {allColumns.map((col) => (
+                <th
+                  key={col.key}
+                  scope="col"
+                  className={clsx(
+                    'text-label-base text-core-black px-4 py-3 first:pl-0 last:pr-0',
+                    !col.flex && 'whitespace-nowrap',
+                    col.width,
+                    alignClass[col.align] ?? 'text-left',
+                  )}
+                >
+                  {col.header}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-border-primary divide-y">
+            {rows.map((row, index) => (
+              <tr key={row.id}>
+                {allColumns.map((col) => {
+                  const Cell = col.rowHeader ? 'th' : 'td';
+                  return (
+                    <Cell
+                      key={col.key}
+                      scope={col.rowHeader ? 'row' : undefined}
+                      className={clsx(
+                        'text-paragraph-base text-core-black px-4 py-4 first:pl-0 last:pr-0',
+                        !col.flex && 'whitespace-nowrap',
+                        col.width,
+                        alignClass[col.align] ?? 'text-left',
+                        col.rowHeader && 'font-normal',
+                      )}
+                    >
+                      {col.cell(row, index)}
+                    </Cell>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile: one stacked card per row */}
+      <ul className="divide-border-primary divide-y md:hidden">
+        {rows.map((row, index) => (
+          <li key={row.id} className="py-4 first:pt-0 last:pb-0">
+            <div className="flex items-baseline gap-2">
+              {showRank && (
+                <span className="text-label-base text-content-secondary shrink-0">
+                  {index + 1}
+                </span>
+              )}
+              <div className="text-paragraph-base text-core-black font-medium">
+                {titleColumn.cell(row, index)}
+              </div>
+            </div>
+            <dl className="mt-3 flex flex-col gap-2">
+              {detailColumns.map((col) =>
+                col.mobileBlock ? (
+                  <div key={col.key}>
+                    <dt className="text-paragraph-sm text-content-secondary">
+                      {columnLabel(col)}
+                    </dt>
+                    <dd className="mt-1">{col.cell(row, index)}</dd>
+                  </div>
+                ) : (
+                  <div
+                    key={col.key}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <dt className="text-paragraph-sm text-content-secondary">
+                      {columnLabel(col)}
+                    </dt>
+                    <dd className="text-paragraph-base text-core-black text-right">
+                      {col.cell(row, index)}
+                    </dd>
+                  </div>
+                ),
+              )}
+            </dl>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -91,10 +147,12 @@ DataTable.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       header: PropTypes.node,
+      label: PropTypes.string,
       align: PropTypes.oneOf(['left', 'right']),
       flex: PropTypes.bool,
       width: PropTypes.string,
       rowHeader: PropTypes.bool,
+      mobileBlock: PropTypes.bool,
       cell: PropTypes.func.isRequired,
     }),
   ).isRequired,
