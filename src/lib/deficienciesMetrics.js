@@ -231,8 +231,9 @@ export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
    owner profile. `facilities` is the owner's linked facility records (full CMS
    rows); `nationalBenchmarks` is the /national row. Ranks by deficiency count
    descending and attaches the red/gray bar fraction (each count scaled to the
-   worst in the set), the deficiencies-vs-national multiple and above/below flag,
-   and a preformatted fine amount so the table cells render without a formatter.
+   worst in the set), the deficiencies-vs-national multiple and above/at/below
+   label, and a preformatted fine amount so the table cells render without a
+   formatter.
    `vs_national_label` is null when the national benchmark hasn't loaded — the
    cell then omits the caption rather than guessing a direction. */
 export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
@@ -259,14 +260,20 @@ export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) 
 
   return ranked.map((facility) => {
     const aboveNational = hasNational && facility.deficiencies > nationalAvg;
+    let vsNationalLabel = null;
+    if (hasNational) {
+      if (facility.deficiencies > nationalAvg) {
+        vsNationalLabel = `${(facility.deficiencies / nationalAvg).toFixed(1)}x national`;
+      } else if (facility.deficiencies === nationalAvg) {
+        vsNationalLabel = 'at national average';
+      } else {
+        vsNationalLabel = 'below national';
+      }
+    }
     return {
       ...facility,
       above_national: aboveNational,
-      vs_national_label: !hasNational
-        ? null
-        : aboveNational
-          ? `${(facility.deficiencies / nationalAvg).toFixed(1)}x national`
-          : 'below national',
+      vs_national_label: vsNationalLabel,
       bar_fraction:
         maxDeficiencies > 0 ? facility.deficiencies / maxDeficiencies : 0,
     };

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 
 /**
  * Config-driven ranked table: the caller supplies a `columns` array and
@@ -42,15 +43,64 @@ const columnLabel = (col) =>
   col.label ?? (typeof col.header === 'string' ? col.header : '');
 
 export default function DataTable({ columns, rows, showRank = true, caption }) {
+  const isMobile = useIsMobile(768);
   const allColumns = showRank ? [RANK_COLUMN, ...columns] : columns;
   const titleColumn = columns.find((col) => col.rowHeader) ?? columns[0];
   const detailColumns = columns.filter((col) => col !== titleColumn);
 
+  /* Below md the table is too wide, so render one stacked card per row instead
+     (the rowHeader column is the title, the rest are label/value pairs). Only one
+     layout mounts at a time, keyed off the md breakpoint, so cells aren't built
+     twice. The list takes its accessible name from `caption`, mirroring the
+     table's sr-only <caption>. */
+  if (isMobile) {
+    return (
+      <ul aria-label={caption} className="divide-border-primary divide-y">
+        {rows.map((row, index) => (
+          <li key={row.id} className="py-4 first:pt-0 last:pb-0">
+            <div className="flex items-baseline gap-2">
+              {showRank && (
+                <span className="text-label-base text-content-secondary shrink-0">
+                  {index + 1}
+                </span>
+              )}
+              <div className="text-paragraph-base text-core-black font-medium">
+                {titleColumn.cell(row, index)}
+              </div>
+            </div>
+            <dl className="mt-3 flex flex-col gap-2">
+              {detailColumns.map((col) =>
+                col.mobileBlock ? (
+                  <div key={col.key}>
+                    <dt className="text-paragraph-sm text-content-secondary">
+                      {columnLabel(col)}
+                    </dt>
+                    <dd className="mt-1">{col.cell(row, index)}</dd>
+                  </div>
+                ) : (
+                  <div
+                    key={col.key}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <dt className="text-paragraph-sm text-content-secondary">
+                      {columnLabel(col)}
+                    </dt>
+                    <dd className="text-paragraph-base text-core-black text-right">
+                      {col.cell(row, index)}
+                    </dd>
+                  </div>
+                ),
+              )}
+            </dl>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
-    <>
-      {/* Desktop: real table */}
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full table-fixed">
+    <div className="overflow-x-auto">
+      <table className="w-full table-fixed">
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
             <tr className="border-border-primary border-b">
@@ -96,49 +146,6 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
           </tbody>
         </table>
       </div>
-
-      {/* Mobile: one stacked card per row */}
-      <ul className="divide-border-primary divide-y md:hidden">
-        {rows.map((row, index) => (
-          <li key={row.id} className="py-4 first:pt-0 last:pb-0">
-            <div className="flex items-baseline gap-2">
-              {showRank && (
-                <span className="text-label-base text-content-secondary shrink-0">
-                  {index + 1}
-                </span>
-              )}
-              <div className="text-paragraph-base text-core-black font-medium">
-                {titleColumn.cell(row, index)}
-              </div>
-            </div>
-            <dl className="mt-3 flex flex-col gap-2">
-              {detailColumns.map((col) =>
-                col.mobileBlock ? (
-                  <div key={col.key}>
-                    <dt className="text-paragraph-sm text-content-secondary">
-                      {columnLabel(col)}
-                    </dt>
-                    <dd className="mt-1">{col.cell(row, index)}</dd>
-                  </div>
-                ) : (
-                  <div
-                    key={col.key}
-                    className="flex items-center justify-between gap-4"
-                  >
-                    <dt className="text-paragraph-sm text-content-secondary">
-                      {columnLabel(col)}
-                    </dt>
-                    <dd className="text-paragraph-base text-core-black text-right">
-                      {col.cell(row, index)}
-                    </dd>
-                  </div>
-                ),
-              )}
-            </dl>
-          </li>
-        ))}
-      </ul>
-    </>
   );
 }
 

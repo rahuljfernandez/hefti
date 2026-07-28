@@ -85,9 +85,8 @@ export default function DeficienciesTab({
   // Owner-context deficiency table ranks the owner's linked facilities.
   const burdenFacilities =
     status === 'owner'
-      ? (metricsSource?.facility_ownership_links
-          ?.map((link) => link.facility)
-          .filter(Boolean) ?? [])
+      ? (metricsSource?.facility_ownership_links?.map((link) => link.facility) ??
+        [])
       : [];
 
   return (
