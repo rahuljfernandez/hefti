@@ -43,6 +43,7 @@ export default function StatesProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [stateFacilities, setStateFacilities] = useState([]);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -94,6 +95,30 @@ export default function StatesProfile() {
 
     fetchNationalBenchmarks();
   }, []);
+
+  useEffect(() => {
+    /* Full facility list for this state, powering the "Facilities Driving
+       Deficiency Burden" table (and a future page-level export). The state-stats
+       endpoint only returns a facility count, so fetch the rows separately.
+       take is set high enough to cover every state's facilities in one request;
+       the burden table ranks and truncates client-side. */
+    setStateFacilities([]);
+    const fetchStateFacilities = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/facilities?state=${encodeURIComponent(
+            stateParam.toUpperCase(),
+          )}&take=1500`,
+        );
+        const data = await res.json();
+        setStateFacilities(data?.data ?? []);
+      } catch (err) {
+        console.error('Failed to fetch state facilities:', err);
+      }
+    };
+
+    fetchStateFacilities();
+  }, [stateParam]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
@@ -178,6 +203,7 @@ export default function StatesProfile() {
                         metricsSource={stateStats}
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
+                        facilities={stateFacilities}
                       />
                     );
 

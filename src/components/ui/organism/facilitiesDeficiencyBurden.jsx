@@ -105,6 +105,7 @@ const columns = [
 export default function FacilitiesDeficiencyBurden({
   facilities,
   nationalBenchmarks,
+  viewAllHref,
 }) {
   const rows = useMemo(
     () => buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks),
@@ -112,6 +113,7 @@ export default function FacilitiesDeficiencyBurden({
   );
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? rows : rows.slice(0, INITIAL_VISIBLE);
+  const hasMore = rows.length > INITIAL_VISIBLE;
 
   return (
     <section>
@@ -123,17 +125,31 @@ export default function FacilitiesDeficiencyBurden({
         rows={visible}
         caption="Facilities driving deficiency burden"
       />
-      {!showAll && rows.length > INITIAL_VISIBLE && (
-        <div className="pt-4 text-center">
-          <button
-            onClick={() => setShowAll(true)}
-            className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
-            aria-label={`Load All Facilities (${rows.length} total)`}
-          >
-            Load All Facilities
-          </button>
-        </div>
-      )}
+      {/* Owner context expands the list in place; state context sends the user
+          to the state-filtered facilities browse page instead. */}
+      {viewAllHref
+        ? hasMore && (
+            <div className="pt-4 text-center">
+              <Link
+                to={viewAllHref}
+                className="focus-ring-light text-paragraph-base rounded-sm text-blue-700 underline hover:text-blue-800"
+              >
+                View all {rows.length} facilities
+              </Link>
+            </div>
+          )
+        : !showAll &&
+          hasMore && (
+            <div className="pt-4 text-center">
+              <button
+                onClick={() => setShowAll(true)}
+                className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
+                aria-label={`Load All Facilities (${rows.length} total)`}
+              >
+                Load All Facilities
+              </button>
+            </div>
+          )}
     </section>
   );
 }
@@ -141,4 +157,5 @@ export default function FacilitiesDeficiencyBurden({
 FacilitiesDeficiencyBurden.propTypes = {
   facilities: PropTypes.arrayOf(PropTypes.object),
   nationalBenchmarks: PropTypes.object,
+  viewAllHref: PropTypes.string,
 };

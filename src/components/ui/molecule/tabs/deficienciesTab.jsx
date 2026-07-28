@@ -72,6 +72,7 @@ export default function DeficienciesTab({
   metricsSource,
   status,
   nationalBenchmarks,
+  facilities,
 }) {
   // Pick the builder set for this subject type (facility is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.facility;
@@ -82,12 +83,16 @@ export default function DeficienciesTab({
   );
   const penaltiesStats = builders.penalties(metricsSource, nationalBenchmarks);
 
-  // Owner-context deficiency table ranks the owner's linked facilities.
-  const burdenFacilities =
-    status === 'owner'
-      ? (metricsSource?.facility_ownership_links?.map((link) => link.facility) ??
-        [])
-      : [];
+  /* Both owner and state render the "Facilities Driving Deficiency Burden"
+     table. Owner ranks its linked facilities (embedded in the payload); state
+     ranks the facilities fetched for it and passed in as `facilities`. */
+  let burdenFacilities = [];
+  if (status === 'owner') {
+    burdenFacilities =
+      metricsSource?.facility_ownership_links?.map((link) => link.facility) ?? [];
+  } else if (status === 'state') {
+    burdenFacilities = facilities ?? [];
+  }
 
   return (
     <section>
@@ -113,10 +118,15 @@ export default function DeficienciesTab({
             </div>
             <AiSummaryCard item={PLACEHOLDER_AI_SUMMARY} />
           </div>
-          {status === 'owner' ? (
+          {status === 'owner' || status === 'state' ? (
             <FacilitiesDeficiencyBurden
               facilities={burdenFacilities}
               nationalBenchmarks={nationalBenchmarks}
+              viewAllHref={
+                status === 'state' && metricsSource?.state
+                  ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
+                  : undefined
+              }
             />
           ) : (
             /* DeficiencyReportItem is a placeholder — item shape and field names
@@ -152,4 +162,5 @@ DeficienciesTab.propTypes = {
   metricsSource: PropTypes.object,
   status: PropTypes.oneOf(['facility', 'owner', 'state']),
   nationalBenchmarks: PropTypes.object,
+  facilities: PropTypes.arrayOf(PropTypes.object),
 };
