@@ -57,7 +57,25 @@ DeficiencyVsNationalCell.propTypes = {
   row: PropTypes.object.isRequired,
 };
 
-const columns = [
+const stateColumn = {
+  key: 'state',
+  header: 'State',
+  width: 'w-16',
+  cell: (row) => row.state,
+};
+
+const ownerColumn = {
+  key: 'owner',
+  header: 'Owner',
+  flex: true,
+  cell: (row) => row.owner_name || '—',
+};
+
+/* Owner profile shows State (its facilities span states); state profile shows
+   Owner instead, since every row shares the state and the column would just
+   repeat it. Facility and Owner are both flex so long names wrap rather than
+   overflow; the numeric columns keep their fixed widths. */
+const buildColumns = (showOwner) => [
   {
     key: 'facility',
     header: 'Facility',
@@ -73,12 +91,7 @@ const columns = [
       </Link>
     ),
   },
-  {
-    key: 'state',
-    header: 'State',
-    width: 'w-16',
-    cell: (row) => row.state,
-  },
+  showOwner ? ownerColumn : stateColumn,
   {
     key: 'deficiencies',
     header: "Deficiencies Vs Nat'l",
@@ -106,11 +119,13 @@ export default function FacilitiesDeficiencyBurden({
   facilities,
   nationalBenchmarks,
   viewAllHref,
+  showOwner = false,
 }) {
   const rows = useMemo(
     () => buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks),
     [facilities, nationalBenchmarks],
   );
+  const columns = useMemo(() => buildColumns(showOwner), [showOwner]);
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? rows : rows.slice(0, INITIAL_VISIBLE);
   const hasMore = rows.length > INITIAL_VISIBLE;
@@ -158,4 +173,5 @@ FacilitiesDeficiencyBurden.propTypes = {
   facilities: PropTypes.arrayOf(PropTypes.object),
   nationalBenchmarks: PropTypes.object,
   viewAllHref: PropTypes.string,
+  showOwner: PropTypes.bool,
 };

@@ -122,6 +122,7 @@ export default function DeficienciesTab({
             <FacilitiesDeficiencyBurden
               facilities={burdenFacilities}
               nationalBenchmarks={nationalBenchmarks}
+              showOwner={status === 'state'}
               viewAllHref={
                 status === 'state' && metricsSource?.state
                   ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`

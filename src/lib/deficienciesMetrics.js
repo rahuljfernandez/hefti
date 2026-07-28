@@ -242,15 +242,25 @@ export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) 
 
   const ranked = (Array.isArray(facilities) ? facilities : [])
     .filter(Boolean)
-    .map((facility) => ({
-      id: facility.slug ?? facility.provider_name,
-      facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
-      facility_slug: facility.slug,
-      state: facility.state ?? '',
-      deficiencies: facility.health_deficiencies ?? 0,
-      penalties: facility.total_penalties ?? 0,
-      fine_display: formatUSD(facility.total_amount_of_fines_in_usd),
-    }))
+    .map((facility) => {
+      // Owner display mirrors the facilities browse card (primary ownership link).
+      const primaryOwnership =
+        facility.facility_ownership_links?.[0]?.ownership_entity;
+      return {
+        id: facility.slug ?? facility.provider_name,
+        facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
+        facility_slug: facility.slug,
+        state: facility.state ?? '',
+        owner_name: toTitleCase(
+          primaryOwnership?.cms_ownership_name ||
+            primaryOwnership?.parent_company_name ||
+            '',
+        ),
+        deficiencies: facility.health_deficiencies ?? 0,
+        penalties: facility.total_penalties ?? 0,
+        fine_display: formatUSD(facility.total_amount_of_fines_in_usd),
+      };
+    })
     .sort((a, b) => b.deficiencies - a.deficiencies);
 
   const maxDeficiencies = ranked.reduce(
