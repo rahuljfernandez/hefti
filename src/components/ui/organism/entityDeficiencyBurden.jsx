@@ -9,8 +9,8 @@ import { buildEntityDeficiencyBurden } from '../../../lib/deficienciesMetrics';
 const INITIAL_VISIBLE = 10;
 
 /**
- * Entity Driving Deficiency Burden — the state-context ranking table, shared by
- * the chains and individual-owners variants (mirrors the home page's split).
+ * State-context "Deficiencies by …" ranking table, shared by the chains and
+ * individual-owners variants (mirrors the home page's chains/owners split).
  *
  * Rows arrive pre-ranked and capped from a /state-*-burden endpoint; the builder
  * shapes them and this file owns the column config. `linkKind` sets where the
@@ -55,7 +55,7 @@ function buildColumns(nameHeader, linkKind, stateAbbr) {
                 {row.entity_name}
               </Link>
             ) : (
-              <p className="text-paragraph-base text-core-black font-medium">
+              <p className="text-label-base text-core-black">
                 {row.entity_name}
               </p>
             )}
@@ -124,8 +124,6 @@ export default function EntityDeficiencyBurden({
           <button
             onClick={() => setShowAll(true)}
             className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
-            aria-label={`View all ${rows.length} ${noun}`}
-            aria-expanded={showAll}
           >
             View all {rows.length} {noun}
           </button>

@@ -7,7 +7,7 @@ import DeficiencyVsNationalCell from '../molecule/deficiencyVsNationalCell';
 import { buildDeficiencyBurdenFacilities } from '../../../lib/deficienciesMetrics';
 
 /**
- * Facilities Driving Deficiency Burden — the owner- and state-context table.
+ * "Deficiencies by Facility" — the owner- and state-context table.
  *
  * Ranks facilities by deficiency count and shows each against the national
  * average. Thin wrapper over the shared DataTableCard: the builder shapes the
@@ -65,7 +65,7 @@ const buildColumns = (showOwner) => [
     header: 'Penalties',
     align: 'right',
     width: 'w-24',
-    cell: (row) => row.penalties,
+    cell: (row) => row.penalties_display,
   },
   {
     key: 'fines',
@@ -88,18 +88,21 @@ export default function FacilitiesDeficiencyBurden({
   );
   const columns = useMemo(() => buildColumns(showOwner), [showOwner]);
   const [showAll, setShowAll] = useState(false);
+
+  if (rows.length === 0) return null;
+
   const visible = showAll ? rows : rows.slice(0, INITIAL_VISIBLE);
   const hasMore = rows.length > INITIAL_VISIBLE;
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Facilities Driving Deficiency Burden
+        Deficiencies by Facility
       </Heading>
       <DataTableCard
         columns={columns}
         rows={visible}
-        caption="Facilities driving deficiency burden"
+        caption="Deficiencies by facility"
       />
       {/* Owner context expands the list in place; state context sends the user
           to the state-filtered facilities browse page instead. */}

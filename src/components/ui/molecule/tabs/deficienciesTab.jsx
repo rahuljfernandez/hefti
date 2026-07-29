@@ -86,9 +86,9 @@ export default function DeficienciesTab({
   );
   const penaltiesStats = builders.penalties(metricsSource, nationalBenchmarks);
 
-  /* Both owner and state render the "Facilities Driving Deficiency Burden"
-     table. Owner ranks its linked facilities (embedded in the payload); state
-     ranks the facilities fetched for it and passed in as `facilities`. */
+  /* Both owner and state render the "Deficiencies by Facility" table. Owner
+     ranks its linked facilities (embedded in the payload); state ranks the
+     facilities fetched for it and passed in as `facilities`. */
   let burdenFacilities = [];
   if (status === 'owner') {
     burdenFacilities =
@@ -136,7 +136,7 @@ export default function DeficienciesTab({
               {status === 'state' && (
                 <>
                   <EntityDeficiencyBurden
-                    heading="Chains Driving Deficiency Burden"
+                    heading="Deficiencies by Chain"
                     nameHeader="Chain"
                     entities={chains}
                     nationalBenchmarks={nationalBenchmarks}
@@ -144,7 +144,7 @@ export default function DeficienciesTab({
                     linkKind="chain"
                   />
                   <EntityDeficiencyBurden
-                    heading="Individual Owners Driving Deficiency Burden"
+                    heading="Deficiencies by Individual Owner"
                     nameHeader="Owner"
                     entities={individualOwners}
                     nationalBenchmarks={nationalBenchmarks}

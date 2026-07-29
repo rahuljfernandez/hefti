@@ -61,6 +61,7 @@ export default function DataTable({ columns, rows, showRank = true, caption }) {
             <div className="flex items-baseline gap-2">
               {showRank && (
                 <span className="text-label-base text-content-secondary shrink-0">
+                  <span className="sr-only">Rank </span>
                   {index + 1}
                 </span>
               )}
