@@ -8,6 +8,7 @@ import ListContainer, {
 } from '../../organism/ListContainer';
 import { AiSummaryCard, DeficiencyReportItem } from '../listContainerContent';
 import FacilitiesDeficiencyBurden from '../../organism/facilitiesDeficiencyBurden';
+import EntityDeficiencyBurden from '../../organism/entityDeficiencyBurden';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -73,6 +74,8 @@ export default function DeficienciesTab({
   status,
   nationalBenchmarks,
   facilities,
+  chains,
+  individualOwners,
 }) {
   // Pick the builder set for this subject type (facility is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.facility;
@@ -119,16 +122,38 @@ export default function DeficienciesTab({
             <AiSummaryCard item={PLACEHOLDER_AI_SUMMARY} />
           </div>
           {status === 'owner' || status === 'state' ? (
-            <FacilitiesDeficiencyBurden
-              facilities={burdenFacilities}
-              nationalBenchmarks={nationalBenchmarks}
-              showOwner={status === 'state'}
-              viewAllHref={
-                status === 'state' && metricsSource?.state
-                  ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
-                  : undefined
-              }
-            />
+            <>
+              <FacilitiesDeficiencyBurden
+                facilities={burdenFacilities}
+                nationalBenchmarks={nationalBenchmarks}
+                showOwner={status === 'state'}
+                viewAllHref={
+                  status === 'state' && metricsSource?.state
+                    ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
+                    : undefined
+                }
+              />
+              {status === 'state' && (
+                <>
+                  <EntityDeficiencyBurden
+                    heading="Chains Driving Deficiency Burden"
+                    nameHeader="Chain"
+                    entities={chains}
+                    nationalBenchmarks={nationalBenchmarks}
+                    stateAbbr={metricsSource?.state}
+                    linkKind="chain"
+                  />
+                  <EntityDeficiencyBurden
+                    heading="Individual Owners Driving Deficiency Burden"
+                    nameHeader="Owner"
+                    entities={individualOwners}
+                    nationalBenchmarks={nationalBenchmarks}
+                    stateAbbr={metricsSource?.state}
+                    linkKind="owner"
+                  />
+                </>
+              )}
+            </>
           ) : (
             /* DeficiencyReportItem is a placeholder — item shape and field names
                will need updating once the API exposes real inspection_reports
@@ -164,4 +189,6 @@ DeficienciesTab.propTypes = {
   status: PropTypes.oneOf(['facility', 'owner', 'state']),
   nationalBenchmarks: PropTypes.object,
   facilities: PropTypes.arrayOf(PropTypes.object),
+  chains: PropTypes.arrayOf(PropTypes.object),
+  individualOwners: PropTypes.arrayOf(PropTypes.object),
 };

@@ -44,6 +44,8 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
+  const [chainBurden, setChainBurden] = useState([]);
+  const [individualBurden, setIndividualBurden] = useState([]);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -118,6 +120,31 @@ export default function StatesProfile() {
     };
 
     fetchStateFacilities();
+  }, [stateParam]);
+
+  useEffect(() => {
+    /* Chains and individual owners operating in this state, each ranked by
+       average deficiency burden. Server-ranked and capped; chains group by
+       chain_name (so holding-company shells collapse), individuals by owner. */
+    setChainBurden([]);
+    setIndividualBurden([]);
+    const code = encodeURIComponent(stateParam.toUpperCase());
+    const loadBurden = async (path, set, label) => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/${path}/${code}`);
+        const data = await res.json();
+        set(data?.data ?? []);
+      } catch (err) {
+        console.error(`Failed to fetch ${label}:`, err);
+      }
+    };
+
+    loadBurden('state-chain-burden', setChainBurden, 'state chain burden');
+    loadBurden(
+      'state-individual-burden',
+      setIndividualBurden,
+      'state individual burden',
+    );
   }, [stateParam]);
 
   const handleResearchClick = () => {
@@ -204,6 +231,8 @@ export default function StatesProfile() {
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
                         facilities={stateFacilities}
+                        chains={chainBurden}
+                        individualOwners={individualBurden}
                       />
                     );
 

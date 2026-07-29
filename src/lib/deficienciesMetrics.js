@@ -236,6 +236,25 @@ export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
    formatter.
    `vs_national_label` is null when the national benchmark hasn't loaded — the
    cell then omits the caption rather than guessing a direction. */
+/* Compares one deficiency figure to the national average, returning the shared
+   red/gray flag and caption both burden tables use. `vs_national_label` is null
+   when the benchmark hasn't loaded, so the cell omits the caption rather than
+   guessing a direction. */
+function deficiencyVsNational(value, nationalAvg, hasNational) {
+  if (!hasNational) return { above_national: false, vs_national_label: null };
+  if (value > nationalAvg) {
+    return {
+      above_national: true,
+      vs_national_label: `${(value / nationalAvg).toFixed(1)}x national`,
+    };
+  }
+  return {
+    above_national: false,
+    vs_national_label:
+      value === nationalAvg ? 'at national average' : 'below national',
+  };
+}
+
 export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
   const nationalAvg = Number(nationalBenchmarks?.national_health_deficiencies);
   const hasNational = Number.isFinite(nationalAvg) && nationalAvg > 0;
@@ -268,24 +287,56 @@ export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) 
     0,
   );
 
-  return ranked.map((facility) => {
-    const aboveNational = hasNational && facility.deficiencies > nationalAvg;
-    let vsNationalLabel = null;
-    if (hasNational) {
-      if (facility.deficiencies > nationalAvg) {
-        vsNationalLabel = `${(facility.deficiencies / nationalAvg).toFixed(1)}x national`;
-      } else if (facility.deficiencies === nationalAvg) {
-        vsNationalLabel = 'at national average';
-      } else {
-        vsNationalLabel = 'below national';
-      }
-    }
-    return {
-      ...facility,
-      above_national: aboveNational,
-      vs_national_label: vsNationalLabel,
-      bar_fraction:
-        maxDeficiencies > 0 ? facility.deficiencies / maxDeficiencies : 0,
-    };
-  });
+  return ranked.map((facility) => ({
+    ...facility,
+    ...deficiencyVsNational(facility.deficiencies, nationalAvg, hasNational),
+    bar_fraction:
+      maxDeficiencies > 0 ? facility.deficiencies / maxDeficiencies : 0,
+  }));
+}
+
+/* Display-ready rows for the state-profile deficiency-burden tables (chains and
+   individual owners share this shape). `entities` comes pre-ranked from the
+   /state-chain-burden or /state-individual-burden endpoint (name, optional slug,
+   in-state facility count, and state-scoped average deficiencies/penalties/
+   fines). Attaches the shared bar fraction and vs-national caption, formats the
+   averages, and labels the in-state facility count (e.g. "5 Virginia
+   facilities"). */
+export function buildEntityDeficiencyBurden(
+  entities,
+  nationalBenchmarks,
+  stateAbbr,
+) {
+  const nationalAvg = Number(nationalBenchmarks?.national_health_deficiencies);
+  const hasNational = Number.isFinite(nationalAvg) && nationalAvg > 0;
+  const stateName = expandStateAbbreviation(stateAbbr);
+
+  const ranked = (Array.isArray(entities) ? entities : [])
+    .filter(Boolean)
+    .map((entity) => ({
+      id: entity.slug ?? entity.name,
+      entity_name: toTitleCase(entity.name || 'Unknown'),
+      entity_raw_name: entity.name ?? '',
+      entity_slug: entity.slug,
+      facilities_label: `${entity.facilities ?? 0} ${stateName} ${
+        entity.facilities === 1 ? 'facility' : 'facilities'
+      }`,
+      deficiencies: Number(entity.avg_deficiencies) || 0,
+      metric_display: formatMetricValue(entity.avg_deficiencies),
+      penalties_display: formatMetricValue(entity.avg_penalties),
+      fine_display: formatUSD(entity.avg_fines),
+    }))
+    .sort((a, b) => b.deficiencies - a.deficiencies);
+
+  const maxDeficiencies = ranked.reduce(
+    (max, entity) => Math.max(max, entity.deficiencies),
+    0,
+  );
+
+  return ranked.map((entity) => ({
+    ...entity,
+    ...deficiencyVsNational(entity.deficiencies, nationalAvg, hasNational),
+    bar_fraction:
+      maxDeficiencies > 0 ? entity.deficiencies / maxDeficiencies : 0,
+  }));
 }

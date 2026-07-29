@@ -1,61 +1,22 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import DataTableCard from './dataTableCard';
+import DeficiencyVsNationalCell from '../molecule/deficiencyVsNationalCell';
 import { buildDeficiencyBurdenFacilities } from '../../../lib/deficienciesMetrics';
 
 /**
- * Facilities Driving Deficiency Burden — the owner-context deficiencies table.
+ * Facilities Driving Deficiency Burden — the owner- and state-context table.
  *
- * Ranks the owner's facilities by deficiency count and shows each against the
- * national average. Thin wrapper over the shared DataTableCard: the builder shapes
- * the rows, this file owns the column config and the "Load All" behavior. The
- * table starts collapsed to the worst offenders and expands in place, matching
- * OwnerPropertiesList.
+ * Ranks facilities by deficiency count and shows each against the national
+ * average. Thin wrapper over the shared DataTableCard: the builder shapes the
+ * rows, this file owns the column config and the "load all / view all" behavior.
+ * The table starts collapsed to the worst offenders; owner context expands in
+ * place, state context links out to the state-filtered browse page.
  */
 
 const INITIAL_VISIBLE = 10;
-
-/* Deficiency count over a bar scaled to the worst facility in the set — red above
-   the national average, gray at or below it. Caption is omitted while the national
-   benchmark is still loading (vs_national_label null). */
-function DeficiencyVsNationalCell({ row }) {
-  return (
-    <div>
-      <p
-        className={clsx(
-          'text-paragraph-base font-semibold',
-          row.above_national ? 'text-red-600' : 'text-core-black',
-        )}
-      >
-        {row.deficiencies}
-      </p>
-      <div
-        aria-hidden="true"
-        className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200"
-      >
-        <div
-          className={clsx(
-            'h-full rounded-full',
-            row.above_national ? 'bg-red-500' : 'bg-gray-400',
-          )}
-          style={{ width: `${Math.round(row.bar_fraction * 100)}%` }}
-        />
-      </div>
-      {row.vs_national_label && (
-        <p className="text-paragraph-sm text-content-secondary mt-1">
-          {row.vs_national_label}
-        </p>
-      )}
-    </div>
-  );
-}
-
-DeficiencyVsNationalCell.propTypes = {
-  row: PropTypes.object.isRequired,
-};
 
 const stateColumn = {
   key: 'state',
