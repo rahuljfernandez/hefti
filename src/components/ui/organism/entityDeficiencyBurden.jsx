@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import DataTableCard from './dataTableCard';
 import DeficiencyVsNationalCell from '../molecule/deficiencyVsNationalCell';
 import { buildEntityDeficiencyBurden } from '../../../lib/deficienciesMetrics';
+
+const INITIAL_VISIBLE = 10;
 
 /**
  * Entity Driving Deficiency Burden — the state-context ranking table, shared by
@@ -104,15 +106,31 @@ export default function EntityDeficiencyBurden({
     () => buildColumns(nameHeader, linkKind, stateAbbr),
     [nameHeader, linkKind, stateAbbr],
   );
+  const [showAll, setShowAll] = useState(false);
 
   if (rows.length === 0) return null;
+
+  const visible = showAll ? rows : rows.slice(0, INITIAL_VISIBLE);
+  const noun = `${nameHeader.toLowerCase()}s`;
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
         {heading}
       </Heading>
-      <DataTableCard columns={columns} rows={rows} caption={heading} />
+      <DataTableCard columns={columns} rows={visible} caption={heading} />
+      {!showAll && rows.length > INITIAL_VISIBLE && (
+        <div className="pt-4 text-center">
+          <button
+            onClick={() => setShowAll(true)}
+            className="focus-ring-light text-paragraph-base cursor-pointer rounded-sm text-blue-700 underline hover:text-blue-800"
+            aria-label={`View all ${rows.length} ${noun}`}
+            aria-expanded={showAll}
+          >
+            View all {rows.length} {noun}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

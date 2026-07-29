@@ -131,7 +131,12 @@ export default function StatesProfile() {
     const code = encodeURIComponent(stateParam.toUpperCase());
     const loadBurden = async (path, set, label) => {
       try {
-        const res = await fetch(`${API_BASE_URL}/${path}/${code}`);
+        // Fetch the full qualifying set (small per state) so the tables can
+        // expand in place instead of linking out. minFacilities=2 includes
+        // smaller two-facility operators.
+        const res = await fetch(
+          `${API_BASE_URL}/${path}/${code}?take=500&minFacilities=2`,
+        );
         const data = await res.json();
         set(data?.data ?? []);
       } catch (err) {
