@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import DataTableCard from './dataTableCard';
-import DeficiencyVsNationalCell from '../molecule/deficiencyVsNationalCell';
+import { burdenNameLinkProps, burdenNumericColumns } from './burdenColumns';
 import { buildEntityDeficiencyBurden } from '../../../lib/deficienciesMetrics';
 
 const INITIAL_VISIBLE = 10;
@@ -25,6 +25,9 @@ function entityHref(row, linkKind, stateAbbr) {
     return row.entity_slug ? `/owners/${row.entity_slug}` : null;
   }
   if (linkKind === 'chain') {
+    // No exact name → no working filter; render plain text rather than a link
+    // that would drop the filter and dump the full state list.
+    if (!row.entity_raw_name) return null;
     const params = new URLSearchParams({ chainName: row.entity_raw_name });
     if (stateAbbr) params.set('state', stateAbbr);
     return `/facilities?${params}`;
@@ -44,14 +47,7 @@ function buildColumns(nameHeader, linkKind, stateAbbr) {
         return (
           <div>
             {href ? (
-              <Link
-                to={href}
-                className="focus-ring-light text-paragraph-base rounded-sm text-blue-600 underline"
-                style={{
-                  textDecorationThickness: '2px',
-                  textUnderlineOffset: '2px',
-                }}
-              >
+              <Link to={href} {...burdenNameLinkProps}>
                 {row.entity_name}
               </Link>
             ) : (
@@ -66,27 +62,7 @@ function buildColumns(nameHeader, linkKind, stateAbbr) {
         );
       },
     },
-    {
-      key: 'deficiencies',
-      header: "Deficiencies Vs Nat'l",
-      width: 'w-48',
-      mobileBlock: true,
-      cell: (row) => <DeficiencyVsNationalCell row={row} />,
-    },
-    {
-      key: 'penalties',
-      header: 'Penalties',
-      align: 'right',
-      width: 'w-24',
-      cell: (row) => row.penalties_display,
-    },
-    {
-      key: 'fines',
-      header: 'Fines',
-      align: 'right',
-      width: 'w-28',
-      cell: (row) => row.fine_display,
-    },
+    ...burdenNumericColumns,
   ];
 }
 

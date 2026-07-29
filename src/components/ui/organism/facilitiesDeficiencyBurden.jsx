@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Heading } from '../atom/heading';
 import DataTableCard from './dataTableCard';
-import DeficiencyVsNationalCell from '../molecule/deficiencyVsNationalCell';
+import { burdenNameLinkProps, burdenNumericColumns } from './burdenColumns';
 import { buildDeficiencyBurdenFacilities } from '../../../lib/deficienciesMetrics';
 
 /**
@@ -43,37 +43,13 @@ const buildColumns = (showOwner) => [
     flex: true,
     rowHeader: true,
     cell: (row) => (
-      <Link
-        to={`/facilities/${row.facility_slug}`}
-        className="focus-ring-light text-paragraph-base rounded-sm text-blue-600 underline"
-        style={{ textDecorationThickness: '2px', textUnderlineOffset: '2px' }}
-      >
+      <Link to={`/facilities/${row.facility_slug}`} {...burdenNameLinkProps}>
         {row.facility_name}
       </Link>
     ),
   },
   showOwner ? ownerColumn : stateColumn,
-  {
-    key: 'deficiencies',
-    header: "Deficiencies Vs Nat'l",
-    width: 'w-48',
-    mobileBlock: true,
-    cell: (row) => <DeficiencyVsNationalCell row={row} />,
-  },
-  {
-    key: 'penalties',
-    header: 'Penalties',
-    align: 'right',
-    width: 'w-24',
-    cell: (row) => row.penalties_display,
-  },
-  {
-    key: 'fines',
-    header: 'Fines',
-    align: 'right',
-    width: 'w-28',
-    cell: (row) => row.fine_display,
-  },
+  ...burdenNumericColumns,
 ];
 
 export default function FacilitiesDeficiencyBurden({

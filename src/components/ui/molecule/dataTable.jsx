@@ -39,8 +39,19 @@ const RANK_COLUMN = {
   cell: (_row, index) => index + 1,
 };
 
-const columnLabel = (col) =>
-  col.label ?? (typeof col.header === 'string' ? col.header : '');
+/* Plain-string label for the mobile card's <dt>. A column with a JSX/icon header
+   must supply `label`, or its mobile label would render blank — warn in dev so
+   the omission surfaces instead of failing silently. */
+const columnLabel = (col) => {
+  if (col.label) return col.label;
+  if (typeof col.header === 'string') return col.header;
+  if (import.meta.env.DEV) {
+    console.warn(
+      `DataTable: column "${col.key}" has a non-string header and no \`label\`; its mobile card label will be blank.`,
+    );
+  }
+  return '';
+};
 
 export default function DataTable({ columns, rows, showRank = true, caption }) {
   const isMobile = useIsMobile(768);
