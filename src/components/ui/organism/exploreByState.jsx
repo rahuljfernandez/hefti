@@ -58,18 +58,18 @@ export default function ExploreByState() {
   return (
     <div
       aria-labelledby="explore-by-state-heading"
-      className="bg-background-secondary mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 xl:px-0"
+      className="bg-background-secondary mx-auto max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8 xl:px-0"
     >
       {/* Header */}
       <div className="mx-auto mb-8 max-w-2xl text-center">
         <Heading
           level={2}
           id="explore-by-state-heading"
-          className="text-heading-lg"
+          className="text-heading-sm"
         >
           Explore by State
         </Heading>
-        <p className="text-label-base text-content-primary mt-3">
+        <p className="text-paragraph-lg text-content-primary">
           State-level statistics, acquisitions, and related-party properties
         </p>
       </div>

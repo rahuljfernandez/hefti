@@ -122,21 +122,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Umbrella heading over the industry-data sections below */}
+      <section className="bg-background-secondary w-full px-4 pt-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <Heading level={2} className="text-heading-lg text-center">
+          State of the Nursing Home Industry
+        </Heading>
+      </section>
+
       {/* Explore by State — choropleth map section */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <ExploreByState />
       </section>
 
+      {/*State Ranking Data Table Visuals */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <StateRankingsHiLowViz />
+      </section>
+
       {/* Bottom (lists) section with gray background */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <div className="mx-auto max-w-5xl">
-          <Heading level={2} className="text-heading-lg my-6 text-center">
-            State of the Nursing Home Industry
-          </Heading>
-          <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="group">
               <div>
-                <Heading level={3}>Top 10 Largest Chains</Heading>
+                <Heading level={3} className="text-heading-sm">
+                  Top 10 Largest Chains
+                </Heading>
                 <HoverReveal>
                   <ShareButtonRow>
                     <ShareButton
@@ -197,7 +208,9 @@ export default function Home() {
             </div>
             <div className="group">
               <div>
-                <Heading level={3}>Top 10 Largest Individual Owners</Heading>
+                <Heading level={3} className="text-heading-sm">
+                  Top 10 Largest Individual Owners
+                </Heading>
                 <HoverReveal>
                   <ShareButtonRow>
                     <ShareButton
@@ -266,10 +279,7 @@ export default function Home() {
       {/* Latest ownership changes feed + acquisitions-tracker CTA.
           TEMP: `to` points at an external demo until the /acquisitions route ships. */}
       <HomeAcquisitionsCta to="https://yutingfan1209.github.io/nursing-home-live-feed/" />
-      {/*State Ranking Data Table Visuals */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
-        <StateRankingsHiLowViz />
-      </section>
+
       {/* Trending charts carousel section */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <TrendingCarousel />
