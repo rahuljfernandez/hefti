@@ -9,11 +9,13 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
+import OutlineButton from '../atom/outlineButton';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import MatchChip from './matchChip';
 import { ArrowRightIcon } from '@heroicons/react/16/solid';
+import { SparklesIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
 /**
@@ -134,12 +136,43 @@ OwnershipAndStakeholders.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/**
+ * AI-generated summary card shown beside the deficiency stat card on the
+ * facility, owner, and state profiles.
+ *
+ * Renders an item of { title, body, subtitle } with a fixed sparkle icon.
+ * Content is mock until the summary becomes a real API field — see the
+ * placeholder object in deficienciesTab.jsx.
+ */
+export function AiSummaryCard({ item }) {
+  return (
+    <div className="border-border-primary h-full overflow-hidden rounded-lg border bg-white px-4 pt-5 pb-6 shadow-sm">
+      <div className="flex items-center gap-2">
+        <SparklesIcon aria-hidden="true" className="size-5 text-blue-600" />
+        <p className="text-label-lg text-core-black">{item.title}</p>
+      </div>
+      <p className="text-paragraph-base text-core-black mt-4">{item.body}</p>
+      <p className="text-paragraph-sm text-content-secondary mt-4">
+        {item.subtitle}
+      </p>
+    </div>
+  );
+}
+
+AiSummaryCard.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    body: PropTypes.string,
+    subtitle: PropTypes.string,
+  }).isRequired,
+};
+
 // V1 placeholder — Rahul will split into separate report_date + report_url fields.
 // Update field names here once the backend change lands.
 export function DeficiencyReportItem({ item }) {
   return (
-    <div className="flex items-center justify-between">
-      <p className="text-paragraph-base text-core-black">
+    <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-4">
+      <p className="text-paragraph-base text-core-black font-bold">
         {item.report_date ?? '—'}
       </p>
       {item.report_url ? (
@@ -156,6 +189,10 @@ export function DeficiencyReportItem({ item }) {
           No report available
         </span>
       )}
+      {/* Opens an AI summary dropdown once that feature lands. */}
+      <OutlineButton icon={SparklesIcon} iconClassName="text-blue-600">
+        AI Summary
+      </OutlineButton>
     </div>
   );
 }
@@ -292,9 +329,9 @@ export function RelatedFacilities({ item }) {
         </div>
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -365,9 +402,9 @@ export function OwnerProperty({ item }) {
 
         {/* Button — top right on desktop, bottom on mobile */}
         <div className="md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -455,9 +492,9 @@ export function BrowseNursingHomes({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -592,9 +629,9 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -727,9 +764,9 @@ export function BrowseChains({ item }) {
 
         {/* Button */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Facilities
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -837,9 +874,9 @@ export function BrowseOwners({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
