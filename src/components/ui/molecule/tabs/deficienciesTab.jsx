@@ -7,6 +7,8 @@ import ListContainer, {
   ListContainerDivider,
 } from '../../organism/ListContainer';
 import { AiSummaryCard, DeficiencyReportItem } from '../listContainerContent';
+import FacilitiesDeficiencyBurden from '../../organism/facilitiesDeficiencyBurden';
+import EntityDeficiencyBurden from '../../organism/entityDeficiencyBurden';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -71,6 +73,9 @@ export default function DeficienciesTab({
   metricsSource,
   status,
   nationalBenchmarks,
+  facilities,
+  chains,
+  individualOwners,
 }) {
   // Pick the builder set for this subject type (facility is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.facility;
@@ -80,6 +85,17 @@ export default function DeficienciesTab({
     nationalBenchmarks,
   );
   const penaltiesStats = builders.penalties(metricsSource, nationalBenchmarks);
+
+  /* Both owner and state render the "Deficiencies by Facility" table. Owner
+     ranks its linked facilities (embedded in the payload); state ranks the
+     facilities fetched for it and passed in as `facilities`. */
+  let burdenFacilities = [];
+  if (status === 'owner') {
+    burdenFacilities =
+      metricsSource?.facility_ownership_links?.map((link) => link.facility) ?? [];
+  } else if (status === 'state') {
+    burdenFacilities = facilities ?? [];
+  }
 
   return (
     <section>
@@ -105,15 +121,51 @@ export default function DeficienciesTab({
             </div>
             <AiSummaryCard item={PLACEHOLDER_AI_SUMMARY} />
           </div>
-          {/* DeficiencyReportItem is a placeholder — item shape and field names will
-            need updating once the API exposes real inspection_reports fields. */}
-          <div className="py-4">
-            <ListContainer
-              items={PLACEHOLDER_INSPECTION_REPORTS}
-              LayoutSelector={ListContainerDivider}
-              ListContent={DeficiencyReportItem}
-            />
-          </div>
+          {status === 'owner' || status === 'state' ? (
+            <>
+              <FacilitiesDeficiencyBurden
+                facilities={burdenFacilities}
+                nationalBenchmarks={nationalBenchmarks}
+                showOwner={status === 'state'}
+                viewAllHref={
+                  status === 'state' && metricsSource?.state
+                    ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
+                    : undefined
+                }
+              />
+              {status === 'state' && (
+                <>
+                  <EntityDeficiencyBurden
+                    heading="Deficiencies by Chain"
+                    nameHeader="Chain"
+                    entities={chains}
+                    nationalBenchmarks={nationalBenchmarks}
+                    stateAbbr={metricsSource?.state}
+                    linkKind="chain"
+                  />
+                  <EntityDeficiencyBurden
+                    heading="Deficiencies by Individual Owner"
+                    nameHeader="Owner"
+                    entities={individualOwners}
+                    nationalBenchmarks={nationalBenchmarks}
+                    stateAbbr={metricsSource?.state}
+                    linkKind="owner"
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            /* DeficiencyReportItem is a placeholder — item shape and field names
+               will need updating once the API exposes real inspection_reports
+               fields. */
+            <div className="py-4">
+              <ListContainer
+                items={PLACEHOLDER_INSPECTION_REPORTS}
+                LayoutSelector={ListContainerDivider}
+                ListContent={DeficiencyReportItem}
+              />
+            </div>
+          )}
         </div>
 
         <div className="pb-8">
@@ -136,4 +188,7 @@ DeficienciesTab.propTypes = {
   metricsSource: PropTypes.object,
   status: PropTypes.oneOf(['facility', 'owner', 'state']),
   nationalBenchmarks: PropTypes.object,
+  facilities: PropTypes.arrayOf(PropTypes.object),
+  chains: PropTypes.arrayOf(PropTypes.object),
+  individualOwners: PropTypes.arrayOf(PropTypes.object),
 };

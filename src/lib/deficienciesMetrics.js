@@ -1,5 +1,6 @@
 import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
 import { buildNationalComparison } from './getBadgeColor';
+import { toTitleCase } from './toTitleCase';
 
 /**
  * Deficiencies & Penalties metric config and builder helpers.
@@ -224,4 +225,131 @@ export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
 
 export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
   return buildStateStats(statePenaltiesConfig, metricsSource, nationalBenchmarks);
+}
+
+/* Compares one deficiency figure to the national average, returning the shared
+   red/gray flag and caption both burden tables use. `vs_national_label` is null
+   when the benchmark hasn't loaded, so the cell omits the caption rather than
+   guessing a direction. */
+function deficiencyVsNational(value, nationalAvg, hasNational) {
+  if (!hasNational) return { above_national: false, vs_national_label: null };
+  if (value > nationalAvg) {
+    return {
+      above_national: true,
+      vs_national_label: `${(value / nationalAvg).toFixed(1)}x national`,
+    };
+  }
+  return {
+    above_national: false,
+    vs_national_label:
+      value === nationalAvg ? 'at national average' : 'below national',
+  };
+}
+
+/* Shared scaffold for the deficiency-burden tables. Filters the input, maps each
+   item to a display row via `toRow` (which returns a numeric `deficiencies` plus
+   a `metric_display` string), ranks by deficiency descending, and attaches the
+   red/gray bar fraction (scaled to the worst in the set) and the vs-national
+   flag/caption. A row whose figure is unknown ('N/A') gets no caption — a
+   direction would just be guessing off the coalesced 0 used for sorting. */
+function rankByDeficiencyBurden(items, toRow, nationalBenchmarks) {
+  const nationalAvg = Number(nationalBenchmarks?.national_health_deficiencies);
+  const hasNational = Number.isFinite(nationalAvg) && nationalAvg > 0;
+
+  const ranked = (Array.isArray(items) ? items : [])
+    .filter(Boolean)
+    .map(toRow)
+    .sort((a, b) => b.deficiencies - a.deficiencies);
+
+  const maxDeficiencies = ranked.reduce(
+    (max, row) => Math.max(max, row.deficiencies),
+    0,
+  );
+
+  return ranked.map((row) => {
+    const vsNational = deficiencyVsNational(
+      row.deficiencies,
+      nationalAvg,
+      hasNational,
+    );
+    return {
+      ...row,
+      ...vsNational,
+      vs_national_label:
+        row.metric_display === 'N/A' ? null : vsNational.vs_national_label,
+      bar_fraction: maxDeficiencies > 0 ? row.deficiencies / maxDeficiencies : 0,
+    };
+  });
+}
+
+/* One facility row for the "Deficiencies by Facility" table. A missing count
+   shows 'N/A' rather than a fabricated 0; the numeric `deficiencies` keeps 0
+   only to sort and scale the bar. Owner display mirrors the facilities browse
+   card (primary ownership link). */
+function facilityBurdenRow(facility) {
+  const primaryOwnership =
+    facility.facility_ownership_links?.[0]?.ownership_entity;
+  const deficiencies = facility.health_deficiencies;
+  const penalties = facility.total_penalties;
+  return {
+    id: facility.slug ?? facility.provider_name,
+    facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
+    facility_slug: facility.slug,
+    state: facility.state ?? '',
+    owner_name: toTitleCase(
+      primaryOwnership?.cms_ownership_name ||
+        primaryOwnership?.parent_company_name ||
+        '',
+    ),
+    deficiencies: deficiencies ?? 0,
+    metric_display: deficiencies == null ? 'N/A' : String(deficiencies),
+    penalties_display: penalties == null ? 'N/A' : String(penalties),
+    fine_display: formatUSD(facility.total_amount_of_fines_in_usd),
+  };
+}
+
+/* Display-ready rows for the "Deficiencies by Facility" table (owner and state
+   profiles). `facilities` is the full CMS facility records; `nationalBenchmarks`
+   is the /national row. */
+export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
+  return rankByDeficiencyBurden(
+    facilities,
+    facilityBurdenRow,
+    nationalBenchmarks,
+  );
+}
+
+/* One row for the state-profile "Deficiencies by Chain / Individual Owner"
+   tables. `stateName` labels the in-state facility count (e.g. "5 Virginia
+   facilities"); the averages arrive pre-computed and state-scoped from the
+   /state-*-burden endpoint. */
+function entityBurdenRow(stateName) {
+  return (entity) => ({
+    id: entity.slug ?? entity.name,
+    entity_name: toTitleCase(entity.name || 'Unknown'),
+    entity_raw_name: entity.name ?? '',
+    entity_slug: entity.slug,
+    facilities_label: `${entity.facilities ?? 0} ${stateName} ${
+      entity.facilities === 1 ? 'facility' : 'facilities'
+    }`,
+    deficiencies: Number(entity.avg_deficiencies) || 0,
+    metric_display: formatMetricValue(entity.avg_deficiencies),
+    penalties_display: formatMetricValue(entity.avg_penalties),
+    fine_display: formatUSD(entity.avg_fines),
+  });
+}
+
+/* Display-ready rows for the state-profile deficiency-burden tables (chains and
+   individual owners share this shape). `entities` comes pre-ranked from the
+   /state-chain-burden or /state-individual-burden endpoint. */
+export function buildEntityDeficiencyBurden(
+  entities,
+  nationalBenchmarks,
+  stateAbbr,
+) {
+  return rankByDeficiencyBurden(
+    entities,
+    entityBurdenRow(expandStateAbbreviation(stateAbbr)),
+    nationalBenchmarks,
+  );
 }

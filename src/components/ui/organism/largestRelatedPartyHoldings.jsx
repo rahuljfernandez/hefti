@@ -41,6 +41,7 @@ const holdingsColumns = [
   },
   {
     key: 'related-party',
+    label: 'Related-Party',
     width: 'w-56',
     align: 'left',
     header: (

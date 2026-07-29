@@ -43,6 +43,9 @@ export default function StatesProfile() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [stateFacilities, setStateFacilities] = useState([]);
+  const [chainBurden, setChainBurden] = useState([]);
+  const [individualBurden, setIndividualBurden] = useState([]);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -94,6 +97,72 @@ export default function StatesProfile() {
 
     fetchNationalBenchmarks();
   }, []);
+
+  useEffect(() => {
+    /* Full facility list for this state, powering the "Deficiencies by Facility"
+       table (and a future page-level export). The state-stats endpoint only
+       returns a facility count, so fetch the rows separately and rank client-
+       side. take=1500 covers every current state (largest ~1200); a state
+       exceeding it would truncate the ranking — a server-side deficiency sort is
+       tracked in HEF-157. Aborted on state change so a slow response can't paint
+       the previous state's facilities. */
+    const controller = new AbortController();
+    setStateFacilities([]);
+    const fetchStateFacilities = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/facilities?state=${encodeURIComponent(
+            stateParam.toUpperCase(),
+          )}&take=1500`,
+          { signal: controller.signal },
+        );
+        const data = await res.json();
+        setStateFacilities(data?.data ?? []);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch state facilities:', err);
+        }
+      }
+    };
+
+    fetchStateFacilities();
+    return () => controller.abort();
+  }, [stateParam]);
+
+  useEffect(() => {
+    /* Chains and individual owners operating in this state, each ranked by
+       average deficiency burden. Server-ranked and capped; chains group by
+       chain_name (so holding-company shells collapse), individuals by owner. */
+    const controller = new AbortController();
+    setChainBurden([]);
+    setIndividualBurden([]);
+    const code = encodeURIComponent(stateParam.toUpperCase());
+    const loadBurden = async (path, set, label) => {
+      try {
+        // Fetch the full qualifying set (small per state) so the tables can
+        // expand in place instead of linking out. minFacilities=2 includes
+        // smaller two-facility operators.
+        const res = await fetch(
+          `${API_BASE_URL}/${path}/${code}?take=500&minFacilities=2`,
+          { signal: controller.signal },
+        );
+        const data = await res.json();
+        set(data?.data ?? []);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(`Failed to fetch ${label}:`, err);
+        }
+      }
+    };
+
+    loadBurden('state-chain-burden', setChainBurden, 'state chain burden');
+    loadBurden(
+      'state-individual-burden',
+      setIndividualBurden,
+      'state individual burden',
+    );
+    return () => controller.abort();
+  }, [stateParam]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
@@ -178,6 +247,9 @@ export default function StatesProfile() {
                         metricsSource={stateStats}
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
+                        facilities={stateFacilities}
+                        chains={chainBurden}
+                        individualOwners={individualBurden}
                       />
                     );
 
