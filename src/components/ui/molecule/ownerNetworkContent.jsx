@@ -9,6 +9,7 @@ import {
   buildOwnerLongStayStats,
   buildOwnerShortStayStats,
 } from '../../../lib/clinicalQualityMetrics';
+import { useOwnerClinicalBenchmarks } from '../../../hooks/useOwnerClinicalBenchmarks';
 import {
   buildOwnerStaffingLevels,
   buildOwnerStaffingTurnover,
@@ -48,12 +49,13 @@ export default function OwnerNetworkContent({
   const [activeTab, setActiveTab] = useState('long');
   const [activeStaffingTab, setActiveStaffingTab] = useState('levels');
   const [activeFinancialTab, setActiveFinancialTab] = useState('profit');
+  const { benchmarks: ownerBenchmarks } = useOwnerClinicalBenchmarks(true);
 
   // Memoized by `meta` so builders don't re-run on unrelated re-renders.
   const allMetrics = useMemo(() => ({
-    long: buildOwnerLongStayStats(meta),
-    short: buildOwnerShortStayStats(meta),
-  }), [meta]);
+    long: buildOwnerLongStayStats(meta, ownerBenchmarks),
+    short: buildOwnerShortStayStats(meta, ownerBenchmarks),
+  }), [meta, ownerBenchmarks]);
 
   const allStaffingMetrics = useMemo(() => ({
     levels: buildOwnerStaffingLevels(meta),

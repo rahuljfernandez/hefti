@@ -11,6 +11,7 @@ import {
   buildOwnerLongStayStats,
   buildOwnerShortStayStats,
 } from '../../../../lib/clinicalQualityMetrics';
+import { useOwnerClinicalBenchmarks } from '../../../../hooks/useOwnerClinicalBenchmarks';
 
 /**
  * Clinical quality tab content.
@@ -26,16 +27,19 @@ export default function ClinicalQualityTab({
   status,
   nationalBenchmarks,
 }) {
+  const { benchmarks: ownerBenchmarks, loading: benchmarksLoading } =
+    useOwnerClinicalBenchmarks(status === 'owner');
+
   // Build stat arrays from lib config; maps data keys to display-ready objects.
   const longStayStats =
     status === 'facility'
       ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerLongStayStats(metricsSource);
+      : buildOwnerLongStayStats(metricsSource, ownerBenchmarks);
 
   const shortStayStats =
     status === 'facility'
       ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerShortStayStats(metricsSource);
+      : buildOwnerShortStayStats(metricsSource, ownerBenchmarks);
 
   return (
     <section>
@@ -46,6 +50,11 @@ export default function ClinicalQualityTab({
             <span className="font-bold">weighted average </span>
             across all facilities under this owner&apos;s management.
           </p>
+          {benchmarksLoading && (
+            <p className="text-paragraph-base text-content-secondary mt-2">
+              Loading national benchmarks…
+            </p>
+          )}
         </div>
       )}
 
