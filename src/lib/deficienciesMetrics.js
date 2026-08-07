@@ -1,4 +1,6 @@
 import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
+import { buildNationalComparison } from './getBadgeColor';
+import { toTitleCase } from './toTitleCase';
 
 /**
  * Deficiencies & Penalties metric config and builder helpers.
@@ -142,4 +144,212 @@ export function buildOwnerDeficienciesStats(metricsSource) {
 
 export function buildOwnerPenaltiesStats(metricsSource) {
   return buildOwnerStats(ownerPenaltiesConfig, metricsSource);
+}
+
+/* State configs mirror the facility benchmark keys but use aggregate wording:
+   a state value is the average across the state's nursing homes, not a single
+   provider's counts. */
+const stateDeficienciesConfig = [
+  {
+    key: 'Average Deficiencies',
+    description:
+      'Average deficiencies found across nursing homes in this state over the past year',
+    valueKey: 'health_deficiencies',
+    nationalAvgKey: 'national_health_deficiencies',
+    isCurrency: false,
+  },
+];
+
+const statePenaltiesConfig = [
+  {
+    key: 'Average Penalties',
+    description:
+      'Average number of penalties issued across nursing homes in this state',
+    valueKey: 'total_penalties',
+    nationalAvgKey: 'national_total_penalties',
+    isCurrency: false,
+  },
+  {
+    key: 'Average Number of Fines',
+    description:
+      'Average number of fines issued across nursing homes in this state',
+    valueKey: 'number_of_fines',
+    nationalAvgKey: 'national_number_of_fines',
+    isCurrency: false,
+  },
+  {
+    key: 'Average Fine Amount',
+    description:
+      'Average dollar amount of fines issued across nursing homes in this state',
+    valueKey: 'total_amount_of_fines_in_usd',
+    nationalAvgKey: 'national_total_amount_of_fines_in_usd',
+    isCurrency: true,
+  },
+];
+
+/* State builders benchmark each value against the national average from
+   /national, deriving the Above/Below National Average badge like the other
+   tabs. Every deficiency/penalty metric is lower-is-better (fewer
+   deficiencies, penalties, fines, and dollars are better), so a value below
+   the national average reads green. */
+function buildStateStats(config, metricsSource, nationalBenchmarks) {
+  return config.map((metric) => {
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const rawValue = metricsSource?.[metric.valueKey];
+    const rawNational = nationalBenchmarks?.[metric.nationalAvgKey];
+    const nationalAvg = format(rawNational);
+    const { comparison, comparisonColor } = buildNationalComparison(
+      rawValue,
+      rawNational,
+      false,
+    );
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat: rawValue ?? 'N/A',
+      isCurrency: metric.isCurrency,
+      rating: comparison,
+      ratingColor: comparisonColor,
+      detail1: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+    };
+  });
+}
+
+export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(
+    stateDeficienciesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
+}
+
+export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(statePenaltiesConfig, metricsSource, nationalBenchmarks);
+}
+
+/* Compares one deficiency figure to the national average, returning the shared
+   red/gray flag and caption both burden tables use. `vs_national_label` is null
+   when the benchmark hasn't loaded, so the cell omits the caption rather than
+   guessing a direction. */
+function deficiencyVsNational(value, nationalAvg, hasNational) {
+  if (!hasNational) return { above_national: false, vs_national_label: null };
+  if (value > nationalAvg) {
+    return {
+      above_national: true,
+      vs_national_label: `${(value / nationalAvg).toFixed(1)}x national`,
+    };
+  }
+  return {
+    above_national: false,
+    vs_national_label:
+      value === nationalAvg ? 'at national average' : 'below national',
+  };
+}
+
+/* Shared scaffold for the deficiency-burden tables. Filters the input, maps each
+   item to a display row via `toRow` (which returns a numeric `deficiencies` plus
+   a `metric_display` string), ranks by deficiency descending, and attaches the
+   red/gray bar fraction (scaled to the worst in the set) and the vs-national
+   flag/caption. A row whose figure is unknown ('N/A') gets no caption — a
+   direction would just be guessing off the coalesced 0 used for sorting. */
+function rankByDeficiencyBurden(items, toRow, nationalBenchmarks) {
+  const nationalAvg = Number(nationalBenchmarks?.national_health_deficiencies);
+  const hasNational = Number.isFinite(nationalAvg) && nationalAvg > 0;
+
+  const ranked = (Array.isArray(items) ? items : [])
+    .filter(Boolean)
+    .map(toRow)
+    .sort((a, b) => b.deficiencies - a.deficiencies);
+
+  const maxDeficiencies = ranked.reduce(
+    (max, row) => Math.max(max, row.deficiencies),
+    0,
+  );
+
+  return ranked.map((row) => {
+    const vsNational = deficiencyVsNational(
+      row.deficiencies,
+      nationalAvg,
+      hasNational,
+    );
+    return {
+      ...row,
+      ...vsNational,
+      vs_national_label:
+        row.metric_display === 'N/A' ? null : vsNational.vs_national_label,
+      bar_fraction: maxDeficiencies > 0 ? row.deficiencies / maxDeficiencies : 0,
+    };
+  });
+}
+
+/* One facility row for the "Deficiencies by Facility" table. A missing count
+   shows 'N/A' rather than a fabricated 0; the numeric `deficiencies` keeps 0
+   only to sort and scale the bar. Owner display mirrors the facilities browse
+   card (primary ownership link). */
+function facilityBurdenRow(facility) {
+  const primaryOwnership =
+    facility.facility_ownership_links?.[0]?.ownership_entity;
+  const deficiencies = facility.health_deficiencies;
+  const penalties = facility.total_penalties;
+  return {
+    id: facility.slug ?? facility.provider_name,
+    facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
+    facility_slug: facility.slug,
+    state: facility.state ?? '',
+    owner_name: toTitleCase(
+      primaryOwnership?.cms_ownership_name ||
+        primaryOwnership?.parent_company_name ||
+        '',
+    ),
+    deficiencies: deficiencies ?? 0,
+    metric_display: deficiencies == null ? 'N/A' : String(deficiencies),
+    penalties_display: penalties == null ? 'N/A' : String(penalties),
+    fine_display: formatUSD(facility.total_amount_of_fines_in_usd),
+  };
+}
+
+/* Display-ready rows for the "Deficiencies by Facility" table (owner and state
+   profiles). `facilities` is the full CMS facility records; `nationalBenchmarks`
+   is the /national row. */
+export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
+  return rankByDeficiencyBurden(
+    facilities,
+    facilityBurdenRow,
+    nationalBenchmarks,
+  );
+}
+
+/* One row for the state-profile "Deficiencies by Chain / Individual Owner"
+   tables. `stateName` labels the in-state facility count (e.g. "5 Virginia
+   facilities"); the averages arrive pre-computed and state-scoped from the
+   /state-*-burden endpoint. */
+function entityBurdenRow(stateName) {
+  return (entity) => ({
+    id: entity.slug ?? entity.name,
+    entity_name: toTitleCase(entity.name || 'Unknown'),
+    entity_raw_name: entity.name ?? '',
+    entity_slug: entity.slug,
+    facilities_label: `${entity.facilities ?? 0} ${stateName} ${
+      entity.facilities === 1 ? 'facility' : 'facilities'
+    }`,
+    deficiencies: Number(entity.avg_deficiencies) || 0,
+    metric_display: formatMetricValue(entity.avg_deficiencies),
+    penalties_display: formatMetricValue(entity.avg_penalties),
+    fine_display: formatUSD(entity.avg_fines),
+  });
+}
+
+/* Display-ready rows for the state-profile deficiency-burden tables (chains and
+   individual owners share this shape). `entities` comes pre-ranked from the
+   /state-chain-burden or /state-individual-burden endpoint. */
+export function buildEntityDeficiencyBurden(
+  entities,
+  nationalBenchmarks,
+  stateAbbr,
+) {
+  return rankByDeficiencyBurden(
+    entities,
+    entityBurdenRow(expandStateAbbreviation(stateAbbr)),
+    nationalBenchmarks,
+  );
 }

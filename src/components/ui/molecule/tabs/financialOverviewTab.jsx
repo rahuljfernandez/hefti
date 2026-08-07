@@ -14,6 +14,10 @@ import {
   buildOwnerRevenueStats,
   buildOwnerExpensesStats,
   buildOwnerLiquidityStats,
+  buildStateProfitStats,
+  buildStateRevenueStats,
+  buildStateExpensesStats,
+  buildStateLiquidityStats,
 } from '../../../../lib/financialMetrics';
 
 /**
@@ -21,35 +25,48 @@ import {
  *
  * Responsibilities:
  * - Builds profit, revenue, expense, and liquidity metric groups
- * - Switches between facility and owner metric builders based on status
+ * - Switches between facility, state, and owner metric builders based on status
  * - Passes national benchmark data when facility metrics need comparison values
  * - Renders each financial section using the shared long-form metric card layout
  */
+
+/* Metric builders per subject type — each status maps its four financial groups
+   to the matching lib builder. Owner builders take only `items` and harmlessly
+   ignore the benchmarks argument, so every builder can be called uniformly. */
+const STATS_BUILDERS = {
+  facility: {
+    profit: buildFacilityProfitStats,
+    revenue: buildFacilityRevenueStats,
+    expenses: buildFacilityExpensesStats,
+    liquidity: buildFacilityLiquidityStats,
+  },
+  state: {
+    profit: buildStateProfitStats,
+    revenue: buildStateRevenueStats,
+    expenses: buildStateExpensesStats,
+    liquidity: buildStateLiquidityStats,
+  },
+  owner: {
+    profit: buildOwnerProfitStats,
+    revenue: buildOwnerRevenueStats,
+    expenses: buildOwnerExpensesStats,
+    liquidity: buildOwnerLiquidityStats,
+  },
+};
+
 export default function FinancialOverviewTab({
   items,
   nationalBenchmarks,
   status,
 }) {
+  // Pick the builder set for this subject type (owner is the default fallback).
+  const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
+
   // Build stat arrays from lib config; maps data keys to display-ready objects.
-  const profitStats =
-    status === 'facility'
-      ? buildFacilityProfitStats(items, nationalBenchmarks)
-      : buildOwnerProfitStats(items);
-
-  const revenueStats =
-    status === 'facility'
-      ? buildFacilityRevenueStats(items, nationalBenchmarks)
-      : buildOwnerRevenueStats(items);
-
-  const expensesStats =
-    status === 'facility'
-      ? buildFacilityExpensesStats(items, nationalBenchmarks)
-      : buildOwnerExpensesStats(items);
-
-  const liquidityStats =
-    status === 'facility'
-      ? buildFacilityLiquidityStats(items, nationalBenchmarks)
-      : buildOwnerLiquidityStats(items);
+  const profitStats = builders.profit(items, nationalBenchmarks);
+  const revenueStats = builders.revenue(items, nationalBenchmarks);
+  const expensesStats = builders.expenses(items, nationalBenchmarks);
+  const liquidityStats = builders.liquidity(items, nationalBenchmarks);
 
   return (
     <section>
@@ -60,12 +77,27 @@ export default function FinancialOverviewTab({
         </div>
         <div className="my-4">
           <p className="text-paragraph-lg mb-4">
-            This page provides a snapshot of a facility&apos;s financial health,
-            including profitability, spending patterns, and liquidity. Reviewing
-            those metrics can help you assess how a nursing home allocates its
-            resources, whether it&apos;s financially stable, and how much is invested
-            in resident care versus affiliated businesses. Use these indicators
-            to identify red flags or signs of strong financial management.
+            {status === 'state' ? (
+              <>
+                This page provides a snapshot of the financial health of nursing
+                homes across this state, including profitability, spending
+                patterns, and liquidity. Reviewing those metrics can help you
+                assess how nursing homes allocate their resources, whether
+                they&apos;re financially stable, and how much is invested in
+                resident care versus affiliated businesses. Use these indicators
+                to identify red flags or signs of strong financial management.
+              </>
+            ) : (
+              <>
+                This page provides a snapshot of a facility&apos;s financial
+                health, including profitability, spending patterns, and
+                liquidity. Reviewing those metrics can help you assess how a
+                nursing home allocates its resources, whether it&apos;s
+                financially stable, and how much is invested in resident care
+                versus affiliated businesses. Use these indicators to identify
+                red flags or signs of strong financial management.
+              </>
+            )}
           </p>
           <p className="text-paragraph-lg font-bold">
             HEFTI tracks data going back to 2010

@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { TableCellsIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../components/ui/atom/heading';
+import {
+  ShareButton,
+  ShareButtonRow,
+  HoverReveal,
+} from '../components/ui/molecule/shareability';
+import { downloadRankingCsv } from '../lib/shareability/rankings/rankingShareActions';
 import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';
 import UserGroupCircle from '../assets/userGroupCircle.jsx';
-import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
+import TrendingCarousel from '../components/ui/organism/trendingCarousel.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
+import ExploreByState from '../components/ui/organism/exploreByState.jsx';
+import HomeAcquisitionsCta from '../components/ui/organism/homeAcquisitionsCta.jsx';
+import CtaLinkButton from '../components/ui/atom/ctaLinkButton';
 
 /**
  * Home page
@@ -28,9 +38,6 @@ export default function Home() {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
-
-  const heroCtaClasses =
-    'focus-ring-light inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800';
 
   useEffect(() => {
     setLoading(true);
@@ -89,9 +96,9 @@ export default function Home() {
                 <span>View nursing home profile pages</span>
               </li>
             </ul>
-            <Link to="/facilities" className={heroCtaClasses}>
+            <CtaLinkButton to="/facilities" fullWidth>
               Browse Nursing Homes
-            </Link>
+            </CtaLinkButton>
           </div>
           <div className="border-content-tertiary flex flex-1 flex-col items-center rounded-xl border bg-[radial-gradient(circle_at_top_right,_#E9D5FF_20%,_#FAF5FF_60%)] p-5 shadow-sm">
             <UserGroupCircle className="mb-3 h-16 w-16" />
@@ -108,23 +115,53 @@ export default function Home() {
                 <span>View profile pages for owners</span>
               </li>
             </ul>
-            <Link to="/owners" className={heroCtaClasses}>
+            <CtaLinkButton to="/owners" fullWidth>
               Browse Owners
-            </Link>
+            </CtaLinkButton>
           </div>
         </div>
+      </section>
+
+      {/* Umbrella heading over the industry-data sections below */}
+      <section className="bg-background-secondary w-full px-4 pt-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <Heading level={2} className="text-heading-lg text-center">
+          State of the Nursing Home Industry
+        </Heading>
+      </section>
+
+      {/* Explore by State — choropleth map section */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <ExploreByState />
+      </section>
+
+      {/*State Ranking Data Table Visuals */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <StateRankingsHiLowViz />
       </section>
 
       {/* Bottom (lists) section with gray background */}
       <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         <div className="mx-auto max-w-5xl">
-          <Heading level={2} className="text-heading-lg my-6 font-semibold text-center">
-            State of the Nursing Home Industry
-          </Heading>
-          <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-2">
-            <div>
-              <div className="mb-4">
-                <Heading level={3}>Top 10 Largest Chains</Heading>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="group">
+              <div>
+                <Heading level={3} className="text-heading-sm">
+                  Top 10 Largest Chains
+                </Heading>
+                <HoverReveal>
+                  <ShareButtonRow>
+                    <ShareButton
+                      icon={TableCellsIcon}
+                      label="Download data as CSV"
+                      onClick={() =>
+                        downloadRankingCsv(topChains, {
+                          entityLabel: 'Chain',
+                          filename: 'top-10-largest-chains.csv',
+                        })
+                      }
+                    />
+                  </ShareButtonRow>
+                </HoverReveal>
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -158,7 +195,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <div className="pb-8 pt-3 text-center">
+                  <div className="pt-3 pb-8 text-center">
                     <Link
                       to="/rankings/chains"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
@@ -169,9 +206,25 @@ export default function Home() {
                 </>
               )}
             </div>
-            <div>
-              <div className="mb-4">
-                <Heading level={3}>Top 10 Largest Individual Owners</Heading>
+            <div className="group">
+              <div>
+                <Heading level={3} className="text-heading-sm">
+                  Top 10 Largest Individual Owners
+                </Heading>
+                <HoverReveal>
+                  <ShareButtonRow>
+                    <ShareButton
+                      icon={TableCellsIcon}
+                      label="Download data as CSV"
+                      onClick={() =>
+                        downloadRankingCsv(topOwners, {
+                          entityLabel: 'Owner',
+                          filename: 'top-10-largest-individual-owners.csv',
+                        })
+                      }
+                    />
+                  </ShareButtonRow>
+                </HoverReveal>
               </div>
               {loading ? (
                 <IndustryListSkeleton />
@@ -209,7 +262,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <div className="pb-8 pt-3 text-center">
+                  <div className="pt-3 pb-8 text-center">
                     <Link
                       to="/rankings/individual-owners"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
@@ -223,15 +276,13 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/*State Ranking Data Table Visuals */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
-        <StateRankingsHiLowViz />
-      </section>
-      {/* Barchart Graphic Section */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 pb-8 font-sans sm:px-6 lg:px-8 xl:px-0">
-        <div className="mx-auto max-w-5xl">
-          <MonthlyOwnershipChangeChart />
-        </div>
+      {/* Latest ownership changes feed + acquisitions-tracker CTA.
+          TEMP: `to` points at an external demo until the /acquisitions route ships. */}
+      <HomeAcquisitionsCta to="https://yutingfan1209.github.io/nursing-home-live-feed/" />
+
+      {/* Trending charts carousel section */}
+      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        <TrendingCarousel />
       </section>
     </div>
   );

@@ -17,6 +17,7 @@ import SearchMenu from '../molecule/searchMenu';
 export default function BrowseListView({
   title,
   children,
+  searchHeading = 'Search by name',
   searchPlaceholder,
   currentPage,
   totalPages,
@@ -52,13 +53,12 @@ export default function BrowseListView({
         {/*Search Bar */}
         <div className="py-8">
           <Heading id={searchHeadingId} level={2} className="text-label-lg">
-            {' '}
-            Search by name
+            {searchHeading}
           </Heading>
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <div className="w-full md:flex-[2]">
               <SearchMenu
-                accessibleLabel="Search by name"
+                accessibleLabel={searchHeading}
                 type={type}
                 placeholder={searchPlaceholder}
                 search={search}
@@ -130,6 +130,7 @@ export default function BrowseListView({
 BrowseListView.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node,
+  searchHeading: PropTypes.string,
   searchPlaceholder: PropTypes.string,
   search: PropTypes.string,
   currentPage: PropTypes.number.isRequired,

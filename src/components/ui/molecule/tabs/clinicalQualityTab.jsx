@@ -10,6 +10,8 @@ import {
   buildFacilityShortStayStats,
   buildOwnerLongStayStats,
   buildOwnerShortStayStats,
+  buildStateLongStayStats,
+  buildStateShortStayStats,
 } from '../../../../lib/clinicalQualityMetrics';
 import { useOwnerClinicalBenchmarks } from '../../../../hooks/useOwnerClinicalBenchmarks';
 
@@ -18,10 +20,29 @@ import { useOwnerClinicalBenchmarks } from '../../../../hooks/useOwnerClinicalBe
  *
  * Responsibilities:
  * - Builds long-stay and short-stay metric groups from the provided data source
- * - Switches between facility and owner metric builders based on status
+ * - Switches between facility, state, and owner metric builders based on status
  * - Shows owner-specific context when values represent weighted averages
  * - Renders each metric group using the shared long-form metric card layout
  */
+
+/* Metric builders per subject type — each status maps its long/short-stay groups
+   to the matching lib builder. Facility/state use nationalBenchmarks; owner uses
+   ownerBenchmarks from GET /api/owners/benchmarks/clinical-quality. */
+const STATS_BUILDERS = {
+  facility: {
+    longStay: buildFacilityLongStayStats,
+    shortStay: buildFacilityShortStayStats,
+  },
+  state: {
+    longStay: buildStateLongStayStats,
+    shortStay: buildStateShortStayStats,
+  },
+  owner: {
+    longStay: buildOwnerLongStayStats,
+    shortStay: buildOwnerShortStayStats,
+  },
+};
+
 export default function ClinicalQualityTab({
   metricsSource,
   status,
@@ -30,16 +51,14 @@ export default function ClinicalQualityTab({
   const { benchmarks: ownerBenchmarks, loading: benchmarksLoading } =
     useOwnerClinicalBenchmarks(status === 'owner');
 
-  // Build stat arrays from lib config; maps data keys to display-ready objects.
-  const longStayStats =
-    status === 'facility'
-      ? buildFacilityLongStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerLongStayStats(metricsSource, ownerBenchmarks);
+  // Pick the builder set for this subject type (owner is the default fallback).
+  const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
+  const benchmarks =
+    status === 'owner' ? ownerBenchmarks : nationalBenchmarks;
 
-  const shortStayStats =
-    status === 'facility'
-      ? buildFacilityShortStayStats(metricsSource, nationalBenchmarks)
-      : buildOwnerShortStayStats(metricsSource, ownerBenchmarks);
+  // Build stat arrays from lib config; maps data keys to display-ready objects.
+  const longStayStats = builders.longStay(metricsSource, benchmarks);
+  const shortStayStats = builders.shortStay(metricsSource, benchmarks);
 
   return (
     <section>

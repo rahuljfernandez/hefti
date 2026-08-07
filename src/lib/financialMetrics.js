@@ -2,8 +2,9 @@ import {
   formatMetricValue,
   expandStateAbbreviation,
   formatUSD,
+  appendSuffix,
 } from './stringFormatters';
-import { getCmprColor } from './getBadgeColor';
+import { getCmprColor, buildNationalComparison } from './getBadgeColor';
 
 /**
  * Financial metric config and builder helpers.
@@ -171,8 +172,9 @@ function buildStats(config, metricsSource, nationalBenchmarks) {
       comparisonColor: metric.comparisonKey
         ? getCmprColor(metricsSource?.[metric.comparisonKey])
         : null,
-      detail1: `${stateName} average: ${stateAvg}`,
-      detail2: `National average: ${nationalAvg}`,
+      detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -323,11 +325,6 @@ function buildOwnerStats(config, metricsSource) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
-  const formatDisplayValue = (metric, value) => {
-    if (value === 'N/A') return value;
-    return metric.suffix ? `${value}${metric.suffix}` : value;
-  };
-
   return config.map((metric) => {
     const value = metric.valueKey
       ? format(metric, metricsSource?.[metric.valueKey])
@@ -338,7 +335,7 @@ function buildOwnerStats(config, metricsSource) {
       title: metric.title,
       subtitle: metric.subtitle,
       value,
-      displayValue: formatDisplayValue(metric, value),
+      displayValue: appendSuffix(value, metric.suffix),
       detail1: `Median: ${metric.medianKey}`,
       detail2: `Std Dev: ${metric.stdDevKey}`,
     };
@@ -359,4 +356,178 @@ export function buildOwnerExpensesStats(metricsSource) {
 
 export function buildOwnerLiquidityStats(metricsSource) {
   return buildOwnerStats(ownerLiquidityConfig, metricsSource);
+}
+
+/* State financial configs mirror the facility benchmark keys but reword copy
+   for a statewide view — values are averages across the state's nursing homes,
+   not a single provider's figures — and carry their own direction/suffix.
+   Revenue, margins, net income, and current ratio are higher-is-better;
+   expenses, salaries, related-party shares, and the debt ratio are
+   lower-is-better, so a state below the national expense average shows green. */
+const stateProfitConfig = [
+  {
+    id: 1,
+    title: 'Operating Margin',
+    subtitle:
+      'The percentage of revenue left after operating costs. Higher values suggest better financial health',
+    valueKey: 'operating_margin',
+    nationalAvgKey: 'national_operating_margin',
+    higherIsBetter: true,
+    suffix: '%',
+  },
+  {
+    id: 2,
+    title: 'Total Margin',
+    subtitle:
+      'Overall profitability after all expenses. Higher values indicate better performance',
+    valueKey: 'total_margin',
+    nationalAvgKey: 'national_total_margin',
+    higherIsBetter: true,
+    suffix: '%',
+  },
+  {
+    id: 3,
+    title: 'Net Income',
+    subtitle:
+      'Average profit remaining after all revenues and expenses. Positive values indicate financial solvency.',
+    valueKey: 'net_income',
+    nationalAvgKey: 'national_net_income',
+    isCurrency: true,
+    higherIsBetter: true,
+  },
+];
+
+const stateRevenueConfig = [
+  {
+    id: 1,
+    title: 'Net Patient Services Revenue',
+    subtitle:
+      'Average revenue earned from patient care services. Higher values reflect greater care volume and billing.',
+    valueKey: 'net_patient_services_revenue',
+    nationalAvgKey: 'national_net_patient_services_revenue',
+    isCurrency: true,
+    higherIsBetter: true,
+  },
+];
+
+const stateExpensesConfig = [
+  {
+    id: 1,
+    title: 'Operating Expenses',
+    subtitle:
+      'Average costs of running day-to-day nursing home operations. Higher values relative to revenue may indicate financial strain.',
+    valueKey: 'operating_expenses',
+    nationalAvgKey: 'national_operating_expenses',
+    isCurrency: true,
+    higherIsBetter: false,
+  },
+  {
+    id: 2,
+    title: 'Total Salaries',
+    subtitle:
+      'Average compensation paid to nursing home staff. A major component of operating expenses in nursing homes.',
+    valueKey: 'total_salaries',
+    nationalAvgKey: 'national_total_salaries',
+    isCurrency: true,
+    higherIsBetter: false,
+  },
+  {
+    id: 3,
+    title: 'Total Expenses',
+    subtitle:
+      'Average of all costs incurred by nursing homes. Comparing to revenue indicates overall financial sustainability.',
+    valueKey: 'total_expenses',
+    nationalAvgKey: 'national_total_expenses',
+    isCurrency: true,
+    higherIsBetter: false,
+  },
+  {
+    id: 4,
+    title: 'Related Party to Total Operating Expenses',
+    subtitle:
+      'Share of total operating expenses paid to affiliated companies. Higher values may indicate reduced financial transparency.',
+    valueKey: 'related_party_to_total_op_expenses',
+    nationalAvgKey: 'national_related_party_to_total_op_expenses',
+    higherIsBetter: false,
+    suffix: '%',
+  },
+  {
+    id: 5,
+    title: 'Related Party to Net Operating Expenses',
+    subtitle:
+      'Share of net operating expenses paid to affiliated companies. Higher values may indicate conflicts of interest.',
+    valueKey: 'related_party_to_net_op_expenses',
+    nationalAvgKey: 'national_related_party_to_net_op_expenses',
+    higherIsBetter: false,
+    suffix: '%',
+  },
+];
+
+const stateLiquidityConfig = [
+  {
+    id: 1,
+    title: 'Current Ratio',
+    subtitle:
+      'Measures ability to cover short-term debts. Higher values suggest stronger short term financial stability',
+    valueKey: 'current_ratio',
+    nationalAvgKey: 'national_current_ratio',
+    higherIsBetter: true,
+  },
+  {
+    id: 2,
+    title: 'Long Term Debt to Capital Ratio',
+    subtitle:
+      'Shows reliance on debt for capital improvements. Lower values indicate more sustainable investment strategies.',
+    valueKey: 'long_term_debt_to_capital_ratio',
+    nationalAvgKey: 'national_long_term_debt_to_capital_ratio',
+    higherIsBetter: false,
+  },
+];
+
+/* State builder benchmarks each value against the national average and derives
+   the Above/Below National Average badge, like the clinical and staffing tabs. */
+function buildStateStats(config, metricsSource, nationalBenchmarks) {
+  return config.map((metric) => {
+    const format = metric.isCurrency ? formatUSD : formatMetricValue;
+    const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
+    const rawNational = metric.nationalAvgKey
+      ? nationalBenchmarks?.[metric.nationalAvgKey]
+      : null;
+    const nationalAvg = appendSuffix(format(rawNational), metric.suffix);
+
+    const { comparison, comparisonColor } = metric.nationalAvgKey
+      ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
+      : { comparison: null, comparisonColor: null };
+
+    return {
+      id: metric.id,
+      title: metric.title,
+      subtitle: metric.subtitle,
+      value: metric.valueKey
+        ? appendSuffix(format(rawValue), metric.suffix)
+        : 'N/A',
+      comparison,
+      comparisonColor,
+      detail1:
+        metric.nationalAvgKey && nationalAvg !== 'N/A'
+          ? `National average: ${nationalAvg}`
+          : undefined,
+    };
+  });
+}
+
+export function buildStateProfitStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(stateProfitConfig, metricsSource, nationalBenchmarks);
+}
+
+export function buildStateRevenueStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(stateRevenueConfig, metricsSource, nationalBenchmarks);
+}
+
+export function buildStateExpensesStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(stateExpensesConfig, metricsSource, nationalBenchmarks);
+}
+
+export function buildStateLiquidityStats(metricsSource, nationalBenchmarks) {
+  return buildStateStats(stateLiquidityConfig, metricsSource, nationalBenchmarks);
 }

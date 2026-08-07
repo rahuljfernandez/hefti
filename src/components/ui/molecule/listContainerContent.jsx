@@ -9,8 +9,13 @@ import { toTitleCase } from '../../../lib/toTitleCase';
 import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
 import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
+import OutlineButton from '../atom/outlineButton';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { UserIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import MatchChip from './matchChip';
+import { ArrowRightIcon } from '@heroicons/react/16/solid';
+import { SparklesIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
 /**
@@ -74,8 +79,8 @@ export function OwnershipAndStakeholders({ item }) {
       <Divider className="order-2 md:order-none md:col-span-3" />
 
       {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-        <div className="gap-2 md:flex md:flex-col md:pr-6">
+      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+        <div className="gap-2 md:flex md:flex-col">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
             OWNERSHIP PERCENTAGE
           </p>
@@ -84,7 +89,7 @@ export function OwnershipAndStakeholders({ item }) {
           </p>
         </div>
 
-        <div className="gap-2 md:flex md:flex-col">
+        <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
           <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
             OWNERSHIP MINIMUM
           </p>
@@ -131,18 +136,49 @@ OwnershipAndStakeholders.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/**
+ * AI-generated summary card shown beside the deficiency stat card on the
+ * facility, owner, and state profiles.
+ *
+ * Renders an item of { title, body, subtitle } with a fixed sparkle icon.
+ * Content is mock until the summary becomes a real API field — see the
+ * placeholder object in deficienciesTab.jsx.
+ */
+export function AiSummaryCard({ item }) {
+  return (
+    <div className="border-border-primary bg-core-white h-full overflow-hidden rounded-lg border px-4 pt-5 pb-6 shadow-sm">
+      <div className="flex items-center gap-2">
+        <SparklesIcon aria-hidden="true" className="size-5 text-blue-600" />
+        <p className="text-label-lg text-core-black">{item.title}</p>
+      </div>
+      <p className="text-paragraph-base text-core-black mt-4">{item.body}</p>
+      <p className="text-paragraph-base text-content-secondary mt-4">
+        {item.subtitle}
+      </p>
+    </div>
+  );
+}
+
+AiSummaryCard.propTypes = {
+  item: PropTypes.shape({
+    title: PropTypes.string,
+    body: PropTypes.string,
+    subtitle: PropTypes.string,
+  }).isRequired,
+};
+
 // V1 placeholder — Rahul will split into separate report_date + report_url fields.
 // Update field names here once the backend change lands.
 export function DeficiencyReportItem({ item }) {
   return (
-    <div className="flex items-center justify-between">
-      <p className="text-paragraph-base text-core-black">
+    <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-4">
+      <p className="text-paragraph-base text-core-black font-bold">
         {item.report_date ?? '—'}
       </p>
       {item.report_url ? (
         <a
           href={item.report_url}
-          className="text-paragraph-base font-medium text-blue-600 underline"
+          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-700 underline hover:text-blue-800"
           target="_blank"
           rel="noreferrer"
         >
@@ -153,6 +189,10 @@ export function DeficiencyReportItem({ item }) {
           No report available
         </span>
       )}
+      {/* Opens an AI summary dropdown once that feature lands. */}
+      <OutlineButton icon={SparklesIcon} iconClassName="text-blue-600">
+        AI Summary
+      </OutlineButton>
     </div>
   );
 }
@@ -184,7 +224,7 @@ export function Deficiencies({ item }) {
 
         {/* Full Report spans both rows*/}
         <div className="order-last sm:order-none sm:col-span-1 sm:row-span-2 sm:flex sm:h-full sm:items-center sm:justify-end">
-          <span className="text-paragraph-base text-blue-600 underline">
+          <span className="text-paragraph-base font-medium text-blue-600 underline">
             Full Report
           </span>
         </div>
@@ -289,18 +329,18 @@ export function RelatedFacilities({ item }) {
         </div>
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-5 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Col 2 - spans both rows */}
-        <div className="order-3 md:order-none md:col-span-3 md:flex md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
+        <div className="order-3 md:order-none md:col-span-3 md:flex md:items-center md:justify-start md:gap-6">
           {/* CMS Rating */}
-          <div className="flex flex-col items-start pr-6 md:flex-row md:items-center md:gap-2">
+          <div className="flex flex-col items-start md:flex-row md:items-center md:gap-2">
             <p className="text-paragraph-base text-content-secondary">
               CMS Rating
             </p>
@@ -311,7 +351,7 @@ export function RelatedFacilities({ item }) {
           </div>
 
           {/* Owner Role */}
-          <div className="flex flex-col md:flex-row md:gap-2">
+          <div className="flex flex-col md:flex-row md:gap-2 md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1">
               Owners Role:
             </p>
@@ -326,6 +366,76 @@ export function RelatedFacilities({ item }) {
 }
 
 RelatedFacilities.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+/**
+ * Owner property card used on the owner Property Details tab.
+ *
+ * One property as a single interactive card: name, address, market value, and a
+ * conditional related-party flag. One outer link, like RelatedFacilities, so
+ * keyboard users tab through the list one card at a time.
+ */
+export function OwnerProperty({ item }) {
+  const facilityHref = `/facilities/${item.facility_slug}`;
+  const facilityName = toTitleCase(item.facility_name);
+  return (
+    <Link
+      to={facilityHref}
+      className="focus-ring-light block rounded-lg"
+      aria-label={`View profile for ${facilityName}, market value ${
+        item.market_value_display
+      }${item.related_party ? ', related party' : ''}`}
+    >
+      <div className="grid grid-cols-1 gap-4 font-sans md:grid-cols-3">
+        {/* Name + Address */}
+        <div className="md:col-span-2">
+          <span className="text-paragraph-base font-bold text-blue-700 underline">
+            {facilityName}
+          </span>
+          <div className="text-paragraph-base text-content-secondary">
+            {`${toTitleCase(item.street_address)}, ${toTitleCase(item.city)}, ${item.state} ${
+              item.zip_code
+            }`}
+          </div>
+        </div>
+
+        {/* Button — top right on desktop, bottom on mobile */}
+        <div className="md:flex md:items-center md:justify-end">
+          <OutlineButton as="span" fullWidth>
+            View Profile
+          </OutlineButton>
+        </div>
+
+        {/* Divider */}
+        <Divider className="md:col-span-3" />
+
+        {/* Market value + conditional related-party flag */}
+        <div className="md:col-span-3 md:flex md:items-center">
+          <p className="text-paragraph-base text-content-secondary md:pr-6">
+            Market Value:{' '}
+            <span className="text-core-black font-bold">
+              {item.market_value_display}
+            </span>
+          </p>
+          {item.related_party && (
+            <span className="flex items-center gap-1.5 md:border-l md:border-gray-400 md:pl-6">
+              <ExclamationTriangleIcon
+                aria-hidden="true"
+                className="size-5 shrink-0 text-amber-500"
+              />
+              <span className="text-paragraph-base text-core-black">
+                Related Party
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+OwnerProperty.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
@@ -382,17 +492,17 @@ export function BrowseNursingHomes({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="md:flex md:flex-row md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="md:flex md:flex-row">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Owned by:
             </p>
@@ -405,7 +515,7 @@ export function BrowseNursingHomes({ item, linkState }) {
             </p>
           </div>
 
-          <div className="md:flex md:flex-row">
+          <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Ownership Type:
             </p>
@@ -519,9 +629,9 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
@@ -654,17 +764,17 @@ export function BrowseChains({ item }) {
 
         {/* Button */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Facilities
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row — States */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="flex flex-row items-baseline gap-1 md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="flex flex-row items-baseline gap-1">
             <p className="text-paragraph-base text-content-secondary">
               States:
             </p>
@@ -673,7 +783,7 @@ export function BrowseChains({ item }) {
             </p>
           </div>
           {states.length > 0 && (
-            <div className="md:flex md:flex-row">
+            <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
               <p className="text-paragraph-base text-core-black">
                 {visibleStates.join(', ')}
                 {extraCount > 0 && (
@@ -764,17 +874,17 @@ export function BrowseOwners({ item, linkState }) {
 
         {/* Button — Top right on desktop, bottom on mobile */}
         <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-          <span className="text-label-base border-border-primary inline-block w-full rounded-lg border px-4 py-2 text-center font-extrabold md:w-auto">
+          <OutlineButton as="span" fullWidth>
             View Profile
-          </span>
+          </OutlineButton>
         </div>
 
         {/* Divider */}
         <Divider className="order-2 md:order-none md:col-span-3" />
 
         {/* Bottom Row */}
-        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6 md:divide-x md:divide-gray-400">
-          <div className="md:flex md:flex-row md:pr-6">
+        <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+          <div className="md:flex md:flex-row">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Total Facilities:
             </p>
@@ -785,7 +895,7 @@ export function BrowseOwners({ item, linkState }) {
             </p>
           </div>
 
-          <div className="md:flex md:flex-row">
+          <div className="md:flex md:flex-row md:border-l md:border-gray-400 md:pl-6">
             <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
               Ownership Type:
             </p>
@@ -1113,4 +1223,240 @@ RankingTableRow.propTypes = {
     badgeColor: PropTypes.string,
   }).isRequired,
   to: PropTypes.string,
+};
+
+/**
+ * Card for the home-page "Explore by State" choropleth.
+ *
+ * Renders one state's stats for the active metric: facility count, the metric
+ * value, and the state's national rank, plus the profile call-to-action.
+ *
+ * `interactive` controls the CTA because the two placements have opposite click
+ * semantics: the desktop card floats under the cursor and is pointer-events-none,
+ * so it can only be a hint ("Click to view …") while the state itself is the
+ * click target. The touch card sits in a fixed panel below the map, so it can be
+ * a real, tappable <Link>. `className` lets the panel widen past the floating
+ * card's fixed width.
+ *
+ * Expected item shape (built by buildStateMapCards in stateChoroplethMetrics.js):
+ * - stateName, stateCode: display name + route key for /states/:state
+ * - facilityCount: total facilities in the state
+ * - ratingLabel: label for the value row (e.g. "Overall rating", "Op. margin")
+ * - format: 'stars' | 'percent' | 'number'
+ * - value: numeric value (used for the star fill)
+ * - displayValue: preformatted value string (e.g. "3.1", "7.5%", "-5.1%")
+ * - rank, totalRanked: national rank shown as "{rank} of {totalRanked}"
+ */
+export function StateMapCard({ item, interactive = false, className }) {
+  if (!item) return null;
+
+  const stateName = toTitleCase(item.stateName || '');
+
+  return (
+    <div
+      className={clsx(
+        'border-border-primary rounded-lg border bg-white p-4 shadow-lg',
+        className || 'w-64',
+      )}
+    >
+      <p className="text-label-lg text-core-black mb-3 font-bold">
+        {stateName}
+      </p>
+
+      <dl className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            Facilities
+          </dt>
+          <dd className="text-paragraph-sm text-core-black">
+            {item.facilityCount ?? '—'}
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            {item.ratingLabel}
+          </dt>
+          <dd className="text-paragraph-sm text-core-black flex items-center">
+            {item.format === 'stars' ? (
+              /* dd is flex so the stars have no baseline line-box lifting them
+                 above the label. -mr-2 cancels StarRating's trailing px-2 so the
+                 number sits flush right; [&_span]:pt-0 drops its top padding so
+                 the stars/number center vertically instead of riding high. */
+              <span className="-mr-2 inline-block [&_span]:pt-0">
+                <StarRating
+                  title=""
+                  rating={typeof item.value === 'number' ? item.value : 0}
+                  size="h-3.5 w-3.5"
+                  ratingSize="xs"
+                />
+              </span>
+            ) : (
+              /* Op. margin: green for positive, red for negative */
+              <span
+                className={clsx(
+                  'font-bold',
+                  typeof item.value === 'number' && item.value > 0
+                    ? 'text-green-700'
+                    : typeof item.value === 'number' && item.value < 0
+                      ? 'text-red-700'
+                      : 'text-core-black',
+                )}
+              >
+                {item.displayValue ?? '—'}
+              </span>
+            )}
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <dt className="text-paragraph-sm text-content-secondary">
+            National rank
+          </dt>
+          <dd className="text-paragraph-sm text-core-black">
+            {item.rank != null ? `${item.rank} of ${item.totalRanked}` : '—'}
+          </dd>
+        </div>
+      </dl>
+
+      <Divider className="my-3" />
+
+      {interactive ? (
+        <Link
+          to={`/states/${item.stateCode}`}
+          className="focus-ring-light text-paragraph-sm inline-flex items-center gap-1 rounded-sm font-medium text-blue-600"
+        >
+          View {stateName} profile
+          <ArrowRightIcon aria-hidden="true" className="size-4" />
+        </Link>
+      ) : (
+        /* The floating desktop card follows the cursor and is pointer-events-none,
+           so this is a hint, not a link — the whole state is the click target
+           (see the map's onStateSelect). */
+        <p className="text-paragraph-sm inline-flex items-center gap-1 font-medium text-blue-600">
+          Click to view {stateName} profile
+          <ArrowRightIcon aria-hidden="true" className="size-4" />
+        </p>
+      )}
+    </div>
+  );
+}
+
+StateMapCard.propTypes = {
+  item: PropTypes.shape({
+    stateName: PropTypes.string,
+    stateCode: PropTypes.string,
+    facilityCount: PropTypes.number,
+    ratingLabel: PropTypes.string,
+    format: PropTypes.oneOf(['stars', 'percent', 'number']),
+    value: PropTypes.number,
+    displayValue: PropTypes.string,
+    rank: PropTypes.number,
+    totalRanked: PropTypes.number,
+  }),
+  interactive: PropTypes.bool,
+  className: PropTypes.string,
+};
+
+/* Row layout for the Property Details flag banners */
+const FLAG_BANNER_ROW =
+  'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4';
+
+/**
+ * One matched entity in the Property Details tab's related-party banner: the
+ * entity, what it matched on, and its ownership role.
+ */
+export function RelatedPartyMatch({ item }) {
+  const badge = badgeConfig[item.cms_ownership_role];
+  const matchedOn = item.matched_on ?? [];
+
+  return (
+    <div className={FLAG_BANNER_ROW}>
+      <div>
+        <Link
+          to={`/owners/${item.entity_slug}`}
+          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
+        >
+          {item.entity_name}
+        </Link>
+
+        {matchedOn.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="text-paragraph-sm text-content-secondary">
+              Matched on
+            </span>
+            {matchedOn.map((type) => (
+              <MatchChip key={type} type={type} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {badge && (
+        <Badge color={badge.color} className="shrink-0">
+          {badge.label}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+RelatedPartyMatch.propTypes = {
+  item: PropTypes.shape({
+    entity_name: PropTypes.string.isRequired,
+    entity_slug: PropTypes.string.isRequired,
+    matched_on: PropTypes.arrayOf(PropTypes.string),
+    cms_ownership_role: PropTypes.string,
+  }).isRequired,
+};
+
+/**
+ * One property in the Property Details tab's associated-properties banner.
+ *
+ * The trailing VIEW is a span, not a link or button: it is inert until the
+ * property API can serve a second property, and a focusable control that does
+ * nothing is worse than plain text for a keyboard user.
+ */
+export function AssociatedProperty({ item }) {
+  return (
+    <div className={FLAG_BANNER_ROW}>
+      <div>
+        <p className="text-paragraph-base text-content-primary">
+          {item.address}
+        </p>
+
+        <div className="text-paragraph-sm text-content-secondary mt-0.5 flex flex-wrap items-center gap-2">
+          <span>{item.description}</span>
+          {item.related_party && (
+            <>
+              <span aria-hidden="true">|</span>
+              <span className="inline-flex items-center gap-1">
+                <ExclamationTriangleIcon className="size-4 shrink-0 text-amber-500" />
+                Related Party
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {item.is_current ? (
+        <span className="text-label-sm text-content-secondary shrink-0 uppercase">
+          Viewing
+        </span>
+      ) : (
+        <span className="text-label-sm shrink-0 text-blue-600 uppercase">
+          View
+        </span>
+      )}
+    </div>
+  );
+}
+
+AssociatedProperty.propTypes = {
+  item: PropTypes.shape({
+    address: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    related_party: PropTypes.bool,
+    is_current: PropTypes.bool,
+  }).isRequired,
 };

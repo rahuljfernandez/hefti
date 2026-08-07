@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { STATE_PATHS, VIEW_W, VIEW_H } from '../../../lib/usStatesGeo';
 
 /**
  * Skeleton loading components for data-dependent UI sections.
@@ -14,7 +15,11 @@ import PropTypes from 'prop-types';
  */
 
 function SkeletonBar({ className = '', error = false }) {
-  return <div className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`} />;
+  return (
+    <div
+      className={`rounded ${error ? 'bg-red-100' : 'animate-pulse bg-gray-200'} ${className}`}
+    />
+  );
 }
 
 SkeletonBar.propTypes = {
@@ -159,7 +164,9 @@ function GraphSVG({ className = '', error = false }) {
             stroke={error ? '#FECACA' : '#D1D5DB'}
             strokeWidth="1.5"
             className={error ? undefined : 'gp-edge'}
-            style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
+            style={
+              error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }
+            }
           />
         );
       })}
@@ -170,8 +177,12 @@ function GraphSVG({ className = '', error = false }) {
           cy={n.cy}
           r={n.r}
           fill={error ? '#FCA5A5' : n.id === 'hub' ? '#FCD34D' : '#9CA3AF'}
-          className={error ? undefined : n.id === 'hub' ? 'gp-node-hub' : 'gp-node'}
-          style={error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }}
+          className={
+            error ? undefined : n.id === 'hub' ? 'gp-node-hub' : 'gp-node'
+          }
+          style={
+            error ? undefined : { animationDelay: `${Math.random() * 0.8}s` }
+          }
         />
       ))}
     </svg>
@@ -186,7 +197,9 @@ GraphSVG.propTypes = {
 // Used in: src/components/ui/molecule/ownerNetworkGraphDesktopLayout.jsx, src/components/ui/molecule/ownerNetworkGraphMobileLayout.jsx
 export function NetworkGraphSkeleton({ error = false }) {
   return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${error ? 'bg-red-50' : 'bg-gray-50'}`}>
+    <div
+      className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${error ? 'bg-red-50' : 'bg-gray-50'}`}
+    >
       <GraphSVG className="w-[280px] opacity-50 sm:w-[520px]" error={error} />
       {!error && (
         <p className="animate-pulse text-base text-gray-500" role="status">
@@ -263,33 +276,46 @@ ChartSkeleton.propTypes = {
 };
 
 /**
- * Skeleton for RankingTables — mirrors the header, 5-row list, and pagination layout.
- * Pass error={true} to swap the pulse animation for static red bars and an error message.
+ * Skeleton for the home-page State Rankings card grid — mirrors the controls row,
+ * a 10-card grid, and the pagination bar. Pass error={true} to swap the pulse for
+ * static red fills and an error message. The section title is rendered by the
+ * organism above this, so it is intentionally omitted here.
  *
- * Used in: src/components/ui/molecule/rankingTables.jsx
+ * Used in: src/components/ui/organism/stateRankingsHiLowViz.jsx
  */
-export function RankingTablesSkeleton({ error = false }) {
+export function StateRankingsSkeleton({ count = 10, error = false }) {
   return (
-    <div className={`bg-core-white border-border-primary overflow-hidden rounded-xl border p-4 shadow-sm sm:p-6 ${error ? '' : 'animate-pulse'}`}>
-      {/* Title / Toggle */}
-      <div className="mb-4 flex items-center justify-between">
-        <SkeletonBar className="h-5 w-36" error={error} />
-        <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
+    <div
+      className={error ? '' : 'animate-pulse'}
+      role="status"
+      aria-label={error ? 'Failed to load state rankings' : 'Loading state rankings'}
+    >
+      {/* Controls row: Rank by + toggle (left), legend (right) */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <SkeletonBar className="h-9 w-32 rounded-md" error={error} />
+          <SkeletonBar className="h-9 w-28 rounded-md" error={error} />
+        </div>
+        <SkeletonBar className="h-4 w-56 rounded-sm" error={error} />
       </div>
-      {/* Rows */}
-      <ul className="divide-y divide-gray-200">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <li key={i} className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-4">
-              <SkeletonBar className="h-4 w-4" error={error} />
-              <SkeletonBar className="h-4 w-32" error={error} />
+      {/* Card grid */}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+        {Array.from({ length: count }).map((_, i) => (
+          <li
+            key={i}
+            className="border-border-primary flex flex-col items-center rounded-lg border bg-white p-3"
+          >
+            <div className="mb-1 flex w-full justify-end">
+              <SkeletonBar className="h-4 w-8 rounded-md" error={error} />
             </div>
-            <SkeletonBar className="h-6 w-10 rounded-full" error={error} />
+            <SkeletonBar className="h-12 w-12 rounded-md" error={error} />
+            <SkeletonBar className="mt-2 h-4 w-20" error={error} />
+            <SkeletonBar className="mt-1 h-3 w-12" error={error} />
           </li>
         ))}
       </ul>
       {/* Pagination */}
-      <div className="border-border-primary mt-3 flex items-center justify-between border-t pt-3">
+      <div className="mt-3 flex items-center justify-between py-3">
         <SkeletonBar className="h-4 w-32" error={error} />
         <div className="flex gap-3">
           <SkeletonBar className="h-8 w-24 rounded-md" error={error} />
@@ -305,8 +331,43 @@ export function RankingTablesSkeleton({ error = false }) {
   );
 }
 
-RankingTablesSkeleton.propTypes = {
+StateRankingsSkeleton.propTypes = {
+  count: PropTypes.number,
   error: PropTypes.bool,
+};
+
+/**
+ * Skeleton for the "Explore by State" choropleth. Renders the real state
+ * geometry filled with a pulsing gray so the placeholder is the exact map
+ * silhouette (not a generic box), keeping the near-top-of-page layout stable
+ * while /state-metrics is in flight. error={true} swaps to static red fills.
+ *
+ * Used in: src/components/ui/organism/exploreByState.jsx
+ */
+export function StateMapSkeleton({ error = false, className = '' }) {
+  return (
+    <svg
+      viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      className={`h-auto w-full ${error ? '' : 'animate-pulse'} ${className}`}
+      role="status"
+      aria-label={error ? 'Failed to load state map' : 'Loading state map'}
+    >
+      {STATE_PATHS.map((state) => (
+        <path
+          key={state.name}
+          d={state.d}
+          fill={error ? '#FEE2E2' : '#E5E7EB'}
+          stroke="#ffffff"
+          strokeWidth={0.75}
+        />
+      ))}
+    </svg>
+  );
+}
+
+StateMapSkeleton.propTypes = {
+  error: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 // Used in: src/pages/Home.jsx

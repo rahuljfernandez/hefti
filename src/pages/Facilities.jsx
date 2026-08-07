@@ -47,7 +47,17 @@ function Facilities() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const chain = searchParams.get('chain');
+  const chainName = searchParams.get('chainName');
   const sortBy = searchParams.get('sortBy') || '';
+
+  /* Both params scope the list to one operator: `chain` (slugged, matches
+     parent_company_name) drives the label from its slug; `chainName` (exact
+     chain_name) is already a display name. */
+  const operatorLabel = chainName
+    ? toTitleCase(chainName)
+    : chain
+      ? toTitleCase(chain.replace(/-/g, ' '))
+      : null;
   const breadcrumb =
     state?.from === 'rankings' ? rankingsFacilityListPages : facilityListPages;
 
@@ -72,16 +82,16 @@ function Facilities() {
       <BrowsePage
         apiEndpoint={`${API_BASE_URL}/facilities`}
         title="Nursing Homes"
-        searchPlaceholder="Nursing home name..."
+        searchHeading="Search by name or CCN"
+        searchPlaceholder="Nursing home name or CCN..."
         type="facilities"
         filterOptions={FACILITY_FILTER_OPTIONS}
         renderList={(items) => (
           <>
-            {chain && (
+            {operatorLabel && (
               <div className="mt-2 mb-4 text-center">
                 <span className="inline-block rounded border border-blue-100 bg-blue-50 px-4 py-2 text-base font-semibold text-blue-700">
-                  Showing facilities for operator:{' '}
-                  {toTitleCase(chain.replace(/-/g, ' '))}
+                  Showing facilities for operator: {operatorLabel}
                 </span>
               </div>
             )}

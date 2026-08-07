@@ -37,6 +37,7 @@ export default function BrowsePage({
   apiEndpoint,
   suggestionsEndpoint,
   title,
+  searchHeading,
   searchPlaceholder,
   renderList,
   type,
@@ -56,6 +57,7 @@ export default function BrowsePage({
   const sortBy = searchParams.get('sortBy') || '';
   const state = searchParams.get('state') || '';
   const chain = searchParams.get('chain') || '';
+  const chainName = searchParams.get('chainName') || '';
 
   const currentSortValue = searchParams.get('sort') || '';
   const currentFilterValue = sortBy || '';
@@ -67,7 +69,7 @@ export default function BrowsePage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const activeQuery = search || state || chain;
+  const activeQuery = search || state || chain || chainName;
   const resultAnnouncement = error
     ? 'Results failed to load.'
     : loading
@@ -84,6 +86,7 @@ export default function BrowsePage({
     //  Only add search if it's not empty
     if (search.trim() !== '') params.set('search', search);
     if (chain.trim() !== '') params.set('chain', chain);
+    if (chainName.trim() !== '') params.set('chainName', chainName);
     // sortBy is only set when a field-based sort option is selected (e.g. overall_rating)
     if (sortBy) params.set('sortBy', sortBy);
 
@@ -98,7 +101,7 @@ export default function BrowsePage({
       })
       .catch(setError)
       .finally(() => setLoading(false));
-  }, [page, search, sort, sortBy, state, chain, apiEndpoint]);
+  }, [page, search, sort, sortBy, state, chain, chainName, apiEndpoint]);
 
   //Fetch suggestions when user types in the search box
   useEffect(() => {
@@ -171,6 +174,7 @@ export default function BrowsePage({
         suggestions={suggestions}
         hasFetchedSuggestions={hasFetchedSuggestions}
         title={title}
+        searchHeading={searchHeading}
         searchPlaceholder={searchPlaceholder}
         type={type}
         sortOptions={sortOptions}
@@ -205,6 +209,7 @@ BrowsePage.propTypes = {
   apiEndpoint: PropTypes.string.isRequired,
   suggestionsEndpoint: PropTypes.string,
   title: PropTypes.string.isRequired,
+  searchHeading: PropTypes.string,
   searchPlaceholder: PropTypes.string,
   renderList: PropTypes.func.isRequired,
   type: PropTypes.oneOf(['facilities', 'owners', 'rankings']),

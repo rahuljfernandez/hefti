@@ -41,5 +41,5 @@ export default function HeftiResearcherCTA({
 
 HeftiResearcherCTA.propTypes = {
   onClick: PropTypes.func.isRequired,
-  subjectType: PropTypes.oneOf(['owner', 'facility']),
+  subjectType: PropTypes.oneOf(['owner', 'facility', 'state']),
 };
