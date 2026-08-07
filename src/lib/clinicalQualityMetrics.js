@@ -333,8 +333,8 @@ function buildOwnerBenchmarkDetails(metric, ownerBenchmarks) {
   const stdDev = formatMetricValue(benchmark?.stdDev);
 
   return {
-    detail1: median !== 'N/A' ? `Median: ${median}` : null,
-    detail2: stdDev !== 'N/A' ? `Std Dev: ${stdDev}` : null,
+    detail1: `Median: ${median}`,
+    detail2: `Std Dev: ${stdDev}`,
   };
 }
 
