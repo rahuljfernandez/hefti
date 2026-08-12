@@ -13,6 +13,7 @@ import {
   buildStateLongStayStats,
   buildStateShortStayStats,
 } from '../../../../lib/clinicalQualityMetrics';
+import { useOwnerClinicalBenchmarks } from '../../../../hooks/useOwnerClinicalBenchmarks';
 
 /**
  * Clinical quality tab content.
@@ -25,8 +26,8 @@ import {
  */
 
 /* Metric builders per subject type — each status maps its long/short-stay groups
-   to the matching lib builder. Owner builders take only `metricsSource` and
-   harmlessly ignore the benchmarks argument, so builders call uniformly. */
+   to the matching lib builder. Facility/state use nationalBenchmarks; owner uses
+   ownerBenchmarks from GET /api/owners/benchmarks/clinical-quality. */
 const STATS_BUILDERS = {
   facility: {
     longStay: buildFacilityLongStayStats,
@@ -47,12 +48,17 @@ export default function ClinicalQualityTab({
   status,
   nationalBenchmarks,
 }) {
+  const { benchmarks: ownerBenchmarks, loading: benchmarksLoading } =
+    useOwnerClinicalBenchmarks(status === 'owner');
+
   // Pick the builder set for this subject type (owner is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
+  const benchmarks =
+    status === 'owner' ? ownerBenchmarks : nationalBenchmarks;
 
   // Build stat arrays from lib config; maps data keys to display-ready objects.
-  const longStayStats = builders.longStay(metricsSource, nationalBenchmarks);
-  const shortStayStats = builders.shortStay(metricsSource, nationalBenchmarks);
+  const longStayStats = builders.longStay(metricsSource, benchmarks);
+  const shortStayStats = builders.shortStay(metricsSource, benchmarks);
 
   return (
     <section>
@@ -63,6 +69,11 @@ export default function ClinicalQualityTab({
             <span className="font-bold">weighted average </span>
             across all facilities under this owner&apos;s management.
           </p>
+          {benchmarksLoading && (
+            <p className="text-paragraph-base text-content-secondary mt-2">
+              Loading national benchmarks…
+            </p>
+          )}
         </div>
       )}
 
