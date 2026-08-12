@@ -64,8 +64,7 @@ export default function StatesProfile() {
     setError(null);
     setNotFound(false);
 
-    // TODO: append ?year=${selectedYear} once the API supports year filtering.
-    fetch(`${API_BASE_URL}/state-stats/${encodeURIComponent(stateParam)}`)
+    fetch(`${API_BASE_URL}/state-stats/${encodeURIComponent(stateParam)}?year=${selectedYear}`)
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
@@ -87,7 +86,7 @@ export default function StatesProfile() {
        state-stats endpoint doesn't include them, so fetch them separately. */
     const fetchNationalBenchmarks = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/national`);
+        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
         const data = await res.json();
         setNationalBenchmarks(data);
       } catch (err) {
@@ -96,7 +95,7 @@ export default function StatesProfile() {
     };
 
     fetchNationalBenchmarks();
-  }, []);
+  }, [selectedYear]);
 
   useEffect(() => {
     /* Full facility list for this state, powering the "Deficiencies by Facility"
@@ -113,7 +112,7 @@ export default function StatesProfile() {
         const res = await fetch(
           `${API_BASE_URL}/facilities?state=${encodeURIComponent(
             stateParam.toUpperCase(),
-          )}&take=1500`,
+          )}&year=${selectedYear}&take=1500`,
           { signal: controller.signal },
         );
         const data = await res.json();
@@ -127,7 +126,7 @@ export default function StatesProfile() {
 
     fetchStateFacilities();
     return () => controller.abort();
-  }, [stateParam]);
+  }, [stateParam, selectedYear]);
 
   useEffect(() => {
     /* Chains and individual owners operating in this state, each ranked by
@@ -162,7 +161,7 @@ export default function StatesProfile() {
       'state individual burden',
     );
     return () => controller.abort();
-  }, [stateParam]);
+  }, [stateParam, selectedYear]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
@@ -295,13 +294,11 @@ export default function StatesProfile() {
               }}
             </TabsShell>
 
-            {/* Ownership-changes CTA. changeCount is a placeholder until the
-                state-stats API exposes an annual ownership-change total.
-                TEMP: `to` points at an external demo until the /acquisitions route ships. */}
+            {/* Ownership-changes CTA → native /acquisitions list (state-filtered). */}
             <StateAcquisitionsCta
               stateName={expandStateAbbreviation(stateStats.state)}
               changeCount={15}
-              to="https://yutingfan1209.github.io/nursing-home-live-feed/"
+              to={`/acquisitions?state=${encodeURIComponent(stateStats.state)}`}
             />
           </>
         )}

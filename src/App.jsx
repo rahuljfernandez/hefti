@@ -13,6 +13,7 @@ import StatesProfile from './pages/StatesProfile';
 import HeftiResearch from './pages/HeftiResearch';
 import LandingPage from './pages/LandingPage';
 import Rankings from './pages/Rankings';
+import Acquisitions from './pages/Acquisitions';
 import ScrollToTop from './components/ui/molecule/scrollToTop';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="sandbox" element={<Sandbox />} />
           <Route path="facilities" element={<Facilities />} />
           <Route path="owners" element={<Owners />} />
+          <Route path="acquisitions" element={<Acquisitions />} />
           <Route path="/owners/:slug" element={<OwnersProfile />} />
           <Route path="/facilities/:slug" element={<FacilityProfile />} />
           <Route path="/states/:state" element={<StatesProfile />} />

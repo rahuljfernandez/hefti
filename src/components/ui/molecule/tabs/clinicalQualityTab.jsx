@@ -47,9 +47,10 @@ export default function ClinicalQualityTab({
   metricsSource,
   status,
   nationalBenchmarks,
+  year = null,
 }) {
   const { benchmarks: ownerBenchmarks, loading: benchmarksLoading } =
-    useOwnerClinicalBenchmarks(status === 'owner');
+    useOwnerClinicalBenchmarks(status === 'owner', year);
 
   // Pick the builder set for this subject type (owner is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
@@ -108,4 +109,5 @@ ClinicalQualityTab.propTypes = {
   metricsSource: PropTypes.object,
   status: PropTypes.string,
   nationalBenchmarks: PropTypes.object,
+  year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

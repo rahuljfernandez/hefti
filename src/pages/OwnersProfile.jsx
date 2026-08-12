@@ -81,8 +81,7 @@ export default function OwnersProfile() {
     setError(null);
     setNotFound(false);
 
-    // TODO: append ?year=${selectedYear} once the API supports year filtering.
-    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}`)
+    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`)
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
@@ -104,7 +103,7 @@ export default function OwnersProfile() {
        endpoint doesn't include them, so fetch them separately. */
     const fetchNationalBenchmarks = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/national`);
+        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
         const data = await res.json();
         setNationalBenchmarks(data);
       } catch (err) {
@@ -113,7 +112,7 @@ export default function OwnersProfile() {
     };
 
     fetchNationalBenchmarks();
-  }, []);
+  }, [selectedYear]);
 
   // Use related facilities from API if available
   const relatedFacilities = useMemo(
@@ -235,6 +234,7 @@ export default function OwnersProfile() {
                       <ClinicalQualityTab
                         metricsSource={owner}
                         status={'owner'}
+                        year={selectedYear}
                       />
                     );
 

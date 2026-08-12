@@ -72,7 +72,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// TODO: replace with years returned from the API once the endpoint supports year filtering.
+    // TODO: replace with years returned from the API once the endpoint supports year filtering.
 const AVAILABLE_YEARS = [
   2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
 ];
@@ -96,8 +96,7 @@ export default function FacilityProfile() {
     setError(null);
     setNotFound(false);
 
-    // TODO: append ?year=${selectedYear} once the API supports year filtering.
-    fetch(`${API_BASE_URL}/facilities/${slug}`)
+    fetch(`${API_BASE_URL}/facilities/${slug}?year=${selectedYear}`)
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
@@ -118,7 +117,7 @@ export default function FacilityProfile() {
   useEffect(() => {
     const fetchNationalBenchmarks = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/national`);
+        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
         const data = await res.json();
         setNationalBenchmarks(data);
       } catch (err) {
@@ -127,7 +126,7 @@ export default function FacilityProfile() {
     };
 
     fetchNationalBenchmarks();
-  }, []);
+  }, [selectedYear]);
 
   // Relationship records used for stakeholders + ownership diagram sections.
   const ownershipLinks = useMemo(
