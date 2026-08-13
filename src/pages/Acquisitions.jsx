@@ -299,8 +299,8 @@ export default function Acquisitions() {
               </div>
             ) : (
               <ul className="list-none">
-                {deals.map((deal) => (
-                  <DealRow key={deal.id} deal={deal} />
+                {deals.map((deal, i) => (
+                  <DealRow key={deal.id || i} deal={deal} />
                 ))}
               </ul>
             )}
