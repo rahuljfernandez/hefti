@@ -1,61 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
 import LayoutCard from '../atom/layout-card';
 import AcquisitionsCtaBanner from '../molecule/acquisitionsCtaBanner';
 
-const WINDOW_DAYS = 30;
-const TOTAL_CHANGES = 16;
+const WINDOW_DAYS = 90;
+const FEED_LIMIT = 5;
 
-// TODO: replace with the ownership-changes feed endpoint when the backend ships.
-const RECENT_DEALS = [
-  {
-    id: '1',
-    buyer: 'Ridgeline Senior Care',
-    seller: 'Meridian Care Partners',
-    facilityCount: 7,
-    date: '2026-06-18',
-  },
-  {
-    id: '2',
-    buyer: 'Cascade Care Group LLC',
-    seller: 'Prospect Holding LLC',
-    facilityCount: 1,
-    date: '2026-06-14',
-  },
-  {
-    id: '3',
-    buyer: 'Northstar Healthcare Holdings',
-    seller: 'Sable Point Capital',
-    facilityCount: 3,
-    date: '2026-06-09',
-  },
-  {
-    id: '4',
-    buyer: 'Halcyon Post-Acute Group',
-    seller: 'Bayard Health Partners',
-    facilityCount: 12,
-    date: '2026-06-05',
-  },
-  {
-    id: '5',
-    buyer: 'Kestrel Care Holdings',
-    seller: 'Diversicare Holdings',
-    facilityCount: 2,
-    date: '2026-06-03',
-  },
-];
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://hefti-data-api.ddev.site:3000/api';
 
 function facilityLabel(count) {
+  if (count == null) return 'facilities';
   return `${count} ${count === 1 ? 'facility' : 'facilities'}`;
 }
 
 function formatFeedDate(iso) {
+  if (!iso) return null;
   const d = new Date(`${iso}T00:00:00`);
   return Number.isNaN(d.getTime())
     ? null
     : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/** Build a readable one-line summary when buyer/seller/count are sparse (UCC rows). */
+function dealSummary(deal) {
+  const buyer =
+    deal.buyer ||
+    deal.operatorNames?.[0] ||
+    deal.facilityNames?.[0] ||
+    'An operator';
+  const seller = deal.seller;
+  const count =
+    deal.facilityCount ??
+    deal.facilities?.length ??
+    deal.ccns?.length ??
+    deal.facilityNames?.length ??
+    null;
+
+  if (seller) {
+    return (
+      <>
+        <b className="font-semibold">{buyer}</b>{' '}
+        <span className="text-content-secondary font-normal">
+          acquired {facilityLabel(count)} from
+        </span>{' '}
+        <b className="font-semibold">{seller}</b>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <b className="font-semibold">{buyer}</b>{' '}
+      <span className="text-content-secondary font-normal">
+        {count != null
+          ? `— ownership change, ${facilityLabel(count)}`
+          : '— ownership change'}
+      </span>
+    </>
+  );
 }
 
 function FeedRow({ deal, isLast }) {
@@ -75,11 +81,7 @@ function FeedRow({ deal, isLast }) {
         </span>
         <span className="flex min-w-0 flex-1 justify-between gap-5 pt-[5px]">
           <span className="text-content-primary text-paragraph-base line-clamp-2">
-            <b className="font-semibold">{deal.buyer}</b>{' '}
-            <span className="text-content-secondary font-normal">
-              acquired {facilityLabel(deal.facilityCount)} from
-            </span>{' '}
-            <b className="font-semibold">{deal.seller}</b>
+            {dealSummary(deal)}
           </span>
           {date && (
             <time
@@ -97,16 +99,86 @@ function FeedRow({ deal, isLast }) {
 
 FeedRow.propTypes = {
   deal: PropTypes.shape({
-    buyer: PropTypes.string.isRequired,
-    seller: PropTypes.string.isRequired,
-    facilityCount: PropTypes.number.isRequired,
-    date: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    buyer: PropTypes.string,
+    seller: PropTypes.string,
+    facilityCount: PropTypes.number,
+    date: PropTypes.string,
+    operatorNames: PropTypes.arrayOf(PropTypes.string),
+    facilityNames: PropTypes.arrayOf(PropTypes.string),
+    ccns: PropTypes.arrayOf(PropTypes.string),
+    facilities: PropTypes.array,
   }).isRequired,
   isLast: PropTypes.bool.isRequired,
 };
 
+function FeedSkeleton() {
+  return (
+    <ul className="-mb-6 list-none" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <li key={i} className="relative pb-6">
+          <div className="flex items-start gap-3">
+            <span className="bg-background-secondary size-8 flex-none animate-pulse rounded-full" />
+            <span className="bg-background-secondary mt-1 h-4 w-full max-w-md animate-pulse rounded" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
-  const deals = RECENT_DEALS;
+  const [deals, setDeals] = useState([]);
+  const [totalChanges, setTotalChanges] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [feedRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/ownership-changes?limit=${FEED_LIMIT}`, {
+            signal: controller.signal,
+          }),
+          fetch(`${API_BASE_URL}/ownership-changes/stats`, {
+            signal: controller.signal,
+          }),
+        ]);
+
+        if (!feedRes.ok) throw new Error(`Feed request failed: ${feedRes.status}`);
+        if (!statsRes.ok) throw new Error(`Stats request failed: ${statsRes.status}`);
+
+        const feedJson = await feedRes.json();
+        const statsJson = await statsRes.json();
+
+        setDeals(Array.isArray(feedJson?.data) ? feedJson.data : []);
+        setTotalChanges(
+          typeof statsJson?.last90Days === 'number'
+            ? statsJson.last90Days
+            : Number(feedJson?.total) || 0,
+        );
+      } catch (err) {
+        if (err?.name === 'AbortError') return;
+        setError(err.message || 'Failed to load ownership changes.');
+        setDeals([]);
+        setTotalChanges(0);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+    return () => controller.abort();
+  }, []);
+
+  const bannerCount = totalChanges ?? 0;
 
   return (
     <section className="bg-background-secondary w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
@@ -120,20 +192,31 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
 
         <div className="mt-5">
           <LayoutCard>
-            {deals.length === 0 ? (
+            {loading ? (
+              <FeedSkeleton />
+            ) : error ? (
+              <div className="py-8 text-center">
+                <p className="text-content-primary text-label-base">
+                  Ownership changes couldn&apos;t be loaded
+                </p>
+                <p className="text-content-secondary text-paragraph-sm mt-1">
+                  Try refreshing the page.
+                </p>
+              </div>
+            ) : deals.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-content-primary text-label-base">
                   No ownership changes recorded in the last {WINDOW_DAYS} days
                 </p>
                 <p className="text-content-secondary text-paragraph-sm mt-1">
-                  New filings are added as CMS sources are processed.
+                  New filings are added as sources are processed.
                 </p>
               </div>
             ) : (
               <ul className="-mb-6 list-none">
                 {deals.map((deal, i) => (
                   <FeedRow
-                    key={deal.id}
+                    key={deal.id || i}
                     deal={deal}
                     isLast={i === deals.length - 1}
                   />
@@ -146,11 +229,23 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
               label="View all ownership changes"
               className="mt-6"
             >
-              <b className="text-content-primary text-heading-sm mr-1">
-                {TOTAL_CHANGES}
-              </b>
-              ownership {TOTAL_CHANGES === 1 ? 'change' : 'changes'} in the last{' '}
-              {WINDOW_DAYS} days
+              {loading ? (
+                <span className="text-content-secondary">
+                  Loading ownership changes…
+                </span>
+              ) : error ? (
+                <span className="text-content-secondary">
+                  Ownership changes unavailable.
+                </span>
+              ) : (
+                <>
+                  <b className="text-content-primary text-heading-sm mr-1">
+                    {bannerCount.toLocaleString()}
+                  </b>
+                  ownership {bannerCount === 1 ? 'change' : 'changes'} in the last{' '}
+                  {WINDOW_DAYS} days
+                </>
+              )}
             </AcquisitionsCtaBanner>
           </LayoutCard>
         </div>

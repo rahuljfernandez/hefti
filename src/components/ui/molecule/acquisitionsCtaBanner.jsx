@@ -6,8 +6,7 @@ import CtaLinkButton from '../atom/ctaLinkButton';
 
 /* Shared purple call-to-action banner for ownership-change / acquisitions
    sections. Renders the gradient panel and dark link button; the message is
-   passed as children so each surface supplies its own copy. The /acquisitions
-   route doesn't exist yet, so `to` is a placeholder until it's built. */
+   passed as children so each surface supplies its own copy. */
 
 export default function AcquisitionsCtaBanner({
   to = '/acquisitions',
