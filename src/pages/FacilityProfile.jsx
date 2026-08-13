@@ -72,7 +72,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-    // TODO: replace with years returned from the API once the endpoint supports year filtering.
+// TODO: replace with years returned from the API once the endpoint supports year filtering.
 const AVAILABLE_YEARS = [
   2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
 ];
