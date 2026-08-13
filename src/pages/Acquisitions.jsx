@@ -109,7 +109,7 @@ function DealRow({ deal }) {
               <a
                 href={deal.sourceUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="text-purple-700 hover:underline"
               >
                 Source
