@@ -161,7 +161,7 @@ export default function StatesProfile() {
       'state individual burden',
     );
     return () => controller.abort();
-  }, [stateParam, selectedYear]);
+  }, [stateParam]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
