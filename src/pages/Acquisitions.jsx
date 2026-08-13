@@ -149,6 +149,9 @@ export default function Acquisitions() {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
   const [operatorInput, setOperatorInput] = useState(operatorFilter);
+  useEffect(() => {
+    setOperatorInput(operatorFilter);
+  }, [operatorFilter]);
   const [deals, setDeals] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
