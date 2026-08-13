@@ -230,7 +230,13 @@ export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
               className="mt-6"
             >
               {loading ? (
-                <span className="text-content-secondary">Loading ownership changes…</span>
+                <span className="text-content-secondary">
+                  Loading ownership changes…
+                </span>
+              ) : error ? (
+                <span className="text-content-secondary">
+                  Ownership changes unavailable.
+                </span>
               ) : (
                 <>
                   <b className="text-content-primary text-heading-sm mr-1">
