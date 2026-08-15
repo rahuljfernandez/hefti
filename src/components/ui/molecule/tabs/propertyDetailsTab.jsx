@@ -10,6 +10,12 @@ import {
 import {
   buildRelatedPartyMatches,
   buildAssociatedProperties,
+  buildPropertyHighlights,
+  buildKeyFinancialsMeta,
+  buildKeyFinancialStats,
+  buildLocationCoordinates,
+  buildLocationFields,
+  buildPropertyDetailSections,
 } from '../../../../lib/propertyMetrics';
 
 /**
@@ -30,7 +36,8 @@ import {
  * would only look like the two were connected. When the property API lands the
  * property object arrives as a prop and threads into each section's `source`.
  */
-export default function PropertyDetailsTab({ status }) {
+export default function PropertyDetailsTab({ status, items }) {
+  console.log('pdtab items:', items);
   if (status !== 'facility') {
     return (
       <p className="text-paragraph-sm text-content-secondary">
@@ -39,8 +46,14 @@ export default function PropertyDetailsTab({ status }) {
     );
   }
 
-  const relatedPartyMatches = buildRelatedPartyMatches();
-  const associatedProperties = buildAssociatedProperties();
+  const relatedPartyMatches = buildRelatedPartyMatches(items);
+  const associatedProperties = buildAssociatedProperties(items);
+  const highlights = buildPropertyHighlights(items);
+  const keyFinancialsMeta = buildKeyFinancialsMeta(items);
+  const keyFinancialStats = buildKeyFinancialStats(items);
+  const locationFields = buildLocationFields(items);
+  const coordinates = buildLocationCoordinates(items);
+  const sections = buildPropertyDetailSections(items);
   const hasFlags =
     relatedPartyMatches.length > 0 || associatedProperties.length > 0;
 
@@ -53,13 +66,21 @@ export default function PropertyDetailsTab({ status }) {
         </div>
       )}
 
-      <PropertyHighlights />
-      <PropertyLocationMap />
-      <PropertyDetails />
+      <PropertyHighlights
+        highlights={highlights}
+        keyFinancialsMeta={keyFinancialsMeta}
+        keyFinancialStats={keyFinancialStats}
+      />
+      <PropertyLocationMap
+        coordinates={coordinates}
+        locationFields={locationFields}
+      />
+      <PropertyDetails sections={sections} />
     </section>
   );
 }
 
 PropertyDetailsTab.propTypes = {
   status: PropTypes.string,
+  items: PropTypes.object,
 };

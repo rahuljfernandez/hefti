@@ -96,10 +96,7 @@ PropertyMapPanel.propTypes = {
   label: PropTypes.string,
 };
 
-export default function PropertyLocationMap({ source }) {
-  const locationFields = buildLocationFields(source);
-  const coordinates = buildLocationCoordinates(source);
-
+export default function PropertyLocationMap({ locationFields, coordinates }) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">

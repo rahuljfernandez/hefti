@@ -8,110 +8,6 @@ import { formatUSD } from './stringFormatters';
  * which section.
  */
 
-/* PLACEHOLDER DATA — the property API is not live yet. Every value is hardcoded
-   from the design mocks and none of it derives from the facility record on the
-   page; do not read it as live data in review or screenshots. Keys match the
-   fields the API is expected to return, so the switch-over is: pass a real
-   property object into the builders and delete this constant. */
-
-const MOCK_PROPERTY = {
-  // Property Highlights
-  owner_name: 'Rhodes Homes',
-  owner_address: '350 Boulevard SE',
-  owner_city_state: 'Atlanta, GA',
-  owner_zip_code: '30312',
-  official_description: 'Retired, Handicap, Convalescent, Nursing Home',
-  use_code: '9106',
-
-  // Key Financials
-  most_recent_transfer_date: 'March 14, 2021',
-  purchase_ltv: 'Private',
-  transfer_price: 35125000,
-  transfer_price_year: '2021',
-  assessed_value_highlight: 5125000,
-  assessed_value_highlight_year: '2026',
-  market_value_highlight: 35125000,
-  market_value_highlight_year: '2025',
-
-  // Location Information
-  address: '350 Boulevard SE',
-  street_name: 'Boulevard SE',
-  state: 'GA',
-  county: 'Fulton',
-  city: 'Atlanta',
-  zip_code: '30312',
-  latitude: 33.744864,
-  longitude: -84.367402,
-  parcel_number: '14 002100010740',
-  jurisdiction: 'City of Atlanta',
-
-  // Property Details — Financial
-  tax_value: 0,
-  tax_year: '2026',
-  market_value: 1641050,
-  market_value_year: '2025',
-  assessed_value: 1641050,
-  assessed_year: '2026',
-  current_ltv_estimates_combined: 0,
-
-  // Property Details — Building
-  building_area: 0,
-  total_bedrooms: 0,
-  total_bathrooms: 0,
-  pool: false,
-  garage: false,
-  residential: true,
-
-  // Property Details — Land
-  land_area: 26580,
-  acres: 0.61,
-  zoning_code: 'R-18',
-  subdivision: 'Observatory Circle',
-  neighborhood: '038',
-  site_census_tract: '110001020.001012',
-  block_number: '1299',
-  lot_number: '1034',
-  depth: 0,
-
-  /* Conditional flag banners. Both lists are normally empty — these are
-     populated here so the banners can be seen during development. */
-  related_party_matches: [
-    {
-      id: 'boulevard-se-propco-llc',
-      entity_name: 'Boulevard SE Propco LLC',
-      entity_slug: 'boulevard-se-propco-llc',
-      matched_on: ['entity_name', 'mailing_address'],
-      cms_ownership_role: '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
-    },
-    {
-      id: 'grant-park-holdings-llc',
-      entity_name: 'Grant Park Holdings LLC',
-      entity_slug: 'grant-park-holdings-llc',
-      matched_on: ['mailing_address'],
-      cms_ownership_role: 'OPERATIONAL/MANAGERIAL CONTROL',
-    },
-  ],
-
-  /* Two parcels at one street address — the nursing home and the adjacent
-     vacant land — which is why the addresses repeat. */
-  associated_properties: [
-    {
-      id: 'parcel-14-002100010740',
-      address: '350 Boulevard SE',
-      description: 'Retired, Handicap, Convalescent, Nursing Home',
-      related_party: true,
-      is_current: true,
-    },
-    {
-      id: 'parcel-14-002100010741',
-      address: '350 Boulevard SE',
-      description: 'Residential, Vacant Land',
-      related_party: false,
-      is_current: false,
-    },
-  ],
-};
-
 /* Returns null — not NaN or 0 — for non-numeric input, so callers can tell
    "not a number" from "the number zero" and fall back to the raw text rather
    than inventing a figure. */
@@ -156,7 +52,7 @@ function buildFields(config, source) {
 }
 
 const propertyHighlightsConfig = [
-  { label: 'Owner Name', valueKey: 'owner_name' },
+  { label: 'Owner Name', valueKey: 'display_owner_name' },
   { label: 'Owner Address', valueKey: 'owner_address' },
   { label: 'Owner City, State', valueKey: 'owner_city_state' },
   { label: 'Owner Zip Code', valueKey: 'owner_zip_code' },
@@ -272,34 +168,33 @@ const propertyDetailSectionsConfig = [
 /* Every builder takes an optional `source` and falls back to the mock, so call
    sites can pass a real property object the day the endpoint lands. */
 
-export function buildPropertyHighlights(source = MOCK_PROPERTY) {
+export function buildPropertyHighlights(source) {
   return buildFields(propertyHighlightsConfig, source);
 }
 
-export function buildKeyFinancialsMeta(source = MOCK_PROPERTY) {
+export function buildKeyFinancialsMeta(source) {
   return buildFields(keyFinancialsMetaConfig, source);
 }
 
-export function buildKeyFinancialStats(source = MOCK_PROPERTY) {
-  return keyFinancialStatsConfig.map(
-    ({ label, valueKey, asOfKey, format }) => {
-      const asOf = source?.[asOfKey];
-      return {
-        label,
-        value: formatFieldValue(source?.[valueKey], format),
-        caption: asOf ? `As of ${asOf}` : null,
-      };
-    },
-  );
+export function buildKeyFinancialStats(source) {
+  return keyFinancialStatsConfig.map(({ label, valueKey, asOfKey, format }) => {
+    const asOf = source?.[asOfKey];
+    return {
+      label,
+      value: formatFieldValue(source?.[valueKey], format),
+      caption: asOf ? `As of ${asOf}` : null,
+    };
+  });
 }
 
-export function buildLocationFields(source = MOCK_PROPERTY) {
+export function buildLocationFields(source) {
   return buildFields(locationFieldsConfig, source);
 }
 
 /* Separate from the address field list because the map needs raw numbers, not
    formatted display strings. */
-export function buildLocationCoordinates(source = MOCK_PROPERTY) {
+export function buildLocationCoordinates(source) {
+  console.log(source);
   const latitude = toNumber(source?.latitude);
   const longitude = toNumber(source?.longitude);
   if (latitude === null || longitude === null) return null;
@@ -313,16 +208,16 @@ export function buildLocationCoordinates(source = MOCK_PROPERTY) {
 
    Associated properties are only worth showing when there is something to
    switch between — a facility with a single property is the norm, not a flag. */
-export function buildRelatedPartyMatches(source = MOCK_PROPERTY) {
+export function buildRelatedPartyMatches(source) {
   return source?.related_party_matches ?? [];
 }
 
-export function buildAssociatedProperties(source = MOCK_PROPERTY) {
+export function buildAssociatedProperties(source) {
   const properties = source?.associated_properties ?? [];
   return properties.length > 1 ? properties : [];
 }
 
-export function buildPropertyDetailSections(source = MOCK_PROPERTY) {
+export function buildPropertyDetailSections(source) {
   return propertyDetailSectionsConfig.map(({ title, left, right }) => ({
     title,
     left: buildFields(left, source),

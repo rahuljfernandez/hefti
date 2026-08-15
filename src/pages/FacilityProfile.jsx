@@ -117,7 +117,9 @@ export default function FacilityProfile() {
   useEffect(() => {
     const fetchNationalBenchmarks = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
+        const res = await fetch(
+          `${API_BASE_URL}/national?year=${selectedYear}`,
+        );
         const data = await res.json();
         setNationalBenchmarks(data);
       } catch (err) {
@@ -261,7 +263,12 @@ export default function FacilityProfile() {
                     );
 
                   case 'Property Details':
-                    return <PropertyDetailsTab status={'facility'} />;
+                    return (
+                      <PropertyDetailsTab
+                        items={facility}
+                        status={'facility'}
+                      />
+                    );
 
                   default:
                     return (

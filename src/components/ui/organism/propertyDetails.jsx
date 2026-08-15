@@ -16,9 +16,7 @@ import { buildPropertyDetailSections } from '../../../lib/propertyMetrics';
  * `source` is optional; the builders fall back to placeholder data until the
  * property API lands. See lib/propertyMetrics.js.
  */
-export default function PropertyDetails({ source }) {
-  const sections = buildPropertyDetailSections(source);
-
+export default function PropertyDetails({ sections }) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">

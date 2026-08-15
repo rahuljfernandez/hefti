@@ -4,11 +4,6 @@ import LayoutCard from '../atom/layout-card';
 import FieldGrid from '../molecule/fieldGrid';
 import StatFigureCard from '../molecule/statFigureCard';
 import { Heading } from '../atom/heading';
-import {
-  buildPropertyHighlights,
-  buildKeyFinancialsMeta,
-  buildKeyFinancialStats,
-} from '../../../lib/propertyMetrics';
 
 /**
  * Property Highlights — the first section of the Property Details tab.
@@ -16,14 +11,14 @@ import {
  * Two blocks inside one card: the owner/parcel fields, then Key Financials
  * (transfer date and LTV as fields, the three dated figures as stat cards).
  *
- * `source` is optional; the builders fall back to placeholder data until the
- * property API lands. See lib/propertyMetrics.js.
+ * Takes display-ready rows, not a record — the tab runs the builders so every
+ * section on it reads one source. See lib/propertyMetrics.js.
  */
-export default function PropertyHighlights({ source }) {
-  const highlights = buildPropertyHighlights(source);
-  const keyFinancialsMeta = buildKeyFinancialsMeta(source);
-  const keyFinancialStats = buildKeyFinancialStats(source);
-
+export default function PropertyHighlights({
+  highlights,
+  keyFinancialStats,
+  keyFinancialsMeta,
+}) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
@@ -62,6 +57,19 @@ export default function PropertyHighlights({ source }) {
   );
 }
 
+const fieldShape = PropTypes.shape({
+  label: PropTypes.string.isRequired,
+  value: PropTypes.node,
+});
+
 PropertyHighlights.propTypes = {
-  source: PropTypes.object,
+  highlights: PropTypes.arrayOf(fieldShape).isRequired,
+  keyFinancialsMeta: PropTypes.arrayOf(fieldShape).isRequired,
+  keyFinancialStats: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      caption: PropTypes.node,
+    }),
+  ).isRequired,
 };
