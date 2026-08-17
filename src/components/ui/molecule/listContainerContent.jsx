@@ -18,6 +18,8 @@ import { ArrowRightIcon } from '@heroicons/react/16/solid';
 import { SparklesIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
+const PROPERTY_TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
+
 /**
  * Collection of reusable content components for ListContainer and related card layouts.
  *
@@ -35,6 +37,7 @@ import clsx from 'clsx';
  */
 export function OwnershipAndStakeholders({ item }) {
   const role = item.cms_ownership_role;
+  const isPropertyTitleholder = role === PROPERTY_TITLEHOLDER_ROLE;
   const config = badgeConfig[role] || {
     color: 'gray',
     label: role ?? 'Unknown',
@@ -75,29 +78,32 @@ export function OwnershipAndStakeholders({ item }) {
         {isPe && <Badge color="cyan">PRIVATE EQUITY</Badge>}
       </div>
 
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
+      {!isPropertyTitleholder && (
+        <>
+          <Divider className="order-2 md:order-none md:col-span-3" />
 
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
-        <div className="gap-2 md:flex md:flex-col">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERSHIP PERCENTAGE
-          </p>
-          <p className="text-paragraph-base text-core-black">
-            {formatOwnershipPercentage(item.cms_ownership_percentage)}
-          </p>
-        </div>
+          {/* Bottom Row */}
+          <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+            <div className="gap-2 md:flex md:flex-col">
+              <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+                OWNERSHIP PERCENTAGE
+              </p>
+              <p className="text-paragraph-base text-core-black">
+                {formatOwnershipPercentage(item.cms_ownership_percentage)}
+              </p>
+            </div>
 
-        <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERSHIP MINIMUM
-          </p>
-          <p className="text-paragraph-base text-core-black">
-            {toTitleCase(item.cms_ownership_role || 'N/A')}
-          </p>
-        </div>
-      </div>
+            <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
+              <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+                OWNERSHIP MINIMUM
+              </p>
+              <p className="text-paragraph-base text-core-black">
+                {toTitleCase(item.cms_ownership_role || 'N/A')}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
     // <>
     //   {/* <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">

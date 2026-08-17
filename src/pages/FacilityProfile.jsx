@@ -59,7 +59,8 @@ import {
  *   (copy link, full-stats CSV, and a ZIP bundling stats + stakeholders + the
  *   ownership-diagram PNG);
  * - the tabbed sections (Provider Highlights, Deficiencies & Penalties, Clinical
- *   Quality, Staffing, Financial Overview);
+ *   Quality, Staffing, Financial Overview, and Property Details for supported
+ *   data years);
  * - the Ownership & Stakeholders list and the Ownership Diagram, each with a
  *   hover-reveal local export (CSV and PNG respectively);
  * - an Additional Information metadata panel.
@@ -74,8 +75,10 @@ const API_BASE_URL =
 
 // TODO: replace with years returned from the API once the endpoint supports year filtering.
 const AVAILABLE_YEARS = [
-  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
+  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014,
+  2013, 2012, 2011, 2010,
 ];
+const PROPERTY_DETAILS_START_YEAR = 2026;
 
 export default function FacilityProfile() {
   const { slug } = useParams();
@@ -86,6 +89,18 @@ export default function FacilityProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+
+  const propertyDetailsAvailable =
+    Number(selectedYear) >= PROPERTY_DETAILS_START_YEAR;
+  const availableFacilityTabs = useMemo(
+    () =>
+      propertyDetailsAvailable
+        ? facilityTabsDescriptions
+        : facilityTabsDescriptions.filter(
+            (tab) => tab.name !== 'Property Details',
+          ),
+    [propertyDetailsAvailable],
+  );
 
   const navigate = useNavigate();
 
@@ -221,7 +236,12 @@ export default function FacilityProfile() {
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              tabsData={facilityTabsDescriptions}
+              key={
+                propertyDetailsAvailable
+                  ? 'property-details-available'
+                  : 'property-details-unavailable'
+              }
+              tabsData={availableFacilityTabs}
               defaultTabName={'Provider Highlights'}
             >
               {(activeTab) => {

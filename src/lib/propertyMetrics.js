@@ -50,6 +50,23 @@ function parseRealieAddress(address) {
   };
 }
 
+/* Owner mailing arrives space-delimited — "1000 GATES AVE STE 5 BROOKLYN NY
+   11221" — not comma-delimited like the parcel address above. Only the trailing
+   state and ZIP are unambiguous; nothing marks where the street ends and a
+   one-to-three-word city begins, so the head is kept whole rather than guessed
+   at. */
+function parseOwnerMailing(mailing) {
+  if (typeof mailing !== 'string' || mailing.trim() === '') return {};
+
+  const trimmed = mailing.trim();
+  const [, head, state, zip] =
+    trimmed.match(/^(.*?)\s+([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)$/) ?? [];
+
+  if (!state) return { line: trimmed };
+
+  return { line: head, state: state.toUpperCase(), zip };
+}
+
 /* Numeric formats go through toNumber so they coerce identically —
    otherwise a source that sends strings renders 'N/A' in one column and a
    formatted value in the next. */
@@ -92,8 +109,8 @@ function buildFields(config, source) {
 
 const propertyHighlightsConfig = [
   { label: 'Owner Name', valueKey: 'realie_owner_name' },
-  { label: 'Owner Address', valueKey: 'owner_address' },
-  { label: 'Owner City, State', valueKey: 'owner_city_state' },
+  { label: 'Owner Mailing Address', valueKey: 'owner_mailing_address' },
+  { label: 'Owner State', valueKey: 'owner_state' },
   { label: 'Owner Zip Code', valueKey: 'owner_zip_code' },
   { label: 'Official Description', valueKey: 'realie_use_desc' },
   { label: 'Use Code', valueKey: 'realie_use_code' },
@@ -132,7 +149,6 @@ const keyFinancialStatsConfig = [
    valueClassName. See fieldGrid.jsx. */
 const locationFieldsConfig = [
   { label: 'Address', valueKey: 'address' },
-  { label: 'Street Name', valueKey: 'street_name' },
   { label: 'State', valueKey: 'state' },
   { label: 'County', valueKey: 'realie_county' },
   { label: 'City', valueKey: 'city' },
@@ -217,19 +233,19 @@ const propertyDetailSectionsConfig = [
 /* Data builders read the facility record, where Realie parcel fields are
    flattened; missing source fields are formatted as "N/A". */
 
-/* The three address rows are derived, not read off the record, so the config
-   keeps one key per row like every other section. */
-export function buildPropertyHighlights(source) {
-  const { street, city, state, zip } = parseRealieAddress(
-    source?.realie_address,
-  );
+/* The owner rows are derived, not read off the record, so the config keeps one
+   key per row like every other section.
 
-  const ownerCity = city ?? source?.city;
+   Unlike buildLocationFields, these deliberately do not fall back to the
+   facility's own address columns: the owner mails elsewhere on ~80% of parcels,
+   so a fallback would present the facility as the owner's address. */
+export function buildPropertyHighlights(source) {
+  const { line, state, zip } = parseOwnerMailing(source?.realie_owner_mailing);
 
   return buildFields(propertyHighlightsConfig, {
     ...source,
-    owner_address: street,
-    owner_city_state: state ? `${ownerCity}, ${state}` : ownerCity,
+    owner_mailing_address: line,
+    owner_state: state,
     owner_zip_code: zip,
   });
 }
@@ -289,8 +305,13 @@ const TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
 
 /* CMS and Realie punctuate the same entity differently — "CROSSROADS EAST REALTY, LLC"
    against "CROSSROADS EAST REALTY LLC" — so names only compare once punctuation and
-   corporate suffixes come off. */
-const ENTITY_SUFFIXES = /\b(?:LLC|INC|LP|LLP|LTD|CO|CORP|COMPANY|TR|THE)\b/g;
+   these tokens come off.
+
+   AND is dropped rather than folded together with "&", because the two sides disagree
+   in both directions: CMS spells out "LIVING AND WELLNESS" where Realie writes "LIVING
+   & WELLNESS", but Realie also has stray ampersands ("THE ROCKY & MOUNTAINS") that no
+   CMS name carries. Dropping the word matches both. */
+const ENTITY_NOISE = /\b(?:LLC|INC|LP|LLP|LTD|CO|CORP|COMPANY|TR|THE|AND)\b/g;
 
 function normalizeEntityName(value) {
   if (typeof value !== 'string') return '';
@@ -298,7 +319,7 @@ function normalizeEntityName(value) {
   return value
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, ' ')
-    .replace(ENTITY_SUFFIXES, ' ')
+    .replace(ENTITY_NOISE, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
