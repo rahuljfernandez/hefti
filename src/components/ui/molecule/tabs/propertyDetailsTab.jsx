@@ -31,13 +31,11 @@ import {
  * `status` mirrors the other tabs so the owner and state contexts can slot in
  * without reshaping the call site. Only 'facility' renders content today.
  *
- * No data prop, deliberately: the facility record this tab sits inside has
- * nothing to do with the property record it displays, so accepting `items`
- * would only look like the two were connected. When the property API lands the
- * property object arrives as a prop and threads into each section's `source`.
+ * `items` is the whole facility record: the Realie parcel columns are flattened
+ * onto it, and the related-party flag reads the ownership network hanging off
+ * it, so the builders take the record rather than a property object.
  */
 export default function PropertyDetailsTab({ status, items }) {
-  console.log('pdtab items:', items);
   if (status !== 'facility') {
     return (
       <p className="text-paragraph-sm text-content-secondary">
@@ -47,7 +45,7 @@ export default function PropertyDetailsTab({ status, items }) {
   }
 
   const relatedPartyMatches = buildRelatedPartyMatches(items);
-  const associatedProperties = buildAssociatedProperties(items);
+  const associatedProperties = buildAssociatedProperties();
   const highlights = buildPropertyHighlights(items);
   const keyFinancialsMeta = buildKeyFinancialsMeta(items);
   const keyFinancialStats = buildKeyFinancialStats(items);

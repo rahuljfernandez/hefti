@@ -1,4 +1,6 @@
 import { formatUSD } from './stringFormatters';
+import { toTitleCase } from './toTitleCase';
+import { badgeConfig } from './getBadgeColor';
 
 /**
  * Property metrics config and builders for the Property Details tab.
@@ -268,7 +270,6 @@ export function buildLocationFields(source) {
 /* Separate from the address field list because the map needs raw numbers, not
    formatted display strings. */
 export function buildLocationCoordinates(source) {
-  console.log(source);
   const latitude = toNumber(source?.latitude);
   const longitude = toNumber(source?.longitude);
   if (latitude === null || longitude === null) return null;
@@ -282,17 +283,132 @@ export function buildLocationCoordinates(source) {
 
 /* The two banner conditions, resolved here rather than in the components so the
    thresholds live next to the data they read. Both return an array and the
-   banners render on length, so "no flag" and "no data" collapse to one case.
+   banners render on length, so "no flag" and "no data" collapse to one case. */
 
-   Associated properties are only worth showing when there is something to
-   switch between — a facility with a single property is the norm, not a flag. */
-export function buildRelatedPartyMatches(source) {
-  return source?.related_party_matches ?? [];
+/* Realie ships the parcel titleholder into facility_ownership_links as a synthetic
+   entity under this role, so it has to come out of the CMS network before the
+   titleholder can be compared against it — otherwise every parcel self-matches. */
+const TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
+
+/* CMS and Realie punctuate the same entity differently — "CROSSROADS EAST REALTY, LLC"
+   against "CROSSROADS EAST REALTY LLC" — so names only compare once punctuation and
+   corporate suffixes come off. */
+const ENTITY_SUFFIXES = /\b(?:LLC|INC|LP|LLP|LTD|CO|CORP|COMPANY|TR|THE)\b/g;
+
+function normalizeEntityName(value) {
+  if (typeof value !== 'string') return '';
+
+  return value
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, ' ')
+    .replace(ENTITY_SUFFIXES, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-export function buildAssociatedProperties(source) {
-  const properties = source?.associated_properties ?? [];
-  return properties.length > 1 ? properties : [];
+/* Ranked by badgeConfig's key order so the row surfaces a role that renders a badge;
+   an entity commonly holds several. Roles outside the config (ADP OF THE SNF,
+   MANAGING CONTROL - GOVERNING BODY) sort last and render no badge. */
+const BADGED_ROLES = Object.keys(badgeConfig);
+
+function roleRank(role) {
+  const index = BADGED_ROLES.indexOf(role);
+  return index === -1 ? BADGED_ROLES.length : index;
+}
+
+/* The titleholder takes mail at the nursing home itself — a propco administered from
+   the facility, not an arm's-length landlord. Realie ships the mailing address
+   unpunctuated, so both sides go through the same normalizer. */
+function mailsToFacility(source) {
+  const mailing = normalizeEntityName(source?.realie_owner_mailing);
+  if (!mailing) return false;
+
+  const facility = normalizeEntityName(
+    [
+      source?.street_address,
+      source?.city,
+      source?.state,
+      source?.zip_code,
+    ].join(' '),
+  );
+
+  return facility !== '' && mailing === facility;
+}
+
+/* `realie_titleholder_differs` answers a narrower question — whether the titleholder is
+   the operator — and answers it with a fuzzy comparison that disagrees with the links in
+   both directions, so the network match below stands in for it. */
+export function buildRelatedPartyMatches(source) {
+  const ownerName = normalizeEntityName(source?.realie_owner_name);
+  if (!ownerName) return [];
+
+  const links = source?.facility_ownership_links ?? [];
+  const sharesMailing = mailsToFacility(source);
+
+  const matched = new Map();
+  for (const link of links) {
+    if (link.cms_ownership_role === TITLEHOLDER_ROLE) continue;
+    if (normalizeEntityName(link.cms_ownership_name) !== ownerName) continue;
+
+    const slug = link.ownership_entity?.slug;
+    if (!slug) continue;
+
+    const entry = matched.get(slug) ?? {
+      name: link.ownership_entity?.cms_ownership_name ?? link.cms_ownership_name,
+      role: link.cms_ownership_role,
+    };
+    if (roleRank(link.cms_ownership_role) < roleRank(entry.role)) {
+      entry.role = link.cms_ownership_role;
+    }
+    matched.set(slug, entry);
+  }
+
+  if (matched.size > 0) {
+    const matchedOn = sharesMailing
+      ? ['entity_name', 'mailing_address']
+      : ['entity_name'];
+
+    return [...matched].map(([slug, { name, role }]) => ({
+      id: slug,
+      entity_name: toTitleCase(name ?? ''),
+      entity_slug: slug,
+      matched_on: matchedOn,
+      cms_ownership_role: role,
+    }));
+  }
+
+  if (!sharesMailing) return [];
+
+  /* No CMS entity carries the titleholder's name, so the shared address is the only
+     evidence and the titleholder itself is the party to link to. */
+  const titleholder = links.find(
+    (link) => link.cms_ownership_role === TITLEHOLDER_ROLE,
+  );
+  const slug = titleholder?.ownership_entity?.slug;
+  if (!slug) return [];
+
+  return [
+    {
+      id: slug,
+      entity_name: toTitleCase(
+        titleholder.ownership_entity?.cms_ownership_name ??
+          source.realie_owner_name,
+      ),
+      entity_slug: slug,
+      matched_on: ['mailing_address'],
+      cms_ownership_role: titleholder.cms_ownership_role,
+    },
+  ];
+}
+
+/* Always empty today: a facility carries one parcel — a single set of realie_* columns
+   and at most one titleholder link — so there is never a second property to switch to.
+   `realie_owner_parcel_count` counts the owner's parcels but ships no address or
+   description for them, which is what the banner's rows render. Unblocking this is a
+   backend change: realie_facility_link already holds one row per parcel and neither
+   facilities route includes it. */
+export function buildAssociatedProperties() {
+  return [];
 }
 
 export function buildPropertyDetailSections(source) {
