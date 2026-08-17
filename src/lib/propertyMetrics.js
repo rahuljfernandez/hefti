@@ -303,25 +303,40 @@ export function buildLocationCoordinates(source) {
    titleholder can be compared against it — otherwise every parcel self-matches. */
 const TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
 
-/* CMS and Realie punctuate the same entity differently — "CROSSROADS EAST REALTY, LLC"
-   against "CROSSROADS EAST REALTY LLC" — so names only compare once punctuation and
-   these tokens come off.
+/* CMS and Realie punctuate and abbreviate the same entity differently — "CROSSROADS EAST
+   REALTY, LLC" against "CROSSROADS EAST REALTY LLC" — so names only compare once these
+   tokens come off. Both the abbreviated and spelled-out forms are listed because the two
+   sources disagree on which to use.
 
-   AND is dropped rather than folded together with "&", because the two sides disagree
-   in both directions: CMS spells out "LIVING AND WELLNESS" where Realie writes "LIVING
-   & WELLNESS", but Realie also has stray ampersands ("THE ROCKY & MOUNTAINS") that no
-   CMS name carries. Dropping the word matches both. */
-const ENTITY_NOISE = /\b(?:LLC|INC|LP|LLP|LTD|CO|CORP|COMPANY|TR|THE|AND)\b/g;
+   AND is dropped rather than folded into "&": Realie writes "LIVING & WELLNESS" where CMS
+   spells it out, but Realie also carries stray ampersands ("THE ROCKY & MOUNTAINS") that
+   no CMS name has, so only dropping the word matches in both directions. */
+const ENTITY_NOISE =
+  /\b(?:LLC|INC|INCORPORATED|LP|LLP|LTD|LIMITED|PARTNERSHIP|CO|CORP|CORPORATION|COMPANY|ASSOCIATION|TR|THE|AND)\b/g;
+
+/* "L.L.C." and "S M V" come out of the punctuation strip as loose single letters, which
+   ENTITY_NOISE can no longer recognise. */
+const SPLIT_INITIALISM = /\b(?:[A-Z] ){1,}[A-Z]\b/g;
 
 function normalizeEntityName(value) {
   if (typeof value !== 'string') return '';
 
-  return value
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, ' ')
-    .replace(ENTITY_NOISE, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, ' ')
+      .replace(SPLIT_INITIALISM, (run) => run.replace(/ /g, ''))
+      .replace(ENTITY_NOISE, ' ')
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((token) =>
+        token.length > 3 && token.endsWith('S') ? token.slice(0, -1) : token,
+      )
+      /* Realie inverts some organization names the way it would a person's — "TOWN,
+       GREENWICH OF" for "TOWN OF GREENWICH" — so compare as an unordered bag. */
+      .sort()
+      .join(' ')
+  );
 }
 
 /* Ranked by badgeConfig's key order so the row surfaces a role that renders a badge;
