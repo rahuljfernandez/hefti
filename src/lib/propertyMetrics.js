@@ -5,7 +5,7 @@ import { badgeConfig } from './getBadgeColor';
 /**
  * Property metrics config and builders for the Property Details tab.
  *
- * Config arrays declare label, source key, and format; a shared reducer turns
+ * Config arrays declare label, source key, and format; a shared helper turns
  * any config + source into display-ready rows; builders name which config feeds
  * which section.
  */
@@ -25,9 +25,8 @@ function toNumber(value) {
 }
 
 /* Realie ships the address as one string — "15 CRAIGSIDE PL, HONOLULU, HI 96817"
-   — where the design wants the parts as separate rows.
-
-   splits the address string from right to left instead of traditional left to right.  This handles the case of suites numbers being attached to an address. */
+   — while the design shows its parts as separate rows. Split from right to left
+   so commas in street and suite details do not shift the city/state fields. */
 function parseRealieAddress(address) {
   if (typeof address !== 'string' || address.trim() === '') return {};
 
@@ -51,7 +50,7 @@ function parseRealieAddress(address) {
   };
 }
 
-/* Both numeric formats go through toNumber so they coerce identically —
+/* Numeric formats go through toNumber so they coerce identically —
    otherwise a source that sends strings renders 'N/A' in one column and a
    formatted value in the next. */
 function formatFieldValue(value, format) {
@@ -105,8 +104,8 @@ const keyFinancialsMetaConfig = [
   { label: 'LTV', valueKey: 'realie_ltv' },
 ];
 
-/* `asOfKey` drives the "As of {year}" caption, per-card because each figure is
-   dated independently. These fields appear again in the Financial Information
+/* `asOfKey` drives each card's "As of …" caption because the figures are dated
+   independently. These fields appear again in the Financial Information
    disclosure below and must keep the same format there. */
 const keyFinancialStatsConfig = [
   {
@@ -144,9 +143,8 @@ const locationFieldsConfig = [
   { label: 'Jurisdiction', valueKey: 'jurisdiction' },
 ];
 
-/* The left/right split is editorial, not computed — the mocks pair values with
-   their year/unit counterpart across the divider. Don't try to derive it from a
-   single list; uneven columns are expected. */
+/* The left/right split is editorial, not computed. Preserve the configured
+   grouping rather than deriving it from one list; uneven columns are expected. */
 const propertyDetailSectionsConfig = [
   {
     title: 'Financial Information',
@@ -216,8 +214,8 @@ const propertyDetailSectionsConfig = [
   },
 ];
 
-/* Every builder takes an optional `source` and falls back to the mock, so call
-   sites can pass a real property object the day the endpoint lands. */
+/* Data builders read the facility record, where Realie parcel fields are
+   flattened; missing source fields are formatted as "N/A". */
 
 /* The three address rows are derived, not read off the record, so the config
    keeps one key per row like every other section. */
@@ -281,9 +279,8 @@ export function buildLocationCoordinates(source) {
   };
 }
 
-/* The two banner conditions, resolved here rather than in the components so the
-   thresholds live next to the data they read. Both return an array and the
-   banners render on length, so "no flag" and "no data" collapse to one case. */
+/* Banner data is resolved here rather than in the components so ownership
+   matching and parcel-availability rules stay next to the records they read. */
 
 /* Realie ships the parcel titleholder into facility_ownership_links as a synthetic
    entity under this role, so it has to come out of the CMS network before the
@@ -354,7 +351,8 @@ export function buildRelatedPartyMatches(source) {
     if (!slug) continue;
 
     const entry = matched.get(slug) ?? {
-      name: link.ownership_entity?.cms_ownership_name ?? link.cms_ownership_name,
+      name:
+        link.ownership_entity?.cms_ownership_name ?? link.cms_ownership_name,
       role: link.cms_ownership_role,
     };
     if (roleRank(link.cms_ownership_role) < roleRank(entry.role)) {

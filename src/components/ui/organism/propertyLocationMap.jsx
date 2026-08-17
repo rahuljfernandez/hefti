@@ -14,10 +14,6 @@ import FlushCard from '../atom/flushCard';
 import LayoutCard from '../atom/layout-card';
 import FieldGrid from '../molecule/fieldGrid';
 import { Heading } from '../atom/heading';
-import {
-  buildLocationFields,
-  buildLocationCoordinates,
-} from '../../../lib/propertyMetrics';
 
 /**
  * Location Information — the second section of the Property Details tab.
@@ -125,5 +121,9 @@ export default function PropertyLocationMap({ locationFields, coordinates }) {
 }
 
 PropertyLocationMap.propTypes = {
-  source: PropTypes.object,
+  locationFields: PropTypes.array.isRequired,
+  coordinates: PropTypes.shape({
+    position: PropTypes.arrayOf(PropTypes.number).isRequired,
+    label: PropTypes.string,
+  }),
 };

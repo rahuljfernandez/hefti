@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import DisclosureCard from '../molecule/disclosureCard';
 import DetailTableSplit from '../molecule/detailTable';
 import { Heading } from '../atom/heading';
-import { buildPropertyDetailSections } from '../../../lib/propertyMetrics';
 
 /**
  * Property Details — the third section of the Property Details tab.
@@ -13,8 +12,8 @@ import { buildPropertyDetailSections } from '../../../lib/propertyMetrics';
  * lot of low-salience fields, so the page opens as three scannable headers
  * rather than a wall of rows.
  *
- * `source` is optional; the builders fall back to placeholder data until the
- * property API lands. See lib/propertyMetrics.js.
+ * Takes display-ready sections built by the parent tab so every section reads
+ * from the same facility record. See lib/propertyMetrics.js.
  */
 export default function PropertyDetails({ sections }) {
   return (
@@ -35,5 +34,5 @@ export default function PropertyDetails({ sections }) {
 }
 
 PropertyDetails.propTypes = {
-  source: PropTypes.object,
+  sections: PropTypes.array.isRequired,
 };

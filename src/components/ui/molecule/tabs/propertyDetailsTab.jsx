@@ -3,13 +3,9 @@ import PropTypes from 'prop-types';
 import PropertyHighlights from '../../organism/propertyHighlights';
 import PropertyLocationMap from '../../organism/propertyLocationMap';
 import PropertyDetails from '../../organism/propertyDetails';
-import {
-  RelatedPartyBanner,
-  AssociatedPropertiesBanner,
-} from '../../organism/propertyFlagBanners';
+import { RelatedPartyBanner } from '../../organism/propertyFlagBanners';
 import {
   buildRelatedPartyMatches,
-  buildAssociatedProperties,
   buildPropertyHighlights,
   buildKeyFinancialsMeta,
   buildKeyFinancialStats,
@@ -21,9 +17,7 @@ import {
 /**
  * Property Details tab content.
  *
- * Two conditional flag banners, then three sections:
- * - Possible related-party ownership / multiple associated properties (both
- *   render only when their condition holds; most facilities show neither)
+ * A possible related-party ownership banner, then three sections:
  * - Property Highlights (owner fields + Key Financials stat cards)
  * - Location Information (property map + address fields)
  * - Property Details (Financial / Building / Land disclosures)
@@ -45,22 +39,19 @@ export default function PropertyDetailsTab({ status, items }) {
   }
 
   const relatedPartyMatches = buildRelatedPartyMatches(items);
-  const associatedProperties = buildAssociatedProperties();
   const highlights = buildPropertyHighlights(items);
   const keyFinancialsMeta = buildKeyFinancialsMeta(items);
   const keyFinancialStats = buildKeyFinancialStats(items);
   const locationFields = buildLocationFields(items);
   const coordinates = buildLocationCoordinates(items);
   const sections = buildPropertyDetailSections(items);
-  const hasFlags =
-    relatedPartyMatches.length > 0 || associatedProperties.length > 0;
+  const hasFlags = relatedPartyMatches.length > 0;
 
   return (
     <section>
       {hasFlags && (
         <div className="mt-8 flex flex-col gap-4">
           <RelatedPartyBanner matches={relatedPartyMatches} />
-          <AssociatedPropertiesBanner properties={associatedProperties} />
         </div>
       )}
 
