@@ -1374,28 +1374,33 @@ const FLAG_BANNER_ROW =
  */
 export function RelatedPartyMatch({ item }) {
   const badge = badgeConfig[item.cms_ownership_role];
-  const matchedOn = item.matched_on ?? [];
 
   return (
     <div className={FLAG_BANNER_ROW}>
       <div>
-        <Link
-          to={`/owners/${item.entity_slug}`}
-          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
-        >
-          {item.entity_name}
-        </Link>
-
-        {matchedOn.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="text-paragraph-sm text-content-secondary">
-              Matched on
-            </span>
-            {matchedOn.map((type) => (
-              <MatchChip key={type} type={type} />
-            ))}
-          </div>
+        {/* Realie names the titleholder even when no ownership entity carries it, so
+            the name has to render without a destination. */}
+        {item.entity_slug ? (
+          <Link
+            to={`/owners/${item.entity_slug}`}
+            className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
+          >
+            {item.entity_name}
+          </Link>
+        ) : (
+          <span className="text-paragraph-base text-core-black font-medium">
+            {item.entity_name}
+          </span>
         )}
+
+        {/* Entity name is the only comparison the flag makes, so the chip is fixed
+            rather than driven by the row — mailing address is not evidence here. */}
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <span className="text-paragraph-sm text-content-secondary">
+            Matched on
+          </span>
+          <MatchChip type="entity_name" />
+        </div>
       </div>
 
       {badge && (
@@ -1410,8 +1415,7 @@ export function RelatedPartyMatch({ item }) {
 RelatedPartyMatch.propTypes = {
   item: PropTypes.shape({
     entity_name: PropTypes.string.isRequired,
-    entity_slug: PropTypes.string.isRequired,
-    matched_on: PropTypes.arrayOf(PropTypes.string),
+    entity_slug: PropTypes.string,
     cms_ownership_role: PropTypes.string,
   }).isRequired,
 };

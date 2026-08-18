@@ -16,34 +16,30 @@ import {
  *
  * Each renders null unless its condition holds, so the usual facility shows
  * neither. Both reuse DisclosureCard — the same collapsed-card shell as the
- * detail subsections, with the icon and subtitle slots filled in — and hand
- * their rows to ListContainer like every other list in the app.
+ * detail subsections, with the icon and subtitle slots filled in.
  *
- * `panelClassName=""` clears the card's default panel padding: ListContainerFlush
+ * The related-party card holds a single row and takes the card's default panel
+ * padding. The associated-properties card lists many, so it goes through
+ * ListContainer and clears that padding with `panelClassName=""` — ListContainerFlush
  * pads each row instead, so the dividers reach the card's edges.
  */
 
-export function RelatedPartyBanner({ matches = [] }) {
-  if (!matches.length) return null;
+export function RelatedPartyBanner({ match }) {
+  if (!match) return null;
 
   return (
     <DisclosureCard
       icon={<ExclamationTriangleIcon className="size-5 text-amber-500" />}
       title="Possible related-party ownership"
-      subtitle="The property owner appears connected to this facility's ownership network"
-      panelClassName=""
+      subtitle="The property titleholder matches an owner reported to CMS for this facility"
     >
-      <ListContainer
-        items={matches}
-        LayoutSelector={ListContainerFlush}
-        ListContent={RelatedPartyMatch}
-      />
+      <RelatedPartyMatch item={match} />
     </DisclosureCard>
   );
 }
 
 RelatedPartyBanner.propTypes = {
-  matches: PropTypes.array,
+  match: PropTypes.object,
 };
 
 export function AssociatedPropertiesBanner({ properties = [] }) {

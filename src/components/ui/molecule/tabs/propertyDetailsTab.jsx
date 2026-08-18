@@ -5,7 +5,7 @@ import PropertyLocationMap from '../../organism/propertyLocationMap';
 import PropertyDetails from '../../organism/propertyDetails';
 import { RelatedPartyBanner } from '../../organism/propertyFlagBanners';
 import {
-  buildRelatedPartyMatches,
+  buildRelatedPartyFlag,
   buildPropertyHighlights,
   buildKeyFinancialsMeta,
   buildKeyFinancialStats,
@@ -26,8 +26,7 @@ import {
  * without reshaping the call site. Only 'facility' renders content today.
  *
  * `items` is the whole facility record: the Realie parcel columns are flattened
- * onto it, and the related-party flag reads the ownership network hanging off
- * it, so the builders take the record rather than a property object.
+ * onto it, so the builders take the record rather than a property object.
  */
 export default function PropertyDetailsTab({ status, items }) {
   if (status !== 'facility') {
@@ -38,20 +37,19 @@ export default function PropertyDetailsTab({ status, items }) {
     );
   }
 
-  const relatedPartyMatches = buildRelatedPartyMatches(items);
+  const relatedParty = buildRelatedPartyFlag(items);
   const highlights = buildPropertyHighlights(items);
   const keyFinancialsMeta = buildKeyFinancialsMeta(items);
   const keyFinancialStats = buildKeyFinancialStats(items);
   const locationFields = buildLocationFields(items);
   const coordinates = buildLocationCoordinates(items);
   const sections = buildPropertyDetailSections(items);
-  const hasFlags = relatedPartyMatches.length > 0;
 
   return (
     <section>
-      {hasFlags && (
+      {relatedParty && (
         <div className="mt-8 flex flex-col gap-4">
-          <RelatedPartyBanner matches={relatedPartyMatches} />
+          <RelatedPartyBanner match={relatedParty} />
         </div>
       )}
 
