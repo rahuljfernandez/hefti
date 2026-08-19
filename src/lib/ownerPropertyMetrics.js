@@ -109,10 +109,12 @@ export function buildPortfolioSummary(properties) {
 }
 
 /* Display-ready cards for the Real Estate Highlights row, split by importance:
-   two `primary` headline figures (related-party risk, portfolio value) and
-   three `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon`
-   is a string token the organism maps to a component so this module stays free
-   of JSX. */
+   two `primary` headline figures (total value, geographic spread) over three
+   `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon` is a
+   string token the organism maps to a component so this module stays free of JSX.
+
+   Related party is last rather than first: the shipped flag reads 0% on most
+   owners, so leading with it gives the loudest position to the emptiest figure. */
 export function buildPortfolioHighlights(summary) {
   const {
     related_party_percentage,
@@ -129,15 +131,6 @@ export function buildPortfolioHighlights(summary) {
   const flagged = related_party_count > 0;
 
   const primary = [
-    {
-      id: 'related-party',
-      label: 'Related Party',
-      value: `${related_party_percentage}%`,
-      aside: `${related_party_count} of ${total_properties}`,
-      caption: 'Possible related party owned',
-      accent: flagged ? 'amber' : undefined,
-      icon: flagged ? 'warning' : undefined,
-    },
     /* Not "Portfolio Value": the CMS owner holds title to ~2% of these parcels,
        so naming them a portfolio would assert an ownership that mostly is not
        there. Matches the state context's "Total Real Estate Value". */
@@ -150,15 +143,15 @@ export function buildPortfolioHighlights(summary) {
           ? `Total market value of ${valued_properties} of ${total_properties} properties`
           : 'Total market value',
     },
-  ];
-
-  const supporting = [
     {
       id: 'states',
       label: 'States',
       value: states.length,
       caption: states.join(', '),
     },
+  ];
+
+  const supporting = [
     {
       id: 'properties',
       label: 'Properties',
@@ -170,6 +163,15 @@ export function buildPortfolioHighlights(summary) {
       label: 'Property Owners',
       value: distinct_owners,
       caption: 'Distinct landlord entities',
+    },
+    {
+      id: 'related-party',
+      label: 'Related Party',
+      value: `${related_party_percentage}%`,
+      aside: `${related_party_count} of ${total_properties}`,
+      caption: 'Possible related party owned',
+      accent: flagged ? 'amber' : undefined,
+      icon: flagged ? 'warning' : undefined,
     },
   ];
 
