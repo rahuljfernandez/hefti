@@ -16,7 +16,7 @@ import {
 } from '../../../../lib/propertyMetrics';
 
 /**
- * Property Details tab content.
+ * Real Estate tab content.
  *
  * A possible related-party ownership banner, then two sections:
  * - Property Highlights (owner fields + Key Financials stat cards)

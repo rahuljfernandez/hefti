@@ -6,7 +6,7 @@ import StatFigureCard from '../molecule/statFigureCard';
 import { Heading } from '../atom/heading';
 
 /**
- * Property Highlights — the first section of the Property Details tab.
+ * Property Highlights — the first section of the Real Estate tab.
  *
  * Two blocks inside one card: owner/parcel fields followed by transfer,
  * assessment, tax, and lending metadata plus three dated valuation cards.

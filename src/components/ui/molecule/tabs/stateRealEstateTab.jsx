@@ -8,7 +8,7 @@ import { buildStateFootprint } from '../../../../lib/stateRealEstateMetrics';
 /**
  * Real Estate tab content for the state context.
  *
- * Mirrors the owner Property Details tab (see ownerPropertyDetailsTab.jsx):
+ * Mirrors the owner Real Estate tab (see ownerPropertyDetailsTab.jsx):
  * three sections — Real Estate Highlights, Property Footprint, and the Largest
  * Related-Party Holdings table.
  *

@@ -346,7 +346,7 @@ RelatedFacilities.propTypes = {
 };
 
 /**
- * Owner property card used on the owner Property Details tab.
+ * Owner property card used on the owner Real Estate tab.
  *
  * One property as a single interactive card: name, address, market value, and a
  * conditional related-party flag. One outer link, like RelatedFacilities, so
@@ -1328,12 +1328,12 @@ StateMapCard.propTypes = {
   className: PropTypes.string,
 };
 
-/* Row layout for the Property Details flag banners */
+/* Row layout for the Real Estate flag banners */
 const FLAG_BANNER_ROW =
   'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4';
 
 /**
- * One matched entity in the Property Details tab's related-party banner: the
+ * One matched entity in the Real Estate tab's related-party banner: the
  * entity, what it matched on, and its ownership role.
  */
 export function RelatedPartyMatch({ item }) {

@@ -12,7 +12,7 @@ import {
 import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
 
 /**
- * Property Details tab content for the owner context.
+ * Real Estate tab content for the owner context.
  *
  * Owner property details is list-shaped, not a `status` branch through the
  * facility tab's single-property organisms (see lib/ownerPropertyMetrics.js).

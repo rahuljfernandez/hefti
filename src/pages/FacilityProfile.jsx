@@ -64,7 +64,7 @@ import {
  *   (copy link, full-stats CSV, and a ZIP bundling stats + stakeholders + the
  *   ownership-diagram PNG);
  * - the tabbed sections (Provider Highlights, Deficiencies & Penalties, Clinical
- *   Quality, Staffing, Financial Overview, and Property Details for supported
+ *   Quality, Staffing, Financial Overview, and Real Estate for supported
  *   data years);
  * - the Ownership & Stakeholders list and the Ownership Diagram, each with a
  *   hover-reveal local export (CSV and PNG respectively);
@@ -307,7 +307,7 @@ export default function FacilityProfile() {
                       />
                     );
 
-                  case 'Property Details':
+                  case 'Real Estate':
                     return (
                       <PropertyDetailsTab
                         items={facility}

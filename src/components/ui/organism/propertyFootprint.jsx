@@ -13,7 +13,7 @@ import { Heading } from '../atom/heading';
 import { Switch } from '../atom/switch';
 
 /**
- * Property Footprint — the map section shared by the owner Property Details tab
+ * Property Footprint — the map section shared by the owner Real Estate tab
  * and the state Real Estate tab.
  *
  * Every property with coordinates plotted on one map, over a flush control bar

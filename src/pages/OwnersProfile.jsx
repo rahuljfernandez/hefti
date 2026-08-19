@@ -1,4 +1,9 @@
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -65,15 +70,33 @@ const AVAILABLE_YEARS = [
 export default function OwnersProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const requestedYear = Number(searchParams.get('year'));
+  const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
+    ? requestedYear
+    : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
+
+  const handleYearChange = (year) => {
+    const nextYear = Number(year);
+    if (!AVAILABLE_YEARS.includes(nextYear)) return;
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(nextYear));
+        return next;
+      },
+      { state },
+    );
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -81,7 +104,9 @@ export default function OwnersProfile() {
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`)
+    fetch(
+      `${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`,
+    )
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
@@ -103,7 +128,9 @@ export default function OwnersProfile() {
        endpoint doesn't include them, so fetch them separately. */
     const fetchNationalBenchmarks = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
+        const res = await fetch(
+          `${API_BASE_URL}/national?year=${selectedYear}`,
+        );
         const data = await res.json();
         setNationalBenchmarks(data);
       } catch (err) {
@@ -197,7 +224,7 @@ export default function OwnersProfile() {
               subjectType="owner"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             <div className="pb-4">
@@ -246,7 +273,7 @@ export default function OwnersProfile() {
                       <FinancialOverviewTab items={owner} status={'owner'} />
                     );
 
-                  case 'Property Details':
+                  case 'Real Estate':
                     return (
                       <OwnerPropertyDetailsTab
                         items={owner}

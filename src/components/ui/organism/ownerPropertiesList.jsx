@@ -11,7 +11,7 @@ import {
 } from '../../../lib/ownerPropertyMetrics';
 
 /**
- * Properties — the third section of the owner Property Details tab.
+ * Properties — the third section of the owner Real Estate tab.
  *
  * The owner's properties as a sortable/filterable list of cards. Sort and the
  * two filters are held locally (this tab has no URL-param routing); the option

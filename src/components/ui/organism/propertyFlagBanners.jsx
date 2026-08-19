@@ -5,7 +5,7 @@ import DisclosureCard from '../molecule/disclosureCard';
 import { RelatedPartyMatch } from '../molecule/listContainerContent';
 
 /**
- * The conditional flag banner above the Property Details tab's sections.
+ * The conditional flag banner above the Real Estate tab's sections.
  *
  * The parent renders it only for flagged facilities. DisclosureCard supplies
  * the collapsed card shell, icon slot, and subtitle slot.

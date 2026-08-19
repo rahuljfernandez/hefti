@@ -9,7 +9,7 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 /**
- * A rounded white card that collapses — the shell for the Property Details tab's
+ * A rounded white card that collapses — the shell for the Real Estate tab's
  * related-party flag banner, where `icon` and `subtitle` fill the header and the
  * panel holds the matched entity.
  *

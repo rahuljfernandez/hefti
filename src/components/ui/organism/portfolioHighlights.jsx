@@ -5,7 +5,7 @@ import StatHighlightsGrid from '../molecule/statHighlightsGrid';
 import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
 
 /**
- * Real Estate Highlights — the first section of the owner Property Details tab.
+ * Real Estate Highlights — the first section of the owner Real Estate tab.
  *
  * Thin wrapper: formats the owner's real estate summary into cards and hands them
  * to the shared StatHighlightsGrid. The tab derives `summary` from the owner's

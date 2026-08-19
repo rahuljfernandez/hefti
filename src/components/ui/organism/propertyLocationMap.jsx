@@ -16,7 +16,7 @@ import FieldGrid from '../molecule/fieldGrid';
 import { Heading } from '../atom/heading';
 
 /**
- * Facility Location — the second section of the Property Details tab.
+ * Facility Location — the second section of the Real Estate tab.
  *
  * A CMS facility-location map sitting above fields that distinguish CMS
  * facility data from Realie parcel data.

@@ -3,7 +3,7 @@ import { buildFootprint } from './footprintMetrics';
 import { hasPropertyData, isRelatedParty } from './propertyMetrics';
 
 /**
- * Owner-context property metrics: the Property Details tab on the owner profile.
+ * Owner-context property metrics: the Real Estate tab on the owner profile.
  *
  * Deliberately separate from propertyMetrics.js. That file describes ONE
  * property (the facility context); an owner holds many, so this context is
@@ -19,6 +19,8 @@ import { hasPropertyData, isRelatedParty } from './propertyMetrics';
  */
 
 function toFiniteNumber(value) {
+  if (typeof value === 'string' && value.trim() === '') return null;
+
   const parsed = typeof value === 'string' ? Number(value) : value;
   return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
 }
@@ -210,10 +212,17 @@ const VALUE_BUCKETS = {
   'under-10m': (v) => v < 10_000_000,
 };
 
-/* An unreported market value sorts as 0 (same rows the value filter would drop),
-   so the comparator can't return NaN and scramble the whole order. */
-const marketValueKey = (row) =>
-  Number.isFinite(row.market_value) ? row.market_value : 0;
+function compareMarketValue(a, b, direction) {
+  const aReported = Number.isFinite(a.market_value);
+  const bReported = Number.isFinite(b.market_value);
+
+  if (aReported !== bReported) return aReported ? -1 : 1;
+  if (!aReported) return 0;
+
+  return direction === 'asc'
+    ? a.market_value - b.market_value
+    : b.market_value - a.market_value;
+}
 
 /* Filters then sorts the display rows for the Properties list. Each argument is
    an option value or null ("no selection"); unrecognized values are ignored so a
@@ -238,9 +247,9 @@ export function selectOwnerProperties(
   }
 
   if (sort === 'desc') {
-    result = [...result].sort((a, b) => marketValueKey(b) - marketValueKey(a));
+    result = [...result].sort((a, b) => compareMarketValue(a, b, 'desc'));
   } else if (sort === 'asc') {
-    result = [...result].sort((a, b) => marketValueKey(a) - marketValueKey(b));
+    result = [...result].sort((a, b) => compareMarketValue(a, b, 'asc'));
   }
 
   return result;

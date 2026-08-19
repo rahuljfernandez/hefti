@@ -2,7 +2,7 @@ import { formatDateOnly, formatUSD } from './stringFormatters';
 import { toTitleCase } from './toTitleCase';
 
 /**
- * Property metrics config and builders for the Property Details tab.
+ * Property metrics config and builders for the Real Estate tab.
  *
  * Config arrays declare label, source key, and format; a shared helper turns
  * any config + source into display-ready rows; builders name which config feeds
