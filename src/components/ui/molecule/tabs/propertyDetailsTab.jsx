@@ -20,7 +20,7 @@ import {
  *
  * A possible related-party ownership banner, then two sections:
  * - Property Highlights (owner fields + Key Financials stat cards)
- * - Location Information (property map + address fields)
+ * - Facility Location (CMS map + separately labeled facility/parcel fields)
  *
  * `items` is the whole facility record: the Realie parcel columns are flattened
  * onto it, so the builders take the record rather than a property object.

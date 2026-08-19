@@ -49,6 +49,19 @@ function parseRealieAddress(address) {
   };
 }
 
+function formatAddress({ street, city, state, zip }) {
+  const cityState = [
+    city ? toTitleCase(city) : null,
+    [state?.toUpperCase(), zip].filter(Boolean).join(' '),
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  return [street ? toTitleCase(street) : null, cityState]
+    .filter(Boolean)
+    .join(', ');
+}
+
 /* Owner mailing arrives space-delimited — "1000 GATES AVE STE 5 BROOKLYN NY
    11221" — not comma-delimited like the parcel address above. Only the trailing
    state and ZIP are unambiguous; nothing marks where the street ends and a
@@ -227,11 +240,12 @@ const keyFinancialStatsConfig = [
 ];
 
 const locationFieldsConfig = [
-  { label: 'Address', valueKey: 'address', format: 'title' },
-  { label: 'State', valueKey: 'state' },
-  { label: 'County', valueKey: 'realie_county', format: 'title' },
-  { label: 'City', valueKey: 'city', format: 'title' },
-  { label: 'Zip Code', valueKey: 'zip_code' },
+  { label: 'Facility Address', valueKey: 'street_address', format: 'title' },
+  { label: 'Parcel Address', valueKey: 'parcel_address' },
+  { label: 'Facility City', valueKey: 'city', format: 'title' },
+  { label: 'Facility State', valueKey: 'state' },
+  { label: 'Facility Zip Code', valueKey: 'zip_code' },
+  { label: 'Parcel County', valueKey: 'realie_county', format: 'title' },
   { label: 'Parcel Number', valueKey: 'realie_parcel_id' },
   { label: 'Year Built', valueKey: 'realie_year_built' },
   { label: 'Acres', valueKey: 'realie_acres', format: 'number' },
@@ -240,8 +254,8 @@ const locationFieldsConfig = [
     valueKey: 'realie_building_area',
     format: 'number',
   },
-  { label: 'Latitude', valueKey: 'latitude' },
-  { label: 'Longitude', valueKey: 'longitude' },
+  { label: 'Facility Latitude', valueKey: 'latitude' },
+  { label: 'Facility Longitude', valueKey: 'longitude' },
 ];
 
 /* Data builders read the facility record, where Realie parcel fields are
@@ -279,33 +293,32 @@ export function buildKeyFinancialStats(source) {
   });
 }
 
-/* The parcel address is the property's own; the facility's address columns cover
-   the rows when no parcel matched. */
 export function buildLocationFields(source) {
-  const { street, city, state, zip } = parseRealieAddress(
-    source?.realie_address,
+  const parcelAddress = formatAddress(
+    parseRealieAddress(source?.realie_address),
   );
 
   return buildFields(locationFieldsConfig, {
     ...source,
-    address: street ?? source?.street_address,
-    city: city ?? source?.city,
-    state: state ?? source?.state,
-    zip_code: zip ?? source?.zip_code,
+    parcel_address: parcelAddress,
   });
 }
 
-/* Separate from the address field list because the map needs raw numbers, not
-   formatted display strings. */
+/* CMS supplies the facility coordinates, so the map label uses the matching CMS
+   address rather than implying that the pin locates the Realie parcel. */
 export function buildLocationCoordinates(source) {
   const latitude = toNumber(source?.latitude);
   const longitude = toNumber(source?.longitude);
   if (latitude === null || longitude === null) return null;
 
-  const { street } = parseRealieAddress(source?.realie_address);
   return {
     position: [latitude, longitude],
-    label: street ?? source?.street_address ?? '',
+    label: formatAddress({
+      street: source?.street_address,
+      city: source?.city,
+      state: source?.state,
+      zip: source?.zip_code,
+    }),
   };
 }
 
