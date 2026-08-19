@@ -92,6 +92,9 @@ export function buildPortfolioSummary(properties) {
 
   const valued = properties.filter((p) => p.market_value !== null);
   const relatedParty = properties.filter((p) => p.related_party);
+  const titleholders = properties
+    .map((p) => p.titleholder_name?.trim().toUpperCase())
+    .filter(Boolean);
 
   return {
     total_properties: properties.length,
@@ -99,14 +102,14 @@ export function buildPortfolioSummary(properties) {
     related_party_percentage: Math.round(
       (relatedParty.length / properties.length) * 100,
     ),
-    portfolio_value: valued.reduce((sum, p) => sum + p.market_value, 0),
+    portfolio_value:
+      valued.length === 0
+        ? null
+        : valued.reduce((sum, p) => sum + p.market_value, 0),
     valued_properties: valued.length,
     states: [...new Set(properties.map((p) => p.state).filter(Boolean))].sort(),
-    distinct_owners: new Set(
-      properties
-        .map((p) => p.titleholder_name?.trim().toUpperCase())
-        .filter(Boolean),
-    ).size,
+    distinct_owners:
+      titleholders.length === 0 ? null : new Set(titleholders).size,
   };
 }
 
@@ -139,11 +142,14 @@ export function buildPortfolioHighlights(summary) {
     {
       id: 'real-estate-value',
       label: 'Total Real Estate Value',
-      value: formatUSD(portfolio_value),
+      value:
+        portfolio_value === null ? 'Not reported' : formatUSD(portfolio_value),
       caption:
-        valued_properties < total_properties
-          ? `Total market value of ${valued_properties} of ${total_properties} properties`
-          : 'Total market value',
+        valued_properties === 0
+          ? `No market values reported for ${total_properties} properties`
+          : valued_properties < total_properties
+            ? `Total market value of ${valued_properties} of ${total_properties} properties`
+            : 'Total market value',
     },
     {
       id: 'states',
@@ -163,8 +169,11 @@ export function buildPortfolioHighlights(summary) {
     {
       id: 'property-owners',
       label: 'Property Owners',
-      value: distinct_owners,
-      caption: 'Distinct landlord entities',
+      value: distinct_owners === null ? 'Not reported' : distinct_owners,
+      caption:
+        distinct_owners === null
+          ? 'No landlord entities reported'
+          : 'Distinct landlord entities',
     },
     {
       id: 'related-party',

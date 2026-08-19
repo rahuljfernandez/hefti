@@ -1,36 +1,93 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import RealEstateHighlights from '../../organism/realEstateHighlights';
 import PropertyFootprint from '../../organism/propertyFootprint';
 import LargestRelatedPartyHoldings from '../../organism/largestRelatedPartyHoldings';
-import { buildStateFootprint } from '../../../../lib/stateRealEstateMetrics';
+import { NoDataBanner } from '../../atom/errorBanner';
+import {
+  buildStateProperties,
+  buildStateRealEstateSummary,
+  buildStateFootprint,
+  buildLargestHoldings,
+} from '../../../../lib/stateRealEstateMetrics';
+import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
 
 /**
  * Real Estate tab content for the state context.
  *
- * Mirrors the owner Real Estate tab (see ownerPropertyDetailsTab.jsx):
- * three sections — Real Estate Highlights, Property Footprint, and the Largest
- * Related-Party Holdings table.
+ * Mirrors the owner Real Estate tab (see ownerPropertyDetailsTab.jsx): the rows
+ * are built once here and shared by all three sections — Real Estate Highlights,
+ * Property Footprint, and the holdings table — so every figure counts the same
+ * properties.
  *
- * `stateAbbr` is the only live input today: it targets the "View all owners"
- * link at the owners browse page filtered to this state. The section builders
- * still fall back to mock data until the state real estate endpoint lands.
+ * `facilities` is the state's facility list the profile page already fetches for
+ * its deficiencies table; there is no state real estate endpoint. `stateAbbr`
+ * targets the "View all owners" link.
+ *
+ * The tab stays in the tab bar year-round; a banner stands in for the sections
+ * before coverage begins and in states whose facilities matched no parcel.
  */
-export default function StateRealEstateTab({ stateAbbr }) {
+export default function StateRealEstateTab({
+  facilities,
+  loading,
+  stateAbbr,
+  year,
+}) {
+  const { properties, basis } = useMemo(
+    () => buildStateProperties(facilities),
+    [facilities],
+  );
+  const summary = useMemo(
+    () => buildStateRealEstateSummary(properties, basis),
+    [properties, basis],
+  );
+  const footprint = useMemo(() => buildStateFootprint(properties), [properties]);
+  const holdings = useMemo(() => buildLargestHoldings(properties), [properties]);
+
+  if (Number(year) < PROPERTY_DATA_START_YEAR) {
+    return (
+      <section className="mt-8">
+        <NoDataBanner
+          title={`No real estate data for ${year}`}
+          message={`Property records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this state's real estate.`}
+        />
+      </section>
+    );
+  }
+
+  /* The facility list arrives empty before the fetch resolves, which is
+     indistinguishable from a state with no matched parcels — and the empty state
+     below asserts a conclusion, so it must not show while the answer is unknown. */
+  if (loading) return null;
+
+  if (!summary) {
+    return (
+      <section className="mt-8">
+        <NoDataBanner
+          title="No real estate data for this state"
+          message="None of this state's facilities could be matched to a property record."
+        />
+      </section>
+    );
+  }
+
   return (
     <section>
-      <RealEstateHighlights />
+      <RealEstateHighlights summary={summary} />
 
       <PropertyFootprint
-        data={buildStateFootprint()}
+        data={footprint}
         mapLabel="Map of the state's nursing home facilities. Related-party owned facilities are highlighted when the toggle is on."
       />
 
-      <LargestRelatedPartyHoldings stateAbbr={stateAbbr} />
+      <LargestRelatedPartyHoldings rows={holdings} stateAbbr={stateAbbr} />
     </section>
   );
 }
 
 StateRealEstateTab.propTypes = {
+  facilities: PropTypes.array,
+  loading: PropTypes.bool,
   stateAbbr: PropTypes.string,
+  year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };

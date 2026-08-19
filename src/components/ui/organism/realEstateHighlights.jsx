@@ -7,12 +7,13 @@ import { buildRealEstateHighlights } from '../../../lib/stateRealEstateMetrics';
 /**
  * Real Estate Highlights — the first section of the state Real Estate tab.
  *
- * Thin wrapper: builds the state's figures and hands them to the shared
- * StatHighlightsGrid. `source` is optional; the builder falls back to mock data
- * until the state real estate API lands.
+ * Thin wrapper: formats the state's real estate summary into cards and hands
+ * them to the shared StatHighlightsGrid. The tab derives `summary` from the
+ * state's facilities and renders an empty state when there is none, so this
+ * component can assume it has one.
  */
-export default function RealEstateHighlights({ source }) {
-  const { primary, supporting } = buildRealEstateHighlights(source);
+export default function RealEstateHighlights({ summary }) {
+  const { primary, supporting } = buildRealEstateHighlights(summary);
 
   return (
     <section>
@@ -25,5 +26,5 @@ export default function RealEstateHighlights({ source }) {
 }
 
 RealEstateHighlights.propTypes = {
-  source: PropTypes.object,
+  summary: PropTypes.object.isRequired,
 };

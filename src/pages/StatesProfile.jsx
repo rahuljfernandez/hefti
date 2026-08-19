@@ -44,6 +44,7 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
+  const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
   const [chainBurden, setChainBurden] = useState([]);
   const [individualBurden, setIndividualBurden] = useState([]);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
@@ -107,6 +108,7 @@ export default function StatesProfile() {
        the previous state's facilities. */
     const controller = new AbortController();
     setStateFacilities([]);
+    setStateFacilitiesLoading(true);
     const fetchStateFacilities = async () => {
       try {
         const res = await fetch(
@@ -121,6 +123,8 @@ export default function StatesProfile() {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch state facilities:', err);
         }
+      } finally {
+        if (!controller.signal.aborted) setStateFacilitiesLoading(false);
       }
     };
 
@@ -281,7 +285,12 @@ export default function StatesProfile() {
 
                   case 'Real Estate':
                     return (
-                      <StateRealEstateTab stateAbbr={stateStats?.state} />
+                      <StateRealEstateTab
+                        facilities={stateFacilities}
+                        loading={stateFacilitiesLoading}
+                        stateAbbr={stateStats?.state}
+                        year={selectedYear}
+                      />
                     );
 
                   default:

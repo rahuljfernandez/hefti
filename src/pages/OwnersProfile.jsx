@@ -99,6 +99,8 @@ export default function OwnersProfile() {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+
     setLoading(true);
     setOwner(null);
     setError(null);
@@ -106,6 +108,7 @@ export default function OwnersProfile() {
 
     fetch(
       `${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`,
+      { signal: controller.signal },
     )
       .then((res) => {
         if (res.status === 404) return null;
@@ -113,32 +116,50 @@ export default function OwnersProfile() {
         return res.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         if (!data) {
           setNotFound(true);
           return;
         }
         setOwner(data);
       })
-      .catch(() => setError('Failed to load owner data.'))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setError('Failed to load owner data.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [slug, selectedYear]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    setNationalBenchmarks(null);
+
     /* National averages power the highlights comparison badges; the owner
        endpoint doesn't include them, so fetch them separately. */
     const fetchNationalBenchmarks = async () => {
       try {
         const res = await fetch(
           `${API_BASE_URL}/national?year=${selectedYear}`,
+          { signal: controller.signal },
         );
+        if (!res.ok) throw new Error('Failed to load national averages');
         const data = await res.json();
+        if (controller.signal.aborted) return;
         setNationalBenchmarks(data);
       } catch (err) {
-        console.error('Failed to fetch national averages:', err);
+        if (!controller.signal.aborted) {
+          console.error('Failed to fetch national averages:', err);
+        }
       }
     };
 
     fetchNationalBenchmarks();
+    return () => controller.abort();
   }, [selectedYear]);
 
   // Use related facilities from API if available
