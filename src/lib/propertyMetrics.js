@@ -277,6 +277,19 @@ export function buildLocationCoordinates(source) {
 /* Banner data is resolved here rather than in the components so ownership
    matching and parcel-availability rules stay next to the records they read. */
 
+/* Realie's first coverage year; every earlier year returns a facility with no
+   parcel columns at all. */
+export const PROPERTY_DATA_START_YEAR = 2026;
+
+/* The parcel id is the match itself — a facility that matched has one, and the
+   ~29% that did not have every other Realie column empty too. HAS_CONTENT rather
+   than an emptiness check because of the stray bytes noted above. */
+export function hasPropertyData(source) {
+  const parcelId = source?.realie_parcel_id;
+  if (parcelId === null || parcelId === undefined) return false;
+  return HAS_CONTENT.test(String(parcelId));
+}
+
 /* Realie ships the parcel titleholder into facility_ownership_links as a synthetic
    entity under this role; it is the only link the flag can name, so the row points
    there. */

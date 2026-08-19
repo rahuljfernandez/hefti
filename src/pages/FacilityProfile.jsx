@@ -78,7 +78,6 @@ const AVAILABLE_YEARS = [
   2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014,
   2013, 2012, 2011, 2010,
 ];
-const PROPERTY_DETAILS_START_YEAR = 2026;
 
 export default function FacilityProfile() {
   const { slug } = useParams();
@@ -89,18 +88,6 @@ export default function FacilityProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
-
-  const propertyDetailsAvailable =
-    Number(selectedYear) >= PROPERTY_DETAILS_START_YEAR;
-  const availableFacilityTabs = useMemo(
-    () =>
-      propertyDetailsAvailable
-        ? facilityTabsDescriptions
-        : facilityTabsDescriptions.filter(
-            (tab) => tab.name !== 'Property Details',
-          ),
-    [propertyDetailsAvailable],
-  );
 
   const navigate = useNavigate();
 
@@ -236,12 +223,7 @@ export default function FacilityProfile() {
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
-              key={
-                propertyDetailsAvailable
-                  ? 'property-details-available'
-                  : 'property-details-unavailable'
-              }
-              tabsData={availableFacilityTabs}
+              tabsData={facilityTabsDescriptions}
               defaultTabName={'Provider Highlights'}
             >
               {(activeTab) => {
@@ -281,7 +263,12 @@ export default function FacilityProfile() {
                     );
 
                   case 'Property Details':
-                    return <PropertyDetailsTab items={facility} />;
+                    return (
+                      <PropertyDetailsTab
+                        items={facility}
+                        year={selectedYear}
+                      />
+                    );
 
                   default:
                     return (
