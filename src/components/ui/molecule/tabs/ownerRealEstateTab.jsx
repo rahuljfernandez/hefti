@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import PortfolioHighlights from '../../organism/portfolioHighlights';
-import PropertyFootprint from '../../organism/propertyFootprint';
-import OwnerPropertiesList from '../../organism/ownerPropertiesList';
+import OwnerRealEstateHighlights from '../../organism/ownerRealEstateHighlights';
+import RealEstateFootprint from '../../organism/realEstateFootprint';
+import OwnerRealEstateList from '../../organism/ownerRealEstateList';
 import { NoDataBanner } from '../../atom/errorBanner';
 import {
   buildOwnerProperties,
@@ -14,31 +14,34 @@ import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
 /**
  * Real Estate tab content for the owner context.
  *
- * Owner property details is list-shaped, not a `status` branch through the
+ * Owner real estate is list-shaped, not a `status` branch through the
  * facility tab's single-property organisms (see lib/ownerPropertyMetrics.js).
  * Three sections:
  * - Real Estate Highlights (summary stat cards)
- * - Property Footprint (all owner properties on a map + related-party toggle)
- * - Properties (the owner's properties as a sortable/filterable list)
+ * - Real Estate Footprint (all holdings on a map + related-party toggle)
+ * - Real Estate Holdings (the owner's holdings as a sortable/filterable list)
  *
  * The tab stays in the tab bar year-round; a banner stands in for the sections
  * before coverage begins and on owners whose facilities matched no parcel,
  * mirroring the facility tab.
  */
-export default function OwnerPropertyDetailsTab({ items, year }) {
+export default function OwnerRealEstateTab({ items, year }) {
   const properties = useMemo(() => buildOwnerProperties(items), [items]);
   const summary = useMemo(
     () => buildPortfolioSummary(properties),
     [properties],
   );
-  const footprint = useMemo(() => buildOwnerFootprint(properties), [properties]);
+  const footprint = useMemo(
+    () => buildOwnerFootprint(properties),
+    [properties],
+  );
 
   if (Number(year) < PROPERTY_DATA_START_YEAR) {
     return (
       <section className="mt-8">
         <NoDataBanner
-          title={`No property data for ${year}`}
-          message={`Property records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this owner's property details.`}
+          title={`No real estate data for ${year}`}
+          message={`Real estate records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this owner's real estate.`}
         />
       </section>
     );
@@ -48,8 +51,8 @@ export default function OwnerPropertyDetailsTab({ items, year }) {
     return (
       <section className="mt-8">
         <NoDataBanner
-          title="No property data for this owner"
-          message="None of this owner's facilities could be matched to a property record."
+          title="No real estate data for this owner"
+          message="None of this owner's facilities could be matched to a real estate record."
         />
       </section>
     );
@@ -57,17 +60,17 @@ export default function OwnerPropertyDetailsTab({ items, year }) {
 
   return (
     <section>
-      <PortfolioHighlights summary={summary} />
-      <PropertyFootprint
+      <OwnerRealEstateHighlights summary={summary} />
+      <RealEstateFootprint
         data={footprint}
-        mapLabel="Map of the owner's properties. Each property and its market value are listed in the Properties section below."
+        mapLabel="Map of the owner's real estate holdings. Each holding and its market value are listed in the Real Estate Holdings section below."
       />
-      <OwnerPropertiesList properties={properties} />
+      <OwnerRealEstateList properties={properties} />
     </section>
   );
 }
 
-OwnerPropertyDetailsTab.propTypes = {
+OwnerRealEstateTab.propTypes = {
   items: PropTypes.object,
   year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };

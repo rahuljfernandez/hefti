@@ -24,7 +24,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import PropertyDetailsTab from '../components/ui/molecule/tabs/propertyDetailsTab';
+import FacilityRealEstateTab from '../components/ui/molecule/tabs/facilityRealEstateTab';
 import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
@@ -309,7 +309,7 @@ export default function FacilityProfile() {
 
                   case 'Real Estate':
                     return (
-                      <PropertyDetailsTab
+                      <FacilityRealEstateTab
                         items={facility}
                         year={selectedYear}
                       />

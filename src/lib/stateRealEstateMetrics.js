@@ -201,7 +201,7 @@ export function buildRealEstateHighlights(summary) {
     },
     {
       id: 'average-property-value',
-      label: 'Average Property Value',
+      label: 'Average Real Estate Value',
       value: formatUSD(average_property_value),
       caption: `Average ${basisLabel} of the ${valued_properties} valued`,
     },
@@ -216,7 +216,7 @@ export function buildRealEstateHighlights(summary) {
     },
     {
       id: 'property-owners',
-      label: 'Property Owners',
+      label: 'Real Estate Owners',
       value: property_owners,
       caption: 'Distinct landlord entities',
     },

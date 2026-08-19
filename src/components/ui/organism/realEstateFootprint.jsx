@@ -13,7 +13,7 @@ import { Heading } from '../atom/heading';
 import { Switch } from '../atom/switch';
 
 /**
- * Property Footprint — the map section shared by the owner Real Estate tab
+ * Real Estate Footprint — the map section shared by the owner Real Estate tab
  * and the state Real Estate tab.
  *
  * Every property with coordinates plotted on one map, over a flush control bar
@@ -113,14 +113,14 @@ FootprintMapPanel.propTypes = {
   label: PropTypes.string,
 };
 
-export default function PropertyFootprint({ data, mapLabel }) {
+export default function RealEstateFootprint({ data, mapLabel }) {
   const { markers, bounds, relatedPartyCount, totalCount } = data;
   const [highlight, setHighlight] = useState(false);
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Property Footprint
+        Real Estate Footprint
       </Heading>
 
       <FootprintMapPanel
@@ -151,7 +151,7 @@ export default function PropertyFootprint({ data, mapLabel }) {
   );
 }
 
-PropertyFootprint.propTypes = {
+RealEstateFootprint.propTypes = {
   data: PropTypes.shape({
     markers: PropTypes.array.isRequired,
     bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),

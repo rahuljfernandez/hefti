@@ -12,7 +12,7 @@ import { buildRealEstateHighlights } from '../../../lib/stateRealEstateMetrics';
  * state's facilities and renders an empty state when there is none, so this
  * component can assume it has one.
  */
-export default function RealEstateHighlights({ summary }) {
+export default function StateRealEstateHighlights({ summary }) {
   const { primary, supporting } = buildRealEstateHighlights(summary);
 
   return (
@@ -25,6 +25,6 @@ export default function RealEstateHighlights({ summary }) {
   );
 }
 
-RealEstateHighlights.propTypes = {
+StateRealEstateHighlights.propTypes = {
   summary: PropTypes.object.isRequired,
 };

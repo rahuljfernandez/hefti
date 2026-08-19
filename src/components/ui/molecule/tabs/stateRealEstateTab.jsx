@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import RealEstateHighlights from '../../organism/realEstateHighlights';
-import PropertyFootprint from '../../organism/propertyFootprint';
+import StateRealEstateHighlights from '../../organism/stateRealEstateHighlights';
+import RealEstateFootprint from '../../organism/realEstateFootprint';
 import LargestRelatedPartyHoldings from '../../organism/largestRelatedPartyHoldings';
 import { NoDataBanner } from '../../atom/errorBanner';
 import {
@@ -15,9 +15,9 @@ import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
 /**
  * Real Estate tab content for the state context.
  *
- * Mirrors the owner Real Estate tab (see ownerPropertyDetailsTab.jsx): the rows
+ * Mirrors the owner Real Estate tab (see ownerRealEstateTab.jsx): the rows
  * are built once here and shared by all three sections — Real Estate Highlights,
- * Property Footprint, and the holdings table — so every figure counts the same
+ * Real Estate Footprint, and the holdings table — so every figure counts the same
  * properties.
  *
  * `facilities` is the state's facility list the profile page already fetches for
@@ -41,15 +41,21 @@ export default function StateRealEstateTab({
     () => buildStateRealEstateSummary(properties, basis),
     [properties, basis],
   );
-  const footprint = useMemo(() => buildStateFootprint(properties), [properties]);
-  const holdings = useMemo(() => buildLargestHoldings(properties), [properties]);
+  const footprint = useMemo(
+    () => buildStateFootprint(properties),
+    [properties],
+  );
+  const holdings = useMemo(
+    () => buildLargestHoldings(properties),
+    [properties],
+  );
 
   if (Number(year) < PROPERTY_DATA_START_YEAR) {
     return (
       <section className="mt-8">
         <NoDataBanner
           title={`No real estate data for ${year}`}
-          message={`Property records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this state's real estate.`}
+          message={`Real estate records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this state's real estate.`}
         />
       </section>
     );
@@ -65,7 +71,7 @@ export default function StateRealEstateTab({
       <section className="mt-8">
         <NoDataBanner
           title="No real estate data for this state"
-          message="None of this state's facilities could be matched to a property record."
+          message="None of this state's facilities could be matched to a real estate record."
         />
       </section>
     );
@@ -73,9 +79,9 @@ export default function StateRealEstateTab({
 
   return (
     <section>
-      <RealEstateHighlights summary={summary} />
+      <StateRealEstateHighlights summary={summary} />
 
-      <PropertyFootprint
+      <RealEstateFootprint
         data={footprint}
         mapLabel="Map of the state's nursing home facilities. Related-party owned facilities are highlighted when the toggle is on."
       />

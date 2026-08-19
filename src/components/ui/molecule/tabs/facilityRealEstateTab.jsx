@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import PropertyHighlights from '../../organism/propertyHighlights';
-import PropertyLocationMap from '../../organism/propertyLocationMap';
-import { RelatedPartyBanner } from '../../organism/propertyFlagBanners';
+import FacilityRealEstateHighlights from '../../organism/facilityRealEstateHighlights';
+import FacilityRealEstateLocation from '../../organism/facilityRealEstateLocation';
+import { RelatedPartyBanner } from '../../organism/realEstateFlagBanners';
 import { NoDataBanner } from '../../atom/errorBanner';
 import {
   buildRelatedPartyFlag,
@@ -19,7 +19,7 @@ import {
  * Real Estate tab content.
  *
  * A possible related-party ownership banner, then two sections:
- * - Property Highlights (owner fields + Key Financials stat cards)
+ * - Real Estate Highlights (owner fields + Key Financials stat cards)
  * - Facility Location (CMS map + separately labeled facility/parcel fields)
  *
  * `items` is the whole facility record: the Realie parcel columns are flattened
@@ -28,15 +28,15 @@ import {
  * The tab stays in the tab bar year-round; a banner stands in for the sections
  * before coverage begins and on facilities that matched no parcel.
  */
-export default function PropertyDetailsTab({ items, year }) {
+export default function FacilityRealEstateTab({ items, year }) {
   /* Ahead of the builders, which format every missing field as "N/A" — without
      this the empty cases render a full grid of them. */
   if (Number(year) < PROPERTY_DATA_START_YEAR) {
     return (
       <section className="mt-8">
         <NoDataBanner
-          title={`No property data for ${year}`}
-          message={`Property records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this facility's property details.`}
+          title={`No real estate data for ${year}`}
+          message={`Real estate records begin in ${PROPERTY_DATA_START_YEAR}. Switch the year to ${PROPERTY_DATA_START_YEAR} to view this facility's real estate.`}
         />
       </section>
     );
@@ -46,8 +46,8 @@ export default function PropertyDetailsTab({ items, year }) {
     return (
       <section className="mt-8">
         <NoDataBanner
-          title="No property data for this facility"
-          message="This facility couldn't be matched to a property record."
+          title="No real estate data for this facility"
+          message="This facility couldn't be matched to a real estate record."
         />
       </section>
     );
@@ -68,12 +68,12 @@ export default function PropertyDetailsTab({ items, year }) {
         </div>
       )}
 
-      <PropertyHighlights
+      <FacilityRealEstateHighlights
         highlights={highlights}
         keyFinancialsMeta={keyFinancialsMeta}
         keyFinancialStats={keyFinancialStats}
       />
-      <PropertyLocationMap
+      <FacilityRealEstateLocation
         coordinates={coordinates}
         locationFields={locationFields}
       />
@@ -81,7 +81,7 @@ export default function PropertyDetailsTab({ items, year }) {
   );
 }
 
-PropertyDetailsTab.propTypes = {
+FacilityRealEstateTab.propTypes = {
   items: PropTypes.object,
   year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };

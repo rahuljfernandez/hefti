@@ -12,7 +12,7 @@ import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
  * linked facilities and renders an empty state when there is none, so this
  * component can assume it has one.
  */
-export default function PortfolioHighlights({ summary }) {
+export default function OwnerRealEstateHighlights({ summary }) {
   const { primary, supporting } = buildPortfolioHighlights(summary);
 
   return (
@@ -25,6 +25,6 @@ export default function PortfolioHighlights({ summary }) {
   );
 }
 
-PortfolioHighlights.propTypes = {
+OwnerRealEstateHighlights.propTypes = {
   summary: PropTypes.object.isRequired,
 };

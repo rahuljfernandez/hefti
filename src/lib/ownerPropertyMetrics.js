@@ -162,13 +162,13 @@ export function buildPortfolioHighlights(summary) {
   const supporting = [
     {
       id: 'properties',
-      label: 'Properties',
+      label: 'Real Estate Holdings',
       value: total_properties,
       caption: 'Real estate parcels',
     },
     {
       id: 'property-owners',
-      label: 'Property Owners',
+      label: 'Real Estate Owners',
       value: distinct_owners === null ? 'Not reported' : distinct_owners,
       caption:
         distinct_owners === null

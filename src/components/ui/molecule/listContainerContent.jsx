@@ -352,7 +352,7 @@ RelatedFacilities.propTypes = {
  * conditional related-party flag. One outer link, like RelatedFacilities, so
  * keyboard users tab through the list one card at a time.
  */
-export function OwnerProperty({ item }) {
+export function OwnerRealEstateHolding({ item }) {
   const facilityHref = `/facilities/${item.facility_slug}`;
   const facilityName = toTitleCase(item.facility_name);
   return (
@@ -411,7 +411,7 @@ export function OwnerProperty({ item }) {
   );
 }
 
-OwnerProperty.propTypes = {
+OwnerRealEstateHolding.propTypes = {
   item: PropTypes.object.isRequired,
 };
 

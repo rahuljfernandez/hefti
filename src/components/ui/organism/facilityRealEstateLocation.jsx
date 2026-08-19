@@ -48,7 +48,7 @@ const MAP_ZOOM = 16;
 
    role="group" rather than role="img" because the zoom buttons keep their focus
    stops, and an image role must not contain focusable children. */
-function PropertyMapPanel({ position, label }) {
+function FacilityRealEstateMapPanel({ position, label }) {
   return (
     <div
       className="h-80 w-full overflow-hidden rounded-t-lg"
@@ -86,12 +86,15 @@ function PropertyMapPanel({ position, label }) {
   );
 }
 
-PropertyMapPanel.propTypes = {
+FacilityRealEstateMapPanel.propTypes = {
   position: PropTypes.arrayOf(PropTypes.number).isRequired,
   label: PropTypes.string,
 };
 
-export default function PropertyLocationMap({ locationFields, coordinates }) {
+export default function FacilityRealEstateLocation({
+  locationFields,
+  coordinates,
+}) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
@@ -102,7 +105,7 @@ export default function PropertyLocationMap({ locationFields, coordinates }) {
           rather than leaving an empty map frame. */}
       {coordinates ? (
         <>
-          <PropertyMapPanel
+          <FacilityRealEstateMapPanel
             position={coordinates.position}
             label={coordinates.label}
           />
@@ -119,7 +122,7 @@ export default function PropertyLocationMap({ locationFields, coordinates }) {
   );
 }
 
-PropertyLocationMap.propTypes = {
+FacilityRealEstateLocation.propTypes = {
   locationFields: PropTypes.array.isRequired,
   coordinates: PropTypes.shape({
     position: PropTypes.arrayOf(PropTypes.number).isRequired,

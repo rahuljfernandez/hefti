@@ -6,7 +6,7 @@ import StatFigureCard from '../molecule/statFigureCard';
 import { Heading } from '../atom/heading';
 
 /**
- * Property Highlights — the first section of the Real Estate tab.
+ * Real Estate Highlights — the first section of the facility Real Estate tab.
  *
  * Two blocks inside one card: owner/parcel fields followed by transfer,
  * assessment, tax, and lending metadata plus three dated valuation cards.
@@ -14,7 +14,7 @@ import { Heading } from '../atom/heading';
  * Takes display-ready rows, not a record — the tab runs the builders so every
  * section on it reads one source. See lib/propertyMetrics.js.
  */
-export default function PropertyHighlights({
+export default function FacilityRealEstateHighlights({
   highlights,
   keyFinancialStats,
   keyFinancialsMeta,
@@ -22,7 +22,7 @@ export default function PropertyHighlights({
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Property Highlights
+        Real Estate Highlights
       </Heading>
 
       <LayoutCard>
@@ -62,7 +62,7 @@ const fieldShape = PropTypes.shape({
   value: PropTypes.node,
 });
 
-PropertyHighlights.propTypes = {
+FacilityRealEstateHighlights.propTypes = {
   highlights: PropTypes.arrayOf(fieldShape).isRequired,
   keyFinancialsMeta: PropTypes.arrayOf(fieldShape).isRequired,
   keyFinancialStats: PropTypes.arrayOf(

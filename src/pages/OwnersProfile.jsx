@@ -29,7 +29,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import OwnerPropertyDetailsTab from '../components/ui/molecule/tabs/ownerPropertyDetailsTab';
+import OwnerRealEstateTab from '../components/ui/molecule/tabs/ownerRealEstateTab';
 import {
   ShareButton,
   ShareButtonRow,
@@ -296,10 +296,7 @@ export default function OwnersProfile() {
 
                   case 'Real Estate':
                     return (
-                      <OwnerPropertyDetailsTab
-                        items={owner}
-                        year={selectedYear}
-                      />
+                      <OwnerRealEstateTab items={owner} year={selectedYear} />
                     );
 
                   default:
