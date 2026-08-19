@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PropertyHighlights from '../../organism/propertyHighlights';
 import PropertyLocationMap from '../../organism/propertyLocationMap';
-import PropertyDetails from '../../organism/propertyDetails';
 import { RelatedPartyBanner } from '../../organism/propertyFlagBanners';
 import {
   buildRelatedPartyFlag,
@@ -11,16 +10,14 @@ import {
   buildKeyFinancialStats,
   buildLocationCoordinates,
   buildLocationFields,
-  buildPropertyDetailSections,
 } from '../../../../lib/propertyMetrics';
 
 /**
  * Property Details tab content.
  *
- * A possible related-party ownership banner, then three sections:
+ * A possible related-party ownership banner, then two sections:
  * - Property Highlights (owner fields + Key Financials stat cards)
  * - Location Information (property map + address fields)
- * - Property Details (Financial / Building / Land disclosures)
  *
  * `status` mirrors the other tabs so the owner and state contexts can slot in
  * without reshaping the call site. Only 'facility' renders content today.
@@ -43,7 +40,6 @@ export default function PropertyDetailsTab({ status, items }) {
   const keyFinancialStats = buildKeyFinancialStats(items);
   const locationFields = buildLocationFields(items);
   const coordinates = buildLocationCoordinates(items);
-  const sections = buildPropertyDetailSections(items);
 
   return (
     <section>
@@ -62,7 +58,6 @@ export default function PropertyDetailsTab({ status, items }) {
         coordinates={coordinates}
         locationFields={locationFields}
       />
-      <PropertyDetails sections={sections} />
     </section>
   );
 }

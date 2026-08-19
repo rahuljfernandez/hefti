@@ -9,17 +9,9 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 /**
- * A rounded white card that collapses — the shell for the Property Details
- * subsections (Financial / Building / Land).
- *
- * Deliberately general enough to also carry the conditional flag banners
- * (possible related-party ownership, multiple associated properties) that sit
- * above the tab's sections. Those differ from the detail subsections only in
- * header content and panel body, which is why `icon` and `subtitle` exist:
- *
- *   detail subsection — title only, panel holds a DetailTableSplit
- *   flag banner       — warning icon + title + subtitle, panel holds the
- *                       matched-entity list
+ * A rounded white card that collapses — the shell for the Property Details tab's
+ * related-party flag banner, where `icon` and `subtitle` fill the header and the
+ * panel holds the matched entity.
  *
  * Distinct from networkSidePanelAccordion, which is the same Headless UI
  * primitives dressed for the network side panel (edge-to-edge borders, a dark
@@ -27,10 +19,9 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
  * general card form.
  */
 
-/* The header is padded, but panel content often needs to bleed to the card's
-   full width — DetailTable's rules run edge to edge. `panelClassName` replaces
-   the default padding for those cases rather than fighting it with negative
-   margins. */
+/* `panelClassName` replaces the default panel padding rather than fighting it with
+   negative margins, for panel content that has to bleed to the card's full width.
+   Nothing passes it today. */
 export default function DisclosureCard({
   icon,
   title,

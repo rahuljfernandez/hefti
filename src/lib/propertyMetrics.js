@@ -66,11 +66,17 @@ function parseOwnerMailing(mailing) {
   return { line: head, state: state.toUpperCase(), zip };
 }
 
+/* Realie leaves the date columns non-NULL and writes a stray non-UTF-8 byte instead —
+   40% of realie_last_transfer_date, 38% of realie_ownership_start — so an emptiness
+   check passes it through and the tab renders the raw byte as a date. */
+const HAS_CONTENT = /[A-Za-z0-9]/;
+
 /* Numeric formats go through toNumber so they coerce identically —
    otherwise a source that sends strings renders 'N/A' in one column and a
    formatted value in the next. */
 function formatFieldValue(value, format) {
   if (value === null || value === undefined || value === '') return 'N/A';
+  if (typeof value === 'string' && !HAS_CONTENT.test(value)) return 'N/A';
 
   switch (format) {
     case 'currency': {
@@ -111,35 +117,69 @@ const propertyHighlightsConfig = [
   { label: 'Owner Mailing Address', valueKey: 'owner_mailing_address' },
   { label: 'Owner State', valueKey: 'owner_state' },
   { label: 'Owner Zip Code', valueKey: 'owner_zip_code' },
+  { label: 'Owner Entity Type', valueKey: 'realie_owner_entity_type' },
+  /* Counts parcels held under the Realie titleholder name, not facilities under the
+     CMS owner — the two are the same entity only when the titleholder does not
+     differ. */
+  {
+    label: 'Owner Parcel Count',
+    valueKey: 'realie_owner_parcel_count',
+    format: 'number',
+  },
+  { label: 'Ownership Start', valueKey: 'realie_ownership_start' },
   { label: 'Official Description', valueKey: 'realie_use_desc' },
   { label: 'Use Code', valueKey: 'realie_use_code' },
 ];
 
 const keyFinancialsMetaConfig = [
   { label: 'Most Recent Transfer Date', valueKey: 'realie_last_transfer_date' },
-  { label: 'LTV', valueKey: 'realie_ltv' },
-];
-
-/* `asOfKey` drives each card's "As of …" caption because the figures are dated
-   independently. These fields appear again in the Financial Information
-   disclosure below and must keep the same format there. */
-const keyFinancialStatsConfig = [
   {
     label: 'Transfer Price',
     valueKey: 'realie_last_transfer_price',
-    asOfKey: 'realie_last_transfer_date',
     format: 'currency',
   },
+  { label: 'Transfer Doc Type', valueKey: 'realie_transfer_doc_type' },
+  { label: 'Last Grantee', valueKey: 'realie_last_grantee' },
   {
     label: 'Assessed Value',
     valueKey: 'realie_assessed_value',
+    format: 'currency',
+  },
+  /* A dollar amount owed, not a valuation — it runs 1.6% of market value at the
+     median. "Tax Value" reads as a basis, which is what the column name suggests
+     and what it is not. */
+  {
+    label: 'Annual Property Tax',
+    valueKey: 'realie_tax_value',
+    format: 'currency',
+  },
+  { label: 'Lender Name', valueKey: 'realie_lender_name' },
+];
+
+/* Market value is exactly building + land in every county that reports all three, so
+   these three read as a whole and its parts. Assessed value is deliberately not here:
+   states assess at statutory fractions of market — 6% in SC, 11% in OK, 100% in TX —
+   so it cannot sit beside these without implying a comparison that does not hold.
+
+   All three come off one county assessment and share its year; `asOfKey` stays
+   per-card for the day a figure carries its own date. */
+const keyFinancialStatsConfig = [
+  {
+    label: 'Market Value',
+    valueKey: 'realie_market_value',
     asOfKey: 'realie_assessed_year',
     format: 'currency',
   },
   {
-    label: 'Market Value',
-    valueKey: 'realie_market_value',
-    asOfKey: 'market_value_highlight_year',
+    label: 'Building Value',
+    valueKey: 'realie_building_value',
+    asOfKey: 'realie_assessed_year',
+    format: 'currency',
+  },
+  {
+    label: 'Land Value',
+    valueKey: 'realie_land_value',
+    asOfKey: 'realie_assessed_year',
     format: 'currency',
   },
 ];
@@ -156,77 +196,9 @@ const locationFieldsConfig = [
   { label: 'Longitude', valueKey: 'longitude' },
   { label: 'Parcel Number', valueKey: 'realie_parcel_id' },
   { label: 'Jurisdiction', valueKey: 'jurisdiction' },
-];
-
-/* The left/right split is editorial, not computed. Preserve the configured
-   grouping rather than deriving it from one list; uneven columns are expected. */
-const propertyDetailSectionsConfig = [
-  {
-    title: 'Financial Information',
-    left: [
-      { label: 'Tax Value', valueKey: 'realie_tax_value', format: 'currency' },
-      {
-        label: 'Market Value',
-        valueKey: 'realie_market_value',
-        format: 'currency',
-      },
-      {
-        label: 'Assessed Value',
-        valueKey: 'realie_assessed_value',
-        format: 'currency',
-      },
-      {
-        label: 'Current LTV Estimates Combined',
-        valueKey: 'realie_ltv',
-        format: 'percent',
-      },
-    ],
-    /* One county assessment record backs all three figures — tax year and
-       assessed year match on every parcel, and Realie ships no separate market
-       value year. */
-    right: [
-      { label: 'Tax Year', valueKey: 'realie_tax_year' },
-      { label: 'Market Value Year', valueKey: 'realie_assessed_year' },
-      { label: 'Assessed Year', valueKey: 'realie_assessed_year' },
-    ],
-  },
-  {
-    title: 'Building Information',
-    left: [
-      {
-        label: 'Building Area',
-        valueKey: 'realie_building_area',
-        format: 'number',
-      },
-      {
-        label: 'Total Bathrooms',
-        valueKey: 'total_bathrooms',
-        format: 'number',
-      },
-      { label: 'Garage', valueKey: 'garage', format: 'boolean' },
-    ],
-    right: [
-      { label: 'Total Bedrooms', valueKey: 'total_bedrooms', format: 'number' },
-      { label: 'Pool', valueKey: 'pool', format: 'boolean' },
-      { label: 'Residential', valueKey: 'residential', format: 'boolean' },
-    ],
-  },
-  {
-    title: 'Land Information',
-    left: [
-      { label: 'Land Area', valueKey: 'land_area', format: 'number' },
-      { label: 'Zoning Code', valueKey: 'zoning_code' },
-      { label: 'Neighborhood', valueKey: 'neighborhood' },
-      { label: 'Block Number', valueKey: 'block_number' },
-      { label: 'Depth', valueKey: 'depth', format: 'number' },
-    ],
-    right: [
-      { label: 'Acres', valueKey: 'realie_acres', format: 'number' },
-      { label: 'Subdivision', valueKey: 'subdivision' },
-      { label: 'Site Census Tract', valueKey: 'site_census_tract' },
-      { label: 'Lot Number', valueKey: 'lot_number' },
-    ],
-  },
+  { label: 'Year Built', valueKey: 'realie_year_built' },
+  { label: 'Acres', valueKey: 'realie_acres', format: 'number' },
+  { label: 'Building Area', valueKey: 'realie_building_area', format: 'number' },
 ];
 
 /* Data builders read the facility record, where Realie parcel fields are
@@ -335,20 +307,3 @@ export function buildRelatedPartyFlag(source) {
   };
 }
 
-/* Always empty today: a facility carries one parcel — a single set of realie_* columns
-   and at most one titleholder link — so there is never a second property to switch to.
-   `realie_owner_parcel_count` counts the owner's parcels but ships no address or
-   description for them, which is what the banner's rows render. Unblocking this is a
-   backend change: realie_facility_link already holds one row per parcel and neither
-   facilities route includes it. */
-export function buildAssociatedProperties() {
-  return [];
-}
-
-export function buildPropertyDetailSections(source) {
-  return propertyDetailSectionsConfig.map(({ title, left, right }) => ({
-    title,
-    left: buildFields(left, source),
-    right: buildFields(right, source),
-  }));
-}
