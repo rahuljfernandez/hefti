@@ -346,8 +346,11 @@ const TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
 /* Realie's flag asks whether the titleholder's name *differs* from the CMS owner's, so
    FALSE is the related-party case: the operator holds its own title. Anything other than
    an explicit FALSE — including the empty value on the ~29% of facilities with no parcel
-   — leaves the banner off. */
-function isRelatedParty(source) {
+   — leaves the banner off.
+
+   Exported so the owner portfolio counts the same parcels this banner flags; one rule,
+   two contexts. */
+export function isRelatedParty(source) {
   const value = source?.realie_titleholder_differs;
   if (typeof value === 'boolean') return value === false;
   if (typeof value !== 'string') return false;

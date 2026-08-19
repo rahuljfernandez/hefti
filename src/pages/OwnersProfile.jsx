@@ -247,7 +247,12 @@ export default function OwnersProfile() {
                     );
 
                   case 'Property Details':
-                    return <OwnerPropertyDetailsTab />;
+                    return (
+                      <OwnerPropertyDetailsTab
+                        items={owner}
+                        year={selectedYear}
+                      />
+                    );
 
                   default:
                     return (

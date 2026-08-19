@@ -5,19 +5,20 @@ import StatHighlightsGrid from '../molecule/statHighlightsGrid';
 import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
 
 /**
- * Portfolio Highlights — the first section of the owner Property Details tab.
+ * Real Estate Highlights — the first section of the owner Property Details tab.
  *
- * Thin wrapper: builds the owner's figures and hands them to the shared
- * StatHighlightsGrid. `source` is optional; the builder falls back to mock data
- * until the property API lands.
+ * Thin wrapper: formats the owner's real estate summary into cards and hands them
+ * to the shared StatHighlightsGrid. The tab derives `summary` from the owner's
+ * linked facilities and renders an empty state when there is none, so this
+ * component can assume it has one.
  */
-export default function PortfolioHighlights({ source }) {
-  const { primary, supporting } = buildPortfolioHighlights(source);
+export default function PortfolioHighlights({ summary }) {
+  const { primary, supporting } = buildPortfolioHighlights(summary);
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Portfolio Highlights
+        Real Estate Highlights
       </Heading>
       <StatHighlightsGrid primary={primary} supporting={supporting} />
     </section>
@@ -25,5 +26,5 @@ export default function PortfolioHighlights({ source }) {
 }
 
 PortfolioHighlights.propTypes = {
-  source: PropTypes.object,
+  summary: PropTypes.object.isRequired,
 };
