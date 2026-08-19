@@ -1,4 +1,4 @@
-import { formatUSD } from './stringFormatters';
+import { formatDateOnly, formatUSD } from './stringFormatters';
 import { toTitleCase } from './toTitleCase';
 
 /**
@@ -87,6 +87,10 @@ function formatFieldValue(value, format) {
       const amount = toNumber(value);
       return amount === null ? String(value) : amount.toLocaleString('en-US');
     }
+    case 'date':
+      return formatDateOnly(value);
+    case 'title':
+      return typeof value === 'string' ? toTitleCase(value) : value;
     default:
       return value;
   }
@@ -100,11 +104,19 @@ function buildFields(config, source) {
 }
 
 const propertyHighlightsConfig = [
-  { label: 'Owner Name', valueKey: 'realie_owner_name' },
-  { label: 'Owner Mailing Address', valueKey: 'owner_mailing_address' },
+  { label: 'Owner Name', valueKey: 'realie_owner_name', format: 'title' },
+  {
+    label: 'Owner Mailing Address',
+    valueKey: 'owner_mailing_address',
+    format: 'title',
+  },
   { label: 'Owner State', valueKey: 'owner_state' },
   { label: 'Owner Zip Code', valueKey: 'owner_zip_code' },
-  { label: 'Owner Entity Type', valueKey: 'realie_owner_entity_type' },
+  {
+    label: 'Owner Entity Type',
+    valueKey: 'realie_owner_entity_type',
+    format: 'title',
+  },
   /* Counts parcels held under the Realie titleholder name, not facilities under the
      CMS owner — the two are the same entity only when the titleholder does not
      differ. */
@@ -113,26 +125,50 @@ const propertyHighlightsConfig = [
     valueKey: 'realie_owner_parcel_count',
     format: 'number',
   },
-  { label: 'Ownership Start', valueKey: 'realie_ownership_start' },
-  { label: 'Official Description', valueKey: 'realie_use_desc' },
+  {
+    label: 'Ownership Start',
+    valueKey: 'realie_ownership_start',
+    format: 'date',
+  },
+  {
+    label: 'Official Description',
+    valueKey: 'realie_use_desc',
+    format: 'title',
+  },
   { label: 'Use Code', valueKey: 'realie_use_code' },
 ];
 
 const keyFinancialsMetaConfig = [
-  { label: 'Most Recent Transfer Date', valueKey: 'realie_last_transfer_date' },
+  {
+    label: 'Most Recent Transfer Date',
+    valueKey: 'realie_last_transfer_date',
+    format: 'date',
+  },
   {
     label: 'Transfer Price',
     valueKey: 'realie_last_transfer_price',
     format: 'currency',
   },
-  { label: 'Transfer Doc Type', valueKey: 'realie_transfer_doc_type' },
-  { label: 'Last Grantee', valueKey: 'realie_last_grantee' },
+  {
+    label: 'Transfer Doc Type',
+    valueKey: 'realie_transfer_doc_type',
+    format: 'title',
+  },
+  {
+    label: 'Last Grantee',
+    valueKey: 'realie_last_grantee',
+    format: 'title',
+  },
   {
     label: 'Prior Transfers',
     valueKey: 'realie_n_prior_transfers',
     format: 'number',
   },
-  { label: 'Lender Name', valueKey: 'realie_lender_name' },
+  {
+    label: 'Lender Name',
+    valueKey: 'realie_lender_name',
+    format: 'title',
+  },
   {
     label: 'Lien Balance',
     valueKey: 'realie_lien_balance',
@@ -159,6 +195,7 @@ const keyFinancialsMetaConfig = [
     valueKey: 'realie_tax_value',
     format: 'currency',
   },
+  { label: 'Property Tax Year', valueKey: 'realie_tax_year' },
 ];
 
 /* Market value is exactly building + land in every county that reports all three, so
@@ -189,13 +226,11 @@ const keyFinancialStatsConfig = [
   },
 ];
 
-/* Values stay in canonical case; the tab's caps come from FieldGrid's
-   valueClassName. See fieldGrid.jsx. */
 const locationFieldsConfig = [
-  { label: 'Address', valueKey: 'address' },
+  { label: 'Address', valueKey: 'address', format: 'title' },
   { label: 'State', valueKey: 'state' },
-  { label: 'County', valueKey: 'realie_county' },
-  { label: 'City', valueKey: 'city' },
+  { label: 'County', valueKey: 'realie_county', format: 'title' },
+  { label: 'City', valueKey: 'city', format: 'title' },
   { label: 'Zip Code', valueKey: 'zip_code' },
   { label: 'Parcel Number', valueKey: 'realie_parcel_id' },
   { label: 'Year Built', valueKey: 'realie_year_built' },

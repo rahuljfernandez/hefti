@@ -107,12 +107,12 @@ export default function PropertyLocationMap({ locationFields, coordinates }) {
             label={coordinates.label}
           />
           <FlushCard position="bottom">
-            <FieldGrid fields={locationFields} valueClassName="uppercase" />
+            <FieldGrid fields={locationFields} />
           </FlushCard>
         </>
       ) : (
         <LayoutCard>
-          <FieldGrid fields={locationFields} valueClassName="uppercase" />
+          <FieldGrid fields={locationFields} />
         </LayoutCard>
       )}
     </section>

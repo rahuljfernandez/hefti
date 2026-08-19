@@ -29,7 +29,7 @@ export default function PropertyHighlights({
         {/* TEMPORARY — revisit once global card padding is settled. This div
             should disappear, not grow more breakpoints. */}
         <div className="py-5 sm:py-4">
-          <FieldGrid fields={highlights} valueClassName="uppercase" />
+          <FieldGrid fields={highlights} />
 
           {/* Key Financials shares the card because the transfer figures only
               read correctly next to the owner they belong to. */}
@@ -38,7 +38,7 @@ export default function PropertyHighlights({
               Key Financials
             </Heading>
 
-            <FieldGrid fields={keyFinancialsMeta} valueClassName="uppercase" />
+            <FieldGrid fields={keyFinancialsMeta} />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {keyFinancialStats.map(({ label, value, caption }) => (

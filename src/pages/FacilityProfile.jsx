@@ -1,4 +1,9 @@
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -82,14 +87,32 @@ const AVAILABLE_YEARS = [
 export default function FacilityProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+  const requestedYear = Number(searchParams.get('year'));
+  const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
+    ? requestedYear
+    : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
+
+  const handleYearChange = (year) => {
+    const nextYear = Number(year);
+    if (!AVAILABLE_YEARS.includes(nextYear)) return;
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(nextYear));
+        return next;
+      },
+      { state },
+    );
+  };
 
   useEffect(() => {
     // Reload facility details whenever the URL slug or selected year changes.
@@ -218,7 +241,7 @@ export default function FacilityProfile() {
               subjectType="facility"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
