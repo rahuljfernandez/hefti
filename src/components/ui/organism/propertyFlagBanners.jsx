@@ -7,14 +7,11 @@ import { RelatedPartyMatch } from '../molecule/listContainerContent';
 /**
  * The conditional flag banner above the Property Details tab's sections.
  *
- * Renders null unless the facility is flagged, so the usual facility shows
- * nothing. Reuses DisclosureCard — the same collapsed-card shell used elsewhere
- * on the tab — with the icon and subtitle slots filled in.
+ * The parent renders it only for flagged facilities. DisclosureCard supplies
+ * the collapsed card shell, icon slot, and subtitle slot.
  */
 
 export function RelatedPartyBanner({ match }) {
-  if (!match) return null;
-
   return (
     <DisclosureCard
       icon={<ExclamationTriangleIcon className="size-5 text-amber-500" />}
@@ -27,5 +24,5 @@ export function RelatedPartyBanner({ match }) {
 }
 
 RelatedPartyBanner.propTypes = {
-  match: PropTypes.object,
+  match: PropTypes.object.isRequired,
 };

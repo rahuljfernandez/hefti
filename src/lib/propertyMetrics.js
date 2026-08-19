@@ -87,19 +87,6 @@ function formatFieldValue(value, format) {
       const amount = toNumber(value);
       return amount === null ? String(value) : amount.toLocaleString('en-US');
     }
-    case 'percent': {
-      const amount = toNumber(value);
-      return amount === null ? String(value) : `${amount.toFixed(1)}%`;
-    }
-    /* Realie sends these as the strings "TRUE"/"FALSE", and every non-empty
-       string is truthy. */
-    case 'boolean': {
-      const truthy =
-        typeof value === 'string'
-          ? /^(true|yes|1)$/i.test(value.trim())
-          : Boolean(value);
-      return truthy ? 'True' : 'False';
-    }
     default:
       return value;
   }
@@ -141,6 +128,25 @@ const keyFinancialsMetaConfig = [
   { label: 'Transfer Doc Type', valueKey: 'realie_transfer_doc_type' },
   { label: 'Last Grantee', valueKey: 'realie_last_grantee' },
   {
+    label: 'Prior Transfers',
+    valueKey: 'realie_n_prior_transfers',
+    format: 'number',
+  },
+  { label: 'Lender Name', valueKey: 'realie_lender_name' },
+  {
+    label: 'Lien Balance',
+    valueKey: 'realie_lien_balance',
+    format: 'currency',
+  },
+  { label: 'Lien Count', valueKey: 'realie_lien_count', format: 'number' },
+  {
+    label: 'Estimated Equity',
+    valueKey: 'realie_equity_est',
+    format: 'currency',
+  },
+  /* Last so they sit against the stat cards below, which carry the assessment year;
+     between the transfer and lender rows they read as dated by the transfer. */
+  {
     label: 'Assessed Value',
     valueKey: 'realie_assessed_value',
     format: 'currency',
@@ -153,7 +159,6 @@ const keyFinancialsMetaConfig = [
     valueKey: 'realie_tax_value',
     format: 'currency',
   },
-  { label: 'Lender Name', valueKey: 'realie_lender_name' },
 ];
 
 /* Market value is exactly building + land in every county that reports all three, so
@@ -192,13 +197,16 @@ const locationFieldsConfig = [
   { label: 'County', valueKey: 'realie_county' },
   { label: 'City', valueKey: 'city' },
   { label: 'Zip Code', valueKey: 'zip_code' },
-  { label: 'Latitude', valueKey: 'latitude' },
-  { label: 'Longitude', valueKey: 'longitude' },
   { label: 'Parcel Number', valueKey: 'realie_parcel_id' },
-  { label: 'Jurisdiction', valueKey: 'jurisdiction' },
   { label: 'Year Built', valueKey: 'realie_year_built' },
   { label: 'Acres', valueKey: 'realie_acres', format: 'number' },
-  { label: 'Building Area', valueKey: 'realie_building_area', format: 'number' },
+  {
+    label: 'Building Area',
+    valueKey: 'realie_building_area',
+    format: 'number',
+  },
+  { label: 'Latitude', valueKey: 'latitude' },
+  { label: 'Longitude', valueKey: 'longitude' },
 ];
 
 /* Data builders read the facility record, where Realie parcel fields are
@@ -306,4 +314,3 @@ export function buildRelatedPartyFlag(source) {
     cms_ownership_role: titleholder?.cms_ownership_role,
   };
 }
-

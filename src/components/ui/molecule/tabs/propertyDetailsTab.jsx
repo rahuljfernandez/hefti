@@ -19,21 +19,10 @@ import {
  * - Property Highlights (owner fields + Key Financials stat cards)
  * - Location Information (property map + address fields)
  *
- * `status` mirrors the other tabs so the owner and state contexts can slot in
- * without reshaping the call site. Only 'facility' renders content today.
- *
  * `items` is the whole facility record: the Realie parcel columns are flattened
  * onto it, so the builders take the record rather than a property object.
  */
-export default function PropertyDetailsTab({ status, items }) {
-  if (status !== 'facility') {
-    return (
-      <p className="text-paragraph-sm text-content-secondary">
-        This section is under development.
-      </p>
-    );
-  }
-
+export default function PropertyDetailsTab({ items }) {
   const relatedParty = buildRelatedPartyFlag(items);
   const highlights = buildPropertyHighlights(items);
   const keyFinancialsMeta = buildKeyFinancialsMeta(items);
@@ -63,6 +52,5 @@ export default function PropertyDetailsTab({ status, items }) {
 }
 
 PropertyDetailsTab.propTypes = {
-  status: PropTypes.string,
   items: PropTypes.object,
 };

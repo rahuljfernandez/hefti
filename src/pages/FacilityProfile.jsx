@@ -73,7 +73,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// TODO: replace with years returned from the API once the endpoint supports year filtering.
+// TODO: replace this hard-coded list when the API exposes available data years.
 const AVAILABLE_YEARS = [
   2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014,
   2013, 2012, 2011, 2010,
@@ -250,8 +250,6 @@ export default function FacilityProfile() {
                     return (
                       <ProviderHighlights items={facility} status="facility" />
                     );
-                  //As of 3/16/26 we are holding off on deficiencies
-                  //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':
                     return (
                       <DeficienciesTab
@@ -283,12 +281,7 @@ export default function FacilityProfile() {
                     );
 
                   case 'Property Details':
-                    return (
-                      <PropertyDetailsTab
-                        items={facility}
-                        status={'facility'}
-                      />
-                    );
+                    return <PropertyDetailsTab items={facility} />;
 
                   default:
                     return (

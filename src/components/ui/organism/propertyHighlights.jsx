@@ -8,8 +8,8 @@ import { Heading } from '../atom/heading';
 /**
  * Property Highlights — the first section of the Property Details tab.
  *
- * Two blocks inside one card: the owner/parcel fields, then Key Financials
- * (transfer date and LTV as fields, the three dated figures as stat cards).
+ * Two blocks inside one card: owner/parcel fields followed by transfer,
+ * assessment, tax, and lending metadata plus three dated valuation cards.
  *
  * Takes display-ready rows, not a record — the tab runs the builders so every
  * section on it reads one source. See lib/propertyMetrics.js.

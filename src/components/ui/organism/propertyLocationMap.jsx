@@ -28,9 +28,8 @@ import { Heading } from '../atom/heading';
  */
 
 /* Leaflet's default marker resolves icons from a relative path Vite rewrites,
-   leaving markers invisible; building the icon from imported asset URLs is the
-   standard fix. First Marker in the codebase — move this to a shared module if
-   a second map needs it. */
+   leaving markers invisible; building the icon from imported asset URLs keeps
+   the marker assets in Vite's dependency graph. */
 const propertyMarkerIcon = L.icon({
   iconUrl: markerIconUrl,
   iconRetinaUrl: markerIconRetinaUrl,

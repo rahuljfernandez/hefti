@@ -105,36 +105,6 @@ export function OwnershipAndStakeholders({ item }) {
         </>
       )}
     </div>
-    // <>
-    //   {/* <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
-    //     {/* Col 1 - Row 1 */}
-    //     <div className="text-label-xs order-1 sm:order-none">
-    //       {item.cms_ownership_type?.toUpperCase()}
-    //     </div>
-
-    //     {/* Col 2 - Row 1 */}
-    //     <div className="text-label-xs order-3 sm:order-none">
-    //       OWNERSHIP PERCENTAGE
-    //     </div>
-
-    //     {/* Col 3 - spans both rows */}
-    //     <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
-    //       <Badge className="max-w-44" color={badgeColor}>
-    //         {item.cms_ownership_role}
-    //       </Badge>
-    //     </div>
-
-    //     {/* Col 1 - Row 2 */}
-    //     <div className="text-paragraph-base order-2 sm:order-none">
-    //       {item.ownership_entity?.cms_ownership_name}
-    //     </div>
-
-    //     {/* Col 2 - Row 2 */}
-    //     <div className="text-paragraph-base order-4 sm:order-none">
-    //       {formatOwnershipPercentage(item.cms_ownership_percentage)}
-    //     </div>
-    //   </div> */}
-    // </>
   );
 }
 
@@ -444,12 +414,6 @@ export function OwnerProperty({ item }) {
 OwnerProperty.propTypes = {
   item: PropTypes.object.isRequired,
 };
-
-/**
- *TODO:zip code needs to be added to dataset to match design
- * Need to get data from owner table
- *  link needs to be working
- */
 
 export function BrowseNursingHomes({ item, linkState }) {
   // Add error handling for missing or malformed data
