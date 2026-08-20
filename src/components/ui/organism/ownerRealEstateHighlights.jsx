@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Heading } from '../atom/heading';
 import StatHighlightsGrid from '../molecule/statHighlightsGrid';
-import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
+import { buildOwnerRealEstateHighlights } from '../../../lib/ownerPropertyMetrics';
 
 /**
  * Real Estate Highlights — the first section of the owner Real Estate tab.
@@ -13,7 +13,7 @@ import { buildPortfolioHighlights } from '../../../lib/ownerPropertyMetrics';
  * component can assume it has one.
  */
 export default function OwnerRealEstateHighlights({ summary }) {
-  const { primary, supporting } = buildPortfolioHighlights(summary);
+  const { primary, supporting } = buildOwnerRealEstateHighlights(summary);
 
   return (
     <section>

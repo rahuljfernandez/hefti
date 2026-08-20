@@ -3,11 +3,11 @@ import { buildFootprint } from './footprintMetrics';
 import { hasPropertyData, isRelatedParty } from './propertyMetrics';
 
 /**
- * Owner-context property metrics: the Real Estate tab on the owner profile.
+ * Owner-context real estate metrics for the Real Estate tab.
  *
  * Deliberately separate from propertyMetrics.js. That file describes ONE
- * property (the facility context); an owner holds many, so this context is
- * list-shaped — a portfolio summary plus a list of property rows — and sharing
+ * parcel (the facility context); an owner is linked to many, so this context is
+ * list-shaped — a portfolio summary plus a list of real estate rows — and sharing
  * a module would only blur two different shapes together. The two rules the
  * contexts must agree on, "did this facility match a parcel" and "is this a
  * related party", are imported rather than restated.
@@ -120,7 +120,7 @@ export function buildPortfolioSummary(properties) {
 
    Related party is last rather than first: the shipped flag reads 0% on most
    owners, so leading with it gives the loudest position to the emptiest figure. */
-export function buildPortfolioHighlights(summary) {
+export function buildOwnerRealEstateHighlights(summary) {
   const {
     related_party_percentage,
     related_party_count,
@@ -189,7 +189,7 @@ export function buildPortfolioHighlights(summary) {
   return { primary, supporting };
 }
 
-/* Map-ready footprint for the owner's properties — one marker per property with
+/* Map-ready footprint for the owner's holdings — one marker per holding with
    coordinates, plus the box the map fits on load. The lat/lng shaping is shared
    with the state context in footprintMetrics.js. */
 export function buildOwnerFootprint(properties) {

@@ -2,7 +2,7 @@ import { formatDateOnly, formatUSD } from './stringFormatters';
 import { toTitleCase } from './toTitleCase';
 
 /**
- * Property metrics config and builders for the Real Estate tab.
+ * Facility real estate config and builders for the Real Estate tab.
  *
  * Config arrays declare label, source key, and format; a shared helper turns
  * any config + source into display-ready rows; builders name which config feeds
@@ -116,7 +116,7 @@ function buildFields(config, source) {
   }));
 }
 
-const propertyHighlightsConfig = [
+const facilityRealEstateHighlightsConfig = [
   { label: 'Owner Name', valueKey: 'realie_owner_name', format: 'title' },
   {
     label: 'Owner Mailing Address',
@@ -267,10 +267,10 @@ const locationFieldsConfig = [
    Unlike buildLocationFields, these deliberately do not fall back to the
    facility's own address columns: the owner mails elsewhere on ~80% of parcels,
    so a fallback would present the facility as the owner's address. */
-export function buildPropertyHighlights(source) {
+export function buildFacilityRealEstateHighlights(source) {
   const { line, state, zip } = parseOwnerMailing(source?.realie_owner_mailing);
 
-  return buildFields(propertyHighlightsConfig, {
+  return buildFields(facilityRealEstateHighlightsConfig, {
     ...source,
     owner_mailing_address: line,
     owner_state: state,

@@ -1,5 +1,5 @@
 /**
- * Shared footprint geometry: turns property/facility records into map markers
+ * Shared footprint geometry: turns real estate/facility records into map markers
  * plus the bounding box the map fits on load. Pure lat/lng shaping with no
  * owner/state knowledge — each context module wraps this with its own mock
  * default, and the consuming RealEstateFootprint organism is likewise context-free.

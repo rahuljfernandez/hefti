@@ -346,9 +346,9 @@ RelatedFacilities.propTypes = {
 };
 
 /**
- * Owner property card used on the owner Real Estate tab.
+ * Owner real estate holding card used on the owner Real Estate tab.
  *
- * One property as a single interactive card: name, address, market value, and a
+ * One holding as a single interactive card: name, address, market value, and a
  * conditional related-party flag. One outer link, like RelatedFacilities, so
  * keyboard users tab through the list one card at a time.
  */

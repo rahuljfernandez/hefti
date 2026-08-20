@@ -6,7 +6,7 @@ import { RelatedPartyBanner } from '../../organism/realEstateFlagBanners';
 import { NoDataBanner } from '../../atom/errorBanner';
 import {
   buildRelatedPartyFlag,
-  buildPropertyHighlights,
+  buildFacilityRealEstateHighlights,
   buildKeyFinancialsMeta,
   buildKeyFinancialStats,
   buildLocationCoordinates,
@@ -23,7 +23,7 @@ import {
  * - Facility Location (CMS map + separately labeled facility/parcel fields)
  *
  * `items` is the whole facility record: the Realie parcel columns are flattened
- * onto it, so the builders take the record rather than a property object.
+ * onto it, so the builders take the record rather than a separate parcel record.
  *
  * The tab stays in the tab bar year-round; a banner stands in for the sections
  * before coverage begins and on facilities that matched no parcel.
@@ -54,7 +54,7 @@ export default function FacilityRealEstateTab({ items, year }) {
   }
 
   const relatedParty = buildRelatedPartyFlag(items);
-  const highlights = buildPropertyHighlights(items);
+  const highlights = buildFacilityRealEstateHighlights(items);
   const keyFinancialsMeta = buildKeyFinancialsMeta(items);
   const keyFinancialStats = buildKeyFinancialStats(items);
   const locationFields = buildLocationFields(items);

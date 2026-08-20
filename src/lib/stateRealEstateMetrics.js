@@ -6,7 +6,7 @@ import { hasPropertyData, isRelatedParty } from './propertyMetrics';
  * State-context real estate metrics: the Real Estate tab on the state profile.
  *
  * Kept separate from ownerPropertyMetrics.js and propertyMetrics.js — each
- * describes a different subject (an owner's portfolio, one facility's property,
+ * describes a different subject (an owner's portfolio, one facility's parcel,
  * a state's aggregate real estate). Sharing a module would only blur shapes that
  * happen to look alike today. The two rules the contexts must agree on, "did
  * this facility match a parcel" and "is this a related party", are imported

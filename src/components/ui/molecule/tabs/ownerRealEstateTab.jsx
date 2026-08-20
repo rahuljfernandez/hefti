@@ -15,7 +15,7 @@ import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
  * Real Estate tab content for the owner context.
  *
  * Owner real estate is list-shaped, not a `status` branch through the
- * facility tab's single-property organisms (see lib/ownerPropertyMetrics.js).
+ * facility tab's single-parcel components (see lib/ownerPropertyMetrics.js).
  * Three sections:
  * - Real Estate Highlights (summary stat cards)
  * - Real Estate Footprint (all holdings on a map + related-party toggle)
