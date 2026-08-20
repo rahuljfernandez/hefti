@@ -18,6 +18,7 @@ import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 
 /**
  * State profile page container.
@@ -45,8 +46,6 @@ export default function StatesProfile() {
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
   const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
-  const [chainBurden, setChainBurden] = useState([]);
-  const [individualBurden, setIndividualBurden] = useState([]);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -117,7 +116,7 @@ export default function StatesProfile() {
 
   useEffect(() => {
     /* Full facility list for this state, powering the "Deficiencies by Facility"
-       table and the Real Estate tab. The state-stats endpoint only returns a
+       table and the Real Estate tab. The state-profile endpoint only returns a
        facility count, so fetch the rows separately and rank client-side.
        /state-facilities is uncapped and projects only the columns those two
        consumers read — the generic /facilities route embeds every ownership link
@@ -233,8 +232,8 @@ export default function StatesProfile() {
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
                         facilities={stateFacilities}
-                        chains={chainBurden}
-                        individualOwners={individualBurden}
+                        chains={stateStats.chain_burden ?? []}
+                        individualOwners={stateStats.individual_burden ?? []}
                       />
                     );
 

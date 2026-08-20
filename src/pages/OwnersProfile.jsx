@@ -47,6 +47,7 @@ import {
   ownerFacilitiesExportConfig,
   ownerZipShareCategory,
 } from '../lib/shareability/profile/ownerShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 
 /**
  * Owner profile page container.
@@ -136,30 +137,21 @@ export default function OwnersProfile() {
   }, [slug, selectedYear]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    /* National averages power the highlights comparison badges; the owner
+       endpoint doesn't include them, so fetch them separately. Shared across
+       profile pages, so the same year is only ever fetched once. */
+    let active = true;
     setNationalBenchmarks(null);
 
-    /* National averages power the highlights comparison badges; the owner
-       endpoint doesn't include them, so fetch them separately. */
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/national?year=${selectedYear}`,
-          { signal: controller.signal },
-        );
-        if (!res.ok) throw new Error('Failed to load national averages');
-        const data = await res.json();
-        if (controller.signal.aborted) return;
-        setNationalBenchmarks(data);
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          console.error('Failed to fetch national averages:', err);
-        }
-      }
-    };
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
 
-    fetchNationalBenchmarks();
-    return () => controller.abort();
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   // Use related facilities from API if available

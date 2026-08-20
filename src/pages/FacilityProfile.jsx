@@ -52,6 +52,7 @@ import {
   downloadDiagramPng,
   facilityZipShareCategory,
 } from '../lib/shareability/profile/facilityShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 
 /**
  * FacilityProfile
@@ -153,28 +154,18 @@ export default function FacilityProfile() {
 
   //Fetch national benchmarks to compare faclity to national levels
   useEffect(() => {
-    const controller = new AbortController();
+    let active = true;
     setNationalBenchmarks(null);
 
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/national?year=${selectedYear}`,
-          { signal: controller.signal },
-        );
-        if (!res.ok) throw new Error('Failed to load national averages');
-        const data = await res.json();
-        if (controller.signal.aborted) return;
-        setNationalBenchmarks(data);
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          console.error('Failed to fetch national averages:', err);
-        }
-      }
-    };
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
 
-    fetchNationalBenchmarks();
-    return () => controller.abort();
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   // Relationship records used for stakeholders + ownership diagram sections.
