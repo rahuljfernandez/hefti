@@ -100,21 +100,21 @@ export default function StatesProfile() {
 
   useEffect(() => {
     /* Full facility list for this state, powering the "Deficiencies by Facility"
-       table (and a future page-level export). The state-stats endpoint only
-       returns a facility count, so fetch the rows separately and rank client-
-       side. take=1500 covers every current state (largest ~1200); a state
-       exceeding it would truncate the ranking — a server-side deficiency sort is
-       tracked in HEF-157. Aborted on state change so a slow response can't paint
-       the previous state's facilities. */
+       table and the Real Estate tab. The state-stats endpoint only returns a
+       facility count, so fetch the rows separately and rank client-side.
+       /state-facilities is uncapped and projects only the columns those two
+       consumers read — the generic /facilities route embeds every ownership link
+       with its full entity, which is 137MB for TX. Aborted on state change so a
+       slow response can't paint the previous state's facilities. */
     const controller = new AbortController();
     setStateFacilities([]);
     setStateFacilitiesLoading(true);
     const fetchStateFacilities = async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/facilities?state=${encodeURIComponent(
+          `${API_BASE_URL}/state-facilities/${encodeURIComponent(
             stateParam.toUpperCase(),
-          )}&year=${selectedYear}&take=1500`,
+          )}?year=${selectedYear}`,
           { signal: controller.signal },
         );
         const data = await res.json();

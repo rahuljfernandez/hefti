@@ -33,13 +33,13 @@ export default function StateRealEstateTab({
   stateAbbr,
   year,
 }) {
-  const { properties, basis } = useMemo(
+  const { properties, valuation } = useMemo(
     () => buildStateProperties(facilities),
     [facilities],
   );
   const summary = useMemo(
-    () => buildStateRealEstateSummary(properties, basis),
-    [properties, basis],
+    () => buildStateRealEstateSummary(properties, valuation),
+    [properties, valuation],
   );
   const footprint = useMemo(
     () => buildStateFootprint(properties),

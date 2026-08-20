@@ -41,37 +41,163 @@ function reportedValue(value) {
   return parsed !== null && parsed > 0 ? parsed : null;
 }
 
-/* Counties publish market value or assessed value, and they do it uniformly by
-   state: California reports market on 0 of 937 matched parcels while assessing
-   841; Texas reports both, and where both exist they are the same number (median
-   ratio 1.000). So the basis is chosen once for the whole state — whichever
-   values more parcels, market breaking ties — rather than per parcel. A row-level
-   fallback would add two different bases into one total.
+/* Assessed value is a statutory fraction of market that varies 14x across states
+   — 6% in South Carolina, 100% in Texas — so assessed and market dollars can
+   never be summed together, and a raw assessed total is not comparable to a
+   market one. Every state is therefore brought onto a market basis before its
+   parcels are added up:
 
-   Assessed is safe to sum here in a way it is not on an owner's portfolio: the
-   assessment ratio is a statutory state constant, so it is uniform within a
-   state and varies 14x across them. Same field, opposite verdict, by context. */
-export function resolveValueBasis(facilities) {
-  let market = 0;
-  let assessed = 0;
+     - 35 states publish market on most parcels; it is used directly.
+     - 8 publish both, so the state's own assessed/market ratio is measured from
+       the parcels carrying both and applied to the assessed-only ones. This
+       keeps the coverage that made assessed attractive without adopting its
+       scale — Delaware's assessed total is 13x low, Illinois' 3.5x.
+     - The rest publish assessed only, so the ratio is calibrated against sale
+       prices instead, drifted 2%/yr to the assessment year. Softer than the
+       above: nursing home sale prices often include the operating business, and
+       2% is a stand-in for real appreciation.
 
-  for (const facility of facilities) {
-    if (reportedValue(facility?.realie_market_value) !== null) market += 1;
-    if (reportedValue(facility?.realie_assessed_value) !== null) assessed += 1;
-  }
+   California is the exception and no ratio can fix it. Proposition 13 assesses at
+   acquisition value rather than a fraction of market, so what its number tracks
+   is when each property last changed hands: measured against drifted sale prices
+   its parcels come in at 0.961, and parcels last sold before 2005 carry 56% of
+   the per-square-foot basis of recently sold ones. It stays on assessed and says
+   so. Michigan and Oregon cap assessed growth the same way but publish market,
+   so they are unaffected. */
+const ACQUISITION_BASIS_STATES = new Set(['CA']);
 
-  return assessed > market ? ASSESSED : MARKET;
+/* Why a total is stuck in assessed dollars — Proposition 13 for California, too
+   thin a sample to calibrate anywhere else. The caption has to name the right
+   one; Maine does not have Proposition 13. */
+const ACQUISITION = 'acquisition';
+const UNCALIBRATED = 'uncalibrated';
+
+/* Below this many paired parcels the median ratio is noise, so the state keeps
+   its raw assessed total and is labelled uncalibrated rather than silently
+   scaled by a number derived from four sales (Maine) or ten (Vermont). */
+const MIN_CALIBRATION_SAMPLE = 12;
+
+const ASSESSMENT_DRIFT = 1.02;
+
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-const VALUE_COLUMN = {
-  [MARKET]: 'realie_market_value',
-  [ASSESSED]: 'realie_assessed_value',
-};
+function yearOf(value) {
+  const match = String(value ?? '').match(/(?:19|20)\d{2}/);
+  return match ? Number(match[0]) : null;
+}
 
-export const VALUE_BASIS_LABEL = {
-  [MARKET]: 'market value',
-  [ASSESSED]: 'assessed value',
-};
+/* Assessed as a fraction of the last sale price, carried forward to the year the
+   assessment was struck so the two are quoted in the same era's dollars. */
+function saleRatios(facilities) {
+  const ratios = [];
+
+  for (const facility of facilities) {
+    const assessed = reportedValue(facility?.realie_assessed_value);
+    const price = reportedValue(facility?.realie_last_transfer_price);
+    const soldIn = yearOf(facility?.realie_last_transfer_date);
+    const assessedIn = yearOf(facility?.realie_assessed_year);
+    if (assessed === null || price === null || soldIn === null || assessedIn === null) continue;
+    if (assessedIn < soldIn) continue;
+
+    ratios.push(assessed / (price * ASSESSMENT_DRIFT ** (assessedIn - soldIn)));
+  }
+
+  return ratios;
+}
+
+function marketRatios(facilities) {
+  const ratios = [];
+
+  for (const facility of facilities) {
+    const market = reportedValue(facility?.realie_market_value);
+    const assessed = reportedValue(facility?.realie_assessed_value);
+    if (market !== null && assessed !== null) ratios.push(assessed / market);
+  }
+
+  return ratios;
+}
+
+/* How this state's parcels become comparable dollars. `ratio` converts an
+   assessed figure to a market one; null means no conversion was possible, and
+   `comparable` is false exactly when the total is still in assessed dollars. */
+export function resolveValuation(facilities) {
+  const list = Array.isArray(facilities) ? facilities : [];
+  const state = String(
+    list.find((facility) => facility?.state)?.state ?? '',
+  ).toUpperCase();
+  const marketCount = list.filter(
+    (facility) => reportedValue(facility?.realie_market_value) !== null,
+  ).length;
+  const assessedCount = list.filter(
+    (facility) => reportedValue(facility?.realie_assessed_value) !== null,
+  ).length;
+
+  if (marketCount) {
+    /* Paired parcels are the better calibration; sale prices are the weaker
+       fallback for states that publish market on too few parcels to pair. */
+    const paired = marketRatios(list);
+    const ratios = paired.length >= MIN_CALIBRATION_SAMPLE ? paired : saleRatios(list);
+    const ratio = ratios.length >= MIN_CALIBRATION_SAMPLE ? median(ratios) : null;
+
+    /* Market is the better basis but not at any coverage: South Dakota publishes
+       it on 3 parcels against 29 assessed, so with no ratio to convert the rest
+       a market total would report 5% of the state and call it complete. Falling
+       back reports all 29 in assessed dollars and says they aren't comparable. */
+    if (ratio === null && marketCount < assessedCount) {
+      return { basis: ASSESSED, ratio: null, comparable: false, reason: UNCALIBRATED };
+    }
+
+    return { basis: MARKET, ratio, comparable: true, reason: null };
+  }
+
+  if (ACQUISITION_BASIS_STATES.has(state)) {
+    return { basis: ASSESSED, ratio: null, comparable: false, reason: ACQUISITION };
+  }
+
+  const ratios = saleRatios(list);
+  const ratio = ratios.length >= MIN_CALIBRATION_SAMPLE ? median(ratios) : null;
+  return {
+    basis: ASSESSED,
+    ratio,
+    comparable: ratio !== null,
+    reason: ratio === null ? UNCALIBRATED : null,
+  };
+}
+
+/* Market dollars for one parcel, or null when the county published nothing this
+   state's basis can use. `estimated` marks the ones that went through a ratio. */
+function parcelValue(facility, valuation) {
+  const market = reportedValue(facility?.realie_market_value);
+  const assessed = reportedValue(facility?.realie_assessed_value);
+
+  if (valuation.basis === MARKET) {
+    if (market !== null) return { value: market, estimated: false };
+    if (assessed !== null && valuation.ratio) {
+      return { value: assessed / valuation.ratio, estimated: true };
+    }
+    return { value: null, estimated: false };
+  }
+
+  if (assessed === null) return { value: null, estimated: false };
+  if (valuation.ratio) return { value: assessed / valuation.ratio, estimated: true };
+  return { value: assessed, estimated: false };
+}
+
+/* "Estimated" describes the figure, not the method: a state whose parcels all
+   came through a ratio has an estimated total, while one that converted a
+   handful of stragglers is still reporting market value and says how many were
+   filled in. */
+export function valueBasisLabel(valuation, estimated, valued) {
+  if (!valuation.comparable) return 'assessed value';
+  return estimated > 0 && estimated === valued
+    ? 'estimated market value'
+    : 'market value';
+}
 
 /* Realie writes this literal into realie_owner_name instead of leaving it empty,
    so it would otherwise count as a landlord entity of its own. */
@@ -87,19 +213,13 @@ function titleholderName(facility) {
     : trimmed;
 }
 
-/* The operator the rest of the site shows for a facility. Only the flagged link
-   carries the slug the holdings table links through; a facility either has that
-   link or has no owner attribution at all (758 vs 179 in California, with no
-   partial cases), so there is nothing to recover from display_owner_name. */
+/* The operator the rest of the site shows for a facility. /state-facilities
+   resolves the flagged link server-side; the slug is required because the
+   holdings table links through it, and a facility either has that link or has no
+   owner attribution at all (758 vs 179 in California, with no partial cases). */
 function displayOwner(facility) {
-  const link = (facility?.facility_ownership_links ?? []).find(
-    (candidate) => candidate?.is_display_owner,
-  );
-  const entity = link?.ownership_entity;
-  if (!entity?.slug) return null;
-
-  const name = entity.cms_ownership_name ?? link.cms_ownership_name;
-  return name ? { slug: entity.slug, name } : null;
+  const owner = facility?.owner;
+  return owner?.slug && owner?.name ? owner : null;
 }
 
 /* One row per facility in the state that matched a Realie parcel, valued on the
@@ -108,11 +228,10 @@ function displayOwner(facility) {
 export function buildStateProperties(facilities) {
   const list = Array.isArray(facilities) ? facilities : [];
   const matched = list.filter((facility) => hasPropertyData(facility));
-  const basis = resolveValueBasis(matched);
-  const column = VALUE_COLUMN[basis];
+  const valuation = resolveValuation(matched);
 
   const properties = matched.map((facility) => {
-    const value = reportedValue(facility[column]);
+    const { value, estimated } = parcelValue(facility, valuation);
     const owner = displayOwner(facility);
     return {
       id: String(facility.id),
@@ -127,27 +246,34 @@ export function buildStateProperties(facilities) {
       owner_slug: owner?.slug ?? null,
       related_party: isRelatedParty(facility),
       value,
+      value_estimated: estimated,
       value_display: value === null ? 'Not reported' : formatUSD(value),
     };
   });
 
-  return { properties, basis };
+  return { properties, valuation };
 }
 
 /* State figures over the rows above, so every card counts the same properties
    the map and the table show. Returns null when the state has no matched
    parcels — the tab shows an empty state rather than a row of zeros. */
-export function buildStateRealEstateSummary(properties, basis) {
+export function buildStateRealEstateSummary(properties, valuation) {
   if (!properties?.length) return null;
 
   const valued = properties.filter((property) => property.value !== null);
   const relatedParty = properties.filter((property) => property.related_party);
   const totalValue = valued.reduce((sum, property) => sum + property.value, 0);
 
+  const estimated = valued.filter((property) => property.value_estimated).length;
+
   return {
-    value_basis: basis,
+    value_basis: valuation.basis,
+    value_label: valueBasisLabel(valuation, estimated, valued.length),
+    comparable: valuation.comparable,
+    uncomparable_reason: valuation.reason ?? null,
     total_properties: properties.length,
     valued_properties: valued.length,
+    estimated_properties: estimated,
     total_real_estate_value: totalValue,
     average_property_value: valued.length ? totalValue / valued.length : 0,
     related_party_count: relatedParty.length,
@@ -175,9 +301,12 @@ export function buildStateRealEstateSummary(properties, basis) {
    the loudest position to the emptiest figure. */
 export function buildRealEstateHighlights(summary) {
   const {
-    value_basis,
+    value_label,
+    comparable,
+    uncomparable_reason,
     total_properties,
     valued_properties,
+    estimated_properties,
     total_real_estate_value,
     average_property_value,
     related_party_count,
@@ -186,7 +315,21 @@ export function buildRealEstateHighlights(summary) {
     property_owners,
   } = summary;
 
-  const basisLabel = VALUE_BASIS_LABEL[value_basis] ?? 'value';
+  /* An uncomparable total is a number a reader will compare unless told not to,
+     so the caption says why rather than leaving "assessed" to carry it. */
+  const UNCOMPARABLE_NOTE = {
+    acquisition:
+      ' · assessed at purchase price under Proposition 13, so it is not comparable to other states',
+    uncalibrated:
+      ' · too few published market values or recorded sales to estimate one, so it is not comparable to other states',
+  };
+
+  const basisNote = comparable ? '' : (UNCOMPARABLE_NOTE[uncomparable_reason] ?? '');
+
+  const estimatedNote =
+    comparable && estimated_properties > 0 && estimated_properties < valued_properties
+      ? `, ${estimated_properties} estimated from assessed value`
+      : '';
 
   /* The amber treatment is a warning, so it only appears when there is something
      to warn about. */
@@ -197,13 +340,13 @@ export function buildRealEstateHighlights(summary) {
       id: 'total-real-estate-value',
       label: 'Total Real Estate Value',
       value: formatUSD(total_real_estate_value),
-      caption: `Total ${basisLabel} of ${valued_properties} of ${total_properties} properties`,
+      caption: `Total ${value_label} of ${valued_properties} of ${total_properties} properties${estimatedNote}${basisNote}`,
     },
     {
       id: 'average-property-value',
       label: 'Average Real Estate Value',
       value: formatUSD(average_property_value),
-      caption: `Average ${basisLabel} of the ${valued_properties} valued`,
+      caption: `Average ${value_label} of the ${valued_properties} valued`,
     },
   ];
 
