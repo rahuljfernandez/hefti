@@ -60,42 +60,59 @@ export default function StatesProfile() {
   };
 
   useEffect(() => {
+    /* Every section that renders text: the header, State Highlights, and the two
+       burden tables in Deficiencies. All keyed on (state, year) and all small, so
+       one request rather than three. The facility list stays separate below — it
+       is 7x the size of this, and merging would make the header wait on it. */
+    const controller = new AbortController();
     setLoading(true);
     setStateStats(null);
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/state-stats/${encodeURIComponent(stateParam)}?year=${selectedYear}`)
+    fetch(
+      `${API_BASE_URL}/state-profile/${encodeURIComponent(
+        stateParam,
+      )}?year=${selectedYear}&take=500&minFacilities=2`,
+      { signal: controller.signal },
+    )
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         if (!data) {
           setNotFound(true);
           return;
         }
         setStateStats(data);
       })
-      .catch(() => setError('Failed to load state data.'))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError('Failed to load state data.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [stateParam, selectedYear]);
 
   useEffect(() => {
     /* National averages power the clinical-quality comparison badges; the
-       state-stats endpoint doesn't include them, so fetch them separately. */
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
-        const data = await res.json();
-        setNationalBenchmarks(data);
-      } catch (err) {
-        console.error('Failed to fetch national averages:', err);
-      }
-    };
+       state-profile endpoint covers this state only, so fetch them separately.
+       Shared across profile pages, so the same year is only ever fetched once. */
+    let active = true;
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
 
-    fetchNationalBenchmarks();
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   useEffect(() => {
@@ -131,41 +148,6 @@ export default function StatesProfile() {
     fetchStateFacilities();
     return () => controller.abort();
   }, [stateParam, selectedYear]);
-
-  useEffect(() => {
-    /* Chains and individual owners operating in this state, each ranked by
-       average deficiency burden. Server-ranked and capped; chains group by
-       chain_name (so holding-company shells collapse), individuals by owner. */
-    const controller = new AbortController();
-    setChainBurden([]);
-    setIndividualBurden([]);
-    const code = encodeURIComponent(stateParam.toUpperCase());
-    const loadBurden = async (path, set, label) => {
-      try {
-        // Fetch the full qualifying set (small per state) so the tables can
-        // expand in place instead of linking out. minFacilities=2 includes
-        // smaller two-facility operators.
-        const res = await fetch(
-          `${API_BASE_URL}/${path}/${code}?take=500&minFacilities=2`,
-          { signal: controller.signal },
-        );
-        const data = await res.json();
-        set(data?.data ?? []);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error(`Failed to fetch ${label}:`, err);
-        }
-      }
-    };
-
-    loadBurden('state-chain-burden', setChainBurden, 'state chain burden');
-    loadBurden(
-      'state-individual-burden',
-      setIndividualBurden,
-      'state individual burden',
-    );
-    return () => controller.abort();
-  }, [stateParam]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
