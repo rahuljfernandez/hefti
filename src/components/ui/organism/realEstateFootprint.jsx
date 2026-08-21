@@ -13,10 +13,10 @@ import { Heading } from '../atom/heading';
 import { Switch } from '../atom/switch';
 
 /**
- * Property Footprint — the map section shared by the owner Property Details tab
+ * Real Estate Footprint — the map section shared by the owner Real Estate tab
  * and the state Real Estate tab.
  *
- * Every property with coordinates plotted on one map, over a flush control bar
+ * Every real estate holding with coordinates plotted on one map, over a control bar
  * whose toggle repaints the related-party markers amber without hiding the rest.
  *
  * Purely presentational: `data` (`{ markers, bounds, relatedPartyCount,
@@ -43,7 +43,7 @@ function dotIcon(colorClass) {
 const NEUTRAL_ICON = dotIcon('bg-content-secondary');
 const RELATED_PARTY_ICON = dotIcon('bg-amber-500');
 
-/* Fallback when no property has coordinates — a continental-US view rather than
+/* Fallback when no holding has coordinates — a continental-US view rather than
    an empty frame. */
 const US_CENTER = [39.5, -98.35];
 const US_ZOOM = 4;
@@ -113,14 +113,14 @@ FootprintMapPanel.propTypes = {
   label: PropTypes.string,
 };
 
-export default function PropertyFootprint({ data, mapLabel }) {
+export default function RealEstateFootprint({ data, mapLabel }) {
   const { markers, bounds, relatedPartyCount, totalCount } = data;
   const [highlight, setHighlight] = useState(false);
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Property Footprint
+        Real Estate Footprint
       </Heading>
 
       <FootprintMapPanel
@@ -151,7 +151,7 @@ export default function PropertyFootprint({ data, mapLabel }) {
   );
 }
 
-PropertyFootprint.propTypes = {
+RealEstateFootprint.propTypes = {
   data: PropTypes.shape({
     markers: PropTypes.array.isRequired,
     bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),

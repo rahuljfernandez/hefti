@@ -4,13 +4,16 @@ import { Link } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
 import DataTableCard from './dataTableCard';
-import { buildLargestHoldings } from '../../../lib/stateRealEstateMetrics';
 
 /**
- * Largest Related-Party Holdings — the third section of the state Real Estate
- * tab. Thin wrapper: builds the ranked holdings and hands them to the shared
- * DataTableCard. `source` is optional; the builder falls back to mock data until
- * the state real estate API lands.
+ * Largest Owners by Real Estate Value — the third section of the state Real
+ * Estate tab. Thin wrapper: hands the ranked holdings the tab built to the
+ * shared DataTableCard.
+ *
+ * Ranked by value rather than by related-party count, which the section was
+ * originally specced for; see buildLargestHoldings for why the flag is too
+ * sparse to rank on. The related-party column stays, so the flag is still
+ * visible wherever it fires.
  *
  * `stateAbbr` targets the "View all owners" link at the owners browse page
  * filtered to this state.
@@ -71,18 +74,18 @@ const holdingsColumns = [
   },
 ];
 
-export default function LargestRelatedPartyHoldings({ source, stateAbbr }) {
-  const rows = buildLargestHoldings(source);
+export default function LargestRelatedPartyHoldings({ rows, stateAbbr }) {
+  if (!rows?.length) return null;
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Largest Related-Party Holdings
+        Largest Owners by Real Estate Value
       </Heading>
       <DataTableCard
         columns={holdingsColumns}
         rows={rows}
-        caption="Largest Related-Party Holdings"
+        caption="Largest Owners by Real Estate Value"
       />
       {stateAbbr && (
         <div className="pt-4 text-center">
@@ -99,6 +102,6 @@ export default function LargestRelatedPartyHoldings({ source, stateAbbr }) {
 }
 
 LargestRelatedPartyHoldings.propTypes = {
-  source: PropTypes.array,
+  rows: PropTypes.array,
   stateAbbr: PropTypes.string,
 };

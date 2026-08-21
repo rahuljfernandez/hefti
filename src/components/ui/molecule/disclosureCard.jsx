@@ -9,46 +9,18 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 /**
- * A rounded white card that collapses — the shell for the Property Details
- * subsections (Financial / Building / Land).
+ * A rounded white card that collapses — the shell for the Real Estate tab's
+ * related-party flag banner, where `icon` and `subtitle` fill the header and the
+ * panel holds the matched entity.
  *
- * Deliberately general enough to also carry the conditional flag banners
- * (possible related-party ownership, multiple associated properties) that sit
- * above the tab's sections. Those differ from the detail subsections only in
- * header content and panel body, which is why `icon` and `subtitle` exist:
- *
- *   detail subsection — title only, panel holds a DetailTableSplit
- *   flag banner       — warning icon + title + subtitle, panel holds the
- *                       matched-entity list
- *
- * Distinct from networkSidePanelAccordion, which is the same Headless UI
- * primitives dressed for the network side panel (edge-to-edge borders, a dark
- * mobile variant). That component is named for where it lives; this one is the
- * general card form.
+ * Distinct from networkSidePanelAccordion, which uses the same Headless UI
+ * primitives but is styled for the network side panel.
  */
-
-/* The header is padded, but panel content often needs to bleed to the card's
-   full width — DetailTable's rules run edge to edge. `panelClassName` replaces
-   the default padding for those cases rather than fighting it with negative
-   margins. */
-export default function DisclosureCard({
-  icon,
-  title,
-  subtitle,
-  defaultOpen = false,
-  children,
-  className,
-  panelClassName,
-}) {
+export default function DisclosureCard({ icon, title, subtitle, children }) {
   return (
-    <Disclosure defaultOpen={defaultOpen}>
+    <Disclosure>
       {({ open }) => (
-        <div
-          className={clsx(
-            'bg-core-white overflow-hidden rounded-lg shadow-sm',
-            className,
-          )}
-        >
+        <div className="bg-core-white overflow-hidden rounded-lg shadow-sm">
           <DisclosureButton className="focus-panel-light flex w-full items-center justify-between gap-4 px-4 py-4 text-left hover:cursor-pointer sm:px-6">
             <span className="flex items-center gap-3">
               {icon && <span className="shrink-0">{icon}</span>}
@@ -69,9 +41,7 @@ export default function DisclosureCard({
             />
           </DisclosureButton>
 
-          <DisclosurePanel
-            className={clsx(panelClassName ?? 'px-4 pb-5 sm:px-6')}
-          >
+          <DisclosurePanel className="px-4 pb-5 sm:px-6">
             {children}
           </DisclosurePanel>
         </div>
@@ -84,8 +54,5 @@ DisclosureCard.propTypes = {
   icon: PropTypes.node,
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
-  defaultOpen: PropTypes.bool,
   children: PropTypes.node,
-  className: PropTypes.string,
-  panelClassName: PropTypes.string,
 };

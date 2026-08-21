@@ -11,6 +11,7 @@ import {
  * Exports:
  * - `ErrorBanner`: assertive alert styling for load failures and blocking errors
  * - `NoResultsBanner`: polite status styling for empty search/list results
+ * - `NoDataBanner`: polite status styling for sections with no data to show
  */
 export function ErrorBanner({ title, message }) {
   return (
@@ -62,5 +63,32 @@ export function NoResultsBanner({ term, className = '' }) {
 
 NoResultsBanner.propTypes = {
   term: PropTypes.string,
+  className: PropTypes.string,
+};
+
+export function NoDataBanner({ title, message, className = '' }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={`flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 ${className}`}
+    >
+      <ExclamationCircleIcon
+        className="mt-0.5 size-5 shrink-0 text-amber-500"
+        aria-hidden="true"
+      />
+      <div>
+        <p className="text-label-sm text-amber-800">{title}</p>
+        {message && (
+          <p className="text-paragraph-xs text-amber-700">{message}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+NoDataBanner.propTypes = {
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string,
   className: PropTypes.string,
 };

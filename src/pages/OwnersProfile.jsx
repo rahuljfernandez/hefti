@@ -1,4 +1,9 @@
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -24,7 +29,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import OwnerPropertyDetailsTab from '../components/ui/molecule/tabs/ownerPropertyDetailsTab';
+import OwnerRealEstateTab from '../components/ui/molecule/tabs/ownerRealEstateTab';
 import {
   ShareButton,
   ShareButtonRow,
@@ -42,6 +47,7 @@ import {
   ownerFacilitiesExportConfig,
   ownerZipShareCategory,
 } from '../lib/shareability/profile/ownerShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 
 /**
  * Owner profile page container.
@@ -65,53 +71,87 @@ const AVAILABLE_YEARS = [
 export default function OwnersProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const requestedYear = Number(searchParams.get('year'));
+  const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
+    ? requestedYear
+    : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
 
+  const handleYearChange = (year) => {
+    const nextYear = Number(year);
+    if (!AVAILABLE_YEARS.includes(nextYear)) return;
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(nextYear));
+        return next;
+      },
+      { state },
+    );
+  };
+
   useEffect(() => {
+    const controller = new AbortController();
+
     setLoading(true);
     setOwner(null);
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`)
+    fetch(
+      `${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`,
+      { signal: controller.signal },
+    )
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         if (!data) {
           setNotFound(true);
           return;
         }
         setOwner(data);
       })
-      .catch(() => setError('Failed to load owner data.'))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setError('Failed to load owner data.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [slug, selectedYear]);
 
   useEffect(() => {
     /* National averages power the highlights comparison badges; the owner
-       endpoint doesn't include them, so fetch them separately. */
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
-        const data = await res.json();
-        setNationalBenchmarks(data);
-      } catch (err) {
-        console.error('Failed to fetch national averages:', err);
-      }
-    };
+       endpoint doesn't include them, so fetch them separately. Shared across
+       profile pages, so the same year is only ever fetched once. */
+    let active = true;
+    setNationalBenchmarks(null);
 
-    fetchNationalBenchmarks();
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
+
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   // Use related facilities from API if available
@@ -197,7 +237,7 @@ export default function OwnersProfile() {
               subjectType="owner"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             <div className="pb-4">
@@ -246,8 +286,10 @@ export default function OwnersProfile() {
                       <FinancialOverviewTab items={owner} status={'owner'} />
                     );
 
-                  case 'Property Details':
-                    return <OwnerPropertyDetailsTab />;
+                  case 'Real Estate':
+                    return (
+                      <OwnerRealEstateTab items={owner} year={selectedYear} />
+                    );
 
                   default:
                     return (

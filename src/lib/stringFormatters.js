@@ -61,6 +61,34 @@ export function formatUSD(value) {
   }).format(value);
 }
 
+export function formatDateOnly(value) {
+  if (value === null || value === undefined || value === '') return 'N/A';
+  if (typeof value !== 'string') return String(value);
+
+  const trimmed = value.trim();
+  if (!/[A-Za-z0-9]/.test(trimmed)) return 'N/A';
+
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return trimmed;
+
+  const [, year, month, day] = match.map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return 'N/A';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
 export function formatMetricValue(metricValue) {
   if (metricValue === null || metricValue === undefined || metricValue === '') {
     return 'N/A';
