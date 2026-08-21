@@ -19,6 +19,7 @@ import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOvervi
 import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
 import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
+import { loadStateFacilities, loadStateProfile } from '../lib/stateProfileApi';
 
 /**
  * State profile page container.
@@ -46,6 +47,7 @@ export default function StatesProfile() {
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
   const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
+  const [stateFacilitiesError, setStateFacilitiesError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -69,17 +71,7 @@ export default function StatesProfile() {
     setError(null);
     setNotFound(false);
 
-    fetch(
-      `${API_BASE_URL}/state-profile/${encodeURIComponent(
-        stateParam,
-      )}?year=${selectedYear}&take=500&minFacilities=2`,
-      { signal: controller.signal },
-    )
-      .then((res) => {
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error('Failed to load');
-        return res.json();
-      })
+    loadStateProfile(API_BASE_URL, stateParam, selectedYear, controller.signal)
       .then((data) => {
         if (controller.signal.aborted) return;
         if (!data) {
@@ -103,6 +95,7 @@ export default function StatesProfile() {
        state-profile endpoint covers this state only, so fetch them separately.
        Shared across profile pages, so the same year is only ever fetched once. */
     let active = true;
+    setNationalBenchmarks(null);
     fetchNationalBenchmarks(selectedYear)
       .then((data) => {
         if (active) setNationalBenchmarks(data);
@@ -125,19 +118,22 @@ export default function StatesProfile() {
     const controller = new AbortController();
     setStateFacilities([]);
     setStateFacilitiesLoading(true);
+    setStateFacilitiesError(null);
     const fetchStateFacilities = async () => {
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/state-facilities/${encodeURIComponent(
-            stateParam.toUpperCase(),
-          )}?year=${selectedYear}`,
-          { signal: controller.signal },
+        const facilities = await loadStateFacilities(
+          API_BASE_URL,
+          stateParam,
+          selectedYear,
+          controller.signal,
         );
-        const data = await res.json();
-        setStateFacilities(data?.data ?? []);
+        if (!controller.signal.aborted) setStateFacilities(facilities);
       } catch (err) {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch state facilities:', err);
+          setStateFacilitiesError(
+            'State facility data could not be retrieved.',
+          );
         }
       } finally {
         if (!controller.signal.aborted) setStateFacilitiesLoading(false);
@@ -166,7 +162,7 @@ export default function StatesProfile() {
   ];
 
   return (
-    <div className="bg-background-secondary font-sans pb-8">
+    <div className="bg-background-secondary pb-8 font-sans">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
@@ -232,6 +228,7 @@ export default function StatesProfile() {
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
                         facilities={stateFacilities}
+                        facilitiesError={stateFacilitiesError}
                         chains={stateStats.chain_burden ?? []}
                         individualOwners={stateStats.individual_burden ?? []}
                       />
@@ -269,6 +266,7 @@ export default function StatesProfile() {
                       <StateRealEstateTab
                         facilities={stateFacilities}
                         loading={stateFacilitiesLoading}
+                        error={stateFacilitiesError}
                         stateAbbr={stateStats?.state}
                         year={selectedYear}
                       />

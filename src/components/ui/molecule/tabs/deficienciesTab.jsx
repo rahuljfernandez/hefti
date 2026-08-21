@@ -9,6 +9,7 @@ import ListContainer, {
 import { AiSummaryCard, DeficiencyReportItem } from '../listContainerContent';
 import FacilitiesDeficiencyBurden from '../../organism/facilitiesDeficiencyBurden';
 import EntityDeficiencyBurden from '../../organism/entityDeficiencyBurden';
+import { ErrorBanner } from '../../atom/errorBanner';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -74,6 +75,7 @@ export default function DeficienciesTab({
   status,
   nationalBenchmarks,
   facilities,
+  facilitiesError,
   chains,
   individualOwners,
 }) {
@@ -92,7 +94,8 @@ export default function DeficienciesTab({
   let burdenFacilities = [];
   if (status === 'owner') {
     burdenFacilities =
-      metricsSource?.facility_ownership_links?.map((link) => link.facility) ?? [];
+      metricsSource?.facility_ownership_links?.map((link) => link.facility) ??
+      [];
   } else if (status === 'state') {
     burdenFacilities = facilities ?? [];
   }
@@ -123,16 +126,23 @@ export default function DeficienciesTab({
           </div>
           {status === 'owner' || status === 'state' ? (
             <>
-              <FacilitiesDeficiencyBurden
-                facilities={burdenFacilities}
-                nationalBenchmarks={nationalBenchmarks}
-                showOwner={status === 'state'}
-                viewAllHref={
-                  status === 'state' && metricsSource?.state
-                    ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
-                    : undefined
-                }
-              />
+              {status === 'state' && facilitiesError ? (
+                <ErrorBanner
+                  title="Failed to load facility deficiencies"
+                  message={`${facilitiesError} Try refreshing the page.`}
+                />
+              ) : (
+                <FacilitiesDeficiencyBurden
+                  facilities={burdenFacilities}
+                  nationalBenchmarks={nationalBenchmarks}
+                  showOwner={status === 'state'}
+                  viewAllHref={
+                    status === 'state' && metricsSource?.state
+                      ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
+                      : undefined
+                  }
+                />
+              )}
               {status === 'state' && (
                 <>
                   <EntityDeficiencyBurden
@@ -189,6 +199,7 @@ DeficienciesTab.propTypes = {
   status: PropTypes.oneOf(['facility', 'owner', 'state']),
   nationalBenchmarks: PropTypes.object,
   facilities: PropTypes.arrayOf(PropTypes.object),
+  facilitiesError: PropTypes.string,
   chains: PropTypes.arrayOf(PropTypes.object),
   individualOwners: PropTypes.arrayOf(PropTypes.object),
 };

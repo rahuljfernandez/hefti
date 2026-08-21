@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import StateRealEstateHighlights from '../../organism/stateRealEstateHighlights';
 import RealEstateFootprint from '../../organism/realEstateFootprint';
 import LargestRelatedPartyHoldings from '../../organism/largestRelatedPartyHoldings';
-import { NoDataBanner } from '../../atom/errorBanner';
+import { ErrorBanner, NoDataBanner } from '../../atom/errorBanner';
 import {
   buildStateProperties,
   buildStateRealEstateSummary,
@@ -30,6 +30,7 @@ import { PROPERTY_DATA_START_YEAR } from '../../../../lib/propertyMetrics';
 export default function StateRealEstateTab({
   facilities,
   loading,
+  error,
   stateAbbr,
   year,
 }) {
@@ -66,6 +67,17 @@ export default function StateRealEstateTab({
      below asserts a conclusion, so it must not show while the answer is unknown. */
   if (loading) return null;
 
+  if (error) {
+    return (
+      <section className="mt-8">
+        <ErrorBanner
+          title="Failed to load real estate data"
+          message={`${error} Try refreshing the page.`}
+        />
+      </section>
+    );
+  }
+
   if (!summary) {
     return (
       <section className="mt-8">
@@ -94,6 +106,7 @@ export default function StateRealEstateTab({
 StateRealEstateTab.propTypes = {
   facilities: PropTypes.array,
   loading: PropTypes.bool,
+  error: PropTypes.string,
   stateAbbr: PropTypes.string,
   year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };

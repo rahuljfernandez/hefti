@@ -101,7 +101,13 @@ function saleRatios(facilities) {
     const price = reportedValue(facility?.realie_last_transfer_price);
     const soldIn = yearOf(facility?.realie_last_transfer_date);
     const assessedIn = yearOf(facility?.realie_assessed_year);
-    if (assessed === null || price === null || soldIn === null || assessedIn === null) continue;
+    if (
+      assessed === null ||
+      price === null ||
+      soldIn === null ||
+      assessedIn === null
+    )
+      continue;
     if (assessedIn < soldIn) continue;
 
     ratios.push(assessed / (price * ASSESSMENT_DRIFT ** (assessedIn - soldIn)));
@@ -141,22 +147,34 @@ export function resolveValuation(facilities) {
     /* Paired parcels are the better calibration; sale prices are the weaker
        fallback for states that publish market on too few parcels to pair. */
     const paired = marketRatios(list);
-    const ratios = paired.length >= MIN_CALIBRATION_SAMPLE ? paired : saleRatios(list);
-    const ratio = ratios.length >= MIN_CALIBRATION_SAMPLE ? median(ratios) : null;
+    const ratios =
+      paired.length >= MIN_CALIBRATION_SAMPLE ? paired : saleRatios(list);
+    const ratio =
+      ratios.length >= MIN_CALIBRATION_SAMPLE ? median(ratios) : null;
 
     /* Market is the better basis but not at any coverage: South Dakota publishes
        it on 3 parcels against 29 assessed, so with no ratio to convert the rest
        a market total would report 5% of the state and call it complete. Falling
        back reports all 29 in assessed dollars and says they aren't comparable. */
     if (ratio === null && marketCount < assessedCount) {
-      return { basis: ASSESSED, ratio: null, comparable: false, reason: UNCALIBRATED };
+      return {
+        basis: ASSESSED,
+        ratio: null,
+        comparable: false,
+        reason: UNCALIBRATED,
+      };
     }
 
     return { basis: MARKET, ratio, comparable: true, reason: null };
   }
 
   if (ACQUISITION_BASIS_STATES.has(state)) {
-    return { basis: ASSESSED, ratio: null, comparable: false, reason: ACQUISITION };
+    return {
+      basis: ASSESSED,
+      ratio: null,
+      comparable: false,
+      reason: ACQUISITION,
+    };
   }
 
   const ratios = saleRatios(list);
@@ -184,7 +202,8 @@ function parcelValue(facility, valuation) {
   }
 
   if (assessed === null) return { value: null, estimated: false };
-  if (valuation.ratio) return { value: assessed / valuation.ratio, estimated: true };
+  if (valuation.ratio)
+    return { value: assessed / valuation.ratio, estimated: true };
   return { value: assessed, estimated: false };
 }
 
@@ -222,29 +241,117 @@ function displayOwner(facility) {
   return owner?.slug && owner?.name ? owner : null;
 }
 
-/* One row per facility in the state that matched a Realie parcel, valued on the
-   state's basis. Addresses and coordinates come from the facility's own columns,
-   which are fully populated, not from realie_address. */
+function normalizedParcelPart(value) {
+  return String(value ?? '')
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, ' ');
+}
+
+/* Parcel ids can be jurisdiction-scoped, so the county protects against merging
+   identical ids from different places. Rows sharing all three parts are
+   multiple facilities on one physical parcel and must contribute its value once. */
+function parcelKey(facility) {
+  return [
+    normalizedParcelPart(facility?.state),
+    normalizedParcelPart(facility?.realie_county),
+    normalizedParcelPart(facility?.realie_parcel_id),
+  ].join('|');
+}
+
+function parcelRecordScore(facility) {
+  return [
+    facility?.realie_market_value,
+    facility?.realie_assessed_value,
+    facility?.realie_last_transfer_price,
+  ].filter((value) => reportedValue(value) !== null).length;
+}
+
+function canonicalParcelRecord(group) {
+  return [...group].sort((a, b) => {
+    const completeness = parcelRecordScore(b) - parcelRecordScore(a);
+    if (completeness) return completeness;
+    return String(a?.id ?? '').localeCompare(String(b?.id ?? ''), undefined, {
+      numeric: true,
+    });
+  })[0];
+}
+
+function parcelGroups(facilities) {
+  const groups = new Map();
+  for (const facility of facilities) {
+    const key = parcelKey(facility);
+    const group = groups.get(key) ?? [];
+    group.push(facility);
+    groups.set(key, group);
+  }
+  return [...groups.entries()].map(([key, group]) => ({
+    key,
+    group,
+    canonical: canonicalParcelRecord(group),
+  }));
+}
+
+function unambiguousOwner(group) {
+  const owners = new Map();
+  for (const facility of group) {
+    const owner = displayOwner(facility);
+    if (owner) owners.set(owner.slug, owner);
+  }
+  return owners.size === 1 ? [...owners.values()][0] : null;
+}
+
+function unambiguousTitleholder(group) {
+  const names = new Map();
+  for (const facility of group) {
+    const name = titleholderName(facility);
+    if (name) names.set(name.trim().toUpperCase(), name);
+  }
+  return names.size === 1 ? [...names.values()][0] : null;
+}
+
+/* One row per physical parcel. A shared parcel keeps its facility count but its
+   value enters state totals only once. If facilities on it have different
+   display owners, the parcel remains unattributed instead of crediting its whole
+   value to an arbitrary operator. */
 export function buildStateProperties(facilities) {
   const list = Array.isArray(facilities) ? facilities : [];
   const matched = list.filter((facility) => hasPropertyData(facility));
-  const valuation = resolveValuation(matched);
+  const grouped = parcelGroups(matched);
+  const valuation = resolveValuation(grouped.map(({ canonical }) => canonical));
 
-  const properties = matched.map((facility) => {
+  const properties = grouped.map(({ key, group, canonical: facility }) => {
     const { value, estimated } = parcelValue(facility, valuation);
-    const owner = displayOwner(facility);
+    const owner = unambiguousOwner(group);
+    const relatedPartyFacilities = group.filter((item) =>
+      isRelatedParty(item),
+    ).length;
+    const coordinateSource =
+      group.find(
+        (item) =>
+          toFiniteNumber(item?.latitude) !== null &&
+          toFiniteNumber(item?.longitude) !== null,
+      ) ?? facility;
+    const facilityNames = [
+      ...new Set(group.map((item) => item?.provider_name).filter(Boolean)),
+    ];
     return {
-      id: String(facility.id),
-      facility_name: facility.provider_name,
-      facility_slug: facility.slug,
+      id: key,
+      facility_name:
+        facilityNames.length > 1
+          ? `${facilityNames[0]} + ${facilityNames.length - 1} more`
+          : (facilityNames[0] ?? facility.provider_name),
+      facility_slug: group.length === 1 ? facility.slug : null,
+      facility_count: group.length,
       city: facility.city,
       state: facility.state,
-      latitude: toFiniteNumber(facility.latitude),
-      longitude: toFiniteNumber(facility.longitude),
-      titleholder_name: titleholderName(facility),
+      latitude: toFiniteNumber(coordinateSource.latitude),
+      longitude: toFiniteNumber(coordinateSource.longitude),
+      titleholder_name: unambiguousTitleholder(group),
       owner_name: owner?.name ?? null,
       owner_slug: owner?.slug ?? null,
-      related_party: isRelatedParty(facility),
+      related_party: relatedPartyFacilities > 0,
+      related_party_facility_count: relatedPartyFacilities,
       value,
       value_estimated: estimated,
       value_display: value === null ? 'Not reported' : formatUSD(value),
@@ -262,9 +369,13 @@ export function buildStateRealEstateSummary(properties, valuation) {
 
   const valued = properties.filter((property) => property.value !== null);
   const relatedParty = properties.filter((property) => property.related_party);
-  const totalValue = valued.reduce((sum, property) => sum + property.value, 0);
+  const totalValue = valued.length
+    ? valued.reduce((sum, property) => sum + property.value, 0)
+    : null;
 
-  const estimated = valued.filter((property) => property.value_estimated).length;
+  const estimated = valued.filter(
+    (property) => property.value_estimated,
+  ).length;
 
   return {
     value_basis: valuation.basis,
@@ -275,7 +386,7 @@ export function buildStateRealEstateSummary(properties, valuation) {
     valued_properties: valued.length,
     estimated_properties: estimated,
     total_real_estate_value: totalValue,
-    average_property_value: valued.length ? totalValue / valued.length : 0,
+    average_property_value: valued.length ? totalValue / valued.length : null,
     related_party_count: relatedParty.length,
     related_party_percentage: Math.round(
       (relatedParty.length / properties.length) * 100,
@@ -324,10 +435,14 @@ export function buildRealEstateHighlights(summary) {
       ' · too few published market values or recorded sales to estimate one, so it is not comparable to other states',
   };
 
-  const basisNote = comparable ? '' : (UNCOMPARABLE_NOTE[uncomparable_reason] ?? '');
+  const basisNote = comparable
+    ? ''
+    : (UNCOMPARABLE_NOTE[uncomparable_reason] ?? '');
 
   const estimatedNote =
-    comparable && estimated_properties > 0 && estimated_properties < valued_properties
+    comparable &&
+    estimated_properties > 0 &&
+    estimated_properties < valued_properties
       ? `, ${estimated_properties} estimated from assessed value`
       : '';
 
@@ -408,17 +523,24 @@ export function buildLargestHoldings(properties) {
       owner_slug: property.owner_slug,
       facility_count: 0,
       related_party_count: 0,
-      re_value: 0,
+      re_value: null,
     };
 
-    existing.facility_count += 1;
-    if (property.related_party) existing.related_party_count += 1;
-    if (property.value !== null) existing.re_value += property.value;
+    existing.facility_count += property.facility_count ?? 1;
+    existing.related_party_count +=
+      property.related_party_facility_count ?? (property.related_party ? 1 : 0);
+    if (property.value !== null) {
+      existing.re_value = (existing.re_value ?? 0) + property.value;
+    }
     byOwner.set(property.owner_slug, existing);
   }
 
   return [...byOwner.values()]
-    .sort((a, b) => b.re_value - a.re_value)
+    .sort(
+      (a, b) =>
+        (b.re_value ?? Number.NEGATIVE_INFINITY) -
+        (a.re_value ?? Number.NEGATIVE_INFINITY),
+    )
     .slice(0, HOLDINGS_LIMIT)
     .map((holding) => ({
       ...holding,
