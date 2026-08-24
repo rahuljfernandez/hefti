@@ -29,7 +29,7 @@ const BAR_FILL_RATIO = 0.88;
 /* Left gutter holds the month label; right gutter holds the pill + value. */
 const MONTH_AXIS_WIDTH = 56;
 const VALUE_AXIS_WIDTH = 150;
-const MOBILE_MONTH_AXIS_WIDTH = 44;
+const MOBILE_MONTH_AXIS_WIDTH = 56;
 const MOBILE_VALUE_AXIS_WIDTH = 52;
 
 /* zinc ramp — bar shade encodes rank, pill/value shade encodes emphasis. */
