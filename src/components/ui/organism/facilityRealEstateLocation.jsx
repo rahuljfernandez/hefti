@@ -14,16 +14,12 @@ import FlushCard from '../atom/flushCard';
 import LayoutCard from '../atom/layout-card';
 import FieldGrid from '../molecule/fieldGrid';
 import { Heading } from '../atom/heading';
-import {
-  buildLocationFields,
-  buildLocationCoordinates,
-} from '../../../lib/propertyMetrics';
 
 /**
- * Location Information — the second section of the Property Details tab.
+ * Facility Location — the second section of the Real Estate tab.
  *
- * A single-marker map sitting flush on top of a card of address fields, so the
- * two read as one unit. Same flush idiom as facilitiesMap, inverted.
+ * A CMS facility-location map sitting above fields that distinguish CMS
+ * facility data from Realie parcel data.
  *
  * Leaflet makes the container and marker keyboard-focusable by default; both
  * are disabled below because every fact the map conveys is also in the FieldGrid
@@ -32,10 +28,9 @@ import {
  */
 
 /* Leaflet's default marker resolves icons from a relative path Vite rewrites,
-   leaving markers invisible; building the icon from imported asset URLs is the
-   standard fix. First Marker in the codebase — move this to a shared module if
-   a second map needs it. */
-const propertyMarkerIcon = L.icon({
+   leaving markers invisible; building the icon from imported asset URLs keeps
+   the marker assets in Vite's dependency graph. */
+const facilityMarkerIcon = L.icon({
   iconUrl: markerIconUrl,
   iconRetinaUrl: markerIconRetinaUrl,
   shadowUrl: markerShadowUrl,
@@ -49,19 +44,19 @@ const MAP_ZOOM = 16;
 
 /* `key` is load-bearing: MapContainer reads `center` only when it creates the
    Leaflet instance on mount, so changing the prop alone would leave the map
-   parked on the previous property.
+   parked on the previous facility.
 
    role="group" rather than role="img" because the zoom buttons keep their focus
    stops, and an image role must not contain focusable children. */
-function PropertyMapPanel({ position, label }) {
+function FacilityRealEstateMapPanel({ position, label }) {
   return (
     <div
       className="h-80 w-full overflow-hidden rounded-t-lg"
       role="group"
       aria-label={
         label
-          ? `Map showing the location of ${label}. The full address, coordinates, and parcel number are listed below the map.`
-          : 'Map showing the property location. The full address, coordinates, and parcel number are listed below the map.'
+          ? `Map showing the CMS-reported facility location at ${label}. Facility and parcel details are listed below the map.`
+          : 'Map showing the CMS-reported facility location. Facility and parcel details are listed below the map.'
       }
     >
       <MapContainer
@@ -80,7 +75,7 @@ function PropertyMapPanel({ position, label }) {
 
         <Marker
           position={position}
-          icon={propertyMarkerIcon}
+          icon={facilityMarkerIcon}
           keyboard={false}
           alt=""
         >
@@ -91,42 +86,46 @@ function PropertyMapPanel({ position, label }) {
   );
 }
 
-PropertyMapPanel.propTypes = {
+FacilityRealEstateMapPanel.propTypes = {
   position: PropTypes.arrayOf(PropTypes.number).isRequired,
   label: PropTypes.string,
 };
 
-export default function PropertyLocationMap({ source }) {
-  const locationFields = buildLocationFields(source);
-  const coordinates = buildLocationCoordinates(source);
-
+export default function FacilityRealEstateLocation({
+  locationFields,
+  coordinates,
+}) {
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        Location Information
+        Facility Location
       </Heading>
 
       {/* Without coordinates the address fields stand alone as a whole card
           rather than leaving an empty map frame. */}
       {coordinates ? (
         <>
-          <PropertyMapPanel
+          <FacilityRealEstateMapPanel
             position={coordinates.position}
             label={coordinates.label}
           />
           <FlushCard position="bottom">
-            <FieldGrid fields={locationFields} valueClassName="uppercase" />
+            <FieldGrid fields={locationFields} />
           </FlushCard>
         </>
       ) : (
         <LayoutCard>
-          <FieldGrid fields={locationFields} valueClassName="uppercase" />
+          <FieldGrid fields={locationFields} />
         </LayoutCard>
       )}
     </section>
   );
 }
 
-PropertyLocationMap.propTypes = {
-  source: PropTypes.object,
+FacilityRealEstateLocation.propTypes = {
+  locationFields: PropTypes.array.isRequired,
+  coordinates: PropTypes.shape({
+    position: PropTypes.arrayOf(PropTypes.number).isRequired,
+    label: PropTypes.string,
+  }),
 };

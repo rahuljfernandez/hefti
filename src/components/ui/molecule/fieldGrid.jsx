@@ -7,9 +7,6 @@ import clsx from 'clsx';
  * blocks of identifiers (addresses, parcel numbers, certification dates).
  * Fields flow row-major: left, right, left, right…
  *
- * Not to be confused with DetailTable, the ruled label/value design used inside
- * the Property Details disclosures.
- *
  * TODO: additionalInformation.jsx and facilityProfileDescription.jsx hand-roll
  * byte-identical markup and should be swapped over in a standalone PR. Note
  * facilityProfileDescription hardcodes its labels uppercase in the JSX; those

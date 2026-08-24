@@ -18,6 +18,8 @@ import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
 import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
+import { loadStateFacilities, loadStateProfile } from '../lib/stateProfileApi';
 
 /**
  * State profile page container.
@@ -44,8 +46,8 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
-  const [chainBurden, setChainBurden] = useState([]);
-  const [individualBurden, setIndividualBurden] = useState([]);
+  const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
+  const [stateFacilitiesError, setStateFacilitiesError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
@@ -59,109 +61,88 @@ export default function StatesProfile() {
   };
 
   useEffect(() => {
+    /* Every section that renders text: the header, State Highlights, and the two
+       burden tables in Deficiencies. All keyed on (state, year) and all small, so
+       one request rather than three. The facility list stays separate below — it
+       is 7x the size of this, and merging would make the header wait on it. */
+    const controller = new AbortController();
     setLoading(true);
     setStateStats(null);
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/state-stats/${encodeURIComponent(stateParam)}?year=${selectedYear}`)
-      .then((res) => {
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error('Failed to load');
-        return res.json();
-      })
+    loadStateProfile(API_BASE_URL, stateParam, selectedYear, controller.signal)
       .then((data) => {
+        if (controller.signal.aborted) return;
         if (!data) {
           setNotFound(true);
           return;
         }
         setStateStats(data);
       })
-      .catch(() => setError('Failed to load state data.'))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError('Failed to load state data.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [stateParam, selectedYear]);
 
   useEffect(() => {
     /* National averages power the clinical-quality comparison badges; the
-       state-stats endpoint doesn't include them, so fetch them separately. */
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
-        const data = await res.json();
-        setNationalBenchmarks(data);
-      } catch (err) {
-        console.error('Failed to fetch national averages:', err);
-      }
-    };
+       state-profile endpoint covers this state only, so fetch them separately.
+       Shared across profile pages, so the same year is only ever fetched once. */
+    let active = true;
+    setNationalBenchmarks(null);
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
 
-    fetchNationalBenchmarks();
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   useEffect(() => {
     /* Full facility list for this state, powering the "Deficiencies by Facility"
-       table (and a future page-level export). The state-stats endpoint only
-       returns a facility count, so fetch the rows separately and rank client-
-       side. take=1500 covers every current state (largest ~1200); a state
-       exceeding it would truncate the ranking — a server-side deficiency sort is
-       tracked in HEF-157. Aborted on state change so a slow response can't paint
-       the previous state's facilities. */
+       table and the Real Estate tab. The state-profile endpoint only returns a
+       facility count, so fetch the rows separately and rank client-side.
+       /state-facilities is uncapped and projects only the columns those two
+       consumers read — the generic /facilities route embeds every ownership link
+       with its full entity, which is 137MB for TX. Aborted on state change so a
+       slow response can't paint the previous state's facilities. */
     const controller = new AbortController();
     setStateFacilities([]);
+    setStateFacilitiesLoading(true);
+    setStateFacilitiesError(null);
     const fetchStateFacilities = async () => {
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/facilities?state=${encodeURIComponent(
-            stateParam.toUpperCase(),
-          )}&year=${selectedYear}&take=1500`,
-          { signal: controller.signal },
+        const facilities = await loadStateFacilities(
+          API_BASE_URL,
+          stateParam,
+          selectedYear,
+          controller.signal,
         );
-        const data = await res.json();
-        setStateFacilities(data?.data ?? []);
+        if (!controller.signal.aborted) setStateFacilities(facilities);
       } catch (err) {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch state facilities:', err);
+          setStateFacilitiesError(
+            'State facility data could not be retrieved.',
+          );
         }
+      } finally {
+        if (!controller.signal.aborted) setStateFacilitiesLoading(false);
       }
     };
 
     fetchStateFacilities();
     return () => controller.abort();
   }, [stateParam, selectedYear]);
-
-  useEffect(() => {
-    /* Chains and individual owners operating in this state, each ranked by
-       average deficiency burden. Server-ranked and capped; chains group by
-       chain_name (so holding-company shells collapse), individuals by owner. */
-    const controller = new AbortController();
-    setChainBurden([]);
-    setIndividualBurden([]);
-    const code = encodeURIComponent(stateParam.toUpperCase());
-    const loadBurden = async (path, set, label) => {
-      try {
-        // Fetch the full qualifying set (small per state) so the tables can
-        // expand in place instead of linking out. minFacilities=2 includes
-        // smaller two-facility operators.
-        const res = await fetch(
-          `${API_BASE_URL}/${path}/${code}?take=500&minFacilities=2`,
-          { signal: controller.signal },
-        );
-        const data = await res.json();
-        set(data?.data ?? []);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error(`Failed to fetch ${label}:`, err);
-        }
-      }
-    };
-
-    loadBurden('state-chain-burden', setChainBurden, 'state chain burden');
-    loadBurden(
-      'state-individual-burden',
-      setIndividualBurden,
-      'state individual burden',
-    );
-    return () => controller.abort();
-  }, [stateParam]);
 
   const handleResearchClick = () => {
     // Placeholder for future research click behavior.
@@ -181,7 +162,7 @@ export default function StatesProfile() {
   ];
 
   return (
-    <div className="bg-background-secondary font-sans pb-8">
+    <div className="bg-background-secondary pb-8 font-sans">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
         {loading ? (
@@ -247,8 +228,9 @@ export default function StatesProfile() {
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
                         facilities={stateFacilities}
-                        chains={chainBurden}
-                        individualOwners={individualBurden}
+                        facilitiesError={stateFacilitiesError}
+                        chains={stateStats.chain_burden ?? []}
+                        individualOwners={stateStats.individual_burden ?? []}
                       />
                     );
 
@@ -281,7 +263,13 @@ export default function StatesProfile() {
 
                   case 'Real Estate':
                     return (
-                      <StateRealEstateTab stateAbbr={stateStats?.state} />
+                      <StateRealEstateTab
+                        facilities={stateFacilities}
+                        loading={stateFacilitiesLoading}
+                        error={stateFacilitiesError}
+                        stateAbbr={stateStats?.state}
+                        year={selectedYear}
+                      />
                     );
 
                   default:

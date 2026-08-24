@@ -18,6 +18,8 @@ import { ArrowRightIcon } from '@heroicons/react/16/solid';
 import { SparklesIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
+const PROPERTY_TITLEHOLDER_ROLE = 'PROPERTY TITLEHOLDER (REALIE)';
+
 /**
  * Collection of reusable content components for ListContainer and related card layouts.
  *
@@ -35,6 +37,7 @@ import clsx from 'clsx';
  */
 export function OwnershipAndStakeholders({ item }) {
   const role = item.cms_ownership_role;
+  const isPropertyTitleholder = role === PROPERTY_TITLEHOLDER_ROLE;
   const config = badgeConfig[role] || {
     color: 'gray',
     label: role ?? 'Unknown',
@@ -75,60 +78,33 @@ export function OwnershipAndStakeholders({ item }) {
         {isPe && <Badge color="cyan">PRIVATE EQUITY</Badge>}
       </div>
 
-      {/* Divider */}
-      <Divider className="order-2 md:order-none md:col-span-3" />
+      {!isPropertyTitleholder && (
+        <>
+          <Divider className="order-2 md:order-none md:col-span-3" />
 
-      {/* Bottom Row */}
-      <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
-        <div className="gap-2 md:flex md:flex-col">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERSHIP PERCENTAGE
-          </p>
-          <p className="text-paragraph-base text-core-black">
-            {formatOwnershipPercentage(item.cms_ownership_percentage)}
-          </p>
-        </div>
+          {/* Bottom Row */}
+          <div className="order-2 flex flex-col gap-4 md:order-none md:col-span-3 md:h-full md:flex-row md:items-center md:justify-start md:gap-6">
+            <div className="gap-2 md:flex md:flex-col">
+              <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+                OWNERSHIP PERCENTAGE
+              </p>
+              <p className="text-paragraph-base text-core-black">
+                {formatOwnershipPercentage(item.cms_ownership_percentage)}
+              </p>
+            </div>
 
-        <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
-          <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
-            OWNERSHIP MINIMUM
-          </p>
-          <p className="text-paragraph-base text-core-black">
-            {toTitleCase(item.cms_ownership_role || 'N/A')}
-          </p>
-        </div>
-      </div>
+            <div className="gap-2 md:flex md:flex-col md:border-l md:border-gray-400 md:pl-6">
+              <p className="text-paragraph-base text-content-secondary pb-1 md:pr-1 md:pb-0">
+                OWNERSHIP MINIMUM
+              </p>
+              <p className="text-paragraph-base text-core-black">
+                {toTitleCase(item.cms_ownership_role || 'N/A')}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
-    // <>
-    //   {/* <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:grid-rows-2 sm:items-start">
-    //     {/* Col 1 - Row 1 */}
-    //     <div className="text-label-xs order-1 sm:order-none">
-    //       {item.cms_ownership_type?.toUpperCase()}
-    //     </div>
-
-    //     {/* Col 2 - Row 1 */}
-    //     <div className="text-label-xs order-3 sm:order-none">
-    //       OWNERSHIP PERCENTAGE
-    //     </div>
-
-    //     {/* Col 3 - spans both rows */}
-    //     <div className="order-last row-span-2 sm:order-none sm:flex sm:h-full sm:items-center">
-    //       <Badge className="max-w-44" color={badgeColor}>
-    //         {item.cms_ownership_role}
-    //       </Badge>
-    //     </div>
-
-    //     {/* Col 1 - Row 2 */}
-    //     <div className="text-paragraph-base order-2 sm:order-none">
-    //       {item.ownership_entity?.cms_ownership_name}
-    //     </div>
-
-    //     {/* Col 2 - Row 2 */}
-    //     <div className="text-paragraph-base order-4 sm:order-none">
-    //       {formatOwnershipPercentage(item.cms_ownership_percentage)}
-    //     </div>
-    //   </div> */}
-    // </>
   );
 }
 
@@ -370,13 +346,13 @@ RelatedFacilities.propTypes = {
 };
 
 /**
- * Owner property card used on the owner Property Details tab.
+ * Owner real estate holding card used on the owner Real Estate tab.
  *
- * One property as a single interactive card: name, address, market value, and a
+ * One holding as a single interactive card: name, address, market value, and a
  * conditional related-party flag. One outer link, like RelatedFacilities, so
  * keyboard users tab through the list one card at a time.
  */
-export function OwnerProperty({ item }) {
+export function OwnerRealEstateHolding({ item }) {
   const facilityHref = `/facilities/${item.facility_slug}`;
   const facilityName = toTitleCase(item.facility_name);
   return (
@@ -435,15 +411,9 @@ export function OwnerProperty({ item }) {
   );
 }
 
-OwnerProperty.propTypes = {
+OwnerRealEstateHolding.propTypes = {
   item: PropTypes.object.isRequired,
 };
-
-/**
- *TODO:zip code needs to be added to dataset to match design
- * Need to get data from owner table
- *  link needs to be working
- */
 
 export function BrowseNursingHomes({ item, linkState }) {
   // Add error handling for missing or malformed data
@@ -1358,38 +1328,43 @@ StateMapCard.propTypes = {
   className: PropTypes.string,
 };
 
-/* Row layout for the Property Details flag banners */
+/* Row layout for the Real Estate flag banners */
 const FLAG_BANNER_ROW =
   'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4';
 
 /**
- * One matched entity in the Property Details tab's related-party banner: the
+ * One matched entity in the Real Estate tab's related-party banner: the
  * entity, what it matched on, and its ownership role.
  */
 export function RelatedPartyMatch({ item }) {
   const badge = badgeConfig[item.cms_ownership_role];
-  const matchedOn = item.matched_on ?? [];
 
   return (
     <div className={FLAG_BANNER_ROW}>
       <div>
-        <Link
-          to={`/owners/${item.entity_slug}`}
-          className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
-        >
-          {item.entity_name}
-        </Link>
-
-        {matchedOn.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="text-paragraph-sm text-content-secondary">
-              Matched on
-            </span>
-            {matchedOn.map((type) => (
-              <MatchChip key={type} type={type} />
-            ))}
-          </div>
+        {/* Realie names the titleholder even when no ownership entity carries it, so
+            the name has to render without a destination. */}
+        {item.entity_slug ? (
+          <Link
+            to={`/owners/${item.entity_slug}`}
+            className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
+          >
+            {item.entity_name}
+          </Link>
+        ) : (
+          <span className="text-paragraph-base text-core-black font-medium">
+            {item.entity_name}
+          </span>
         )}
+
+        {/* Entity name is the only comparison the flag makes, so the chip is fixed
+            rather than driven by the row — mailing address is not evidence here. */}
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <span className="text-paragraph-sm text-content-secondary">
+            Matched on
+          </span>
+          <MatchChip type="entity_name" />
+        </div>
       </div>
 
       {badge && (
@@ -1404,59 +1379,7 @@ export function RelatedPartyMatch({ item }) {
 RelatedPartyMatch.propTypes = {
   item: PropTypes.shape({
     entity_name: PropTypes.string.isRequired,
-    entity_slug: PropTypes.string.isRequired,
-    matched_on: PropTypes.arrayOf(PropTypes.string),
+    entity_slug: PropTypes.string,
     cms_ownership_role: PropTypes.string,
-  }).isRequired,
-};
-
-/**
- * One property in the Property Details tab's associated-properties banner.
- *
- * The trailing VIEW is a span, not a link or button: it is inert until the
- * property API can serve a second property, and a focusable control that does
- * nothing is worse than plain text for a keyboard user.
- */
-export function AssociatedProperty({ item }) {
-  return (
-    <div className={FLAG_BANNER_ROW}>
-      <div>
-        <p className="text-paragraph-base text-content-primary">
-          {item.address}
-        </p>
-
-        <div className="text-paragraph-sm text-content-secondary mt-0.5 flex flex-wrap items-center gap-2">
-          <span>{item.description}</span>
-          {item.related_party && (
-            <>
-              <span aria-hidden="true">|</span>
-              <span className="inline-flex items-center gap-1">
-                <ExclamationTriangleIcon className="size-4 shrink-0 text-amber-500" />
-                Related Party
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {item.is_current ? (
-        <span className="text-label-sm text-content-secondary shrink-0 uppercase">
-          Viewing
-        </span>
-      ) : (
-        <span className="text-label-sm shrink-0 text-blue-600 uppercase">
-          View
-        </span>
-      )}
-    </div>
-  );
-}
-
-AssociatedProperty.propTypes = {
-  item: PropTypes.shape({
-    address: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    related_party: PropTypes.bool,
-    is_current: PropTypes.bool,
   }).isRequired,
 };

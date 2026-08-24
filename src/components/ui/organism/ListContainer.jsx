@@ -107,36 +107,6 @@ ListContainerDivider.propTypes = {
 };
 
 /**
- * Flush list layout for rows that sit inside a card the caller already owns —
- * a DisclosureCard panel, for example. Same row metrics as ListContainerDivider
- * but without the card chrome, which would otherwise nest a bordered, rounded,
- * shadowed card inside another one.
- *
- * The rule above the first row is the caller's business as much as the
- * dividers between rows: the panel needs a line separating it from the header
- * it opens beneath, so this carries border-t as well as divide-y.
- */
-export function ListContainerFlush({ items = [], renderItem }) {
-  return (
-    <ul
-      role="list"
-      className="divide-border-primary border-border-primary divide-y border-t"
-    >
-      {items.map((item, i) => (
-        <li key={item.id || i} className="px-4 py-4 sm:px-6">
-          {renderItem(item)}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-ListContainerFlush.propTypes = {
-  items: PropTypes.array,
-  renderItem: PropTypes.func.isRequired,
-};
-
-/**
  * Separate-card list layout used when each item should appear as its own card.
  */
 export function ListContainerSeparate({ items = [], renderItem }) {

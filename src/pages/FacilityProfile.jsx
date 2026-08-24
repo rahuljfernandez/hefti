@@ -1,4 +1,9 @@
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -19,7 +24,7 @@ import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
 import ClinicalQualityTab from '../components/ui/molecule/tabs/clinicalQualityTab';
 import StaffingTab from '../components/ui/molecule/tabs/staffingTab';
 import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOverviewTab';
-import PropertyDetailsTab from '../components/ui/molecule/tabs/propertyDetailsTab';
+import FacilityRealEstateTab from '../components/ui/molecule/tabs/facilityRealEstateTab';
 import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
@@ -47,6 +52,7 @@ import {
   downloadDiagramPng,
   facilityZipShareCategory,
 } from '../lib/shareability/profile/facilityShareActions';
+import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 
 /**
  * FacilityProfile
@@ -59,7 +65,8 @@ import {
  *   (copy link, full-stats CSV, and a ZIP bundling stats + stakeholders + the
  *   ownership-diagram PNG);
  * - the tabbed sections (Provider Highlights, Deficiencies & Penalties, Clinical
- *   Quality, Staffing, Financial Overview);
+ *   Quality, Staffing, Financial Overview, and Real Estate for supported
+ *   data years);
  * - the Ownership & Stakeholders list and the Ownership Diagram, each with a
  *   hover-reveal local export (CSV and PNG respectively);
  * - an Additional Information metadata panel.
@@ -72,60 +79,93 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// TODO: replace with years returned from the API once the endpoint supports year filtering.
+// TODO: replace this hard-coded list when the API exposes available data years.
 const AVAILABLE_YEARS = [
-  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
+  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014,
+  2013, 2012, 2011, 2010,
 ];
 
 export default function FacilityProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [facility, setFacility] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+  const requestedYear = Number(searchParams.get('year'));
+  const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
+    ? requestedYear
+    : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
 
+  const handleYearChange = (year) => {
+    const nextYear = Number(year);
+    if (!AVAILABLE_YEARS.includes(nextYear)) return;
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(nextYear));
+        return next;
+      },
+      { state },
+    );
+  };
+
   useEffect(() => {
+    const controller = new AbortController();
+
     // Reload facility details whenever the URL slug or selected year changes.
     setLoading(true);
     setFacility(null);
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/facilities/${slug}?year=${selectedYear}`)
+    fetch(`${API_BASE_URL}/facilities/${slug}?year=${selectedYear}`, {
+      signal: controller.signal,
+    })
       .then((res) => {
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         if (!data) {
           setNotFound(true);
           return;
         }
         setFacility(data);
       })
-      .catch(() => setError('Failed to load facility data.'))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setError('Failed to load facility data.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [slug, selectedYear]);
 
   //Fetch national benchmarks to compare faclity to national levels
   useEffect(() => {
-    const fetchNationalBenchmarks = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/national?year=${selectedYear}`);
-        const data = await res.json();
-        setNationalBenchmarks(data);
-      } catch (err) {
-        console.error('Failed to fetch national averages:', err);
-      }
-    };
+    let active = true;
+    setNationalBenchmarks(null);
 
-    fetchNationalBenchmarks();
+    fetchNationalBenchmarks(selectedYear)
+      .then((data) => {
+        if (active) setNationalBenchmarks(data);
+      })
+      .catch((err) => console.error('Failed to fetch national averages:', err));
+
+    return () => {
+      active = false;
+    };
   }, [selectedYear]);
 
   // Relationship records used for stakeholders + ownership diagram sections.
@@ -214,7 +254,7 @@ export default function FacilityProfile() {
               subjectType="facility"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
@@ -228,8 +268,6 @@ export default function FacilityProfile() {
                     return (
                       <ProviderHighlights items={facility} status="facility" />
                     );
-                  //As of 3/16/26 we are holding off on deficiencies
-                  //4/17 Tyler requested tab be visible with coming soon
                   case 'Deficiencies & Penalties':
                     return (
                       <DeficienciesTab
@@ -260,8 +298,13 @@ export default function FacilityProfile() {
                       />
                     );
 
-                  case 'Property Details':
-                    return <PropertyDetailsTab status={'facility'} />;
+                  case 'Real Estate':
+                    return (
+                      <FacilityRealEstateTab
+                        items={facility}
+                        year={selectedYear}
+                      />
+                    );
 
                   default:
                     return (

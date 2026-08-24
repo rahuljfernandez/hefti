@@ -184,6 +184,10 @@ CorporateFlowSection.propTypes = {
 };
 export function FacilityFlowSection({ items, facility, hasOperator }) {
   const { provider_name, reit_name } = facility;
+  const titleholder = items.find(
+    (owner) => owner.cms_ownership_role === 'PROPERTY TITLEHOLDER (REALIE)',
+  );
+  const titleholderName = titleholder?.ownership_entity?.cms_ownership_name;
   const managingEmployee = items
     .filter(
       (owner) =>
@@ -227,6 +231,12 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
+          {titleholderName && (
+            <OwnershipBox
+              label1="REAL ESTATE TITLEHOLDER"
+              value1={toTitleCase(titleholderName)}
+            />
+          )}
           {securityInterest.length > 0 && (
             <OwnershipBox
               label1="SECURITY INTEREST"

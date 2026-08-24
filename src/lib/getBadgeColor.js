@@ -94,6 +94,10 @@ const badgeConfig = {
     color: 'yellow',
     label: 'OPERATIONAL/MANAGERIAL CONTROL',
   },
+  'PROPERTY TITLEHOLDER (REALIE)': {
+    color: 'teal',
+    label: 'REAL ESTATE TITLEHOLDER',
+  },
 
   'N/A': { color: '', label: 'None' },
   'OWNERSHIP DATA NOT AVAILABLE': { color: '', label: 'None' },
@@ -118,11 +122,20 @@ const getCmprColor = (cmpr, higherIsBetter = false) => {
    benchmark is worse, so the badge reads "Above National Average" in red. Returns
    { comparison, comparisonColor }; comparison is null when either value is
    missing so no badge renders. */
-const buildNationalComparison = (rawValue, rawBenchmark, higherIsBetter = false) => {
+const buildNationalComparison = (
+  rawValue,
+  rawBenchmark,
+  higherIsBetter = false,
+) => {
   /* Guard nullish/empty first: Number(null) and Number('') both coerce to 0,
      which would badge a genuinely-missing value as if it were 0 while the card
      renders 'N/A'. Only real numbers should produce a badge. */
-  if (rawValue == null || rawValue === '' || rawBenchmark == null || rawBenchmark === '') {
+  if (
+    rawValue == null ||
+    rawValue === '' ||
+    rawBenchmark == null ||
+    rawBenchmark === ''
+  ) {
     return { comparison: null, comparisonColor: 'gray' };
   }
   const value = Number(rawValue);
@@ -131,7 +144,10 @@ const buildNationalComparison = (rawValue, rawBenchmark, higherIsBetter = false)
     return { comparison: null, comparisonColor: 'gray' };
   }
   if (value === benchmark) {
-    return { comparison: 'Same As National Average', comparisonColor: 'yellow' };
+    return {
+      comparison: 'Same As National Average',
+      comparisonColor: 'yellow',
+    };
   }
   const isAbove = value > benchmark;
   const isBetter = higherIsBetter ? isAbove : !isAbove;

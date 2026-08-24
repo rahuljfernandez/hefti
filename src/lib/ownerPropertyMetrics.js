@@ -1,201 +1,199 @@
 import { formatUSD } from './stringFormatters';
 import { buildFootprint } from './footprintMetrics';
+import { hasPropertyData, isRelatedParty } from './propertyMetrics';
 
 /**
- * Owner-context property metrics: the Property Details tab on the owner profile.
+ * Owner-context real estate metrics for the Real Estate tab.
  *
  * Deliberately separate from propertyMetrics.js. That file describes ONE
- * property (the facility context); an owner holds many, so this context is
- * list-shaped — a portfolio summary plus a list of property rows — and sharing
- * a module would only blur two different shapes together.
+ * parcel (the facility context); an owner is linked to many, so this context is
+ * list-shaped — a portfolio summary plus a list of real estate rows — and sharing
+ * a module would only blur two different shapes together. The two rules the
+ * contexts must agree on, "did this facility match a parcel" and "is this a
+ * related party", are imported rather than restated.
  *
- * Builders take an optional `source` and fall back to the mock, matching the
- * propertyMetrics convention, so call sites can pass a real payload the day the
- * endpoint lands.
+ * The owner endpoint carries no usable portfolio aggregates: the
+ * `realie_owner_*` columns on the owner record are populated only on Realie's
+ * synthetic titleholder entities and are null on every CMS owner, which is what
+ * a profile page shows. So the summary is derived from the linked facilities.
  */
 
-/* PLACEHOLDER DATA — the property API is not live yet. Numbers come from the
-   design mocks, not from the owner record on the page; do not read them as live
-   data in review or screenshots.
+function toFiniteNumber(value) {
+  if (typeof value === 'string' && value.trim() === '') return null;
 
-   The summary and the property list are separate mocks on purpose: the list is
-   a sample of rows, while the headline counts (23 properties, 6 owners) describe
-   the full portfolio the API will aggregate. Deriving the counts from the sample
-   would contradict them. */
+  const parsed = typeof value === 'string' ? Number(value) : value;
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
+}
 
-const MOCK_PORTFOLIO_SUMMARY = {
-  related_party_percentage: 35,
-  related_party_count: 8,
-  total_properties: 23,
-  portfolio_value: 125000000,
-  states: ['CA', 'GA', 'TX'],
-  distinct_owners: 6,
-};
+/* Counties that publish only an assessment leave realie_market_value at 0 rather
+   than null — 20% of matched parcels, clustered in CA/MA/RI/CT, and 93% of them
+   carry a positive assessed value. Summing those zeros would read as portfolio
+   value the owner does not have, so 0 is treated as "not reported". */
+function marketValue(facility) {
+  const value = toFiniteNumber(facility?.realie_market_value);
+  return value !== null && value > 0 ? value : null;
+}
 
-const MOCK_OWNER_PROPERTIES = [
-  {
-    id: 'craigside-15',
-    facility_name: '15 Craigside',
-    facility_slug: '15-craigside',
-    street_address: '15 Craigside Place',
-    city: 'Honolulu',
-    state: 'HI',
-    zip_code: '96817',
-    market_value: 15000000,
-    related_party: true,
-    latitude: 21.3187,
-    longitude: -157.8583,
-  },
-  {
-    id: 'boulevard-se-350',
-    facility_name: '350 Boulevard SE',
-    facility_slug: '350-boulevard-se',
-    street_address: '350 Boulevard SE',
-    city: 'Atlanta',
-    state: 'GA',
-    zip_code: '30312',
-    market_value: 35125000,
-    related_party: true,
-    latitude: 33.744864,
-    longitude: -84.367402,
-  },
-  {
-    id: 'oakmont-terrace',
-    facility_name: 'Oakmont Terrace',
-    facility_slug: 'oakmont-terrace',
-    street_address: '1200 Oakmont Terrace',
-    city: 'Sacramento',
-    state: 'CA',
-    zip_code: '95826',
-    market_value: 8400000,
-    related_party: false,
-    latitude: 38.5449,
-    longitude: -121.4014,
-  },
-  {
-    id: 'lakeside-manor',
-    facility_name: 'Lakeside Manor',
-    facility_slug: 'lakeside-manor',
-    street_address: '88 Lakeside Drive',
-    city: 'Austin',
-    state: 'TX',
-    zip_code: '78733',
-    market_value: 21750000,
-    related_party: false,
-    latitude: 30.3421,
-    longitude: -97.8956,
-  },
-  {
-    id: 'riverbend-care',
-    facility_name: 'Riverbend Care Center',
-    facility_slug: 'riverbend-care-center',
-    street_address: '540 Riverbend Road',
-    city: 'Fresno',
-    state: 'CA',
-    zip_code: '93720',
-    market_value: 6200000,
-    related_party: true,
-    latitude: 36.8468,
-    longitude: -119.7726,
-  },
-  {
-    id: 'magnolia-heights',
-    facility_name: 'Magnolia Heights',
-    facility_slug: 'magnolia-heights',
-    street_address: '77 Magnolia Street',
-    city: 'Savannah',
-    state: 'GA',
-    zip_code: '31401',
-    market_value: 12900000,
-    related_party: false,
-    latitude: 32.0809,
-    longitude: -81.0912,
-  },
-];
+/* Realie writes this literal into realie_owner_name instead of leaving it empty,
+   so it would otherwise count as a landlord entity of its own. */
+const MISSING_OWNER_NAME = 'NOT AVAILABLE FROM THE DATA';
 
-/* Display-ready cards for the Portfolio Highlights row, split by importance:
-   two `primary` headline figures (related-party risk, portfolio value) and
-   three `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon`
-   is a string token the organism maps to a component so this module stays free
-   of JSX. */
-export function buildPortfolioHighlights(source = MOCK_PORTFOLIO_SUMMARY) {
-  const summary = source ?? MOCK_PORTFOLIO_SUMMARY;
+function titleholderName(facility) {
+  const name = facility?.realie_owner_name;
+  if (typeof name !== 'string') return null;
+
+  const trimmed = name.trim();
+  return trimmed === '' || trimmed.toUpperCase() === MISSING_OWNER_NAME
+    ? null
+    : trimmed;
+}
+
+/* One row per facility the owner is linked to that matched a Realie parcel.
+   Links repeat a facility once per ownership role, so they are deduped by
+   facility id before anything counts them.
+   Addresses come from the facility's own columns, not realie_address: they are
+   fully populated and are the address the rest of the profile already shows. */
+export function buildOwnerProperties(owner) {
+  const seen = new Map();
+
+  for (const link of owner?.facility_ownership_links ?? []) {
+    const facility = link?.facility;
+    if (!facility || seen.has(facility.id)) continue;
+    if (!hasPropertyData(facility)) continue;
+    seen.set(facility.id, facility);
+  }
+
+  return [...seen.values()].map((facility) => {
+    const market = marketValue(facility);
+    return {
+      id: String(facility.id),
+      facility_name: facility.provider_name,
+      facility_slug: facility.slug,
+      street_address: facility.street_address,
+      city: facility.city,
+      state: facility.state,
+      zip_code: facility.zip_code,
+      latitude: toFiniteNumber(facility.latitude),
+      longitude: toFiniteNumber(facility.longitude),
+      titleholder_name: titleholderName(facility),
+      related_party: isRelatedParty(facility),
+      market_value: market,
+      market_value_display:
+        market === null ? 'Not reported' : formatUSD(market),
+    };
+  });
+}
+
+/* Portfolio figures over the rows above, so every card counts the same
+   properties the list and the map show. Returns null when the owner has no
+   matched parcels — the tab shows an empty state rather than a row of zeros. */
+export function buildPortfolioSummary(properties) {
+  if (!properties?.length) return null;
+
+  const valued = properties.filter((p) => p.market_value !== null);
+  const relatedParty = properties.filter((p) => p.related_party);
+  const titleholders = properties
+    .map((p) => p.titleholder_name?.trim().toUpperCase())
+    .filter(Boolean);
+
+  return {
+    total_properties: properties.length,
+    related_party_count: relatedParty.length,
+    related_party_percentage: Math.round(
+      (relatedParty.length / properties.length) * 100,
+    ),
+    portfolio_value:
+      valued.length === 0
+        ? null
+        : valued.reduce((sum, p) => sum + p.market_value, 0),
+    valued_properties: valued.length,
+    states: [...new Set(properties.map((p) => p.state).filter(Boolean))].sort(),
+    distinct_owners:
+      titleholders.length === 0 ? null : new Set(titleholders).size,
+  };
+}
+
+/* Display-ready cards for the Real Estate Highlights row, split by importance:
+   two `primary` headline figures (total value, geographic spread) over three
+   `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon` is a
+   string token the organism maps to a component so this module stays free of JSX.
+
+   Related party is last rather than first: the shipped flag reads 0% on most
+   owners, so leading with it gives the loudest position to the emptiest figure. */
+export function buildOwnerRealEstateHighlights(summary) {
   const {
     related_party_percentage,
     related_party_count,
     total_properties,
     portfolio_value,
+    valued_properties,
     distinct_owners,
   } = summary;
   const states = summary.states ?? [];
 
-  const primary = [
-    {
-      id: 'related-party',
-      label: 'Related Party',
-      value:
-        related_party_percentage != null
-          ? `${related_party_percentage}%`
-          : 'N/A',
-      aside:
-        related_party_count != null && total_properties != null
-          ? `${related_party_count} of ${total_properties}`
-          : null,
-      caption: 'Possible related party owned',
-      accent: 'amber',
-      icon: 'warning',
-    },
-    {
-      id: 'portfolio-value',
-      label: 'Portfolio Value',
-      value: formatUSD(portfolio_value),
-      caption: 'Total market value',
-    },
-  ];
+  /* The amber treatment is a warning, so it only appears when there is something
+     to warn about — most portfolios flag no related party at all. */
+  const flagged = related_party_count > 0;
 
-  const supporting = [
+  const primary = [
+    /* Not "Portfolio Value": the CMS owner holds title to ~2% of these parcels,
+       so naming them a portfolio would assert an ownership that mostly is not
+       there. Matches the state context's "Total Real Estate Value". */
+    {
+      id: 'real-estate-value',
+      label: 'Total Real Estate Value',
+      value:
+        portfolio_value === null ? 'Not reported' : formatUSD(portfolio_value),
+      caption:
+        valued_properties === 0
+          ? `No market values reported for ${total_properties} properties`
+          : valued_properties < total_properties
+            ? `Total market value of ${valued_properties} of ${total_properties} properties`
+            : 'Total market value',
+    },
     {
       id: 'states',
       label: 'States',
       value: states.length,
       caption: states.join(', '),
     },
+  ];
+
+  const supporting = [
     {
       id: 'properties',
-      label: 'Properties',
-      value: total_properties ?? 'N/A',
+      label: 'Real Estate Holdings',
+      value: total_properties,
       caption: 'Real estate parcels',
     },
     {
       id: 'property-owners',
-      label: 'Property Owners',
-      value: distinct_owners ?? 'N/A',
-      caption: 'Distinct landlord entities',
+      label: 'Real Estate Owners',
+      value: distinct_owners === null ? 'Not reported' : distinct_owners,
+      caption:
+        distinct_owners === null
+          ? 'No landlord entities reported'
+          : 'Distinct landlord entities',
+    },
+    {
+      id: 'related-party',
+      label: 'Related Party',
+      value: `${related_party_percentage}%`,
+      aside: `${related_party_count} of ${total_properties}`,
+      caption: 'Possible related party owned',
+      accent: flagged ? 'amber' : undefined,
+      icon: flagged ? 'warning' : undefined,
     },
   ];
 
   return { primary, supporting };
 }
 
-/* Map-ready footprint for the owner's properties — one marker per property with
+/* Map-ready footprint for the owner's holdings — one marker per holding with
    coordinates, plus the box the map fits on load. The lat/lng shaping is shared
-   with the state context in footprintMetrics.js; this wrapper only supplies the
-   owner mock default. */
-export function buildOwnerFootprint(source = MOCK_OWNER_PROPERTIES) {
-  return buildFootprint(source);
-}
-
-/* The owner's property rows, used by both the footprint map and the Properties
-   list. Rows carry a preformatted `market_value_display` so the card renders
-   without reaching for a formatter. */
-export function buildOwnerProperties(source = MOCK_OWNER_PROPERTIES) {
-  const properties = Array.isArray(source) ? source : [];
-  return properties.map((property) => ({
-    ...property,
-    market_value_display: Number.isFinite(property.market_value)
-      ? formatUSD(property.market_value)
-      : 'N/A',
-  }));
+   with the state context in footprintMetrics.js. */
+export function buildOwnerFootprint(properties) {
+  return buildFootprint(properties);
 }
 
 /* Filter options for the Properties list. The option arrays feed the SelectMenu
@@ -203,9 +201,12 @@ export function buildOwnerProperties(source = MOCK_OWNER_PROPERTIES) {
    and the logic stay one source of truth. Sort reuses SelectMenu's built-in
    'asc'/'desc' options — the only sortable figure the cards show is market value,
    which those defaults already cover. */
+/* Option labels must not repeat the control's own label — SelectMenu renders that
+   label as the "no filter" placeholder, so a "Related Party" option would sit
+   directly under an identical "Related Party" default. */
 export const OWNER_PROPERTY_RELATED_PARTY_OPTIONS = [
-  { label: 'Related Party', value: 'related' },
-  { label: 'Not Related Party', value: 'not-related' },
+  { label: 'Related party only', value: 'related' },
+  { label: 'Not related party', value: 'not-related' },
 ];
 
 export const OWNER_PROPERTY_VALUE_OPTIONS = [
@@ -220,10 +221,17 @@ const VALUE_BUCKETS = {
   'under-10m': (v) => v < 10_000_000,
 };
 
-/* A non-finite market value sorts as 0 (same rows the value filter would drop),
-   so the comparator can't return NaN and scramble the whole order. */
-const marketValueKey = (row) =>
-  Number.isFinite(row.market_value) ? row.market_value : 0;
+function compareMarketValue(a, b, direction) {
+  const aReported = Number.isFinite(a.market_value);
+  const bReported = Number.isFinite(b.market_value);
+
+  if (aReported !== bReported) return aReported ? -1 : 1;
+  if (!aReported) return 0;
+
+  return direction === 'asc'
+    ? a.market_value - b.market_value
+    : b.market_value - a.market_value;
+}
 
 /* Filters then sorts the display rows for the Properties list. Each argument is
    an option value or null ("no selection"); unrecognized values are ignored so a
@@ -248,13 +256,9 @@ export function selectOwnerProperties(
   }
 
   if (sort === 'desc') {
-    result = [...result].sort(
-      (a, b) => marketValueKey(b) - marketValueKey(a),
-    );
+    result = [...result].sort((a, b) => compareMarketValue(a, b, 'desc'));
   } else if (sort === 'asc') {
-    result = [...result].sort(
-      (a, b) => marketValueKey(a) - marketValueKey(b),
-    );
+    result = [...result].sort((a, b) => compareMarketValue(a, b, 'asc'));
   }
 
   return result;

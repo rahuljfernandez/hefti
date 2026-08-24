@@ -287,8 +287,6 @@ function rankByDeficiencyBurden(items, toRow, nationalBenchmarks) {
    only to sort and scale the bar. Owner display mirrors the facilities browse
    card (primary ownership link). */
 function facilityBurdenRow(facility) {
-  const primaryOwnership =
-    facility.facility_ownership_links?.[0]?.ownership_entity;
   const deficiencies = facility.health_deficiencies;
   const penalties = facility.total_penalties;
   return {
@@ -296,11 +294,7 @@ function facilityBurdenRow(facility) {
     facility_name: toTitleCase(facility.provider_name || 'Unknown Facility'),
     facility_slug: facility.slug,
     state: facility.state ?? '',
-    owner_name: toTitleCase(
-      primaryOwnership?.cms_ownership_name ||
-        primaryOwnership?.parent_company_name ||
-        '',
-    ),
+    owner_name: toTitleCase(facility.primary_owner?.name || ''),
     deficiencies: deficiencies ?? 0,
     metric_display: deficiencies == null ? 'N/A' : String(deficiencies),
     penalties_display: penalties == null ? 'N/A' : String(penalties),
