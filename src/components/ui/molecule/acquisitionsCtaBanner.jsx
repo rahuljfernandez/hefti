@@ -8,6 +8,11 @@ import CtaLinkButton from '../atom/ctaLinkButton';
    sections. Renders the gradient panel and dark link button; the message is
    passed as children so each surface supplies its own copy. */
 
+/* Temporary: every CTA points at the external live-feed demo instead of the
+   native /acquisitions page. */
+export const LIVE_FEED_DEMO_URL =
+  'https://yutingfan1209.github.io/nursing-home-live-feed/';
+
 export default function AcquisitionsCtaBanner({
   to = '/acquisitions',
   label,
