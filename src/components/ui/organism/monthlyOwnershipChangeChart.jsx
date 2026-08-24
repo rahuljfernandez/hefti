@@ -196,12 +196,15 @@ function Chart({ data }) {
   const valueAxisWidth = isMobile ? MOBILE_VALUE_AXIS_WIDTH : VALUE_AXIS_WIDTH;
   const peakMonth = data.find((d) => d.indicator === 'PEAK');
   const lowestMonth = data.find((d) => d.indicator === 'LOWEST');
+  const firstMonth = data[0]?.month;
+  const lastMonth = data[data.length - 1]?.month;
 
   return (
     <div className="overflow-hidden">
       <p id={descId} className="sr-only">
         Horizontal bar chart showing monthly counts of facilities with ownership
-        changes in recent months.
+        changes
+        {firstMonth && lastMonth ? ` from ${firstMonth} to ${lastMonth}` : ''}.
         {peakMonth
           ? ` Peak month: ${peakMonth.month} with ${peakMonth.count} ownership changes.`
           : ''}
@@ -270,6 +273,14 @@ function Chart({ data }) {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {lastMonth && (
+        <p className="text-paragraph-xs text-content-tertiary mt-3">
+          Through {lastMonth}. Ownership changes are reported for months after
+          they occur, so the most recent months are held back until their counts
+          settle.
+        </p>
+      )}
 
       <div className="sr-only">
         <table>
