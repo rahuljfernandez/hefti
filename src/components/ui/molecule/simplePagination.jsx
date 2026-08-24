@@ -5,8 +5,11 @@ import clsx from 'clsx';
 /**
  * Simple previous / next pagination bar with a "Showing X–Y of Z" summary.
  * Buttons are disabled and marked aria-disabled at the first and last pages.
+ * `showSummary` drops that text where the page content already states its own
+ * range, leaving just the controls.
  *
- * Used in: src/components/ui/organism/stateRankingsHiLowViz.jsx
+ * Used in: src/components/ui/organism/stateRankingsHiLowViz.jsx,
+ * src/components/ui/organism/monthlyOwnershipChangeChart.jsx
  */
 export default function SimplePagination({
   currentPage,
@@ -15,6 +18,7 @@ export default function SimplePagination({
   onPrev,
   onNext,
   divider = true,
+  showSummary = true,
 }) {
   const start = (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, totalItems);
@@ -29,15 +33,17 @@ export default function SimplePagination({
         divider && 'border-border-primary border-t',
       )}
     >
-      <div className="hidden sm:block">
-        <p className="text-paragraph-base text-content-secondary">
-          Showing{' '}
-          <span className="font-medium">
-            {start}–{end}
-          </span>{' '}
-          of <span className="font-medium">{totalItems}</span>
-        </p>
-      </div>
+      {showSummary && (
+        <div className="hidden sm:block">
+          <p className="text-paragraph-base text-content-secondary">
+            Showing{' '}
+            <span className="font-medium">
+              {start}–{end}
+            </span>{' '}
+            of <span className="font-medium">{totalItems}</span>
+          </p>
+        </div>
+      )}
       <div className="flex flex-1 justify-between sm:justify-end">
         <button
           type="button"
@@ -81,4 +87,5 @@ SimplePagination.propTypes = {
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
   divider: PropTypes.bool,
+  showSummary: PropTypes.bool,
 };

@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
+import SimplePagination from '../molecule/simplePagination';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 
 /**
@@ -199,6 +200,7 @@ function Chart({ data }) {
   const firstMonth = data[0]?.month;
   const lastMonth = data[data.length - 1]?.month;
 
+
   return (
     <div className="overflow-hidden">
       <p id={descId} className="sr-only">
@@ -274,14 +276,6 @@ function Chart({ data }) {
         </ResponsiveContainer>
       </div>
 
-      {lastMonth && (
-        <p className="text-paragraph-xs text-content-tertiary mt-3">
-          Through {lastMonth}. Ownership changes are reported for months after
-          they occur, so the most recent months are held back until their counts
-          settle.
-        </p>
-      )}
-
       <div className="sr-only">
         <table>
           <caption>Monthly ownership change counts</caption>
@@ -327,7 +321,8 @@ Chart.propTypes = {
  * @returns {JSX.Element}
  */
 export default function MonthlyOwnershipChangeChart() {
-  const [data, setData] = useState([]);
+  const [windows, setWindows] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -348,11 +343,14 @@ export default function MonthlyOwnershipChangeChart() {
         });
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
         const json = await res.json();
-        setData(Array.isArray(json) ? json : []);
+        const list = Array.isArray(json?.windows) ? json.windows : [];
+        setWindows(list);
+        /* Windows run oldest-first; open on the newest. */
+        setPage(Math.max(1, list.length));
       } catch (err) {
         if (err?.name === 'AbortError') return;
         setError(err.message || 'Failed to load ownership change volume.');
-        setData([]);
+        setWindows([]);
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -363,6 +361,8 @@ export default function MonthlyOwnershipChangeChart() {
     load();
     return () => controller.abort();
   }, [API_BASE_URL]);
+
+  const activeWindow = windows[page - 1];
 
   const body = loading ? (
     <ChartSkeleton />
@@ -376,9 +376,31 @@ export default function MonthlyOwnershipChangeChart() {
         <ChartSkeleton error />
       </div>
     </>
-  ) : (
-    <Chart data={data} />
-  );
+  ) : activeWindow ? (
+    <>
+      <Chart data={activeWindow.data} />
+
+      {windows.length > 1 && (
+        <SimplePagination
+          currentPage={page}
+          totalItems={windows.length}
+          pageSize={1}
+          onPrev={() => setPage((p) => Math.max(1, p - 1))}
+          onNext={() => setPage((p) => Math.min(windows.length, p + 1))}
+          showSummary={false}
+        />
+      )}
+
+      {/* Only the newest window is subject to the reporting lag. */}
+      {page === windows.length && (
+        <p className="text-paragraph-xs text-content-tertiary mt-3">
+          Through {activeWindow.to}. Ownership changes are reported for months
+          after they occur, so the most recent months are held back until their
+          counts settle.
+        </p>
+      )}
+    </>
+  ) : null;
 
   return (
     <section aria-label="Monthly SNF ownership change volume">{body}</section>
