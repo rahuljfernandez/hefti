@@ -8,6 +8,7 @@ import {
   researcherFeatures,
   contactCard,
 } from '../lib/landingPageData';
+import smokeyLayer from '../assets/smokeyLayer.png';
 
 /**
  * Marketing landing page for the HEFTI platform, accessible at `/landing`.
@@ -37,7 +38,7 @@ export default function LandingPage() {
         id="hero"
         aria-labelledby="hero-heading"
         style={{
-          backgroundImage: 'url(/src/assets/smokeyLayer.png)',
+          backgroundImage: `url(${smokeyLayer})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
