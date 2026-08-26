@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TableCellsIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../components/ui/atom/heading';
@@ -12,7 +12,10 @@ import { slugify } from '../lib/slugify';
 import { toTitleCase } from '../lib/toTitleCase';
 import OfficeBuildingCircle from '../assets/officeBuildingCircle.jsx';
 import UserGroupCircle from '../assets/userGroupCircle.jsx';
-import TrendingCarousel from '../components/ui/organism/trendingCarousel.jsx';
+/* Parked until the client supplies the remaining trending charts. */
+// import TrendingCarousel from '../components/ui/organism/trendingCarousel.jsx';
+import LayoutCard from '../components/ui/atom/layout-card.jsx';
+import MonthlyOwnershipChangeChart from '../components/ui/organism/monthlyOwnershipChangeChart.jsx';
 import { IndustryListSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowViz.jsx';
@@ -34,6 +37,7 @@ export default function Home() {
   const [topOwners, setTopOwners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartHeadingId = useId();
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
@@ -280,8 +284,20 @@ export default function Home() {
       <HomeAcquisitionsCta />
 
       {/* Trending charts carousel section */}
-      <section className="bg-background-secondary min-h-[400px] w-full px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
-        <TrendingCarousel />
+      <section className="bg-background-secondary mx-auto min-h-[400px] w-full max-w-5xl px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
+        {/* Standing in for <TrendingCarousel /> until the other charts exist. */}
+
+        <div className="mb-4">
+          <Heading id={chartHeadingId} level={2} className="text-heading-sm">
+            Monthly SNF Ownership Change Volume
+          </Heading>
+          <p className="text-paragraph-sm text-content-secondary mt-1">
+            Facilities with ownership changes, by month
+          </p>
+        </div>
+        <LayoutCard>
+          <MonthlyOwnershipChangeChart />
+        </LayoutCard>
       </section>
     </div>
   );

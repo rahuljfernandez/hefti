@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
 import { Heading } from '../atom/heading';
 import LayoutCard from '../atom/layout-card';
-import AcquisitionsCtaBanner from '../molecule/acquisitionsCtaBanner';
+import AcquisitionsCtaBanner, {
+  LIVE_FEED_DEMO_URL,
+} from '../molecule/acquisitionsCtaBanner';
 
 const WINDOW_DAYS = 90;
 const FEED_LIMIT = 5;
@@ -127,7 +129,7 @@ function FeedSkeleton() {
   );
 }
 
-export default function HomeAcquisitionsCta({ to = '/acquisitions' }) {
+export default function HomeAcquisitionsCta({ to = LIVE_FEED_DEMO_URL }) {
   const [deals, setDeals] = useState([]);
   const [totalChanges, setTotalChanges] = useState(null);
   const [loading, setLoading] = useState(true);

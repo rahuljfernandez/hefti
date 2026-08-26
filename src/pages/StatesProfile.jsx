@@ -282,11 +282,13 @@ export default function StatesProfile() {
               }}
             </TabsShell>
 
-            {/* Ownership-changes CTA → native /acquisitions list (state-filtered). */}
+            {/* Ownership-changes CTA. Temporarily falls back to the component's
+                live-feed demo default; restore the state-filtered `to` below to
+                send users back to the native /acquisitions list. */}
             <StateAcquisitionsCta
               stateName={expandStateAbbreviation(stateStats.state)}
               changeCount={15}
-              to={`/acquisitions?state=${encodeURIComponent(stateStats.state)}`}
+              // to={`/acquisitions?state=${encodeURIComponent(stateStats.state)}`}
             />
           </>
         )}
