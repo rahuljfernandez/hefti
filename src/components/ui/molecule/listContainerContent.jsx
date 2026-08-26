@@ -143,8 +143,6 @@ AiSummaryCard.propTypes = {
   }).isRequired,
 };
 
-// V1 placeholder — Rahul will split into separate report_date + report_url fields.
-// Update field names here once the backend change lands.
 export function DeficiencyReportItem({ item }) {
   return (
     <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-4">
