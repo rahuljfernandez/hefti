@@ -9,14 +9,14 @@ import { BrowseChains, BrowseOwners } from '../components/ui/molecule/listContai
 /**
  * Rankings list page — renders a paginated, searchable, sortable list for each ranking type.
  *
- * Route: /rankings/:type
+ * Route: /nursing-homes/rankings/:type
  * Supported types: chains, individual-owners (state ranking types pending backend endpoints).
  *
  * Uses BrowsePage with several rankings-specific props not present on Facilities or Owners:
  * - sortOptions: Descending/Ascending by count instead of A-Z/Z-A
  * - defaultSort: 'desc' so the highest-count entries appear first on load
  * - filterOptions: ranking type switcher (chains, individual-owners); navigates routes on change
- * - onFilterChange: navigates to /rankings/:type instead of filtering by state
+ * - onFilterChange: navigates to /nursing-homes/rankings/:type instead of filtering by state
  * - onSuggestionPick: routes chains to a filtered facility list, owners to their profile page
  * - suggestionsEndpoint: individual-owners reuses /api/owners/suggestions
  * - filterAccessibleLabel: overrides the default "Filter by state" aria-label to "Filter by ranking type"
@@ -31,7 +31,7 @@ import { BrowseChains, BrowseOwners } from '../components/ui/molecule/listContai
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://hefti-data-api.ddev.site:3000/api';
 
-// Ranking type switcher options — navigates to /rankings/:type on change instead of filtering by state.
+// Ranking type switcher options — navigates to /nursing-homes/rankings/:type on change instead of filtering by state.
 const RANKINGS_FILTER_OPTIONS = [
   { label: 'Top Chains', value: 'chains' },
   { label: 'Top Individual Owners', value: 'individual-owners' },
@@ -72,10 +72,10 @@ export default function Rankings() {
         filterOptions={RANKINGS_FILTER_OPTIONS}
         filterAccessibleLabel="Filter by ranking type"
         showStateFilter={false}
-        onFilterChange={(val) => val && navigate(`/rankings/${val}`)}
+        onFilterChange={(val) => val && navigate(`/nursing-homes/rankings/${val}`)}
         onSuggestionPick={(suggestion) => {
-          if (type === 'chains') navigate(`/facilities?chain=${suggestion.slug}`, { state: { from: 'rankings' } });
-          else navigate(`/owners/${suggestion.slug}`, { state: { from: 'rankings' } });
+          if (type === 'chains') navigate(`/nursing-homes/facilities?chain=${suggestion.slug}`, { state: { from: 'rankings' } });
+          else navigate(`/nursing-homes/owners/${suggestion.slug}`, { state: { from: 'rankings' } });
         }}
         renderList={(items) => (
           <ListContainer

@@ -57,7 +57,7 @@ import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
 /**
  * FacilityProfile
  *
- * Route container for a single nursing-home facility (/facilities/:slug). Fetches
+ * Route container for a single nursing-home facility (/nursing-homes/facilities/:slug). Fetches
  * the facility by slug (re-fetching when the selected data year changes) plus the
  * national benchmarks the tab comparisons use, then renders:
  *
@@ -206,7 +206,7 @@ export default function FacilityProfile() {
   //click handler to open the AI chat
   const handleResearchClick = () => {
     navigate(
-      `/facilities/${slug}/research`,
+      `/nursing-homes/facilities/${slug}/research`,
       state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined,
     );
   };

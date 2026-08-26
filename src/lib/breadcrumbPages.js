@@ -12,45 +12,45 @@ import { toTitleCase } from './toTitleCase';
 
 // Home > All Nursing Homes
 export const facilityListPages = [
-  { name: 'Home', to: '/', current: false },
-  { name: 'All Nursing Homes', to: '/facilities', current: true },
+  { name: 'Home', to: '/nursing-homes', current: false },
+  { name: 'All Nursing Homes', to: '/nursing-homes/facilities', current: true },
 ];
 
 // Home > Rankings
 export const rankingsListPages = [
-  { name: 'Home', to: '/', current: false },
-  { name: 'Rankings', to: '/rankings', current: true },
+  { name: 'Home', to: '/nursing-homes', current: false },
+  { name: 'Rankings', to: '/nursing-homes/rankings', current: true },
 ];
 
 // Home > All Owners
 export const ownerListPages = [
-  { name: 'Home', to: '/', current: false },
-  { name: 'All Owners', to: '/owners', current: true },
+  { name: 'Home', to: '/nursing-homes', current: false },
+  { name: 'All Owners', to: '/nursing-homes/owners', current: true },
 ];
 
 // Home > Rankings > All Nursing Homes (when arriving from rankings/chains)
 export const rankingsFacilityListPages = [
-  { name: 'Home', to: '/', current: false },
-  { name: 'Rankings', to: '/rankings/chains', current: false },
-  { name: 'All Nursing Homes', to: '/facilities', current: true },
+  { name: 'Home', to: '/nursing-homes', current: false },
+  { name: 'Rankings', to: '/nursing-homes/rankings/chains', current: false },
+  { name: 'All Nursing Homes', to: '/nursing-homes/facilities', current: true },
 ];
 
 // Home > Rankings > [Owner Name] (when arriving from rankings/individual-owners)
 export function getRankingsOwnerProfilePages(slug, ownerName) {
   return [
-    { name: 'Home', to: '/', current: false },
-    { name: 'Rankings', to: '/rankings/individual-owners', current: false },
-    { name: ownerName || '...', to: `/owners/${slug}`, current: true },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: 'Rankings', to: '/nursing-homes/rankings/individual-owners', current: false },
+    { name: ownerName || '...', to: `/nursing-homes/owners/${slug}`, current: true },
   ];
 }
 
 // Home > Rankings > All Nursing Homes > [Facility Name] (when arriving from rankings/chains)
 export function getRankingsFacilityProfilePages(slug, facilityName) {
   return [
-    { name: 'Home', to: '/', current: false },
-    { name: 'Rankings', to: '/rankings/chains', current: false },
-    { name: 'All Nursing Homes', to: '/facilities', current: false },
-    { name: facilityName || '...', to: `/facilities/${slug}`, current: true },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: 'Rankings', to: '/nursing-homes/rankings/chains', current: false },
+    { name: 'All Nursing Homes', to: '/nursing-homes/facilities', current: false },
+    { name: facilityName || '...', to: `/nursing-homes/facilities/${slug}`, current: true },
   ];
 }
 
@@ -58,9 +58,9 @@ export function getRankingsFacilityProfilePages(slug, facilityName) {
 // facilityName falls back to '...' while the API response is still loading.
 export function getFacilityProfilePages(slug, facilityName) {
   return [
-    { name: 'Home', to: '/', current: false },
-    { name: 'All Nursing Homes', to: '/facilities', current: false },
-    { name: facilityName || '...', to: `/facilities/${slug}`, current: true },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: 'All Nursing Homes', to: '/nursing-homes/facilities', current: false },
+    { name: facilityName || '...', to: `/nursing-homes/facilities/${slug}`, current: true },
   ];
 }
 
@@ -68,9 +68,9 @@ export function getFacilityProfilePages(slug, facilityName) {
 // ownerName falls back to '...' while the API response is still loading.
 export function getOwnerProfilePages(slug, ownerName) {
   return [
-    { name: 'Home', to: '/', current: false },
-    { name: 'All Owners', to: '/owners', current: false },
-    { name: ownerName || '...', to: `/owners/${slug}`, current: true },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: 'All Owners', to: '/nursing-homes/owners', current: false },
+    { name: ownerName || '...', to: `/nursing-homes/owners/${slug}`, current: true },
   ];
 }
 
@@ -79,14 +79,14 @@ export function getOwnerProfilePages(slug, ownerName) {
 export function getRankingsResearchPages(slug, contextType) {
   const isOwner = contextType === 'owner';
   const base = [
-    { name: 'Home', to: '/', current: false },
-    { name: 'Rankings', to: isOwner ? '/rankings/individual-owners' : '/rankings/chains', current: false },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: 'Rankings', to: isOwner ? '/nursing-homes/rankings/individual-owners' : '/nursing-homes/rankings/chains', current: false },
   ];
   if (!isOwner) {
-    base.push({ name: 'All Nursing Homes', to: '/facilities', current: false });
+    base.push({ name: 'All Nursing Homes', to: '/nursing-homes/facilities', current: false });
   }
   base.push(
-    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/owners/${slug}` : `/facilities/${slug}`, current: false },
+    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/nursing-homes/owners/${slug}` : `/nursing-homes/facilities/${slug}`, current: false },
     { name: 'Researcher', to: '#', current: true },
   );
   return base;
@@ -97,9 +97,9 @@ export function getRankingsResearchPages(slug, contextType) {
 export function getResearchPages(slug, contextType) {
   const isOwner = contextType === 'owner';
   return [
-    { name: 'Home', to: '/', current: false },
-    { name: isOwner ? 'All Owners' : 'All Nursing Homes', to: isOwner ? '/owners' : '/facilities', current: false },
-    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/owners/${slug}` : `/facilities/${slug}`, current: false },
+    { name: 'Home', to: '/nursing-homes', current: false },
+    { name: isOwner ? 'All Owners' : 'All Nursing Homes', to: isOwner ? '/nursing-homes/owners' : '/nursing-homes/facilities', current: false },
+    { name: toTitleCase(slug.replace(/-/g, ' ')), to: isOwner ? `/nursing-homes/owners/${slug}` : `/nursing-homes/facilities/${slug}`, current: false },
     { name: 'Researcher', to: '#', current: true },
   ];
 }

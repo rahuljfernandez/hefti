@@ -128,7 +128,7 @@ export default function DeficienciesTab({
                   showOwner={status === 'state'}
                   viewAllHref={
                     status === 'state' && metricsSource?.state
-                      ? `/facilities?state=${encodeURIComponent(metricsSource.state)}`
+                      ? `/nursing-homes/facilities?state=${encodeURIComponent(metricsSource.state)}`
                       : undefined
                   }
                 />

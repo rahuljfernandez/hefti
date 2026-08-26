@@ -23,7 +23,7 @@ import {
  * Reads all five metrics from the shared useStateMetrics hook (one /state-metrics
  * request for the whole page); switching tabs is then a client-side lookup (no
  * refetch). Hovering a state shows its card; clicking a state routes to
- * /states/:code. Shows a skeleton while loading and a red-tinted skeleton on error.
+ * /nursing-homes/states/:code. Shows a skeleton while loading and a red-tinted skeleton on error.
  */
 export default function ExploreByState() {
   const [activeTab, setActiveTab] = useState(
@@ -52,7 +52,7 @@ export default function ExploreByState() {
   const navigate = useNavigate();
   const handleStateSelect = (stateName) => {
     const code = cards[stateName]?.stateCode;
-    if (code) navigate(`/states/${code}`);
+    if (code) navigate(`/nursing-homes/states/${code}`);
   };
 
   return (

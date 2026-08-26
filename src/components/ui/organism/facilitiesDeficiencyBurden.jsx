@@ -43,7 +43,7 @@ const buildColumns = (showOwner) => [
     flex: true,
     rowHeader: true,
     cell: (row) => (
-      <Link to={`/facilities/${row.facility_slug}`} {...burdenNameLinkProps}>
+      <Link to={`/nursing-homes/facilities/${row.facility_slug}`} {...burdenNameLinkProps}>
         {row.facility_name}
       </Link>
     ),

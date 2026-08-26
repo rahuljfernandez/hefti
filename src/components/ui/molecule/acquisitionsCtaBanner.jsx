@@ -14,7 +14,7 @@ export const LIVE_FEED_DEMO_URL =
   'https://yutingfan1209.github.io/nursing-home-live-feed/';
 
 export default function AcquisitionsCtaBanner({
-  to = '/acquisitions',
+  to = '/nursing-homes/acquisitions',
   label,
   children,
   background = 'bg-linear-to-r from-purple-50 to-purple-200',

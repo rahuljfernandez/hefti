@@ -100,7 +100,7 @@ export default function Home() {
                 <span>View nursing home profile pages</span>
               </li>
             </ul>
-            <CtaLinkButton to="/facilities" fullWidth>
+            <CtaLinkButton to="/nursing-homes/facilities" fullWidth>
               Browse Nursing Homes
             </CtaLinkButton>
           </div>
@@ -119,7 +119,7 @@ export default function Home() {
                 <span>View profile pages for owners</span>
               </li>
             </ul>
-            <CtaLinkButton to="/owners" fullWidth>
+            <CtaLinkButton to="/nursing-homes/owners" fullWidth>
               Browse Owners
             </CtaLinkButton>
           </div>
@@ -185,7 +185,7 @@ export default function Home() {
                     {topChains.map((chain) => (
                       <li key={chain.name}>
                         <Link
-                          to={`/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
+                          to={`/nursing-homes/facilities?chain=${encodeURIComponent(slugify(chain.name))}`}
                           className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-blue-50/40"
                           style={{ textDecoration: 'none' }}
                         >
@@ -201,7 +201,7 @@ export default function Home() {
                   </ul>
                   <div className="pt-3 pb-8 text-center">
                     <Link
-                      to="/rankings/chains"
+                      to="/nursing-homes/rankings/chains"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
                     >
                       See full list
@@ -250,8 +250,8 @@ export default function Home() {
                         <Link
                           to={
                             owner.slug
-                              ? `/owners/${owner.slug}`
-                              : `/owners/${slugify(owner.name)}`
+                              ? `/nursing-homes/owners/${owner.slug}`
+                              : `/nursing-homes/owners/${slugify(owner.name)}`
                           }
                           className="focus-ring-light flex items-center justify-between px-6 py-6 transition-colors hover:bg-purple-50/40"
                           style={{ textDecoration: 'none' }}
@@ -268,7 +268,7 @@ export default function Home() {
                   </ul>
                   <div className="pt-3 pb-8 text-center">
                     <Link
-                      to="/rankings/individual-owners"
+                      to="/nursing-homes/rankings/individual-owners"
                       className="text-paragraph-base cursor-pointer text-blue-700 underline hover:text-blue-800"
                     >
                       See full list

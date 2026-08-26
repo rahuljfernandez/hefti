@@ -30,7 +30,7 @@ export default function Footer() {
           <div className="md:col-span-2 md:grid">
             <Link
               to="/"
-              aria-label="Home"
+              aria-label="HEFTI home"
               className="focus-ring-shell-dark rounded-lg"
             >
               <div className="flex items-center">

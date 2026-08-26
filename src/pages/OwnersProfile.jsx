@@ -167,7 +167,7 @@ export default function OwnersProfile() {
   //click handler to open the AI chat
   const handleResearchClick = () => {
     navigate(
-      `/owners/${slug}/research`,
+      `/nursing-homes/owners/${slug}/research`,
       state?.from === 'rankings' ? { state: { from: 'rankings' } } : undefined,
     );
   };

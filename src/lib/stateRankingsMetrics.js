@@ -23,7 +23,7 @@ export const STATE_RANKING_DIMENSIONS = [
 ];
 
 function facilitiesLink(stateCode, sortField) {
-  const base = `/facilities?state=${stateCode}`;
+  const base = `/nursing-homes/facilities?state=${stateCode}`;
   return sortField ? `${base}&sortBy=${sortField}&sort=desc` : base;
 }
 
