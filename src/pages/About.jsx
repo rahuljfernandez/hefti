@@ -55,7 +55,7 @@ function PersonCard({ name, role, photo, bio }) {
         src={photo}
         alt={name}
         loading="lazy"
-        className="h-32 w-32 flex-none rounded-full object-cover object-center ring-1 ring-black/5"
+        className="h-32 w-32 flex-none rounded-full object-cover object-top ring-1 ring-black/5"
       />
       <div className="min-w-0">
         <Heading level={3}>{name}</Heading>
