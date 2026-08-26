@@ -22,7 +22,7 @@ const INITIAL_VISIBLE = 10;
 // Where a row's name links, mirroring the home page's top-chains / top-owners links.
 function entityHref(row, linkKind, stateAbbr) {
   if (linkKind === 'owner') {
-    return row.entity_slug ? `/owners/${row.entity_slug}` : null;
+    return row.entity_slug ? `/nursing-homes/owners/${row.entity_slug}` : null;
   }
   if (linkKind === 'chain') {
     // No exact name → no working filter; render plain text rather than a link
@@ -30,7 +30,7 @@ function entityHref(row, linkKind, stateAbbr) {
     if (!row.entity_raw_name) return null;
     const params = new URLSearchParams({ chainName: row.entity_raw_name });
     if (stateAbbr) params.set('state', stateAbbr);
-    return `/facilities?${params}`;
+    return `/nursing-homes/facilities?${params}`;
   }
   return null;
 }

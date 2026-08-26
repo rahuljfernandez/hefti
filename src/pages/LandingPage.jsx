@@ -11,7 +11,7 @@ import {
 import smokeyLayer from '../assets/smokeyLayer.png';
 
 /**
- * Marketing landing page for the HEFTI platform, accessible at `/landing`.
+ * Marketing landing page for the HEFTI platform, served at the site root `/`.
  *
  * Sections (top → bottom):
  * 1. **Hero** — headline, subtitle, attribution, and CTA link to the platform home.
@@ -28,7 +28,6 @@ import smokeyLayer from '../assets/smokeyLayer.png';
 // TODO: Await final directions on hero credibility attributions.
 //  - Tyler link (vivo.weill.cornell.edu) confirmed good; copy confirmed accurate.
 //  - Funder nod (Arnold Ventures, arnoldventures.org): confirm link destination or swap for a specific grant/program page.
-//  - Confirm what the public-facing HEFTI URL should be.
 export default function LandingPage() {
   return (
     <div className="min-h-screen w-full font-sans">
@@ -87,7 +86,7 @@ export default function LandingPage() {
           {/* CTA button */}
           <div className="flex justify-center">
             <Link
-              to="/"
+              to="/nursing-homes"
               className="focus-ring-dark inline-flex items-center gap-3 rounded-xl bg-zinc-900 px-6 py-4 text-white shadow-lg transition hover:bg-zinc-800"
             >
               <CircleStackIcon

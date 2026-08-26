@@ -27,7 +27,7 @@ const holdingsColumns = [
     cell: (row) => (
       <div>
         <Link
-          to={`/owners/${row.owner_slug}`}
+          to={`/nursing-homes/owners/${row.owner_slug}`}
           className="focus-ring-light text-paragraph-base rounded-sm text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
@@ -90,7 +90,7 @@ export default function LargestRelatedPartyHoldings({ rows, stateAbbr }) {
       {stateAbbr && (
         <div className="pt-4 text-center">
           <Link
-            to={`/owners?state=${stateAbbr}`}
+            to={`/nursing-homes/owners?state=${stateAbbr}`}
             className="focus-ring-light text-paragraph-base rounded-sm text-blue-700 underline hover:text-blue-800"
           >
             View all owners

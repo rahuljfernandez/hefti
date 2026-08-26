@@ -217,7 +217,7 @@ export default function UsStatesMap({
             {stateLinks.map((c) => (
               <li key={c.stateCode}>
                 <Link
-                  to={`/states/${c.stateCode}`}
+                  to={`/nursing-homes/states/${c.stateCode}`}
                   className="focus-ring-light sr-only rounded-md focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-20 focus:border focus:border-blue-600 focus:bg-white focus:px-3 focus:py-2 focus:text-paragraph-sm focus:font-medium focus:text-blue-700 focus:shadow-lg"
                 >
                   {stateLinkLabel(c)} — view profile

@@ -48,7 +48,7 @@ export default function NetworkSidePanelCardHeader({
           </p>
           {ownerSlug && nonHub && (
             <a
-              href={`/owners/${ownerSlug}`}
+              href={`/nursing-homes/owners/${ownerSlug}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open ${selectedNode?.label} owner profile in a new tab`}

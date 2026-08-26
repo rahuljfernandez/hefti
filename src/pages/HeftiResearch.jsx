@@ -38,7 +38,7 @@ export default function HeftiResearch() {
   const { slug } = useParams();
   const { pathname, state } = useLocation();
   // Derived from the URL rather than a prop because this page is shared by both owner and facility research routes.
-  const contextType = pathname.includes('/owners/') ? 'owner' : 'facility';
+  const contextType = pathname.includes('/nursing-homes/owners/') ? 'owner' : 'facility';
 
   // Swaps in rankings breadcrumb trail when arriving via the rankings page.
   const researchPages =

@@ -55,7 +55,7 @@ export function OwnershipAndStakeholders({ item }) {
           {item.cms_ownership_type?.toUpperCase()}
         </p>
         <Link
-          to={`/owners/${item.ownership_entity.slug}`}
+          to={`/nursing-homes/owners/${item.ownership_entity.slug}`}
           className="focus-ring-light text-heading-xs rounded-sm font-bold text-blue-600 underline"
           style={{
             textDecorationThickness: '2px',
@@ -281,7 +281,7 @@ Penalties.propTypes = {
 export function RelatedFacilities({ item }) {
   const roleKey = item.cms_ownership_role || 'N/A';
   const roleLabel = ownerRoleMap[roleKey]?.label;
-  const facilityHref = `/facilities/${item.slug}`;
+  const facilityHref = `/nursing-homes/facilities/${item.slug}`;
   const facilityName = toTitleCase(item.provider_name);
   return (
     <Link
@@ -351,7 +351,7 @@ RelatedFacilities.propTypes = {
  * keyboard users tab through the list one card at a time.
  */
 export function OwnerRealEstateHolding({ item }) {
-  const facilityHref = `/facilities/${item.facility_slug}`;
+  const facilityHref = `/nursing-homes/facilities/${item.facility_slug}`;
   const facilityName = toTitleCase(item.facility_name);
   return (
     <Link
@@ -429,7 +429,7 @@ export function BrowseNursingHomes({ item, linkState }) {
 
   // Get the first ownership entity for display (or handle multiple)
   const primaryOwnership = item.facility_ownership_links?.[0]?.ownership_entity;
-  const facilityHref = `/facilities/${item.slug}`;
+  const facilityHref = `/nursing-homes/facilities/${item.slug}`;
   const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
 
   return (
@@ -538,7 +538,7 @@ export function BrowseNursingHomesRatings({ item, linkState, activeMetric }) {
     );
   }
 
-  const facilityHref = `/facilities/${item.slug}`;
+  const facilityHref = `/nursing-homes/facilities/${item.slug}`;
   const facilityName = toTitleCase(item.provider_name || 'Unknown Facility');
 
   const stats = [
@@ -687,7 +687,7 @@ BrowseNursingHomesRatings.propTypes = {
 };
 
 /**
- * Chain ranking card used on the Rankings page (/rankings/chains).
+ * Chain ranking card used on the Rankings page (/nursing-homes/rankings/chains).
  *
  * Renders one chain entry in the paginated rankings list via ListContainer.
  * Clicking navigates to a filtered facility list for that chain.
@@ -703,7 +703,7 @@ export function BrowseChains({ item }) {
 
   return (
     <Link
-      to={`/facilities?chain=${encodeURIComponent(item.slug)}`}
+      to={`/nursing-homes/facilities?chain=${encodeURIComponent(item.slug)}`}
       state={{ from: 'rankings' }}
       className="focus-ring-light block rounded-lg"
       aria-label={`View facilities for ${chainName}`}
@@ -779,7 +779,7 @@ BrowseChains.propTypes = {
 };
 
 /**
- * Owner card used on the Owners browse page (/owners).
+ * Owner card used on the Owners browse page (/nursing-homes/owners).
  *
  * Renders one ownership entity in the paginated browse list via ListContainer.
  * Clicking navigates to the owner's profile page.
@@ -800,7 +800,7 @@ export function BrowseOwners({ item, linkState }) {
     );
   }
 
-  const ownerHref = `/owners/${item.slug}`;
+  const ownerHref = `/nursing-homes/owners/${item.slug}`;
   const ownerName = toTitleCase(item.cms_ownership_name || 'Unknown Owner');
   const states = item.states || [];
   const visibleStates = states.slice(0, 10);
@@ -1207,7 +1207,7 @@ RankingTableRow.propTypes = {
  * card's fixed width.
  *
  * Expected item shape (built by buildStateMapCards in stateChoroplethMetrics.js):
- * - stateName, stateCode: display name + route key for /states/:state
+ * - stateName, stateCode: display name + route key for /nursing-homes/states/:state
  * - facilityCount: total facilities in the state
  * - ratingLabel: label for the value row (e.g. "Overall rating", "Op. margin")
  * - format: 'stars' | 'percent' | 'number'
@@ -1291,7 +1291,7 @@ export function StateMapCard({ item, interactive = false, className }) {
 
       {interactive ? (
         <Link
-          to={`/states/${item.stateCode}`}
+          to={`/nursing-homes/states/${item.stateCode}`}
           className="focus-ring-light text-paragraph-sm inline-flex items-center gap-1 rounded-sm font-medium text-blue-600"
         >
           View {stateName} profile
@@ -1344,7 +1344,7 @@ export function RelatedPartyMatch({ item }) {
             the name has to render without a destination. */}
         {item.entity_slug ? (
           <Link
-            to={`/owners/${item.entity_slug}`}
+            to={`/nursing-homes/owners/${item.entity_slug}`}
             className="focus-ring-light text-paragraph-base rounded-sm font-medium text-blue-600 underline"
           >
             {item.entity_name}
