@@ -37,6 +37,9 @@ export function mapInspectionReports(reports) {
     .map((report) => {
       const iso =
         report.report_date_iso ||
+        (report.report_date && /^\d{4}-\d{2}-\d{2}$/.test(report.report_date)
+          ? report.report_date
+          : null) ||
         parseInspectionReportDateIso(report.pdf_url || report.report_url);
       return {
         id: report.id,
