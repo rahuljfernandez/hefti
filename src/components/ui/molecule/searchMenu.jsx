@@ -94,9 +94,9 @@ export default function SearchMenu({
       return;
     }
     if (type === 'owners') {
-      navigate(`/owners/${suggestion.slug}`);
+      navigate(`/nursing-homes/owners/${suggestion.slug}`);
     } else {
-      navigate(`/facilities/${suggestion.slug}`);
+      navigate(`/nursing-homes/facilities/${suggestion.slug}`);
     }
   }
 

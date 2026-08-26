@@ -56,7 +56,7 @@ export default function StatesProfile() {
      the route param, so the page refetches and re-renders automatically. */
   const handleStateChange = (nextState) => {
     if (nextState && nextState !== stateParam) {
-      navigate(`/states/${nextState}`);
+      navigate(`/nursing-homes/states/${nextState}`);
     }
   };
 
@@ -153,10 +153,10 @@ export default function StatesProfile() {
   const shareCategories = useMemo(() => [copyLinkShareCategory()], []);
 
   const breadcrumbPages = [
-    { name: 'Home', to: '/', current: false },
+    { name: 'Home', to: '/nursing-homes', current: false },
     {
       name: stateParam ? expandStateAbbreviation(stateParam) : '...',
-      to: `/states/${stateParam}`,
+      to: `/nursing-homes/states/${stateParam}`,
       current: true,
     },
   ];
@@ -288,7 +288,7 @@ export default function StatesProfile() {
             <StateAcquisitionsCta
               stateName={expandStateAbbreviation(stateStats.state)}
               changeCount={15}
-              // to={`/acquisitions?state=${encodeURIComponent(stateStats.state)}`}
+              // to={`/nursing-homes/acquisitions?state=${encodeURIComponent(stateStats.state)}`}
             />
           </>
         )}

@@ -31,7 +31,7 @@ import {
  */
 
 const navigation = [
-  { name: 'Home', to: '/' },
+  { name: 'Home', to: '/nursing-homes' },
   { name: 'About', to: '/about' },
   { name: 'Contact Us', to: '/contact-us' },
 ];
@@ -50,7 +50,7 @@ export default function HeftiNavbar() {
           <Navbar aria-label="Primary" className="">
             <Link
               to="/"
-              aria-label="Home"
+              aria-label="HEFTI home"
               className="focus-ring-shell-dark rounded-lg"
             >
               <div className="flex items-center px-6">

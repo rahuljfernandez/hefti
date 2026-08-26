@@ -14,8 +14,8 @@ const API_BASE_URL =
 const PAGE_SIZE = 20;
 
 const acquisitionsBreadcrumb = [
-  { name: 'Home', to: '/', current: false },
-  { name: 'Ownership Changes', to: '/acquisitions', current: true },
+  { name: 'Home', to: '/nursing-homes', current: false },
+  { name: 'Ownership Changes', to: '/nursing-homes/acquisitions', current: true },
 ];
 
 function facilityLabel(count) {
@@ -122,7 +122,7 @@ function DealRow({ deal }) {
               {facilityLinks.slice(0, 6).map((f) => (
                 <li key={f.slug}>
                   <Link
-                    to={`/facilities/${encodeURIComponent(f.slug)}`}
+                    to={`/nursing-homes/facilities/${encodeURIComponent(f.slug)}`}
                     className="text-label-xs rounded-md bg-purple-50 px-2 py-1 text-purple-800 hover:bg-purple-100"
                   >
                     {f.name || f.ccn}
