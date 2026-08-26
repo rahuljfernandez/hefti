@@ -9,7 +9,7 @@ import ListContainer, {
 import { AiSummaryCard, DeficiencyReportItem } from '../listContainerContent';
 import FacilitiesDeficiencyBurden from '../../organism/facilitiesDeficiencyBurden';
 import EntityDeficiencyBurden from '../../organism/entityDeficiencyBurden';
-import { ErrorBanner } from '../../atom/errorBanner';
+import { ErrorBanner, NoDataBanner } from '../../atom/errorBanner';
 import {
   buildFacilityDeficienciesStats,
   buildFacilityPenaltiesStats,
@@ -18,6 +18,8 @@ import {
   buildStateDeficienciesStats,
   buildStatePenaltiesStats,
 } from '../../../../lib/deficienciesMetrics';
+import { mapInspectionReports } from '../../../../lib/inspectionReports';
+
 /**
  * Deficiencies & Penalties tab content.
  *
@@ -46,21 +48,6 @@ const STATS_BUILDERS = {
   },
 };
 
-// Hardcoded placeholder until the API includes inspection_reports in the facility query and a date field is added to the inspection_reports table (pending Rahul).
-const PLACEHOLDER_INSPECTION_REPORTS = [
-  {
-    id: 1,
-    report_date: 'August 29, 2024',
-    report_url: 'https://example.com/report-1.pdf',
-  },
-  {
-    id: 2,
-    report_date: 'June 5, 2024',
-    report_url: 'https://example.com/report-2.pdf',
-  },
-  { id: 3, report_date: 'May 2, 2024', report_url: null },
-];
-
 // Mock AI summary until the backend exposes it as a field on the profile. Same
 // content across facility, owner, and state for now.
 const PLACEHOLDER_AI_SUMMARY = {
@@ -87,6 +74,9 @@ export default function DeficienciesTab({
     nationalBenchmarks,
   );
   const penaltiesStats = builders.penalties(metricsSource, nationalBenchmarks);
+  const inspectionReports = mapInspectionReports(
+    metricsSource?.inspection_reports,
+  );
 
   /* Both owner and state render the "Deficiencies by Facility" table. Owner
      ranks its linked facilities (embedded in the payload); state ranks the
@@ -165,15 +155,19 @@ export default function DeficienciesTab({
               )}
             </>
           ) : (
-            /* DeficiencyReportItem is a placeholder — item shape and field names
-               will need updating once the API exposes real inspection_reports
-               fields. */
             <div className="py-4">
-              <ListContainer
-                items={PLACEHOLDER_INSPECTION_REPORTS}
-                LayoutSelector={ListContainerDivider}
-                ListContent={DeficiencyReportItem}
-              />
+              {inspectionReports.length > 0 ? (
+                <ListContainer
+                  items={inspectionReports}
+                  LayoutSelector={ListContainerDivider}
+                  ListContent={DeficiencyReportItem}
+                />
+              ) : (
+                <NoDataBanner
+                  title="No inspection reports on file"
+                  message="CMS Care Compare inspection PDFs have not been linked to this facility."
+                />
+              )}
             </div>
           )}
         </div>
