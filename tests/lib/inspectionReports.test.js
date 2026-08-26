@@ -49,6 +49,24 @@ describe('mapInspectionReports', () => {
       id: 9,
       report_date: 'September 1, 2024',
       report_url: 'https://example.com/report.pdf?date=2024-09-01',
+      report_date_iso: '2024-09-01',
+    });
+  });
+
+  it('derives report_date_iso from an ISO report_date when report_date_iso is missing', () => {
+    const mapped = mapInspectionReports([
+      {
+        id: 10,
+        report_date: '2024-09-01',
+        report_url: 'https://example.com/report.pdf',
+      },
+    ]);
+
+    expect(mapped[0]).toMatchObject({
+      id: 10,
+      report_date: 'September 1, 2024',
+      report_date_iso: '2024-09-01',
+      report_url: 'https://example.com/report.pdf',
     });
   });
 });
