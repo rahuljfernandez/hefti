@@ -283,11 +283,11 @@ export default function Home() {
       {/* Latest ownership changes feed + acquisitions CTA */}
       <HomeAcquisitionsCta />
 
-      {/* Trending charts carousel section */}
+      {/* Trending charts carousel section
       <section className="bg-background-secondary mx-auto min-h-[400px] w-full max-w-5xl px-4 py-8 font-sans sm:px-6 lg:px-8 xl:px-0">
         {/* Standing in for <TrendingCarousel /> until the other charts exist. */}
 
-        <div className="mb-4">
+      {/*<div className="mb-4">
           <Heading id={chartHeadingId} level={2} className="text-heading-sm">
             Monthly SNF Ownership Change Volume
           </Heading>
@@ -298,7 +298,7 @@ export default function Home() {
         <LayoutCard>
           <MonthlyOwnershipChangeChart />
         </LayoutCard>
-      </section>
+      </section> */}
     </div>
   );
 }

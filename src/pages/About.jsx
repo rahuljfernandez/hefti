@@ -30,7 +30,7 @@ const people = [
   },
   {
     name: 'Dr Robert Skinner',
-    role: 'Co-Director',
+    role: 'Postdoctoral Associate',
     photo: '/bios/robbie-skinner.jpg',
     bio: 'Dr. Robert Skinner is a Postdoctoral Associate in the Division of Health Policy and Economics at Weill Cornell Medicine. He earned his PhD in Health Policy and Health Services Research from Vanderbilt University in 2026.\n\nHis research focuses broadly on population aging, with particular emphasis on nursing home regulation and oversight, as well as the markets and institutions that support long-term care for older adults. His dissertation examined how inspector networks influence nursing home oversight and how state agencies vary in their approaches to regulation and enforcement.\n\nPrior to pursuing an academic career, Dr. Skinner worked as a contractor for the Centers for Medicare & Medicaid Services (CMS), where he analyzed provider certification and survey data and contributed to projects modeling health care spending across diseases and treatment settings.',
   },
