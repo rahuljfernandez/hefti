@@ -7,8 +7,8 @@ import {
   MARGIN_OPTIONS,
 } from '../../src/lib/facilitiesMapMetrics';
 
-/* Ownership strings are spelled as the facilities feed ships them — mixed case,
-   "Non profit" as two words. See ownershipBucket's comment. */
+/* Ownership strings are spelled as the facilities feed ships them: "Non profit"
+   as two words, and mixed case from 2023 on. See ownershipBucket's comment. */
 const facility = (overrides) => ({
   id: '1',
   slug: 'f',
@@ -26,7 +26,7 @@ const facility = (overrides) => ({
 });
 
 describe('ownershipBucket', () => {
-  it('buckets the feed spellings, which are not the ALL-CAPS ones in getBadgeColor', () => {
+  it('buckets both casings the feed has used, which straddle the 2023 boundary', () => {
     expect(ownershipBucket('For profit - Limited Liability company')).toBe(
       'for_profit',
     );

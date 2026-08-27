@@ -149,9 +149,9 @@ function ControlLabel({ children }) {
 
 ControlLabel.propTypes = { children: PropTypes.node };
 
-/* Legend for a dimension whose swatches are computed rather than fixed (today
-   just Financial, whose buckets are the state's own margin quintiles). Shaped to
-   sit alongside RatingDistributionLegend, which owns the static star scale. */
+/* Legend for a dimension whose swatches come from the data config rather than
+   Tailwind classes (today just Financial's margin bands). Shaped to sit
+   alongside RatingDistributionLegend, which owns the star scale. */
 function MapLegend({ items }) {
   return (
     <div className="border-border-primary inline-flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-full border px-3 py-1.5">
@@ -312,8 +312,8 @@ export default function FacilitiesMap({
               </>
             )}
           </p>
-          {/* The star legend is a fixed 1-5 scale; the financial ramp's buckets
-              are computed per state and year, so it renders its own. */}
+          {/* The star legend is labelled in stars; the financial one in margin
+              bands, so each renders its own rows. */}
           {isFinancial ? (
             <MapLegend items={legend} />
           ) : (

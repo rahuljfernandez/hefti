@@ -69,7 +69,7 @@ const CHANGE_BADGE = {
 const GRID_COLS =
   'grid grid-cols-[5rem_1fr_4.5rem] md:grid-cols-[7rem_1fr_6rem]';
 
-function TrendSparkline({ metric }) {
+function TrendSparkline({ metric, years }) {
   const { points } = metric;
   const values = points.map((point) => point.value);
   const min = Math.min(...values);
@@ -78,10 +78,13 @@ function TrendSparkline({ metric }) {
   /* Resolve each point to its plotted position once, so the line, oval, and
      label for a given year all read the same x/y. Every mark below indexes
      into this — nothing recomputes a coordinate. */
-  const coords = points.map((point, i) => ({
+  const coords = points.map((point) => ({
     year: point.year,
     value: point.value,
-    x: xPercent(i, points.length),
+    /* Positioned by the year's slot on the shared axis, not by the point's own
+       index: a metric missing a year has fewer points than there are columns,
+       and spacing them evenly would plot every value under the wrong year. */
+    x: xPercent(years.indexOf(point.year), years.length),
     y: yFor(point.value, min, max),
   }));
 
@@ -126,6 +129,7 @@ function TrendSparkline({ metric }) {
 }
 
 TrendSparkline.propTypes = {
+  years: PropTypes.arrayOf(PropTypes.number).isRequired,
   metric: PropTypes.shape({
     points: PropTypes.arrayOf(
       PropTypes.shape({
@@ -136,13 +140,13 @@ TrendSparkline.propTypes = {
   }).isRequired,
 };
 
-function TrendRow({ metric }) {
+function TrendRow({ metric, years }) {
   const { color, Icon } = CHANGE_BADGE[metric.direction];
 
   return (
     <div className={`${GRID_COLS} items-center`}>
       <span className="text-label-base text-core-black">{metric.label}</span>
-      <TrendSparkline metric={metric} />
+      <TrendSparkline metric={metric} years={years} />
       <Badge color={color} className="justify-center gap-x-2 py-1.5">
         <Icon className="size-4 shrink-0" aria-hidden="true" />
         {formatTrendChange(metric.change)}
@@ -152,6 +156,7 @@ function TrendRow({ metric }) {
 }
 
 TrendRow.propTypes = {
+  years: PropTypes.arrayOf(PropTypes.number).isRequired,
   metric: PropTypes.shape({
     label: PropTypes.string.isRequired,
     change: PropTypes.number.isRequired,
@@ -182,9 +187,13 @@ function TrendTable({ years, metrics }) {
         {metrics.map((metric) => (
           <tr key={metric.key}>
             <th scope="row">{metric.label}</th>
-            {metric.points.map((point) => (
-              <td key={point.year}>{point.value.toFixed(1)}</td>
-            ))}
+            {/* Keyed to the year rather than emitted in order: a metric with a
+                gap has fewer points than there are columns, and positional
+                cells would slide its values under the wrong headers. */}
+            {years.map((year) => {
+              const point = metric.points.find((p) => p.year === year);
+              return <td key={year}>{point ? point.value.toFixed(1) : ''}</td>;
+            })}
             <td>{formatTrendChange(metric.change)}</td>
           </tr>
         ))}
@@ -242,7 +251,7 @@ export default function StateTrends({ trends }) {
         {/* border-b closes off the last row — divide-y only draws between rows. */}
         <div className="divide-border-primary border-border-primary divide-y border-b">
           {metrics.map((metric) => (
-            <TrendRow key={metric.key} metric={metric} />
+            <TrendRow key={metric.key} metric={metric} years={years} />
           ))}
         </div>
 

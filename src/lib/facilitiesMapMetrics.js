@@ -14,6 +14,7 @@
  */
 
 import { STAR_LEVELS } from './ratingDistributionMetrics';
+import { appendSuffix, formatMetricValue } from './stringFormatters';
 
 // Re-exported so the map legend reads the same star palette as the rest of the app.
 export { STAR_LEVELS };
@@ -326,11 +327,12 @@ export const OWNERSHIP_OPTIONS = [
 ];
 
 /* Roll a CMS ownership string up to one of the three OWNERSHIP_OPTIONS buckets.
-   Matched case-insensitively on the prefix because the facilities feed ships
-   "For profit - Corporation" / "Non profit - Church related" while
-   getBadgeColor.js matches an ALL-CAPS spelling from the ownership_entities
-   side — the same buckets under two casings. Note `broad_ownership_type` looks
-   like it would do this job but is empty from 2023 on. */
+   The lowercasing is load-bearing, not defensive: `ownership_type` ships
+   "FOR PROFIT - CORPORATION" through 2022 and "For profit - Corporation" from
+   2023 on, and the state year picker spans both. Matching exact strings — as
+   getBadgeColor.js does — silently misses half the range. Note
+   `broad_ownership_type` looks like it would do this job but is empty from
+   2023 on. */
 export function ownershipBucket(ownershipType) {
   const value = String(ownershipType ?? '').toLowerCase();
   if (value.startsWith('for profit') || value.startsWith('for-profit'))
@@ -362,12 +364,20 @@ const NO_DATA_HEX = '#cad5e2'; // slate-300
    better, whichever dimension the map is colored by. `min` is inclusive, `max`
    exclusive, so the bands tile the line with no gap or overlap. */
 export const FINANCIAL_BANDS = [
-  { value: 'under_neg10', label: 'Below -10%', min: -Infinity, max: -10 },
-  { value: 'neg10_to_0', label: '-10% to 0%', min: -10, max: 0 },
-  { value: 'zero_to_5', label: '0% to 5%', min: 0, max: 5 },
-  { value: 'five_to_10', label: '5% to 10%', min: 5, max: 10 },
-  { value: 'over_10', label: '10% or more', min: 10, max: Infinity },
-].map((band, i) => ({ ...band, hex: STAR_LEVELS[i].hex }));
+  {
+    value: 'under_neg10',
+    label: 'Below -10%',
+    min: -Infinity,
+    max: -10,
+    star: 1,
+  },
+  { value: 'neg10_to_0', label: '-10% to 0%', min: -10, max: 0, star: 2 },
+  { value: 'zero_to_5', label: '0% to 5%', min: 0, max: 5, star: 3 },
+  { value: 'five_to_10', label: '5% to 10%', min: 5, max: 10, star: 4 },
+  { value: 'over_10', label: '10% or more', min: 10, max: Infinity, star: 5 },
+  /* Paired by star, not by position: STAR_LEVELS' order is its render order for
+     the legend, which is free to change without meaning the ramp reversed. */
+].map((band) => ({ ...band, hex: STAR_HEX[band.star] }));
 
 /* Narrow-by when coloring by Financial. Same shape as starRatingOptions so the
    one <Select> can render either. */
@@ -381,7 +391,7 @@ const bandFor = (value) =>
 
 const bandByValue = new Map(FINANCIAL_BANDS.map((band) => [band.value, band]));
 
-const formatMargin = (value) => `${value.toFixed(1)}%`;
+const formatMargin = (value) => appendSuffix(formatMetricValue(value), '%');
 
 /**
  * Normalizes a state's facility rows into what the map renders:
@@ -418,7 +428,10 @@ export function buildFacilitiesMap(
   const band = isFinancial ? (bandByValue.get(marginBand) ?? null) : null;
 
   const shown = facilities.filter((facility) => {
-    if (ownership !== 'all' && ownershipBucket(facility?.ownership_type) !== ownership)
+    if (
+      ownership !== 'all' &&
+      ownershipBucket(facility?.ownership_type) !== ownership
+    )
       return false;
     if (isFinancial) {
       if (!band) return true;

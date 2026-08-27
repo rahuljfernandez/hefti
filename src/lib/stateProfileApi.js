@@ -77,8 +77,8 @@ export async function loadStateProfile(apiBaseUrl, state, year, signal) {
    Returns { facilities, financial }. `financial` carries the year the operating
    margins actually came from — it lags the ratings by several years, so the map
    has to say which year it is coloring. Null on the legacy path, which has no
-   way to report it; the map then treats its financial dimension as unavailable
-   rather than implying the margins are current. */
+   way to report it and no margin backfill either, so the Financial dimension
+   there colors on the requested year alone and stays silent about it. */
 export async function loadStateFacilities(apiBaseUrl, state, year, signal) {
   const code = encodeURIComponent(state.toUpperCase());
 
