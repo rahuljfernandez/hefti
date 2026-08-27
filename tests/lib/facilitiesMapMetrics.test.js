@@ -132,6 +132,22 @@ describe('buildFacilitiesMap', () => {
     expect(result.legend).not.toBeNull();
   });
 
+  /* react-leaflet only re-applies marker style through `pathOptions`, and only
+     when that object's identity changes. Carrying the fill there — rather than
+     as a loose fillColor prop — is what makes switching Color-by actually
+     recolor an already-mounted map. */
+  it('recolors the same facility when the color-by dimension changes', () => {
+    const one = [facility({ overall_rating: 1, staffing_rating: 5 })];
+    const overall = buildFacilitiesMap(one, { colorBy: 'Overall' });
+    const staffing = buildFacilitiesMap(one, { colorBy: 'Staffing' });
+
+    expect(overall.markers[0].pathOptions.fillColor).not.toBe(
+      staffing.markers[0].pathOptions.fillColor,
+    );
+    expect(overall.markers[0].valueText).toBe('1 star');
+    expect(staffing.markers[0].valueText).toBe('5 stars');
+  });
+
   it('colors a facility with no value for the active dimension as no-data', () => {
     const [marker] = buildFacilitiesMap(
       [facility({ overall_rating: null })],

@@ -416,6 +416,13 @@ export function buildFacilitiesMap(
     .filter((f) => f?.latitude != null && f?.longitude != null)
     .map((facility) => {
       const value = facility[colorColumn] ?? null;
+      const color =
+        value == null
+          ? NO_DATA_HEX
+          : isFinancial
+            ? FINANCIAL_SCALE[bucketIndex(value, edges)]
+            : (STAR_HEX[value] ?? NO_DATA_HEX);
+
       return {
         id: facility.id,
         slug: facility.slug,
@@ -430,12 +437,18 @@ export function buildFacilitiesMap(
             : isFinancial
               ? formatMargin(value)
               : `${value} ${value === 1 ? 'star' : 'stars'}`,
-        color:
-          value == null
-            ? NO_DATA_HEX
-            : isFinancial
-              ? FINANCIAL_SCALE[bucketIndex(value, edges)]
-              : (STAR_HEX[value] ?? NO_DATA_HEX),
+        /* Built here, not in the component: react-leaflet only re-applies style
+           through `pathOptions`, and only when the object's identity changes
+           (usePathOptions compares by reference). Building it inside this
+           memoized builder means recoloring happens exactly when the color
+           actually changes, and a parent re-render alone doesn't call setStyle
+           on every marker. */
+        pathOptions: {
+          color: '#ffffff',
+          weight: 1,
+          fillColor: color,
+          fillOpacity: 0.9,
+        },
       };
     });
 

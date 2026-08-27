@@ -60,9 +60,12 @@ function MapPanel({ stateName, viewport, markers, valueLabel }) {
         /* Fractional zoom so fitBounds fills the state box exactly instead of
            rounding down a whole level (which read as "zoomed out"). */
         zoomSnap={0}
-        /* Canvas rather than one SVG node per marker: TX plots ~1,180 points and
-           the SVG renderer stutters noticeably on pan at that count. */
-        preferCanvas={true}
+        /* Deliberately NOT preferCanvas. The canvas renderer sets
+           `_leaflet_disable_events` on its canvas, which makes Map._handleDOMEvent
+           drop every event over it — including the mouseover that
+           leaflet-gesture-handling waits for before re-enabling dragging. The
+           canvas covers the whole map, so panning only worked while the cursor
+           sat on a marker (the one case Leaflet re-fires through the map). */
         className="map-control-inset h-full w-full rounded-none"
       >
         <TileLayer
@@ -74,10 +77,7 @@ function MapPanel({ stateName, viewport, markers, valueLabel }) {
             key={marker.id}
             center={[marker.lat, marker.lng]}
             radius={5}
-            weight={1}
-            color="#ffffff"
-            fillColor={marker.color}
-            fillOpacity={0.9}
+            pathOptions={marker.pathOptions}
             eventHandlers={{
               click: () =>
                 marker.slug &&
