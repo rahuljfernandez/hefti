@@ -1,7 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet';
+import {
+  CircleMarker,
+  MapContainer,
+  TileLayer,
+  Tooltip,
+  useMapEvents,
+} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 /* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
    handler on Leaflet's Map (enabled via the map option below) and brings its
@@ -36,6 +42,28 @@ import {
  * in facilitiesMapMetrics.js, which also decides what the dropdown calls itself.
  */
 
+/* Leaflet closes a tooltip only on its own marker's mouseout, and a pan loses
+   that event wholesale: the markers slide under a cursor that never moves, so
+   the browser reports them arriving but not leaving. On a dense map one drag
+   sweeps dozens past the pointer and every tooltip it opened stays up. Hold the
+   map to a single tooltip, and clear it at both ends of any movement — the
+   pointer's real position is only meaningful once the map is still again. */
+function SingleTooltip() {
+  const openTooltip = useRef(null);
+  const closeOpen = () => openTooltip.current?.close();
+
+  useMapEvents({
+    tooltipopen: (event) => {
+      if (openTooltip.current !== event.tooltip) closeOpen();
+      openTooltip.current = event.tooltip;
+    },
+    movestart: closeOpen,
+    moveend: closeOpen,
+  });
+
+  return null;
+}
+
 /* The Leaflet map. Kept flush (rounded-none) so the FlushCards above and below
    form the card's rounded corners. Leaflet needs an explicit height on its
    container, hence the fixed h-80.
@@ -69,6 +97,7 @@ function MapPanel({ stateName, viewport, markers, valueLabel }) {
            sat on a marker (the one case Leaflet re-fires through the map). */
         className="map-control-inset h-full w-full rounded-none"
       >
+        <SingleTooltip />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
