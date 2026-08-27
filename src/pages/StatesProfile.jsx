@@ -18,7 +18,6 @@ import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOvervi
 import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
 import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
-import { loadStateFacilities, loadStateProfile } from '../lib/stateProfileApi';
 
 /**
  * State profile page container.
@@ -57,6 +56,9 @@ export default function StatesProfile() {
 
   const navigate = useNavigate();
 
+  // Both routes key on an uppercase 2-letter code; the URL may carry either case.
+  const stateCode = encodeURIComponent(String(stateParam ?? '').toUpperCase());
+
   /* Selecting a state routes to its profile; the fetch effect below is keyed on
      the route param, so the page refetches and re-renders automatically. */
   const handleStateChange = (nextState) => {
@@ -76,7 +78,15 @@ export default function StatesProfile() {
     setError(null);
     setNotFound(false);
 
-    loadStateProfile(API_BASE_URL, stateParam, selectedYear, controller.signal)
+    fetch(
+      `${API_BASE_URL}/state-profile/${stateCode}?year=${selectedYear}&take=500&minFacilities=2`,
+      { signal: controller.signal },
+    )
+      .then((res) => {
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
       .then((data) => {
         if (controller.signal.aborted) return;
         if (!data) {
@@ -93,7 +103,7 @@ export default function StatesProfile() {
       });
 
     return () => controller.abort();
-  }, [stateParam, selectedYear]);
+  }, [stateCode, selectedYear]);
 
   useEffect(() => {
     /* National averages power the clinical-quality comparison badges; the
@@ -127,15 +137,18 @@ export default function StatesProfile() {
     setStateFacilitiesError(null);
     const fetchStateFacilities = async () => {
       try {
-        const { facilities, financial } = await loadStateFacilities(
-          API_BASE_URL,
-          stateParam,
-          selectedYear,
-          controller.signal,
+        const res = await fetch(
+          `${API_BASE_URL}/state-facilities/${stateCode}?year=${selectedYear}`,
+          { signal: controller.signal },
         );
+        if (!res.ok) throw new Error('Failed to load');
+        const payload = await res.json();
         if (!controller.signal.aborted) {
-          setStateFacilities(facilities);
-          setStateFinancial(financial);
+          setStateFacilities(payload?.data ?? []);
+          /* The year the operating margins actually came from. Cost reports are
+             audited years in arrears, so they routinely predate the requested
+             year and the map has to name the year it is coloring. */
+          setStateFinancial(payload?.financial ?? null);
         }
       } catch (err) {
         if (err.name !== 'AbortError') {
@@ -151,7 +164,7 @@ export default function StatesProfile() {
 
     fetchStateFacilities();
     return () => controller.abort();
-  }, [stateParam, selectedYear]);
+  }, [stateCode, selectedYear]);
 
   /* Header export set. Copy-link works generically today; state-specific CSV/zip
      exports are pending stateShareActions (see profile/stateShareActions.js). */
