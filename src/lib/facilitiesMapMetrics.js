@@ -14,7 +14,6 @@
  */
 
 import { STAR_LEVELS } from './ratingDistributionMetrics';
-import { CHOROPLETH_SCALE } from './stateChoroplethMetrics';
 
 // Re-exported so the map legend reads the same star palette as the rest of the app.
 export { STAR_LEVELS };
@@ -350,28 +349,37 @@ const STAR_HEX = Object.fromEntries(
 
 const NO_DATA_HEX = '#cad5e2'; // slate-300
 
-/* Operating margin is a signed percent with no natural star levels, so it gets
-   the choropleth's sequential 5-bucket ramp instead. Buckets are the state's own
-   quintiles rather than fixed thresholds: margins cluster tightly within a state
-   and in a different place each year, so fixed cut-points would paint most
-   states a single flat color. Worst margin is darkest, matching the choropleth's
-   "dark = worse" direction. */
-const FINANCIAL_SCALE = CHOROPLETH_SCALE.map(({ hex }) => hex).reverse();
+/* Operating margin has no star levels, so Financial gets its own five bands.
 
-function financialBuckets(values) {
-  const sorted = values.slice().sort((a, b) => a - b);
-  if (!sorted.length) return [];
-  // Quintile upper edges; the last bucket is open-ended so max always lands in it.
-  return [1, 2, 3, 4].map(
-    (i) => sorted[Math.floor((sorted.length * i) / 5)] ?? sorted.at(-1),
-  );
-}
+   Fixed cut-points rather than each state's own quintiles: margins sit in a very
+   different place per state (median -13.7% in RI against -0.5% in CA, measured
+   across 2,060 facilities), so relative buckets would make the same color mean
+   something different on every state's page and give the Narrow-by dropdown
+   options no one can name. Zero is the cut that matters — two thirds of
+   facilities are below it.
 
-function bucketIndex(value, edges) {
-  let i = 0;
-  while (i < edges.length && value >= edges[i]) i++;
-  return i;
-}
+   Colors reuse the STAR_LEVELS ramp so red always reads as worse and blue as
+   better, whichever dimension the map is colored by. `min` is inclusive, `max`
+   exclusive, so the bands tile the line with no gap or overlap. */
+export const FINANCIAL_BANDS = [
+  { value: 'under_neg10', label: 'Below -10%', min: -Infinity, max: -10 },
+  { value: 'neg10_to_0', label: '-10% to 0%', min: -10, max: 0 },
+  { value: 'zero_to_5', label: '0% to 5%', min: 0, max: 5 },
+  { value: 'five_to_10', label: '5% to 10%', min: 5, max: 10 },
+  { value: 'over_10', label: '10% or more', min: 10, max: Infinity },
+].map((band, i) => ({ ...band, hex: STAR_LEVELS[i].hex }));
+
+/* Narrow-by when coloring by Financial. Same shape as starRatingOptions so the
+   one <Select> can render either. */
+export const MARGIN_OPTIONS = [
+  { value: 'all', label: 'Operating Margin' },
+  ...FINANCIAL_BANDS.map(({ value, label }) => ({ value, label })),
+];
+
+const bandFor = (value) =>
+  FINANCIAL_BANDS.find((band) => value >= band.min && value < band.max) ?? null;
+
+const bandByValue = new Map(FINANCIAL_BANDS.map((band) => [band.value, band]));
 
 const formatMargin = (value) => `${value.toFixed(1)}%`;
 
@@ -392,25 +400,33 @@ const formatMargin = (value) => `${value.toFixed(1)}%`;
  */
 export function buildFacilitiesMap(
   facilities = [],
-  { colorBy = DEFAULT_COLOR_BY, starRating = 'all', ownership = 'all', financial } = {},
+  {
+    colorBy = DEFAULT_COLOR_BY,
+    starRating = 'all',
+    marginBand = 'all',
+    ownership = 'all',
+    financial,
+  } = {},
 ) {
   const isFinancial = colorBy === FINANCIAL_TAB;
   const colorColumn = COLOR_BY_COLUMN[colorBy] ?? COLOR_BY_COLUMN.Overall;
   const { column: starColumn } = starDimensionFor(colorBy);
 
+  /* One Narrow-by control, two meanings: star levels for the rating dimensions,
+     margin bands for Financial. Only the active one narrows. */
   const star = starRating === 'all' ? null : Number(starRating);
-  const shown = facilities.filter(
-    (facility) =>
-      (star == null || facility?.[starColumn] === star) &&
-      (ownership === 'all' ||
-        ownershipBucket(facility?.ownership_type) === ownership),
-  );
+  const band = isFinancial ? (bandByValue.get(marginBand) ?? null) : null;
 
-  const edges = isFinancial
-    ? financialBuckets(
-        shown.map((f) => f.operating_margin).filter((v) => v != null),
-      )
-    : [];
+  const shown = facilities.filter((facility) => {
+    if (ownership !== 'all' && ownershipBucket(facility?.ownership_type) !== ownership)
+      return false;
+    if (isFinancial) {
+      if (!band) return true;
+      const margin = facility?.operating_margin;
+      return margin != null && margin >= band.min && margin < band.max;
+    }
+    return star == null || facility?.[starColumn] === star;
+  });
 
   const markers = shown
     .filter((f) => f?.latitude != null && f?.longitude != null)
@@ -420,7 +436,7 @@ export function buildFacilitiesMap(
         value == null
           ? NO_DATA_HEX
           : isFinancial
-            ? FINANCIAL_SCALE[bucketIndex(value, edges)]
+            ? (bandFor(value)?.hex ?? NO_DATA_HEX)
             : (STAR_HEX[value] ?? NO_DATA_HEX);
 
       return {
@@ -460,10 +476,7 @@ export function buildFacilitiesMap(
     /* Only Financial needs one built here — the star scale is fixed 1-5 and
        RatingDistributionLegend already owns it. */
     legend: isFinancial
-      ? buildFinancialLegend(
-          edges,
-          markers.some((marker) => marker.value == null),
-        )
+      ? buildFinancialLegend(markers.some((marker) => marker.value == null))
       : null,
     isFinancial,
     financialYear: financial?.year ?? null,
@@ -472,24 +485,13 @@ export function buildFacilitiesMap(
   };
 }
 
-/* Legend rows for the financial ramp, labelled with the quintile edges so the
-   colors mean something without a separate axis. The "No data" row is added only
-   when some facility actually renders grey — margin coverage is partial even in
-   its own latest year, and an unexplained grey marker is worse than a swatch. */
-function buildFinancialLegend(edges, hasNoData) {
-  const noData = hasNoData ? [{ hex: NO_DATA_HEX, label: 'No data' }] : [];
-  if (!edges.length) return [{ hex: NO_DATA_HEX, label: 'No data' }];
-
+/* Legend rows for the margin bands — the same config the Narrow-by dropdown and
+   the marker colors read, so the three can't disagree. The "No data" row appears
+   only when some facility actually renders grey: margin coverage is partial even
+   in its own latest year, and an unexplained grey marker is worse than a swatch. */
+function buildFinancialLegend(hasNoData) {
   return [
-    ...FINANCIAL_SCALE.map((hex, i) => ({
-      hex,
-      label:
-        i === 0
-          ? `< ${formatMargin(edges[0])}`
-          : i === FINANCIAL_SCALE.length - 1
-            ? `≥ ${formatMargin(edges.at(-1))}`
-            : `${formatMargin(edges[i - 1])} – ${formatMargin(edges[i])}`,
-    })),
-    ...noData,
+    ...FINANCIAL_BANDS.map(({ hex, label }) => ({ hex, label })),
+    ...(hasNoData ? [{ hex: NO_DATA_HEX, label: 'No data' }] : []),
   ];
 }

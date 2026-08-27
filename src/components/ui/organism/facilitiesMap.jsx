@@ -19,6 +19,7 @@ import {
   DEFAULT_COLOR_BY,
   starDimensionFor,
   starRatingOptions,
+  MARGIN_OPTIONS,
   OWNERSHIP_OPTIONS,
   buildFacilitiesMap,
 } from '../../../lib/facilitiesMapMetrics';
@@ -161,17 +162,24 @@ export default function FacilitiesMap({
     COLOR_BY_TABS.find((tab) => tab.name === DEFAULT_COLOR_BY) ??
       COLOR_BY_TABS[0],
   );
+  /* Two narrow-by values rather than one: the star levels and the margin bands
+     aren't interchangeable, so a "5 Stars" selection can't carry over to
+     Financial. Keeping them apart means each is preserved while the other is
+     showing, instead of both resetting on every tab switch. */
   const [starRating, setStarRating] = useState('all');
+  const [marginBand, setMarginBand] = useState('all');
   const [ownership, setOwnership] = useState(OWNERSHIP_OPTIONS[0].value);
 
   /* Memoized so toggling the controls (colorBy / narrow-by) doesn't recompute
      the viewport; it only changes when the state does. */
   const viewport = useMemo(() => getStateMapViewport(stateName), [stateName]);
 
+  const isFinancialTab = colorBy.name === 'Financial';
   const starDimension = starDimensionFor(colorBy.name);
-  const starOptions = useMemo(
-    () => starRatingOptions(starDimension.label),
-    [starDimension.label],
+  const narrowOptions = useMemo(
+    () =>
+      isFinancialTab ? MARGIN_OPTIONS : starRatingOptions(starDimension.label),
+    [isFinancialTab, starDimension.label],
   );
 
   const {
@@ -189,10 +197,11 @@ export default function FacilitiesMap({
       buildFacilitiesMap(facilities, {
         colorBy: colorBy.name,
         starRating,
+        marginBand,
         ownership,
         financial,
       }),
-    [facilities, colorBy.name, starRating, ownership, financial],
+    [facilities, colorBy.name, starRating, marginBand, ownership, financial],
   );
 
   return (
@@ -219,11 +228,17 @@ export default function FacilitiesMap({
           <ControlLabel>Narrow by</ControlLabel>
           <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
             <Select
-              aria-label={`Star rating (${starDimension.label})`}
-              value={starRating}
-              onChange={(e) => setStarRating(e.target.value)}
+              aria-label={
+                isFinancialTab
+                  ? 'Operating margin'
+                  : `Star rating (${starDimension.label})`
+              }
+              value={isFinancialTab ? marginBand : starRating}
+              onChange={(e) =>
+                (isFinancialTab ? setMarginBand : setStarRating)(e.target.value)
+              }
             >
-              {starOptions.map((option) => (
+              {narrowOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
