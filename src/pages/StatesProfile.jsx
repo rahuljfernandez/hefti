@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
-import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ProfileHeader from '../components/ui/molecule/profileHeader.jsx';
@@ -24,9 +23,14 @@ import { loadStateFacilities, loadStateProfile } from '../lib/stateProfileApi';
 /**
  * State profile page container.
  *
- * Minimal scaffold: fetches per-state stats by route param and renders the
- * raw response so the endpoint wiring can be verified. Sections/tabs are meant
- * to be rebuilt from here.
+ * Owns the three fetches the page runs off — the profile stats, the national
+ * benchmarks the comparison badges read against, and the full facility list —
+ * and routes each to the header, the tab shell, and the sections that need it.
+ * All three are keyed on (state, year) from the route param and the header's
+ * year selector, so changing either refetches everything.
+ *
+ * Shaping belongs to the src/lib builders and layout to the components; this
+ * file only decides what is fetched and who receives it.
  */
 
 const API_BASE_URL =

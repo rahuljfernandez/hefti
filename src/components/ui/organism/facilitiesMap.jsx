@@ -1,6 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 import {
   CircleMarker,
   MapContainer,
@@ -73,8 +72,6 @@ function SingleTooltip() {
    would leave the map parked on the previous state. Keying on the state name
    forces a fresh map — and a fresh mount-time fitBounds — whenever it changes. */
 function MapPanel({ stateName, viewport, markers, valueLabel }) {
-  const navigate = useNavigate();
-
   return (
     <div className="h-80 w-full overflow-hidden">
       <MapContainer
@@ -111,7 +108,11 @@ function MapPanel({ stateName, viewport, markers, valueLabel }) {
             eventHandlers={{
               click: () =>
                 marker.slug &&
-                navigate(`/nursing-homes/facilities/${marker.slug}`),
+                window.open(
+                  `/nursing-homes/facilities/${marker.slug}`,
+                  '_blank',
+                  'noopener,noreferrer',
+                ),
             }}
           >
             <Tooltip direction="top" offset={[0, -6]}>
