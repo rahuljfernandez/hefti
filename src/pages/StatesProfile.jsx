@@ -46,6 +46,7 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
+  const [stateFinancial, setStateFinancial] = useState(null);
   const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
   const [stateFacilitiesError, setStateFacilitiesError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
@@ -117,17 +118,21 @@ export default function StatesProfile() {
        slow response can't paint the previous state's facilities. */
     const controller = new AbortController();
     setStateFacilities([]);
+    setStateFinancial(null);
     setStateFacilitiesLoading(true);
     setStateFacilitiesError(null);
     const fetchStateFacilities = async () => {
       try {
-        const facilities = await loadStateFacilities(
+        const { facilities, financial } = await loadStateFacilities(
           API_BASE_URL,
           stateParam,
           selectedYear,
           controller.signal,
         );
-        if (!controller.signal.aborted) setStateFacilities(facilities);
+        if (!controller.signal.aborted) {
+          setStateFacilities(facilities);
+          setStateFinancial(financial);
+        }
       } catch (err) {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch state facilities:', err);
@@ -217,6 +222,10 @@ export default function StatesProfile() {
                         items={stateStats}
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
+                        facilities={stateFacilities}
+                        facilitiesFinancial={stateFinancial}
+                        facilitiesLoading={stateFacilitiesLoading}
+                        facilitiesError={stateFacilitiesError}
                       />
                     );
                   //As of 3/16/26 we are holding off on deficiencies

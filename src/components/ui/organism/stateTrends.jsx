@@ -164,7 +164,9 @@ TrendRow.propTypes = {
 function TrendTable({ years, metrics }) {
   return (
     <table className="sr-only">
-      <caption>Five-year star rating trends by metric</caption>
+      <caption>
+        Star rating trends by metric, {years[0]}–{years[years.length - 1]}
+      </caption>
       <thead>
         <tr>
           <th scope="col">Metric</th>
@@ -173,7 +175,7 @@ function TrendTable({ years, metrics }) {
               {year}
             </th>
           ))}
-          <th scope="col">5-year change</th>
+          <th scope="col">{years.length}-year change</th>
         </tr>
       </thead>
       <tbody>
@@ -196,16 +198,23 @@ TrendTable.propTypes = {
   metrics: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-export default function StateTrends() {
-  const data = buildStateTrends();
+export default function StateTrends({ trends }) {
+  const data = buildStateTrends(trends);
   if (!data) return null;
 
-  const { years, metrics } = data;
+  const { years, isClamped, metrics } = data;
+
+  /* CMS ratings only go back to 2020, so the window can't always end on the
+     selected year. When it doesn't, name the years in the heading rather than
+     letting "5-Year Trends" imply it plotted through to the year picker. */
+  const heading = isClamped
+    ? `Trends, ${years[0]}–${years[years.length - 1]}`
+    : `${years.length}-Year Trends`;
 
   return (
     <section>
       <Heading level={3} className="text-heading-sm mt-8 mb-4 font-bold">
-        5-Year Trends
+        {heading}
       </Heading>
 
       <LayoutCard>
@@ -226,7 +235,7 @@ export default function StateTrends() {
             ))}
           </div>
           <span className="text-label-xs text-content-secondary text-center">
-            5-year change
+            {years.length}-year change
           </span>
         </div>
 
@@ -247,3 +256,11 @@ export default function StateTrends() {
     </section>
   );
 }
+
+StateTrends.propTypes = {
+  trends: PropTypes.shape({
+    years: PropTypes.arrayOf(PropTypes.number),
+    series: PropTypes.object,
+    isClamped: PropTypes.bool,
+  }),
+};

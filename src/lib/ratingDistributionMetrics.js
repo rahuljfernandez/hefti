@@ -14,13 +14,17 @@
 import { RATING_METRICS } from './ratingMetricsConfig';
 
 /* Star levels 1-5 with their bar/dot color. Order here is the render order for
-   both the stacked bar segments and the legend. */
+   both the stacked bar segments and the legend.
+
+   `hex` is the same color for consumers that can't take a class — Leaflet paints
+   circle markers with a color string. They are the sRGB equivalents of Tailwind
+   v4's oklch palette, so update the pair together. */
 export const STAR_LEVELS = [
-  { star: 1, colorClass: 'bg-red-600' },
-  { star: 2, colorClass: 'bg-orange-500' },
-  { star: 3, colorClass: 'bg-amber-500' },
-  { star: 4, colorClass: 'bg-blue-500' },
-  { star: 5, colorClass: 'bg-blue-700' },
+  { star: 1, colorClass: 'bg-red-600', hex: '#e7000b' },
+  { star: 2, colorClass: 'bg-orange-500', hex: '#ff6900' },
+  { star: 3, colorClass: 'bg-amber-500', hex: '#fe9a00' },
+  { star: 4, colorClass: 'bg-blue-500', hex: '#2b7fff' },
+  { star: 5, colorClass: 'bg-blue-700', hex: '#1447e6' },
 ];
 
 const COLOR_BY_STAR = Object.fromEntries(

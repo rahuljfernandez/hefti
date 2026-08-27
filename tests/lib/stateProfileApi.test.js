@@ -77,11 +77,32 @@ describe('state profile rolling-deploy API compatibility', () => {
 
     await expect(
       loadStateFacilities('/api', 'VA', 2026, undefined),
-    ).resolves.toEqual([
-      expect.objectContaining({
-        owner: { slug: 'display', name: 'Display Owner' },
-        primary_owner: { slug: 'primary', name: 'Primary Owner' },
-      }),
-    ]);
+    ).resolves.toEqual({
+      facilities: [
+        expect.objectContaining({
+          owner: { slug: 'display', name: 'Display Owner' },
+          primary_owner: { slug: 'primary', name: 'Primary Owner' },
+        }),
+      ],
+      /* The legacy route can't report which year the margins came from, and
+         guessing would be worse than the map hiding its financial year. */
+      financial: null,
+    });
+  });
+
+  it('surfaces the year the operating margins actually came from', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        response(200, {
+          financial: { year: 2021, isFallback: true },
+          data: [{ id: 1 }],
+        }),
+      ),
+    );
+
+    await expect(
+      loadStateFacilities('/api', 'VA', 2026, undefined),
+    ).resolves.toMatchObject({ financial: { year: 2021, isFallback: true } });
   });
 });

@@ -72,7 +72,13 @@ export async function loadStateProfile(apiBaseUrl, state, year, signal) {
 
 /* /state-facilities is the slim production path. The generic endpoint fallback
    is intentionally temporary and expensive, but keeps a frontend-first deploy
-   usable until the backend route arrives. */
+   usable until the backend route arrives.
+
+   Returns { facilities, financial }. `financial` carries the year the operating
+   margins actually came from — it lags the ratings by several years, so the map
+   has to say which year it is coloring. Null on the legacy path, which has no
+   way to report it; the map then treats its financial dimension as unavailable
+   rather than implying the margins are current. */
 export async function loadStateFacilities(apiBaseUrl, state, year, signal) {
   const code = encodeURIComponent(state.toUpperCase());
 
@@ -81,7 +87,10 @@ export async function loadStateFacilities(apiBaseUrl, state, year, signal) {
       `${apiBaseUrl}/state-facilities/${code}?year=${year}`,
       signal,
     );
-    return payload?.data ?? [];
+    return {
+      facilities: payload?.data ?? [],
+      financial: payload?.financial ?? null,
+    };
   } catch (error) {
     if (error.status !== 404) throw error;
   }
@@ -90,5 +99,8 @@ export async function loadStateFacilities(apiBaseUrl, state, year, signal) {
     `${apiBaseUrl}/facilities?state=${code}&year=${year}&take=1500`,
     signal,
   );
-  return (legacy?.data ?? []).map(normalizeLegacyStateFacility);
+  return {
+    facilities: (legacy?.data ?? []).map(normalizeLegacyStateFacility),
+    financial: null,
+  };
 }
