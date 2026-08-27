@@ -149,10 +149,6 @@ export default function StatesProfile() {
     return () => controller.abort();
   }, [stateParam, selectedYear]);
 
-  const handleResearchClick = () => {
-    // Placeholder for future research click behavior.
-  };
-
   /* Header export set. Copy-link works generically today; state-specific CSV/zip
      exports are pending stateShareActions (see profile/stateShareActions.js). */
   const shareCategories = useMemo(() => [copyLinkShareCategory()], []);
@@ -199,7 +195,6 @@ export default function StatesProfile() {
               freshness={'Data as of March 25, 2026'}
               rank={stateStats.rank_overall_rating}
               outOf={stateStats.ranked_out_of}
-              onClick={handleResearchClick}
               subjectType="state"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
