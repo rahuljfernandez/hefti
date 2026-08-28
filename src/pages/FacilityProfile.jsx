@@ -278,6 +278,7 @@ export default function FacilityProfile() {
             <TabsShell
               tabsData={facilityTabsDescriptions}
               defaultTabName={'Provider Highlights'}
+              urlParam="tab"
             >
               {(activeTab) => {
                 switch (activeTab.name) {

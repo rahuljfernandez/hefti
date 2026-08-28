@@ -262,6 +262,7 @@ export default function OwnersProfile() {
             <TabsShell
               tabsData={ownerTabsDescriptions}
               defaultTabName={'Owner Highlights'}
+              urlParam="tab"
             >
               {(activeTab) => {
                 switch (activeTab.name) {
