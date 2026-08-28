@@ -129,9 +129,11 @@ export function AiSummaryCard({ item }) {
         <p className="text-label-lg text-core-black">{item.title}</p>
       </div>
       <p className="text-paragraph-base text-core-black mt-4">{item.body}</p>
-      <p className="text-paragraph-base text-content-secondary mt-4">
-        {item.subtitle}
-      </p>
+      {item.subtitle && (
+        <p className="text-paragraph-base text-content-secondary mt-4">
+          {item.subtitle}
+        </p>
+      )}
     </div>
   );
 }
