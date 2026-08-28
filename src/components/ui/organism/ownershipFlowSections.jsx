@@ -5,6 +5,14 @@ import { OwnershipBox } from '../molecule/ownershipFlowBox';
 import { ArrowUpIcon } from '@heroicons/react/16/solid';
 import { toTitleCase } from '../../../lib/toTitleCase';
 
+function ownerName(owner) {
+  return toTitleCase(
+    owner?.ownership_entity?.cms_ownership_name ||
+      owner?.cms_ownership_name ||
+      'Unknown Owner',
+  );
+}
+
 /**
  * Visual section building blocks for the facility ownership flow diagram.
  *
@@ -32,7 +40,7 @@ export function IndirectOwnersFlowSection({ items }) {
             <OwnershipBox
               key={index}
               label1="INDIRECT OWNER"
-              value1={toTitleCase(owner.ownership_entity.cms_ownership_name)}
+              value1={ownerName(owner)}
               label2="OWNERSHIP PERCENTAGE"
               value2={
                 owner.cms_ownership_percentage === null
@@ -90,7 +98,7 @@ export function DirectOwnersFlowSection({ items, facility }) {
             <OwnershipBox
               key={index}
               label1="DIRECT OWNER"
-              value1={toTitleCase(owner.ownership_entity.cms_ownership_name)}
+              value1={ownerName(owner)}
               label2="OWNERSHIP PERCENTAGE"
               value2={
                 owner.cms_ownership_percentage === null
@@ -141,11 +149,11 @@ DirectOwnersFlowSection.propTypes = {
 export function CorporateFlowSection({ items = [] }) {
   const corporateOfficer = items
     .filter((owner) => owner.cms_ownership_role === 'CORPORATE OFFICER')
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   const corporateDirector = items
     .filter((owner) => owner.cms_ownership_role === 'CORPORATE DIRECTOR')
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   if (!corporateOfficer.length && !corporateDirector.length) return null;
 
@@ -187,30 +195,32 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
   const titleholder = items.find(
     (owner) => owner.cms_ownership_role === 'PROPERTY TITLEHOLDER (REALIE)',
   );
-  const titleholderName = titleholder?.ownership_entity?.cms_ownership_name;
+  const titleholderName = titleholder
+    ? ownerName(titleholder)
+    : undefined;
   const managingEmployee = items
     .filter(
       (owner) =>
         owner.cms_ownership_role === 'MANAGING EMPLOYEE' ||
         owner.cms_ownership_role === 'W-2 MANAGING EMPLOYEE',
     )
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   const securityInterest = items
     .filter(
       (owner) => owner.cms_ownership_role === '5% OR GREATER SECURITY INTEREST',
     )
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   const mortgageInterest = items
     .filter(
       (owner) => owner.cms_ownership_role === '5% OR GREATER MORTGAGE INTEREST',
     )
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   const partnershipInterest = items
     .filter((owner) => owner.cms_ownership_role === 'PARTNERSHIP INTEREST')
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
 
   return (
     <>
@@ -234,7 +244,7 @@ export function FacilityFlowSection({ items, facility, hasOperator }) {
           {titleholderName && (
             <OwnershipBox
               label1="REAL ESTATE TITLEHOLDER"
-              value1={toTitleCase(titleholderName)}
+              value1={titleholderName}
             />
           )}
           {securityInterest.length > 0 && (
@@ -293,7 +303,7 @@ export function OperatorFlowSection({ items }) {
     .filter(
       (owner) => owner.cms_ownership_role === 'OPERATIONAL/MANAGERIAL CONTROL',
     )
-    .map((owner) => owner.ownership_entity.cms_ownership_name);
+    .map((owner) => ownerName(owner));
   if (!operator.length) return null;
   return (
     <OwnershipFlowCard title="OPERATOR" color="bg-yellow-50">

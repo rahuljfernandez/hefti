@@ -144,12 +144,12 @@ export default function OwnersProfile() {
     next.set('year', String(selectedYear));
     navigate(
       {
-        pathname: `/nursing-homes/owners/${encodeURIComponent(owner.slug)}`,
+        pathname: `/nursing-homes/owners/${owner.slug}`,
         search: `?${next.toString()}`,
       },
       { replace: true, state },
     );
-  }, [owner, slug, selectedYear, searchParams, navigate, state]);
+  }, [owner?.slug, owner?.year, slug, selectedYear, navigate, state, searchParams]);
 
   useEffect(() => {
     /* National averages power the highlights comparison badges; the owner

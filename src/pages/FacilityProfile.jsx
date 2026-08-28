@@ -100,6 +100,7 @@ export default function FacilityProfile() {
     : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
+  const rewrittenFor = useRef(null);
 
   const handleYearChange = (year) => {
     const nextYear = Number(year);
@@ -157,17 +158,17 @@ export default function FacilityProfile() {
   useEffect(() => {
     if (!facility?.slug || facility.slug === slug) return;
     if (Number(facility.year) !== selectedYear) return;
+    const key = `${facility.id}:${facility.year}:${facility.slug}`;
+    if (rewrittenFor.current === key) return;
+    rewrittenFor.current = key;
 
-    const next = new URLSearchParams(searchParams);
+    const next = new URLSearchParams(window.location.search);
     next.set('year', String(selectedYear));
     navigate(
-      {
-        pathname: `/nursing-homes/facilities/${encodeURIComponent(facility.slug)}`,
-        search: `?${next.toString()}`,
-      },
+      `/nursing-homes/facilities/${facility.slug}?${next.toString()}`,
       { replace: true, state },
     );
-  }, [facility, slug, selectedYear, searchParams, navigate, state]);
+  }, [facility, slug, selectedYear, navigate, state]);
 
   //Fetch national benchmarks to compare faclity to national levels
   useEffect(() => {

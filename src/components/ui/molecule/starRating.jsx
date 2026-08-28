@@ -31,9 +31,11 @@ export default function StarRating({
   starColorClass = 'text-orange-500',
   ratingTextClass = 'text-core-black',
 }) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 >= 0.5;
-  const emptyStars = outOf - fullStars - (hasHalfStar ? 1 : 0);
+  const numericRating = Number(rating);
+  const safeRating = Number.isFinite(numericRating) ? numericRating : 0;
+  const fullStars = Math.floor(safeRating);
+  const hasHalfStar = safeRating % 1 >= 0.5;
+  const emptyStars = Math.max(0, outOf - fullStars - (hasHalfStar ? 1 : 0));
 
   const stars = [];
 

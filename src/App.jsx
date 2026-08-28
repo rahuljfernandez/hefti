@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import Layout from './components/ui/template/MainLayout';
 import Home from './pages/Home';
 import Sandbox from './pages/Sandbox';
@@ -16,6 +16,37 @@ import Rankings from './pages/Rankings';
 import Acquisitions from './pages/Acquisitions';
 import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ui/molecule/scrollToTop';
+
+class RouteCrashFallback extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <pre
+          style={{
+            margin: 24,
+            padding: 16,
+            whiteSpace: 'pre-wrap',
+            color: '#991b1b',
+            background: '#fef2f2',
+            borderRadius: 8,
+          }}
+        >
+          {this.state.error.stack || this.state.error.message}
+        </pre>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* Product routes moved under /nursing-homes; these keep links shared before the
    move working, slug and query string intact. */
@@ -36,13 +67,14 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <RouteCrashFallback>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<LandingPage />} />
           <Route path="about" element={<About />} />
           <Route path="contact-us" element={<ContactUs />} />
           <Route path="sandbox" element={<Sandbox />} />
-          <Route path="nursing-homes">
+          <Route path="nursing-homes" element={<Outlet />}>
             <Route index element={<Home />} />
             <Route path="facilities" element={<Facilities />} />
             <Route path="facilities/:slug" element={<FacilityProfile />} />
@@ -68,6 +100,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </RouteCrashFallback>
     </>
   );
 }
