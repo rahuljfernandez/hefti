@@ -158,7 +158,7 @@ export default function FacilityProfile() {
   useEffect(() => {
     if (!facility?.slug || facility.slug === slug) return;
     if (Number(facility.year) !== selectedYear) return;
-    const key = `${facility.id}:${facility.year}:${facility.slug}`;
+    const key = `${slug}:${facility.id}:${facility.year}:${facility.slug}`;
     if (rewrittenFor.current === key) return;
     rewrittenFor.current = key;
 
