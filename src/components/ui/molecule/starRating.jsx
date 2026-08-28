@@ -33,9 +33,10 @@ export default function StarRating({
 }) {
   const numericRating = Number(rating);
   const safeRating = Number.isFinite(numericRating) ? numericRating : 0;
-  const fullStars = Math.floor(safeRating);
-  const hasHalfStar = safeRating % 1 >= 0.5;
-  const emptyStars = Math.max(0, outOf - fullStars - (hasHalfStar ? 1 : 0));
+  const clampedRating = Math.min(Math.max(safeRating, 0), outOf);
+  const fullStars = Math.floor(clampedRating);
+  const hasHalfStar = clampedRating % 1 >= 0.5 && fullStars < outOf;
+  const emptyStars = outOf - fullStars - (hasHalfStar ? 1 : 0);
 
   const stars = [];
 
