@@ -54,12 +54,21 @@ export default function ClinicalQualityTab({
 
   // Pick the builder set for this subject type (owner is the default fallback).
   const builders = STATS_BUILDERS[status] ?? STATS_BUILDERS.owner;
-  const benchmarks =
-    status === 'owner' ? ownerBenchmarks : nationalBenchmarks;
+  const benchmarks = status === 'owner' ? ownerBenchmarks : nationalBenchmarks;
 
-  // Build stat arrays from lib config; maps data keys to display-ready objects.
-  const longStayStats = builders.longStay(metricsSource, benchmarks);
-  const shortStayStats = builders.shortStay(metricsSource, benchmarks);
+  /* Owner builders need both: ownerBenchmarks for the median/std dev detail
+     lines, nationalBenchmarks for the Above/Below badge. Facility and state
+     builders take one benchmark set and ignore the third argument. */
+  const longStayStats = builders.longStay(
+    metricsSource,
+    benchmarks,
+    nationalBenchmarks,
+  );
+  const shortStayStats = builders.shortStay(
+    metricsSource,
+    benchmarks,
+    nationalBenchmarks,
+  );
 
   return (
     <section>

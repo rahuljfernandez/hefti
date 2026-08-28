@@ -1,4 +1,8 @@
-import { formatMetricValue, expandStateAbbreviation, formatUSD } from './stringFormatters';
+import {
+  formatMetricValue,
+  expandStateAbbreviation,
+  formatUSD,
+} from './stringFormatters';
 import { buildNationalComparison } from './getBadgeColor';
 import { toTitleCase } from './toTitleCase';
 
@@ -47,7 +51,8 @@ const facilityPenaltiesConfig = [
   },
   {
     key: 'Total Fine Amount',
-    description: 'Total dollar amount of all fines issued against this facility',
+    description:
+      'Total dollar amount of all fines issued against this facility',
     valueKey: 'total_amount_of_fines_in_usd',
     ratingKey: 'cmpr_total_amount_of_fines_in_usd',
     stateAvgKey: 'state_total_amount_of_fines_in_usd',
@@ -61,8 +66,10 @@ const facilityPenaltiesConfig = [
 const ownerDeficienciesConfig = [
   {
     key: 'Average Total Deficiencies',
-    description: 'Average number of deficiencies found in affiliated homes in the last three years',
+    description:
+      'Average number of deficiencies found in affiliated homes in the last three years',
     valueKey: 'cms_owner_average_deficiencies',
+    nationalAvgKey: 'national_health_deficiencies',
     isCurrency: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
@@ -74,6 +81,7 @@ const ownerPenaltiesConfig = [
     key: 'Average Number of Penalties',
     description: 'Average number of penalties issued against affiliated homes',
     valueKey: 'cms_owner_average_penalties',
+    nationalAvgKey: 'national_total_penalties',
     isCurrency: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
@@ -82,13 +90,17 @@ const ownerPenaltiesConfig = [
     key: 'Average Fine Amount',
     description: 'Average total fines issued against affiliated homes',
     valueKey: 'cms_owner_average_fines',
+    nationalAvgKey: 'national_total_amount_of_fines_in_usd',
     isCurrency: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
   },
 ];
 
-export function buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks) {
+export function buildFacilityDeficienciesStats(
+  metricsSource,
+  nationalBenchmarks,
+) {
   const stateName = expandStateAbbreviation(metricsSource?.state);
   return facilityDeficienciesConfig.map((metric) => {
     const format = metric.isCurrency ? formatUSD : formatMetricValue;
@@ -101,7 +113,8 @@ export function buildFacilityDeficienciesStats(metricsSource, nationalBenchmarks
       rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
       isCurrency: metric.isCurrency,
       detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
-      detail2: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -119,31 +132,54 @@ export function buildFacilityPenaltiesStats(metricsSource, nationalBenchmarks) {
       rating: metricsSource?.[metric.ratingKey] ?? 'N/A',
       isCurrency: metric.isCurrency,
       detail1: stateAvg !== 'N/A' ? `${stateName} average: ${stateAvg}` : null,
-      detail2: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+      detail2:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
 
-function buildOwnerStats(config, metricsSource) {
+/* Owner builders benchmark the owner's average against the national average the
+   way the state ones do. Every deficiency/penalty metric is lower-is-better, so
+   a value below the national average reads green. */
+function buildOwnerStats(config, metricsSource, nationalBenchmarks) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
-  return config.map((metric) => ({
-    key: metric.key,
-    description: metric.description,
-    stat: format(metric, metricsSource?.[metric.valueKey]),
-    isCurrency: metric.isCurrency,
-    detail1: `Median: ${metric.medianKey}`,
-    detail2: `Std Dev: ${metric.stdDevKey}`,
-  }));
+  return config.map((metric) => {
+    const rawValue = metricsSource?.[metric.valueKey];
+    const { comparison, comparisonColor } = buildNationalComparison(
+      rawValue,
+      nationalBenchmarks?.[metric.nationalAvgKey],
+      false,
+    );
+
+    return {
+      key: metric.key,
+      description: metric.description,
+      stat: format(metric, rawValue),
+      isCurrency: metric.isCurrency,
+      rating: comparison,
+      ratingColor: comparisonColor,
+      detail1: `Median: ${metric.medianKey}`,
+      detail2: `Std Dev: ${metric.stdDevKey}`,
+    };
+  });
 }
 
-export function buildOwnerDeficienciesStats(metricsSource) {
-  return buildOwnerStats(ownerDeficienciesConfig, metricsSource);
+export function buildOwnerDeficienciesStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(
+    ownerDeficienciesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
-export function buildOwnerPenaltiesStats(metricsSource) {
-  return buildOwnerStats(ownerPenaltiesConfig, metricsSource);
+export function buildOwnerPenaltiesStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(
+    ownerPenaltiesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
 /* State configs mirror the facility benchmark keys but use aggregate wording:
@@ -210,7 +246,8 @@ function buildStateStats(config, metricsSource, nationalBenchmarks) {
       isCurrency: metric.isCurrency,
       rating: comparison,
       ratingColor: comparisonColor,
-      detail1: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+      detail1:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }
@@ -224,7 +261,11 @@ export function buildStateDeficienciesStats(metricsSource, nationalBenchmarks) {
 }
 
 export function buildStatePenaltiesStats(metricsSource, nationalBenchmarks) {
-  return buildStateStats(statePenaltiesConfig, metricsSource, nationalBenchmarks);
+  return buildStateStats(
+    statePenaltiesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
 /* Compares one deficiency figure to the national average, returning the shared
@@ -277,7 +318,8 @@ function rankByDeficiencyBurden(items, toRow, nationalBenchmarks) {
       ...vsNational,
       vs_national_label:
         row.metric_display === 'N/A' ? null : vsNational.vs_national_label,
-      bar_fraction: maxDeficiencies > 0 ? row.deficiencies / maxDeficiencies : 0,
+      bar_fraction:
+        maxDeficiencies > 0 ? row.deficiencies / maxDeficiencies : 0,
     };
   });
 }
@@ -305,7 +347,10 @@ function facilityBurdenRow(facility) {
 /* Display-ready rows for the "Deficiencies by Facility" table (owner and state
    profiles). `facilities` is the full CMS facility records; `nationalBenchmarks`
    is the /national row. */
-export function buildDeficiencyBurdenFacilities(facilities, nationalBenchmarks) {
+export function buildDeficiencyBurdenFacilities(
+  facilities,
+  nationalBenchmarks,
+) {
   return rankByDeficiencyBurden(
     facilities,
     facilityBurdenRow,

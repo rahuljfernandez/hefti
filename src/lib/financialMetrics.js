@@ -206,6 +206,8 @@ const ownerProfitConfig = [
     subtitle:
       'The percentage of revenue left after operating costs. Higher values suggest better financial health',
     valueKey: 'cms_owner_avg_operating_margin',
+    nationalAvgKey: 'national_operating_margin',
+    higherIsBetter: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     suffix: '%',
@@ -216,6 +218,8 @@ const ownerProfitConfig = [
     subtitle:
       'Overall profitability after all expenses. Higher values indicate better performance',
     valueKey: 'cms_owner_avg_total_margin',
+    nationalAvgKey: 'national_total_margin',
+    higherIsBetter: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     suffix: '%',
@@ -226,6 +230,8 @@ const ownerProfitConfig = [
     subtitle:
       'Total profit remaining after all revenues and expenses. Positive values indicate the facility is financially solvent.',
     valueKey: 'cms_owner_total_income',
+    nationalAvgKey: 'national_net_income',
+    higherIsBetter: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     isCurrency: true,
@@ -239,6 +245,8 @@ const ownerRevenueConfig = [
     subtitle:
       'Total revenue earned from patient care services. Higher values reflect greater care volume and billing.',
     valueKey: 'cms_owner_total_revenue',
+    nationalAvgKey: 'national_net_patient_services_revenue',
+    higherIsBetter: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     isCurrency: true,
@@ -262,6 +270,8 @@ const ownerExpensesConfig = [
     subtitle:
       'Total compensation paid to all facility staff. A major component of operating expenses in nursing homes.',
     valueKey: 'cms_owner_total_salaries',
+    nationalAvgKey: 'national_total_salaries',
+    higherIsBetter: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     isCurrency: true,
@@ -272,6 +282,8 @@ const ownerExpensesConfig = [
     subtitle:
       'The sum of all costs incurred by the facility. Comparing to revenue indicates overall financial sustainability.',
     valueKey: 'cms_owner_total_expenses',
+    nationalAvgKey: 'national_total_expenses',
+    higherIsBetter: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     isCurrency: true,
@@ -282,6 +294,8 @@ const ownerExpensesConfig = [
     subtitle:
       'Share of total operating expenses paid to affiliated companies. Higher values may indicate reduced financial transparency.',
     valueKey: 'cms_owner_avg_related_to_total_exp',
+    nationalAvgKey: 'national_related_party_to_total_op_expenses',
+    higherIsBetter: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     suffix: '%',
@@ -292,6 +306,8 @@ const ownerExpensesConfig = [
     subtitle:
       'Share of net operating expenses paid to affiliated companies. Higher values may indicate conflicts of interest.',
     valueKey: 'cms_owner_avg_related_to_net_exp',
+    nationalAvgKey: 'national_related_party_to_net_op_expenses',
+    higherIsBetter: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
     suffix: '%',
@@ -305,6 +321,8 @@ const ownerLiquidityConfig = [
     subtitle:
       'Measures ability to cover short-term debts. Higher values suggest stronger short term financial stability',
     valueKey: 'cms_owner_avg_current_ratio',
+    nationalAvgKey: 'national_current_ratio',
+    higherIsBetter: true,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
   },
@@ -314,21 +332,31 @@ const ownerLiquidityConfig = [
     subtitle:
       'Shows reliance on debt for capital improvements. Lower values indicate more sustainable investment strategies.',
     valueKey: 'cms_owner_avg_ltdtc',
+    nationalAvgKey: 'national_long_term_debt_to_capital_ratio',
+    higherIsBetter: false,
     medianKey: 'N/A',
     stdDevKey: 'N/A',
   },
 ];
 
-// Shared owner builder formats owner aggregate values and attaches summary benchmark text.
-// Any placeholder benchmark values defined in the owner configs are rendered as-is.
-function buildOwnerStats(config, metricsSource) {
+/* Shared owner builder formats owner aggregate values and benchmarks them
+   against the national average, the way the state builder does. Any placeholder
+   benchmark values defined in the owner configs are rendered as-is; cards with
+   no value or no national key render badge-less. */
+function buildOwnerStats(config, metricsSource, nationalBenchmarks) {
   const format = (metric, value) =>
     metric.isCurrency ? formatUSD(value) : formatMetricValue(value);
 
   return config.map((metric) => {
-    const value = metric.valueKey
-      ? format(metric, metricsSource?.[metric.valueKey])
-      : 'N/A';
+    const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
+    const value = metric.valueKey ? format(metric, rawValue) : 'N/A';
+    const { comparison, comparisonColor } = metric.nationalAvgKey
+      ? buildNationalComparison(
+          rawValue,
+          nationalBenchmarks?.[metric.nationalAvgKey],
+          metric.higherIsBetter,
+        )
+      : { comparison: null, comparisonColor: null };
 
     return {
       id: metric.id,
@@ -336,26 +364,36 @@ function buildOwnerStats(config, metricsSource) {
       subtitle: metric.subtitle,
       value,
       displayValue: appendSuffix(value, metric.suffix),
+      comparison,
+      comparisonColor,
       detail1: `Median: ${metric.medianKey}`,
       detail2: `Std Dev: ${metric.stdDevKey}`,
     };
   });
 }
 
-export function buildOwnerProfitStats(metricsSource) {
-  return buildOwnerStats(ownerProfitConfig, metricsSource);
+export function buildOwnerProfitStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(ownerProfitConfig, metricsSource, nationalBenchmarks);
 }
 
-export function buildOwnerRevenueStats(metricsSource) {
-  return buildOwnerStats(ownerRevenueConfig, metricsSource);
+export function buildOwnerRevenueStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(ownerRevenueConfig, metricsSource, nationalBenchmarks);
 }
 
-export function buildOwnerExpensesStats(metricsSource) {
-  return buildOwnerStats(ownerExpensesConfig, metricsSource);
+export function buildOwnerExpensesStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(
+    ownerExpensesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
-export function buildOwnerLiquidityStats(metricsSource) {
-  return buildOwnerStats(ownerLiquidityConfig, metricsSource);
+export function buildOwnerLiquidityStats(metricsSource, nationalBenchmarks) {
+  return buildOwnerStats(
+    ownerLiquidityConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
 /* State financial configs mirror the facility benchmark keys but reword copy
@@ -525,9 +563,17 @@ export function buildStateRevenueStats(metricsSource, nationalBenchmarks) {
 }
 
 export function buildStateExpensesStats(metricsSource, nationalBenchmarks) {
-  return buildStateStats(stateExpensesConfig, metricsSource, nationalBenchmarks);
+  return buildStateStats(
+    stateExpensesConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }
 
 export function buildStateLiquidityStats(metricsSource, nationalBenchmarks) {
-  return buildStateStats(stateLiquidityConfig, metricsSource, nationalBenchmarks);
+  return buildStateStats(
+    stateLiquidityConfig,
+    metricsSource,
+    nationalBenchmarks,
+  );
 }

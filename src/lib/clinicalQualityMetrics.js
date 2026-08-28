@@ -202,93 +202,110 @@ const facilityShortStayConfig = [
   },
 ];
 
-// Owner configs map owner aggregate fields to the same card shape used by the tab.
-// Median and std dev benchmarks are computed nationally across all owners via
-// GET /api/owners/benchmarks/clinical-quality and passed in as ownerBenchmarks.
+/* Owner configs map owner aggregate fields to the same card shape used by the tab.
+   Median and std dev come from GET /api/owners/benchmarks/clinical-quality
+   (spread across owners); the Above/Below badge instead compares the owner's
+   weighted average to the national facility average, so nationalAvgKey is listed
+   explicitly — three owner keys don't follow the facility naming. */
 const ownerLongStayConfig = [
   {
     id: 1,
     title: 'Increased need for help with daily activities',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_adl_help_increased',
+    nationalAvgKey: 'national_ls_adl_help_increased',
   },
   {
     id: 2,
     title: 'Received antianxiety or hypnotic medication',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_antianxiety_medication',
+    nationalAvgKey: 'national_ls_antianxiety_medication',
   },
   {
     id: 3,
     title: 'Antipsychotic medication',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_antipsychotic_medication',
+    nationalAvgKey: 'national_ls_antipsychotic_medication',
   },
   {
     id: 4,
     title: 'Indwelling Catheter',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_catheter',
+    nationalAvgKey: 'national_ls_catheter',
   },
   {
     id: 5,
     title: 'Depressive symptoms',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_depressive_symptoms',
+    nationalAvgKey: 'national_ls_depressive_symptoms',
   },
   {
     id: 6,
     title: 'Falls with major injury',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_falls_major_injury',
+    nationalAvgKey: 'national_ls_falls_major_injury',
   },
   {
     id: 7,
     title: 'New or worsened incontinence',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_incontinence',
+    nationalAvgKey: 'national_ls_incontinence',
   },
   {
     id: 8,
     title: 'Physically restrained',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_physically_restrained',
+    nationalAvgKey: 'national_ls_physically_restrained',
   },
   {
     id: 9,
     title: 'Received pneumococcal vaccine',
     subtitle: 'Higher percentages are better',
     valueKey: 'cms_owner_avg_ls_pneumococcal_vaccine',
+    nationalAvgKey: 'national_ls_pneumococcal_vaccine',
+    higherIsBetter: true,
   },
   {
     id: 10,
     title: 'Pressure ulcers',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_pressure_ulcers',
+    nationalAvgKey: 'national_ls_pressure_ulcers',
   },
   {
     id: 11,
     title: 'Urinary tract infection',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_uti',
+    nationalAvgKey: 'national_ls_uti',
   },
   {
     id: 12,
     title: 'Walking ability worsened',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_walk_worsened',
+    nationalAvgKey: 'national_ls_walk_worsened',
   },
   {
     id: 13,
     title: 'Significant weight loss',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ls_weight_loss',
+    nationalAvgKey: 'national_ls_weight_loss',
   },
   {
     id: 14,
     title: 'Outpatient ED visits per 1,000 residents days',
     subtitle: 'Lower rates are better',
     valueKey: 'cms_owner_avg_ed_visits',
+    nationalAvgKey: 'national_num_ed_visits_per_1000',
     isRate: true,
   },
   {
@@ -296,6 +313,7 @@ const ownerLongStayConfig = [
     title: 'Hospitalizations per 1,000 residents days',
     subtitle: 'Lower rates are better',
     valueKey: 'cms_owner_avg_hospitalizations',
+    nationalAvgKey: 'national_num_hospitalizations_per_1000',
     isRate: true,
   },
 ];
@@ -306,24 +324,29 @@ const ownerShortStayConfig = [
     title: 'Newly received antipsychotic medication',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ss_antipsychotic_medication',
+    nationalAvgKey: 'national_ss_antipsychotic_medication',
   },
   {
     id: 2,
     title: 'Outpatient ED visits',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_ss_ed_visit',
+    nationalAvgKey: 'national_ss_ed_visit',
   },
   {
     id: 3,
     title: 'Rehospitalized after admission',
     subtitle: 'Lower percentages are better',
     valueKey: 'cms_owner_avg_rehospitalization',
+    nationalAvgKey: 'national_ss_rehospitalized',
   },
   {
     id: 4,
     title: 'Received pneumococcal vaccine',
     subtitle: 'Higher percentages are better',
     valueKey: 'cms_owner_avg_ss_pneumococcal_vaccine',
+    nationalAvgKey: 'national_ss_pneumococcal_vaccine',
+    higherIsBetter: true,
   },
 ];
 
@@ -389,14 +412,22 @@ export function buildFacilityShortStayStats(metricsSource, nationalBenchmarks) {
   });
 }
 
-// Owner builders return the same card structure without facility-level comparison badges.
-// National median and std dev are read from ownerBenchmarks keyed by valueKey.
-export function buildOwnerLongStayStats(metricsSource, ownerBenchmarks) {
-  return ownerLongStayConfig.map((metric) => {
-    const value = formatMetricValue(metricsSource?.[metric.valueKey]);
-    const benchmarkDetails = buildOwnerBenchmarkDetails(
-      metric,
-      ownerBenchmarks,
+/* Owner cards carry two benchmarks from different populations: median/std dev
+   describe the spread across owners, while the Above/Below badge compares the
+   owner's weighted average to the national facility average. */
+function buildOwnerStats(
+  config,
+  metricsSource,
+  ownerBenchmarks,
+  nationalBenchmarks,
+) {
+  return config.map((metric) => {
+    const rawValue = metricsSource?.[metric.valueKey];
+    const value = formatMetricValue(rawValue);
+    const { comparison, comparisonColor } = buildNationalComparison(
+      rawValue,
+      nationalBenchmarks?.[metric.nationalAvgKey],
+      metric.higherIsBetter,
     );
 
     return {
@@ -405,28 +436,37 @@ export function buildOwnerLongStayStats(metricsSource, ownerBenchmarks) {
       subtitle: metric.subtitle,
       value,
       displayValue: metric.isRate ? value : appendSuffix(value, '%'),
-      ...benchmarkDetails,
+      comparison,
+      comparisonColor,
+      ...buildOwnerBenchmarkDetails(metric, ownerBenchmarks),
     };
   });
 }
 
-export function buildOwnerShortStayStats(metricsSource, ownerBenchmarks) {
-  return ownerShortStayConfig.map((metric) => {
-    const value = formatMetricValue(metricsSource?.[metric.valueKey]);
-    const benchmarkDetails = buildOwnerBenchmarkDetails(
-      metric,
-      ownerBenchmarks,
-    );
+export function buildOwnerLongStayStats(
+  metricsSource,
+  ownerBenchmarks,
+  nationalBenchmarks,
+) {
+  return buildOwnerStats(
+    ownerLongStayConfig,
+    metricsSource,
+    ownerBenchmarks,
+    nationalBenchmarks,
+  );
+}
 
-    return {
-      id: metric.id,
-      title: metric.title,
-      subtitle: metric.subtitle,
-      value,
-      displayValue: appendSuffix(value, '%'),
-      ...benchmarkDetails,
-    };
-  });
+export function buildOwnerShortStayStats(
+  metricsSource,
+  ownerBenchmarks,
+  nationalBenchmarks,
+) {
+  return buildOwnerStats(
+    ownerShortStayConfig,
+    metricsSource,
+    ownerBenchmarks,
+    nationalBenchmarks,
+  );
 }
 
 /* State builders reuse the facility configs (the state response carries the

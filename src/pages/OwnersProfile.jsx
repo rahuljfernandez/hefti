@@ -274,16 +274,27 @@ export default function OwnersProfile() {
                       <ClinicalQualityTab
                         metricsSource={owner}
                         status={'owner'}
+                        nationalBenchmarks={nationalBenchmarks}
                         year={selectedYear}
                       />
                     );
 
                   case 'Staffing':
-                    return <StaffingTab items={owner} status={'owner'} />;
+                    return (
+                      <StaffingTab
+                        items={owner}
+                        status={'owner'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
+                    );
 
                   case 'Financial Overview':
                     return (
-                      <FinancialOverviewTab items={owner} status={'owner'} />
+                      <FinancialOverviewTab
+                        items={owner}
+                        status={'owner'}
+                        nationalBenchmarks={nationalBenchmarks}
+                      />
                     );
 
                   case 'Real Estate':
