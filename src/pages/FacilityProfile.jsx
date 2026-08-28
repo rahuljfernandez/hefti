@@ -152,6 +152,23 @@ export default function FacilityProfile() {
     return () => controller.abort();
   }, [slug, selectedYear]);
 
+  // Names (and therefore slugs) change across years; keep the URL on the
+  // slug for the year we actually loaded.
+  useEffect(() => {
+    if (!facility?.slug || facility.slug === slug) return;
+    if (Number(facility.year) !== selectedYear) return;
+
+    const next = new URLSearchParams(searchParams);
+    next.set('year', String(selectedYear));
+    navigate(
+      {
+        pathname: `/nursing-homes/facilities/${encodeURIComponent(facility.slug)}`,
+        search: `?${next.toString()}`,
+      },
+      { replace: true, state },
+    );
+  }, [facility, slug, selectedYear, searchParams, navigate, state]);
+
   //Fetch national benchmarks to compare faclity to national levels
   useEffect(() => {
     let active = true;
