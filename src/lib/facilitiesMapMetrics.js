@@ -1,19 +1,20 @@
 /**
- * Facilities-map config and placeholder builder.
+ * Facilities-map config and builder.
  *
  * Purpose:
- * - Holds the static config behind the "Facilities Across Virginia" map module:
+ * - Holds the static config behind the "Facilities Across {State}" map module:
  *   the map viewport, the Color-by tabs, and the Narrow-by dropdown options.
- * - Normalizes the (currently invented) facility set into a display-ready shape
- *   the map organism renders without further computation.
+ * - Normalizes a state's facility rows into a display-ready shape the map
+ *   organism renders without further computation: colored markers, the counts
+ *   behind the caption, and the legend for the active dimension.
  *
  * Pattern matches the other metric builders in this folder (see
  * stateTrendsMetrics.js): config up top, a builder that returns normalized UI
- * data, and a shape the component reads as-is. When the facilities endpoint
- * lands, only the builder below should need to change.
+ * data, and a shape the component reads as-is.
  */
 
 import { STAR_LEVELS } from './ratingDistributionMetrics';
+import { appendSuffix, formatMetricValue } from './stringFormatters';
 
 // Re-exported so the map legend reads the same star palette as the rest of the app.
 export { STAR_LEVELS };
@@ -22,8 +23,7 @@ export { STAR_LEVELS };
    receives). Each value is the state's geographic bounding box as
    [[south, west], [north, east]] in Leaflet's [lat, lng] order. The map fits
    this box on load, so center and zoom are derived per state rather than
-   hand-tuned. Boxes are approximate — good enough to frame a state, and the
-   only thing this module needs until per-facility lat/long lands. */
+   hand-tuned. Boxes are approximate — good enough to frame a state. */
 const STATE_MAP_BOUNDS = {
   Alabama: [
     [30.14, -88.47],
@@ -271,24 +271,51 @@ export function getStateMapViewport(stateName) {
 }
 
 /* Color-by tabs — re-exported from the shared COLOR_BY_DIMENSIONS so this map and
-   the state choropleth recolor by the same five dimensions. Each tab recolors the
-   markers by that dimension once facility data lands; "Overall" is the default
-   view and "Financial" is operating-margin based. */
+   the state choropleth recolor by the same five dimensions. "Overall" is the
+   default view and "Financial" is operating-margin based. */
 export { COLOR_BY_DIMENSIONS as COLOR_BY_TABS } from './ratingMetricsConfig';
 
 export const DEFAULT_COLOR_BY = 'Overall';
 
-/* Narrow-by: overall star rating. "All" is the default (no narrowing); the rest
-   are the 1–5 star levels, derived from STAR_LEVELS so they stay in lockstep
-   with the legend. `value` is the star count as a string; 'all' means
-   unfiltered. */
-export const STAR_RATING_OPTIONS = [
-  { value: 'all', label: 'Star Rating' },
-  ...STAR_LEVELS.map(({ star }) => ({
-    value: String(star),
-    label: `${star} ${star === 1 ? 'Star' : 'Stars'}`,
-  })),
-];
+/* The facility column behind each Color-by tab. Read by both the marker
+   coloring and the star filter, which is what keeps "the star filter narrows
+   whatever you're coloring by" true without the two being wired separately. */
+const COLOR_BY_COLUMN = {
+  Overall: 'overall_rating',
+  Health: 'health_inspection_rating',
+  Staffing: 'staffing_rating',
+  Quality: 'quality_rating',
+  Financial: 'operating_margin',
+};
+
+const FINANCIAL_TAB = 'Financial';
+
+/* Which dimension the star dropdown narrows on. Operating margin has no star
+   levels, so Financial falls back to Overall rather than disabling the control —
+   the user's star selection then carries through the tab switch untouched.
+   Returns the label too, so the dropdown can name the dimension it is filtering
+   and the two can't disagree. */
+export function starDimensionFor(colorByName) {
+  const label =
+    colorByName && colorByName !== FINANCIAL_TAB && COLOR_BY_COLUMN[colorByName]
+      ? colorByName
+      : 'Overall';
+  return { label, column: COLOR_BY_COLUMN[label] };
+}
+
+/* Narrow-by: star rating on the active dimension. "All" is the default (no
+   narrowing) and names the dimension; the rest are the 1–5 star levels, derived
+   from STAR_LEVELS so they stay in lockstep with the legend. `value` is the star
+   count as a string; 'all' means unfiltered. */
+export function starRatingOptions(dimensionLabel = 'Overall') {
+  return [
+    { value: 'all', label: `Star Rating (${dimensionLabel})` },
+    ...STAR_LEVELS.map(({ star }) => ({
+      value: String(star),
+      label: `${star} ${star === 1 ? 'Star' : 'Stars'}`,
+    })),
+  ];
+}
 
 /* Narrow-by: ownership type. Collapsed to the three top-level buckets the CMS
    ownership strings roll up to (see getBadgeColor.js), plus an "All" default. */
@@ -299,24 +326,185 @@ export const OWNERSHIP_OPTIONS = [
   { value: 'nonprofit', label: 'Nonprofit' },
 ];
 
+/* Roll a CMS ownership string up to one of the three OWNERSHIP_OPTIONS buckets.
+   The lowercasing is load-bearing, not defensive: `ownership_type` ships
+   "FOR PROFIT - CORPORATION" through 2022 and "For profit - Corporation" from
+   2023 on, and the state year picker spans both. Matching exact strings — as
+   getBadgeColor.js does — silently misses half the range. Note
+   `broad_ownership_type` looks like it would do this job but is empty from
+   2023 on. */
+export function ownershipBucket(ownershipType) {
+  const value = String(ownershipType ?? '').toLowerCase();
+  if (value.startsWith('for profit') || value.startsWith('for-profit'))
+    return 'for_profit';
+  if (value.startsWith('government')) return 'government';
+  if (value.startsWith('non profit') || value.startsWith('nonprofit'))
+    return 'nonprofit';
+  return null;
+}
+
+/* Marker fills for the four star dimensions, read off STAR_LEVELS so the map and
+   RatingDistributionLegend can never drift apart. */
+const STAR_HEX = Object.fromEntries(
+  STAR_LEVELS.map(({ star, hex }) => [star, hex]),
+);
+
+const NO_DATA_HEX = '#cad5e2'; // slate-300
+
+/* Operating margin has no star levels, so Financial gets its own five bands.
+
+   Fixed cut-points rather than each state's own quintiles: margins sit in a very
+   different place per state (median -13.7% in RI against -0.5% in CA, measured
+   across 2,060 facilities), so relative buckets would make the same color mean
+   something different on every state's page and give the Narrow-by dropdown
+   options no one can name. Zero is the cut that matters — two thirds of
+   facilities are below it.
+
+   Colors reuse the STAR_LEVELS ramp so red always reads as worse and blue as
+   better, whichever dimension the map is colored by. `min` is inclusive, `max`
+   exclusive, so the bands tile the line with no gap or overlap. */
+export const FINANCIAL_BANDS = [
+  {
+    value: 'under_neg10',
+    label: 'Below -10%',
+    min: -Infinity,
+    max: -10,
+    star: 1,
+  },
+  { value: 'neg10_to_0', label: '-10% to 0%', min: -10, max: 0, star: 2 },
+  { value: 'zero_to_5', label: '0% to 5%', min: 0, max: 5, star: 3 },
+  { value: 'five_to_10', label: '5% to 10%', min: 5, max: 10, star: 4 },
+  { value: 'over_10', label: '10% or more', min: 10, max: Infinity, star: 5 },
+  /* Paired by star, not by position: STAR_LEVELS' order is its render order for
+     the legend, which is free to change without meaning the ramp reversed. */
+].map((band) => ({ ...band, hex: STAR_HEX[band.star] }));
+
+/* Narrow-by when coloring by Financial. Same shape as starRatingOptions so the
+   one <Select> can render either. */
+export const MARGIN_OPTIONS = [
+  { value: 'all', label: 'Operating Margin' },
+  ...FINANCIAL_BANDS.map(({ value, label }) => ({ value, label })),
+];
+
+const bandFor = (value) =>
+  FINANCIAL_BANDS.find((band) => value >= band.min && value < band.max) ?? null;
+
+const bandByValue = new Map(FINANCIAL_BANDS.map((band) => [band.value, band]));
+
+const formatMargin = (value) => appendSuffix(formatMetricValue(value), '%');
+
 /**
- * Normalizes the facility set into:
- *   { facilities: [{ id, lat, lng, ... }], shownCount, totalCount }
+ * Normalizes a state's facility rows into what the map renders:
+ *   { markers, shownCount, totalCount, unmappedCount, legend, financialYear,
+ *     isFallback, valueLabel }
  *
- * `facilities` feeds the map markers; `shownCount`/`totalCount` drive the
- * "N of M facilities" caption.
+ * `markers` are only the facilities that pass both Narrow-by filters AND carry
+ * coordinates. `shownCount`/`totalCount` drive the "N of M facilities" caption
+ * and count facilities, not markers — a facility the API has no coordinates for
+ * still exists, so it is counted and reported separately via `unmappedCount`
+ * rather than silently vanishing from the total.
  *
- * PLACEHOLDER DATA — the API does not yet expose per-facility lat/long, the
- * per-metric ratings, or the financial (operating-margin) figure this module
- * needs, so there are no markers to plot and the counts are invented. They are
- * not real and must not be presented as such.
- * TODO: replace with the facilities endpoint once it lands. The organism reads
- * whatever shape this returns; only this builder should need to change.
+ * `legend` is the swatch list for Financial only — the star scale is fixed and
+ * RatingDistributionLegend already owns it. `financialYear` and `isFallback` let
+ * the footer disclose that margins are older than the rest of the page.
  */
-export function buildFacilitiesMap() {
+export function buildFacilitiesMap(
+  facilities = [],
+  {
+    colorBy = DEFAULT_COLOR_BY,
+    starRating = 'all',
+    marginBand = 'all',
+    ownership = 'all',
+    financial,
+  } = {},
+) {
+  const isFinancial = colorBy === FINANCIAL_TAB;
+  const colorColumn = COLOR_BY_COLUMN[colorBy] ?? COLOR_BY_COLUMN.Overall;
+  const { column: starColumn } = starDimensionFor(colorBy);
+
+  /* One Narrow-by control, two meanings: star levels for the rating dimensions,
+     margin bands for Financial. Only the active one narrows. */
+  const star = starRating === 'all' ? null : Number(starRating);
+  const band = isFinancial ? (bandByValue.get(marginBand) ?? null) : null;
+
+  const shown = facilities.filter((facility) => {
+    if (
+      ownership !== 'all' &&
+      ownershipBucket(facility?.ownership_type) !== ownership
+    )
+      return false;
+    if (isFinancial) {
+      if (!band) return true;
+      const margin = facility?.operating_margin;
+      return margin != null && margin >= band.min && margin < band.max;
+    }
+    return star == null || facility?.[starColumn] === star;
+  });
+
+  const markers = shown
+    .filter((f) => f?.latitude != null && f?.longitude != null)
+    .map((facility) => {
+      const value = facility[colorColumn] ?? null;
+      const color =
+        value == null
+          ? NO_DATA_HEX
+          : isFinancial
+            ? (bandFor(value)?.hex ?? NO_DATA_HEX)
+            : (STAR_HEX[value] ?? NO_DATA_HEX);
+
+      return {
+        id: facility.id,
+        slug: facility.slug,
+        name: facility.provider_name,
+        city: facility.city,
+        lat: facility.latitude,
+        lng: facility.longitude,
+        value,
+        valueText:
+          value == null
+            ? 'No data'
+            : isFinancial
+              ? formatMargin(value)
+              : `${value} ${value === 1 ? 'star' : 'stars'}`,
+        /* Built here, not in the component: react-leaflet only re-applies style
+           through `pathOptions`, and only when the object's identity changes
+           (usePathOptions compares by reference). Building it inside this
+           memoized builder means recoloring happens exactly when the color
+           actually changes, and a parent re-render alone doesn't call setStyle
+           on every marker. */
+        pathOptions: {
+          color: '#ffffff',
+          weight: 1,
+          fillColor: color,
+          fillOpacity: 0.9,
+        },
+      };
+    });
+
   return {
-    facilities: [],
-    shownCount: 82,
-    totalCount: 435,
+    markers,
+    shownCount: shown.length,
+    totalCount: facilities.length,
+    unmappedCount: shown.length - markers.length,
+    /* Only Financial needs one built here — the star scale is fixed 1-5 and
+       RatingDistributionLegend already owns it. */
+    legend: isFinancial
+      ? buildFinancialLegend(markers.some((marker) => marker.value == null))
+      : null,
+    isFinancial,
+    financialYear: financial?.year ?? null,
+    isFallback: Boolean(financial?.isFallback),
+    valueLabel: isFinancial ? 'Operating margin' : `${colorBy} rating`,
   };
+}
+
+/* Legend rows for the margin bands — the same config the Narrow-by dropdown and
+   the marker colors read, so the three can't disagree. The "No data" row appears
+   only when some facility actually renders grey: margin coverage is partial even
+   in its own latest year, and an unexplained grey marker is worse than a swatch. */
+function buildFinancialLegend(hasNoData) {
+  return [
+    ...FINANCIAL_BANDS.map(({ hex, label }) => ({ hex, label })),
+    ...(hasNoData ? [{ hex: NO_DATA_HEX, label: 'No data' }] : []),
+  ];
 }

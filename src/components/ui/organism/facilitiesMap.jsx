@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import {
+  CircleMarker,
+  MapContainer,
+  TileLayer,
+  Tooltip,
+  useMapEvents,
+} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-/* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
-   handler on Leaflet's Map (enabled via the map option below) and brings its
-   overlay styles. Imported after leaflet so the plugin sees the same L instance. */
 import 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import FlushCard from '../atom/flushCard';
@@ -16,7 +19,9 @@ import {
   getStateMapViewport,
   COLOR_BY_TABS,
   DEFAULT_COLOR_BY,
-  STAR_RATING_OPTIONS,
+  starDimensionFor,
+  starRatingOptions,
+  MARGIN_OPTIONS,
   OWNERSHIP_OPTIONS,
   buildFacilitiesMap,
 } from '../../../lib/facilitiesMapMetrics';
@@ -25,15 +30,35 @@ import {
  * Facilities Across {State}.
  *
  * An interactive Leaflet map that plots every facility in the state, wrapped in
- * a top control card (Color by / Narrow by) and a bottom card (count + star
- * legend) that sit flush against the map so the three read as one unit.
+ * a top control card (Color by / Narrow by) and a bottom card (count + legend)
+ * that sit flush against the map so the three read as one unit.
  *
- * This is the UI shell: the base map is live, but the API does not yet expose
- * per-facility lat/long, so there are no markers to plot and the controls hold
- * state without filtering anything. buildFacilitiesMap() is a placeholder — see
- * facilitiesMapMetrics.js. When the endpoint lands, markers render from
- * `facilities` and the controls narrow/recolor them; the layout here is final.
+ * Color by recolors the markers; Narrow by removes them. The star dropdown
+ * narrows on whichever dimension Color by is showing — see starDimensionFor()
+ * in facilitiesMapMetrics.js, which also decides what the dropdown calls itself.
  */
+
+/* Leaflet closes a tooltip only on its own marker's mouseout, and a pan loses
+   that event wholesale: the markers slide under a cursor that never moves, so
+   the browser reports them arriving but not leaving. On a dense map one drag
+   sweeps dozens past the pointer and every tooltip it opened stays up. Hold the
+   map to a single tooltip, and clear it at both ends of any movement — the
+   pointer's real position is only meaningful once the map is still again. */
+function SingleTooltip() {
+  const openTooltip = useRef(null);
+  const closeOpen = () => openTooltip.current?.close();
+
+  useMapEvents({
+    tooltipopen: (event) => {
+      if (openTooltip.current !== event.tooltip) closeOpen();
+      openTooltip.current = event.tooltip;
+    },
+    movestart: closeOpen,
+    moveend: closeOpen,
+  });
+
+  return null;
+}
 
 /* The Leaflet map. Kept flush (rounded-none) so the FlushCards above and below
    form the card's rounded corners. Leaflet needs an explicit height on its
@@ -43,7 +68,7 @@ import {
    creates the Leaflet instance (once, on mount), so changing the prop alone
    would leave the map parked on the previous state. Keying on the state name
    forces a fresh map — and a fresh mount-time fitBounds — whenever it changes. */
-function MapPanel({ stateName, viewport }) {
+function MapPanel({ stateName, viewport, markers, valueLabel }) {
   return (
     <div className="h-80 w-full overflow-hidden">
       <MapContainer
@@ -58,14 +83,43 @@ function MapPanel({ stateName, viewport }) {
         /* Fractional zoom so fitBounds fills the state box exactly instead of
            rounding down a whole level (which read as "zoomed out"). */
         zoomSnap={0}
+        /* Deliberately NOT preferCanvas. The canvas renderer sets
+           `_leaflet_disable_events` on its canvas, which makes Map._handleDOMEvent
+           drop every event over it — including the mouseover that
+           leaflet-gesture-handling waits for before re-enabling dragging. The
+           canvas covers the whole map, so panning only worked while the cursor
+           sat on a marker (the one case Leaflet re-fires through the map). */
         className="map-control-inset h-full w-full rounded-none"
       >
+        <SingleTooltip />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {/* TODO: render facility markers from `facilities` once the API exposes
-            per-facility lat/long (colored by the active Color-by dimension). */}
+        {markers.map((marker) => (
+          <CircleMarker
+            key={marker.id}
+            center={[marker.lat, marker.lng]}
+            radius={5}
+            pathOptions={marker.pathOptions}
+            eventHandlers={{
+              click: () =>
+                marker.slug &&
+                window.open(
+                  `/nursing-homes/facilities/${marker.slug}`,
+                  '_blank',
+                  'noopener,noreferrer',
+                ),
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -6]}>
+              <span className="font-semibold">{marker.name}</span>
+              {marker.city ? ` · ${marker.city}` : ''}
+              <br />
+              {valueLabel}: {marker.valueText}
+            </Tooltip>
+          </CircleMarker>
+        ))}
       </MapContainer>
     </div>
   );
@@ -79,6 +133,8 @@ MapPanel.propTypes = {
     minZoom: PropTypes.number.isRequired,
     maxZoom: PropTypes.number.isRequired,
   }).isRequired,
+  markers: PropTypes.arrayOf(PropTypes.object).isRequired,
+  valueLabel: PropTypes.string.isRequired,
 };
 
 function ControlLabel({ children }) {
@@ -91,19 +147,89 @@ function ControlLabel({ children }) {
 
 ControlLabel.propTypes = { children: PropTypes.node };
 
-export default function FacilitiesMap({ stateName = 'Virginia' }) {
+/* Legend for a dimension whose swatches come from the data config rather than
+   Tailwind classes (today just Financial's margin bands). Shaped to sit
+   alongside RatingDistributionLegend, which owns the star scale. */
+function MapLegend({ items }) {
+  return (
+    <div className="border-border-primary inline-flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-full border px-3 py-1.5">
+      {items.map(({ hex, label }) => (
+        <span
+          key={hex}
+          className="text-label-sm text-content-secondary flex items-center gap-1.5"
+        >
+          <span
+            className="h-2.5 w-2.5 rounded-full"
+            style={{ backgroundColor: hex }}
+          />
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+MapLegend.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      hex: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+};
+
+export default function FacilitiesMap({
+  stateName = 'Virginia',
+  facilities = [],
+  financial = null,
+  loading = false,
+  error = null,
+}) {
   const [colorBy, setColorBy] = useState(
     COLOR_BY_TABS.find((tab) => tab.name === DEFAULT_COLOR_BY) ??
       COLOR_BY_TABS[0],
   );
-  const [starRating, setStarRating] = useState(STAR_RATING_OPTIONS[0].value);
+  /* Two narrow-by values rather than one: the star levels and the margin bands
+     aren't interchangeable, so a "5 Stars" selection can't carry over to
+     Financial. Keeping them apart means each is preserved while the other is
+     showing, instead of both resetting on every tab switch. */
+  const [starRating, setStarRating] = useState('all');
+  const [marginBand, setMarginBand] = useState('all');
   const [ownership, setOwnership] = useState(OWNERSHIP_OPTIONS[0].value);
 
   /* Memoized so toggling the controls (colorBy / narrow-by) doesn't recompute
      the viewport; it only changes when the state does. */
   const viewport = useMemo(() => getStateMapViewport(stateName), [stateName]);
 
-  const { shownCount, totalCount } = buildFacilitiesMap();
+  const isFinancialTab = colorBy.name === 'Financial';
+  const starDimension = starDimensionFor(colorBy.name);
+  const narrowOptions = useMemo(
+    () =>
+      isFinancialTab ? MARGIN_OPTIONS : starRatingOptions(starDimension.label),
+    [isFinancialTab, starDimension.label],
+  );
+
+  const {
+    markers,
+    shownCount,
+    totalCount,
+    unmappedCount,
+    legend,
+    isFinancial,
+    financialYear,
+    isFallback,
+    valueLabel,
+  } = useMemo(
+    () =>
+      buildFacilitiesMap(facilities, {
+        colorBy: colorBy.name,
+        starRating,
+        marginBand,
+        ownership,
+        financial,
+      }),
+    [facilities, colorBy.name, starRating, marginBand, ownership, financial],
+  );
 
   return (
     <section>
@@ -129,11 +255,17 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
           <ControlLabel>Narrow by</ControlLabel>
           <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
             <Select
-              aria-label="Star Rating"
-              value={starRating}
-              onChange={(e) => setStarRating(e.target.value)}
+              aria-label={
+                isFinancialTab
+                  ? 'Operating margin'
+                  : `Star rating (${starDimension.label})`
+              }
+              value={isFinancialTab ? marginBand : starRating}
+              onChange={(e) =>
+                (isFinancialTab ? setMarginBand : setStarRating)(e.target.value)
+              }
             >
-              {STAR_RATING_OPTIONS.map((option) => (
+              {narrowOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -154,16 +286,48 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
         </div>
       </FlushCard>
 
-      <MapPanel stateName={stateName} viewport={viewport} />
+      <MapPanel
+        stateName={stateName}
+        viewport={viewport}
+        markers={markers}
+        valueLabel={valueLabel}
+      />
 
       <FlushCard position="bottom">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-label-sm text-content-secondary">
-            <span className="text-core-black font-semibold">{shownCount}</span>{' '}
-            of {totalCount} facilities
+            {loading ? (
+              'Loading facilities…'
+            ) : error ? (
+              'Facility locations could not be retrieved.'
+            ) : (
+              <>
+                <span className="text-core-black font-semibold">
+                  {shownCount}
+                </span>{' '}
+                of {totalCount} facilities
+                {unmappedCount > 0 && ` · ${unmappedCount} without a location`}
+              </>
+            )}
           </p>
-          <RatingDistributionLegend />
+          {/* The star legend is labelled in stars; the financial one in margin
+              bands, so each renders its own rows. */}
+          {isFinancial ? (
+            <MapLegend items={legend} />
+          ) : (
+            <RatingDistributionLegend />
+          )}
         </div>
+
+        {/* Operating margin comes from audited cost reports and runs years
+            behind everything else on this page. Say so rather than letting the
+            markers imply the margins are current. */}
+        {isFinancial && financialYear && (
+          <p className="text-paragraph-xs text-content-tertiary mt-2">
+            Operating margin: {financialYear}
+            {isFallback && ' (most recent year available)'}
+          </p>
+        )}
       </FlushCard>
     </section>
   );
@@ -171,4 +335,11 @@ export default function FacilitiesMap({ stateName = 'Virginia' }) {
 
 FacilitiesMap.propTypes = {
   stateName: PropTypes.string,
+  facilities: PropTypes.arrayOf(PropTypes.object),
+  financial: PropTypes.shape({
+    year: PropTypes.number,
+    isFallback: PropTypes.bool,
+  }),
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };

@@ -23,7 +23,8 @@ import { ShareWidget } from './shareability';
  *  - freshness:      "Data as of …" node; hidden when falsy
  *  - func:           maps ownershipType to a Badge color
  *  - onClick:        opens the HEFTI Researcher chat
- *  - subjectType:    'owner' | 'facility', tunes the CTA copy (default 'owner')
+ *  - subjectType:    'owner' | 'facility' | 'state'; tunes the CTA copy and,
+ *                    for 'state', withholds the CTA (default 'owner')
  *  - years:          data years for the selector; omit to hide it
  *  - selectedYear:   currently selected year (controlled)
  *  - onYearChange:   called with the newly selected year
@@ -103,7 +104,11 @@ export default function ProfileHeader({
             )}
           </div>
         )}
-        <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />
+        {/* The Researcher has no state route yet, so the CTA would be a dead
+            button here. Withheld until it does. */}
+        {!isState && (
+          <HeftiResearcherCTA onClick={onClick} subjectType={subjectType} />
+        )}
       </div>
     </div>
   );

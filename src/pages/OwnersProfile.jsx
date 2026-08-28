@@ -137,6 +137,21 @@ export default function OwnersProfile() {
   }, [slug, selectedYear]);
 
   useEffect(() => {
+    if (!owner?.slug || owner.slug === slug) return;
+    if (Number(owner.year) !== selectedYear) return;
+
+    const next = new URLSearchParams(searchParams);
+    next.set('year', String(selectedYear));
+    navigate(
+      {
+        pathname: `/nursing-homes/owners/${encodeURIComponent(owner.slug)}`,
+        search: `?${next.toString()}`,
+      },
+      { replace: true, state },
+    );
+  }, [owner, slug, selectedYear, searchParams, navigate, state]);
+
+  useEffect(() => {
     /* National averages power the highlights comparison badges; the owner
        endpoint doesn't include them, so fetch them separately. Shared across
        profile pages, so the same year is only ever fetched once. */
