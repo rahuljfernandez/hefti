@@ -396,7 +396,7 @@ const formatMargin = (value) => appendSuffix(formatMetricValue(value), '%');
 /**
  * Normalizes a state's facility rows into what the map renders:
  *   { markers, shownCount, totalCount, unmappedCount, legend, financialYear,
- *     isFallback, valueLabel }
+ *     isFallback, marginCoverage, valueLabel }
  *
  * `markers` are only the facilities that pass both Narrow-by filters AND carry
  * coordinates. `shownCount`/`totalCount` drive the "N of M facilities" caption
@@ -405,8 +405,9 @@ const formatMargin = (value) => appendSuffix(formatMetricValue(value), '%');
  * rather than silently vanishing from the total.
  *
  * `legend` is the swatch list for Financial only — the star scale is fixed and
- * RatingDistributionLegend already owns it. `financialYear` and `isFallback` let
- * the footer disclose that margins are older than the rest of the page.
+ * RatingDistributionLegend already owns it. `financialYear`, `isFallback`, and
+ * `marginCoverage` let the footer disclose that margins are older than the rest
+ * of the page and reported by only some of its facilities.
  */
 export function buildFacilitiesMap(
   facilities = [],
@@ -494,6 +495,12 @@ export function buildFacilitiesMap(
     isFinancial,
     financialYear: financial?.year ?? null,
     isFallback: Boolean(financial?.isFallback),
+    /* Counted over every facility, not the filtered set: coverage describes the
+       margin year itself, and would otherwise read "52 of 52" under a band
+       filter that only kept facilities with margins. */
+    marginCoverage: isFinancial
+      ? facilities.filter((f) => f?.operating_margin != null).length
+      : null,
     valueLabel: isFinancial ? 'Operating margin' : `${colorBy} rating`,
   };
 }
