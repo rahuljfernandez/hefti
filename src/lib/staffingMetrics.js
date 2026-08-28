@@ -93,7 +93,7 @@ const ownerStaffingLevelsConfig = [
     valueKey: 'cms_owner_avg_lpn_hprd',
     nationalAvgKey: 'national_lpn_hprd',
     higherIsBetter: true,
-    median: '3',
+    median: 'N/A',
   },
   {
     id: 2,
@@ -103,7 +103,7 @@ const ownerStaffingLevelsConfig = [
     valueKey: 'cms_owner_avg_rn_hprd',
     nationalAvgKey: 'national_rn_hprd',
     higherIsBetter: true,
-    median: '3',
+    median: 'N/A',
   },
   {
     id: 3,
@@ -112,7 +112,7 @@ const ownerStaffingLevelsConfig = [
       'Reported total nurse staffing hours per resident on the weekend.',
     valueKey: null,
     higherIsBetter: true,
-    median: '3',
+    median: 'N/A',
   },
 ];
 
@@ -124,7 +124,7 @@ const ownerStaffingTurnoverConfig = [
     valueKey: 'cms_owner_avg_turnover',
     nationalAvgKey: 'national_nursing_turnover',
     higherIsBetter: false,
-    median: '30',
+    median: 'N/A',
     suffix: '%',
   },
   {
@@ -132,7 +132,7 @@ const ownerStaffingTurnoverConfig = [
     title: 'RN Turnover',
     description: 'Total staff turnover for RN',
     valueKey: null,
-    median: '30',
+    median: 'N/A',
     suffix: '%',
   },
   {
@@ -140,7 +140,7 @@ const ownerStaffingTurnoverConfig = [
     title: 'Administrator Turnover',
     description: 'Total staff turnover for administrative staff',
     valueKey: null,
-    median: '30',
+    median: 'N/A',
     suffix: '%',
   },
 ];
