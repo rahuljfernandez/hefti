@@ -11,6 +11,14 @@ import PropTypes from 'prop-types';
 import { Heading } from '../atom/heading';
 import { toTitleCase } from '../../../lib/toTitleCase';
 
+function ownerName(owner) {
+  return toTitleCase(
+    owner?.ownership_entity?.cms_ownership_name ||
+      owner?.cms_ownership_name ||
+      'Unknown Owner',
+  );
+}
+
 /**
  * Ownership structure diagram for a facility profile.
  *
@@ -70,11 +78,11 @@ export default function OwnershipFlowDiagram({ items, facility }) {
           <p>Indirect owners</p>
           {indirectOwners.length > 0 ? (
             <ul>
-              {indirectOwners.map((owner) => (
+              {indirectOwners.map((owner, index) => (
                 <li
-                  key={`${owner.cms_ownership_role}-${owner.ownership_entity.cms_ownership_name}`}
+                  key={`${owner.cms_ownership_role}-${ownerName(owner)}-${index}`}
                 >
-                  {toTitleCase(owner.ownership_entity.cms_ownership_name)}
+                  {ownerName(owner)}
                   {owner.cms_ownership_percentage != null
                     ? `, ${owner.cms_ownership_percentage}% ownership`
                     : ', ownership percentage not provided'}
@@ -90,11 +98,11 @@ export default function OwnershipFlowDiagram({ items, facility }) {
           <p>Direct owners</p>
           {directOwners.length > 0 || facility.pe_name ? (
             <ul>
-              {directOwners.map((owner) => (
+              {directOwners.map((owner, index) => (
                 <li
-                  key={`${owner.cms_ownership_role}-${owner.ownership_entity.cms_ownership_name}`}
+                  key={`${owner.cms_ownership_role}-${ownerName(owner)}-${index}`}
                 >
-                  {toTitleCase(owner.ownership_entity.cms_ownership_name)}
+                  {ownerName(owner)}
                   {owner.cms_ownership_percentage != null
                     ? `, ${owner.cms_ownership_percentage}% ownership`
                     : ', ownership percentage not provided'}
@@ -115,20 +123,14 @@ export default function OwnershipFlowDiagram({ items, facility }) {
           <p>Corporate management</p>
           {corporateOfficers.length > 0 || corporateDirectors.length > 0 ? (
             <ul>
-              {corporateOfficers.map((owner) => (
-                <li
-                  key={`officer-${owner.ownership_entity.cms_ownership_name}`}
-                >
-                  Corporate officer:{' '}
-                  {toTitleCase(owner.ownership_entity.cms_ownership_name)}
+              {corporateOfficers.map((owner, index) => (
+                <li key={`officer-${ownerName(owner)}-${index}`}>
+                  Corporate officer: {ownerName(owner)}
                 </li>
               ))}
-              {corporateDirectors.map((owner) => (
-                <li
-                  key={`director-${owner.ownership_entity.cms_ownership_name}`}
-                >
-                  Corporate director:{' '}
-                  {toTitleCase(owner.ownership_entity.cms_ownership_name)}
+              {corporateDirectors.map((owner, index) => (
+                <li key={`director-${ownerName(owner)}-${index}`}>
+                  Corporate director: {ownerName(owner)}
                 </li>
               ))}
             </ul>
@@ -144,13 +146,9 @@ export default function OwnershipFlowDiagram({ items, facility }) {
             {facility.reit_name && (
               <li>REIT: {toTitleCase(facility.reit_name)}</li>
             )}
-            {titleholders.map((titleholder) => (
-              <li key={`titleholder-${titleholder.id}`}>
-                Real estate titleholder:{' '}
-                {toTitleCase(
-                  titleholder.ownership_entity?.cms_ownership_name ??
-                    titleholder.cms_ownership_name,
-                )}
+            {titleholders.map((titleholder, index) => (
+              <li key={`titleholder-${titleholder.id ?? index}`}>
+                Real estate titleholder: {ownerName(titleholder)}
               </li>
             ))}
           </ul>
@@ -160,11 +158,9 @@ export default function OwnershipFlowDiagram({ items, facility }) {
           <p>Operators</p>
           {operators.length > 0 ? (
             <ul>
-              {operators.map((owner) => (
-                <li
-                  key={`operator-${owner.ownership_entity.cms_ownership_name}`}
-                >
-                  {toTitleCase(owner.ownership_entity.cms_ownership_name)}
+              {operators.map((owner, index) => (
+                <li key={`operator-${ownerName(owner)}-${index}`}>
+                  {ownerName(owner)}
                 </li>
               ))}
             </ul>

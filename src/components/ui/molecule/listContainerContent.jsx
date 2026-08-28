@@ -54,18 +54,30 @@ export function OwnershipAndStakeholders({ item }) {
         <p className="text-paragraph-base text-content-secondary py-2 md:py-2 md:pt-2">
           {item.cms_ownership_type?.toUpperCase()}
         </p>
-        <Link
-          to={`/nursing-homes/owners/${item.ownership_entity.slug}`}
-          className="focus-ring-light text-heading-xs rounded-sm font-bold text-blue-600 underline"
-          style={{
-            textDecorationThickness: '2px',
-            textUnderlineOffset: '2px',
-          }}
-        >
-          {toTitleCase(
-            item.ownership_entity?.cms_ownership_name || 'Unknown Owner',
-          )}
-        </Link>
+        {item.ownership_entity?.slug ? (
+          <Link
+            to={`/nursing-homes/owners/${item.ownership_entity.slug}`}
+            className="focus-ring-light text-heading-xs rounded-sm font-bold text-blue-600 underline"
+            style={{
+              textDecorationThickness: '2px',
+              textUnderlineOffset: '2px',
+            }}
+          >
+            {toTitleCase(
+              item.ownership_entity.cms_ownership_name ||
+                item.cms_ownership_name ||
+                'Unknown Owner',
+            )}
+          </Link>
+        ) : (
+          <p className="text-heading-xs text-core-black font-bold">
+            {toTitleCase(
+              item.cms_ownership_name ||
+                item.cms_ownership_role ||
+                'Ownership data not available',
+            )}
+          </p>
+        )}
       </div>
 
       {/* Button — Top right on desktop, bottom on mobile */}
