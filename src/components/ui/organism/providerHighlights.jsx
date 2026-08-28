@@ -30,7 +30,6 @@ import {
  * Drives all status-specific values — headings, data keys, and the stat builder.
  */
 
-//Todo find out if the 5 year trend ought to follow the year selector and move with it or if it ought to stay with 2026-2021
 const config = {
   facility: {
     heading: 'Provider Highlights',
@@ -61,7 +60,15 @@ const config = {
   },
 };
 
-export default function ProviderHighlights({ items, status, nationalBenchmarks }) {
+export default function ProviderHighlights({
+  items,
+  status,
+  nationalBenchmarks,
+  facilities,
+  facilitiesFinancial,
+  facilitiesLoading,
+  facilitiesError,
+}) {
   if (!items) return <div>No data available.</div>;
 
   const cfg = config[status];
@@ -149,9 +156,17 @@ export default function ProviderHighlights({ items, status, nationalBenchmarks }
       </LayoutCard>
 
       {status === 'state' && (
-        <FacilitiesMap stateName={expandStateAbbreviation(items.state)} />
+        <>
+          <FacilitiesMap
+            stateName={expandStateAbbreviation(items.state)}
+            facilities={facilities}
+            financial={facilitiesFinancial}
+            loading={facilitiesLoading}
+            error={facilitiesError}
+          />
+          <StateTrends trends={items.trends} />
+        </>
       )}
-      {status === 'state' && <StateTrends />}
     </section>
   );
 }
@@ -160,4 +175,9 @@ ProviderHighlights.propTypes = {
   items: PropTypes.object.isRequired,
   status: PropTypes.oneOf(['facility', 'owner', 'state']).isRequired,
   nationalBenchmarks: PropTypes.object,
+  // State only: the facility rows behind the map, and their load state.
+  facilities: PropTypes.arrayOf(PropTypes.object),
+  facilitiesFinancial: PropTypes.object,
+  facilitiesLoading: PropTypes.bool,
+  facilitiesError: PropTypes.string,
 };

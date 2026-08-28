@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
-import { Heading } from '../components/ui/atom/heading';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
 import ProfileHeader from '../components/ui/molecule/profileHeader.jsx';
@@ -19,14 +18,18 @@ import FinancialOverviewTab from '../components/ui/molecule/tabs/financialOvervi
 import StateRealEstateTab from '../components/ui/molecule/tabs/stateRealEstateTab';
 import { copyLinkShareCategory } from '../lib/shareability/profile/profileShareActions';
 import { fetchNationalBenchmarks } from '../lib/nationalBenchmarks';
-import { loadStateFacilities, loadStateProfile } from '../lib/stateProfileApi';
 
 /**
  * State profile page container.
  *
- * Minimal scaffold: fetches per-state stats by route param and renders the
- * raw response so the endpoint wiring can be verified. Sections/tabs are meant
- * to be rebuilt from here.
+ * Owns the three fetches the page runs off — the profile stats, the national
+ * benchmarks the comparison badges read against, and the full facility list —
+ * and routes each to the header, the tab shell, and the sections that need it.
+ * All three are keyed on (state, year) from the route param and the header's
+ * year selector, so changing either refetches everything.
+ *
+ * Shaping belongs to the src/lib builders and layout to the components; this
+ * file only decides what is fetched and who receives it.
  */
 
 const API_BASE_URL =
@@ -46,11 +49,15 @@ export default function StatesProfile() {
   const [notFound, setNotFound] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
   const [stateFacilities, setStateFacilities] = useState([]);
+  const [stateFinancial, setStateFinancial] = useState(null);
   const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
   const [stateFacilitiesError, setStateFacilitiesError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
 
   const navigate = useNavigate();
+
+  // Both routes key on an uppercase 2-letter code; the URL may carry either case.
+  const stateCode = encodeURIComponent(String(stateParam ?? '').toUpperCase());
 
   /* Selecting a state routes to its profile; the fetch effect below is keyed on
      the route param, so the page refetches and re-renders automatically. */
@@ -71,7 +78,15 @@ export default function StatesProfile() {
     setError(null);
     setNotFound(false);
 
-    loadStateProfile(API_BASE_URL, stateParam, selectedYear, controller.signal)
+    fetch(
+      `${API_BASE_URL}/state-profile/${stateCode}?year=${selectedYear}&take=500&minFacilities=2`,
+      { signal: controller.signal },
+    )
+      .then((res) => {
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
       .then((data) => {
         if (controller.signal.aborted) return;
         if (!data) {
@@ -88,7 +103,7 @@ export default function StatesProfile() {
       });
 
     return () => controller.abort();
-  }, [stateParam, selectedYear]);
+  }, [stateCode, selectedYear]);
 
   useEffect(() => {
     /* National averages power the clinical-quality comparison badges; the
@@ -117,17 +132,24 @@ export default function StatesProfile() {
        slow response can't paint the previous state's facilities. */
     const controller = new AbortController();
     setStateFacilities([]);
+    setStateFinancial(null);
     setStateFacilitiesLoading(true);
     setStateFacilitiesError(null);
     const fetchStateFacilities = async () => {
       try {
-        const facilities = await loadStateFacilities(
-          API_BASE_URL,
-          stateParam,
-          selectedYear,
-          controller.signal,
+        const res = await fetch(
+          `${API_BASE_URL}/state-facilities/${stateCode}?year=${selectedYear}`,
+          { signal: controller.signal },
         );
-        if (!controller.signal.aborted) setStateFacilities(facilities);
+        if (!res.ok) throw new Error('Failed to load');
+        const payload = await res.json();
+        if (!controller.signal.aborted) {
+          setStateFacilities(payload?.data ?? []);
+          /* The year the operating margins actually came from. Cost reports are
+             audited years in arrears, so they routinely predate the requested
+             year and the map has to name the year it is coloring. */
+          setStateFinancial(payload?.financial ?? null);
+        }
       } catch (err) {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch state facilities:', err);
@@ -142,11 +164,7 @@ export default function StatesProfile() {
 
     fetchStateFacilities();
     return () => controller.abort();
-  }, [stateParam, selectedYear]);
-
-  const handleResearchClick = () => {
-    // Placeholder for future research click behavior.
-  };
+  }, [stateCode, selectedYear]);
 
   /* Header export set. Copy-link works generically today; state-specific CSV/zip
      exports are pending stateShareActions (see profile/stateShareActions.js). */
@@ -194,7 +212,6 @@ export default function StatesProfile() {
               freshness={'Data as of March 25, 2026'}
               rank={stateStats.rank_overall_rating}
               outOf={stateStats.ranked_out_of}
-              onClick={handleResearchClick}
               subjectType="state"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
@@ -217,6 +234,10 @@ export default function StatesProfile() {
                         items={stateStats}
                         status="state"
                         nationalBenchmarks={nationalBenchmarks}
+                        facilities={stateFacilities}
+                        facilitiesFinancial={stateFinancial}
+                        facilitiesLoading={stateFacilitiesLoading}
+                        facilitiesError={stateFacilitiesError}
                       />
                     );
                   //As of 3/16/26 we are holding off on deficiencies
