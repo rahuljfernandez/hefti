@@ -8,9 +8,6 @@ import {
   useMapEvents,
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-/* Side-effect import: leaflet-gesture-handling self-registers its `gestureHandling`
-   handler on Leaflet's Map (enabled via the map option below) and brings its
-   overlay styles. Imported after leaflet so the plugin sees the same L instance. */
 import 'leaflet-gesture-handling';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import FlushCard from '../atom/flushCard';
