@@ -72,7 +72,9 @@ export default function ProfileHeader({
           )
         ) : (
           <div className="mt-4 flex flex-row gap-2">
-            <Badge color={func(ownershipType)}>{ownershipType}</Badge>
+            <Badge color={func(ownershipType)} className="uppercase">
+              {ownershipType}
+            </Badge>
           </div>
         )}
         {freshness && (

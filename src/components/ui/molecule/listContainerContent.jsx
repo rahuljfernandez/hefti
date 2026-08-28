@@ -83,12 +83,16 @@ export function OwnershipAndStakeholders({ item }) {
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
         {/* ?? not ||: badgeConfig's "None" entries use '' to render no badge. */}
-        <Badge className="max-w-44" color={config?.color ?? 'zinc'}>
+        <Badge className="max-w-44 uppercase" color={config?.color ?? 'zinc'}>
           {config?.label || toTitleCase(item.cms_ownership_role || 'Unknown')}
         </Badge>
 
         {isReit && <Badge color="orange">REIT</Badge>}
-        {isPe && <Badge color="cyan">PRIVATE EQUITY</Badge>}
+        {isPe && (
+          <Badge color="cyan" className="uppercase">
+            Private equity
+          </Badge>
+        )}
       </div>
 
       {!isPropertyTitleholder && (
@@ -1381,7 +1385,7 @@ export function RelatedPartyMatch({ item }) {
       </div>
 
       {badge && (
-        <Badge color={badge.color} className="shrink-0">
+        <Badge color={badge.color} className="shrink-0 uppercase">
           {badge.label}
         </Badge>
       )}
