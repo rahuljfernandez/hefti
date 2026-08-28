@@ -40,7 +40,9 @@ class RouteCrashFallback extends React.Component {
             borderRadius: 8,
           }}
         >
-          {this.state.error.stack || this.state.error.message}
+          {import.meta.env.DEV
+            ? this.state.error.stack || this.state.error.message
+            : 'Something went wrong. Please refresh the page.'}
         </pre>
       );
     }
