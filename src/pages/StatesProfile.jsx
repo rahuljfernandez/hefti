@@ -1,4 +1,9 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
@@ -52,9 +57,25 @@ export default function StatesProfile() {
   const [stateFinancial, setStateFinancial] = useState(null);
   const [stateFacilitiesLoading, setStateFacilitiesLoading] = useState(true);
   const [stateFacilitiesError, setStateFacilitiesError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(AVAILABLE_YEARS[0]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { search } = useLocation();
+  const requestedYear = Number(searchParams.get('year'));
+  const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
+    ? requestedYear
+    : AVAILABLE_YEARS[0];
 
   const navigate = useNavigate();
+
+  const handleYearChange = (year) => {
+    const nextYear = Number(year);
+    if (!AVAILABLE_YEARS.includes(nextYear)) return;
+
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set('year', String(nextYear));
+      return next;
+    });
+  };
 
   // Both routes key on an uppercase 2-letter code; the URL may carry either case.
   const stateCode = encodeURIComponent(String(stateParam ?? '').toUpperCase());
@@ -63,7 +84,11 @@ export default function StatesProfile() {
      the route param, so the page refetches and re-renders automatically. */
   const handleStateChange = (nextState) => {
     if (nextState && nextState !== stateParam) {
-      navigate(`/nursing-homes/states/${nextState}`);
+      // Keep year and tab so comparing two states lands on the same view.
+      navigate({
+        pathname: `/nursing-homes/states/${nextState}`,
+        search,
+      });
     }
   };
 
@@ -215,7 +240,7 @@ export default function StatesProfile() {
               subjectType="state"
               years={AVAILABLE_YEARS}
               selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              onYearChange={handleYearChange}
               stateOptions={US_STATES}
               onStateChange={handleStateChange}
               shareCategories={shareCategories}
@@ -225,6 +250,7 @@ export default function StatesProfile() {
             <TabsShell
               tabsData={stateTabsDescriptions}
               defaultTabName={'State Highlights'}
+              urlParam="tab"
             >
               {(activeTab) => {
                 switch (activeTab.name) {
