@@ -39,7 +39,7 @@ export function OwnershipAndStakeholders({ item }) {
   const role = item.cms_ownership_role;
   const isPropertyTitleholder = role === PROPERTY_TITLEHOLDER_ROLE;
   const config = badgeConfig[role] || {
-    color: 'gray',
+    color: 'zinc',
     label: role ?? 'Unknown',
   };
 
@@ -70,7 +70,8 @@ export function OwnershipAndStakeholders({ item }) {
 
       {/* Button — Top right on desktop, bottom on mobile */}
       <div className="order-3 md:order-none md:flex md:items-center md:justify-end">
-        <Badge className="max-w-44" color={config?.color || 'gray'}>
+        {/* ?? not ||: badgeConfig's "None" entries use '' to render no badge. */}
+        <Badge className="max-w-44" color={config?.color ?? 'zinc'}>
           {config?.label || toTitleCase(item.cms_ownership_role || 'Unknown')}
         </Badge>
 
@@ -915,7 +916,7 @@ export function MetricCardLong({ item }) {
         {item.comparison && (
           <Badge
             className="text-paragraph-xs max-w-44 py-1 font-medium"
-            color={item.comparisonColor || 'gray'}
+            color={item.comparisonColor || 'zinc'}
           >
             {toTitleCase(item.comparison)}
           </Badge>

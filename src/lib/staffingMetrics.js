@@ -293,7 +293,7 @@ function buildStateStaffingStat(metric, metricsSource, nationalBenchmarks) {
 
   const { comparison, comparisonColor } = metric.nationalAvgKey
     ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
-    : { comparison: null, comparisonColor: 'gray' };
+    : { comparison: null, comparisonColor: 'zinc' };
 
   return {
     id: metric.id,
