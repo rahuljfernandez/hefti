@@ -177,6 +177,31 @@ describe('buildFacilitiesMap', () => {
     );
   });
 
+  /* The footer names the coverage behind the margin year, so it has to describe
+     the year rather than the current filter — a band filter keeps only
+     facilities that have a margin, which would read as full coverage. */
+  it('counts margin coverage across all facilities, not the filtered ones', () => {
+    const rows = [
+      facility({ id: '1', operating_margin: -22 }),
+      facility({ id: '2', operating_margin: 3 }),
+      facility({ id: '3', operating_margin: null }),
+    ];
+    const all = buildFacilitiesMap(rows, { colorBy: 'Financial' });
+    expect(all).toMatchObject({ marginCoverage: 2, totalCount: 3 });
+
+    const banded = buildFacilitiesMap(rows, {
+      colorBy: 'Financial',
+      marginBand: 'under_neg10',
+    });
+    expect(banded).toMatchObject({
+      marginCoverage: 2,
+      shownCount: 1,
+      totalCount: 3,
+    });
+
+    expect(buildFacilitiesMap(rows).marginCoverage).toBeNull();
+  });
+
   it('legend, dropdown, and marker colors all read the same band config', () => {
     const [marker] = buildFacilitiesMap([facility({ operating_margin: -22 })], {
       colorBy: 'Financial',

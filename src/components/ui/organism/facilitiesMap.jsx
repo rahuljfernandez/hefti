@@ -218,6 +218,7 @@ export default function FacilitiesMap({
     isFinancial,
     financialYear,
     isFallback,
+    marginCoverage,
     valueLabel,
   } = useMemo(
     () =>
@@ -319,13 +320,16 @@ export default function FacilitiesMap({
           )}
         </div>
 
-        {/* Operating margin comes from audited cost reports and runs years
-            behind everything else on this page. Say so rather than letting the
-            markers imply the margins are current. */}
+        {/* Operating margin comes from audited cost reports: it runs years
+            behind everything else on this page and even its own best year is
+            reported by only some facilities. Say both rather than letting the
+            markers imply the margins are current and the grey ones look broken. */}
         {isFinancial && financialYear && (
           <p className="text-paragraph-xs text-content-tertiary mt-2">
             Operating margin: {financialYear}
-            {isFallback && ' (most recent year available)'}
+            {isFallback && ' (most recent year with broad reporting)'}
+            {marginCoverage < totalCount &&
+              ` · reported by ${marginCoverage} of ${totalCount} facilities`}
           </p>
         )}
       </FlushCard>
