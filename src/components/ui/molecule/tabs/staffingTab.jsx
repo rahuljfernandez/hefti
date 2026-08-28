@@ -24,8 +24,8 @@ import {
  */
 
 /* Metric builders per subject type — each status maps its staffing groups to the
-   matching lib builder. Facility/owner builders take only `items` and harmlessly
-   ignore the benchmarks argument, so every builder can be called uniformly. */
+   matching lib builder. Facility builders take only `items` and harmlessly ignore
+   the benchmarks argument, so every builder can be called uniformly. */
 const STATS_BUILDERS = {
   facility: {
     levels: buildFacilityStaffingLevels,

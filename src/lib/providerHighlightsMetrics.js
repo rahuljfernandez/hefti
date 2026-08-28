@@ -100,7 +100,8 @@ const stateCardStatsConfig = [
   },
   {
     key: 'Average Fine Amount',
-    description: 'Average total fines issued across nursing homes in this state.',
+    description:
+      'Average total fines issued across nursing homes in this state.',
     valueKey: 'total_amount_of_fines_in_usd',
     nationalAvgKey: 'national_total_amount_of_fines_in_usd',
     isCurrency: true,
@@ -127,10 +128,13 @@ function buildBenchmarkedCardStats(config, metricsSource, nationalBenchmarks) {
       : null;
     const formatNational = metric.isCurrency ? formatUSD : formatMetricValue;
     const nationalAvg = formatNational(rawNational);
+    /* Read the direction from config rather than assuming: every card here is
+       lower-is-better today (deficiencies, penalties, fines), which is also
+       buildNationalComparison's default, so an omitted flag stays correct. */
     const { comparison, comparisonColor } = buildNationalComparison(
       raw,
       rawNational,
-      false,
+      metric.higherIsBetter,
     );
 
     return {
@@ -140,7 +144,8 @@ function buildBenchmarkedCardStats(config, metricsSource, nationalBenchmarks) {
       isCurrency: metric.isCurrency,
       rating: comparison,
       ratingColor: comparisonColor,
-      detail1: nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
+      detail1:
+        nationalAvg !== 'N/A' ? `National average: ${nationalAvg}` : null,
     };
   });
 }

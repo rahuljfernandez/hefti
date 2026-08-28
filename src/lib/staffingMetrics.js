@@ -80,16 +80,20 @@ const facilityStaffingTurnoverConfig = [
   },
 ];
 
-// Owner configs map owner aggregate fields to the same staffing card shape.
-// NOTE: owner median values are temporary placeholders, and some owner/facility
-// staffing fields remain 'N/A' until backend support is added.
+/* Owner configs map owner aggregate fields to the same staffing card shape, and
+   benchmark against the national average like the state cards do. NOTE: owner
+   median values are temporary placeholders, and some owner/facility staffing
+   fields remain 'N/A' until backend support is added. The weekend metric has no
+   national benchmark yet, so it renders without a badge. */
 const ownerStaffingLevelsConfig = [
   {
     id: 1,
     title: 'LPN hours/residents/day',
     description: 'Reported total nurse staffing hours per resident per day.',
     valueKey: 'cms_owner_avg_lpn_hprd',
-    median: '3',
+    nationalAvgKey: 'national_lpn_hprd',
+    higherIsBetter: true,
+    median: 'N/A',
   },
   {
     id: 2,
@@ -97,7 +101,9 @@ const ownerStaffingLevelsConfig = [
     description:
       'Reported total Registered Nurse staffing hours per resident per day.',
     valueKey: 'cms_owner_avg_rn_hprd',
-    median: '3',
+    nationalAvgKey: 'national_rn_hprd',
+    higherIsBetter: true,
+    median: 'N/A',
   },
   {
     id: 3,
@@ -105,7 +111,8 @@ const ownerStaffingLevelsConfig = [
     description:
       'Reported total nurse staffing hours per resident on the weekend.',
     valueKey: null,
-    median: '3',
+    higherIsBetter: true,
+    median: 'N/A',
   },
 ];
 
@@ -115,7 +122,9 @@ const ownerStaffingTurnoverConfig = [
     title: 'Nursing Staff Turnover',
     description: 'Total staff turnover for nursing staff',
     valueKey: 'cms_owner_avg_turnover',
-    median: '30',
+    nationalAvgKey: 'national_nursing_turnover',
+    higherIsBetter: false,
+    median: 'N/A',
     suffix: '%',
   },
   {
@@ -123,7 +132,7 @@ const ownerStaffingTurnoverConfig = [
     title: 'RN Turnover',
     description: 'Total staff turnover for RN',
     valueKey: null,
-    median: '30',
+    median: 'N/A',
     suffix: '%',
   },
   {
@@ -131,7 +140,7 @@ const ownerStaffingTurnoverConfig = [
     title: 'Administrator Turnover',
     description: 'Total staff turnover for administrative staff',
     valueKey: null,
-    median: '30',
+    median: 'N/A',
     suffix: '%',
   },
 ];
@@ -174,7 +183,8 @@ const stateStaffingTurnoverConfig = [
   {
     id: 1,
     title: 'Nursing Staff Turnover',
-    description: 'Average nursing staff turnover across nursing homes in this state',
+    description:
+      'Average nursing staff turnover across nursing homes in this state',
     valueKey: 'nursing_turnover',
     nationalAvgKey: 'national_nursing_turnover',
     suffix: '%',
@@ -249,36 +259,49 @@ export function buildFacilityStaffingTurnover(metricsSource) {
   });
 }
 
-// Owner builders return the same staffing card shape using owner aggregate values.
-// Placeholder median values from the owner configs are surfaced here as detail text.
-export function buildOwnerStaffingLevels(metricsSource) {
-  return ownerStaffingLevelsConfig.map((metric) => {
-    const stat = formatStaffingValue(metric, metricsSource);
+/* Owner builders return the same staffing card shape using owner aggregate
+   values, benchmarked against the national average the way the state cards are.
+   Placeholder median values from the owner configs are surfaced as detail text;
+   cards with no national key render badge-less. */
+function buildOwnerStaffingStat(metric, metricsSource, nationalBenchmarks) {
+  const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
+  const rawNational = metric.nationalAvgKey
+    ? nationalBenchmarks?.[metric.nationalAvgKey]
+    : null;
+  const stat = formatStaffingValue(metric, metricsSource);
 
-    return {
-      id: metric.id,
-      key: metric.title,
-      description: metric.description,
-      stat,
-      displayStat: formatDisplayValue(metric, stat),
-      detail1: `Median: ${metric.median}`,
-    };
-  });
+  const { comparison, comparisonColor } = metric.nationalAvgKey
+    ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
+    : { comparison: null, comparisonColor: 'zinc' };
+
+  return {
+    id: metric.id,
+    key: metric.title,
+    description: metric.description,
+    stat,
+    displayStat: formatDisplayValue(metric, stat),
+    rating: comparison,
+    ratingColor: comparisonColor,
+    detail1: `Median: ${metric.median}`,
+    detail2: metric.nationalAvgKey
+      ? `National average: ${formatDisplayValue(
+          metric,
+          formatMetricValue(rawNational),
+        )}`
+      : undefined,
+  };
 }
 
-export function buildOwnerStaffingTurnover(metricsSource) {
-  return ownerStaffingTurnoverConfig.map((metric) => {
-    const stat = formatStaffingValue(metric, metricsSource);
+export function buildOwnerStaffingLevels(metricsSource, nationalBenchmarks) {
+  return ownerStaffingLevelsConfig.map((metric) =>
+    buildOwnerStaffingStat(metric, metricsSource, nationalBenchmarks),
+  );
+}
 
-    return {
-      id: metric.id,
-      key: metric.title,
-      description: metric.description,
-      stat,
-      displayStat: formatDisplayValue(metric, stat),
-      detail1: `Median: ${metric.median}`,
-    };
-  });
+export function buildOwnerStaffingTurnover(metricsSource, nationalBenchmarks) {
+  return ownerStaffingTurnoverConfig.map((metric) =>
+    buildOwnerStaffingStat(metric, metricsSource, nationalBenchmarks),
+  );
 }
 
 /* State builders benchmark the state's own value against the national average,
@@ -293,7 +316,7 @@ function buildStateStaffingStat(metric, metricsSource, nationalBenchmarks) {
 
   const { comparison, comparisonColor } = metric.nationalAvgKey
     ? buildNationalComparison(rawValue, rawNational, metric.higherIsBetter)
-    : { comparison: null, comparisonColor: 'gray' };
+    : { comparison: null, comparisonColor: 'zinc' };
 
   return {
     id: metric.id,

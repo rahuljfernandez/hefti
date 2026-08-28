@@ -1,5 +1,5 @@
 const getBadgeColorAboveBelow = (rating, higherIsBetter = false) => {
-  if (!rating) return 'gray';
+  if (!rating) return 'zinc';
   switch (rating.toLowerCase()) {
     case 'above state average':
       return higherIsBetter ? 'green' : 'red';
@@ -8,48 +8,36 @@ const getBadgeColorAboveBelow = (rating, higherIsBetter = false) => {
     case 'below state average':
       return higherIsBetter ? 'red' : 'green';
     default:
-      return 'gray';
+      return 'zinc';
   }
 };
 const getBadgeColorOwnerProfile = (type) => {
-  switch (type) {
-    case 'Organization':
+  if (!type) return 'zinc';
+  switch (type.toUpperCase()) {
+    case 'ORGANIZATION':
       return 'orange';
-    case 'Individual':
+    case 'INDIVIDUAL':
       return 'teal';
+    default:
+      return 'zinc';
   }
 };
 
+/* Color depends only on the category before the dash, never the subtype, so we
+   match on that alone — CMS spells the categories inconsistently ("Non profit"
+   vs "Nonprofit") and ships more subtypes than we could enumerate. */
 const getBadgeColorOwnershipType = (type) => {
-  switch (type) {
-    case 'FOR PROFIT - CORPORATION':
+  if (!type) return 'zinc';
+  const category = type.toUpperCase().split(' - ')[0].replace(/\s+/g, '');
+  switch (category) {
+    case 'FORPROFIT':
       return 'cyan';
-    case 'FOR PROFIT - INDIVIDUAL':
-      return 'cyan';
-    case 'FOR PROFIT - LIMITED LIABILITY COMPANY':
-      return 'cyan';
-    case 'FOR PROFIT - PARTNERSHIP':
-      return 'cyan';
-    case 'GOVERNMENT - CITY':
-      return 'green';
-    case 'GOVERNMENT - CITY/COUNTY':
-      return 'green';
-    case 'GOVERNMENT - COUNTY':
-      return 'green';
-    case 'GOVERNMENT - FEDERAL':
-      return 'green';
-    case 'GOVERNMENT - HOSPITAL DISTRICT':
-      return 'green';
-    case 'GOVERNMENT - STATE':
-      return 'green';
-    case 'NONPROFIT - CHURCH RELATED':
+    case 'NONPROFIT':
       return 'purple';
-    case 'NONPROFIT - CORPORATION':
-      return 'purple';
-    case 'NONPROFIT - OTHER':
-      return 'purple';
+    case 'GOVERNMENT':
+      return 'green';
     default:
-      return 'gray';
+      return 'zinc';
   }
 };
 
@@ -107,7 +95,7 @@ const badgeConfig = {
 // Pass higherIsBetter=true for metrics where a higher value is desirable (e.g. vaccination rates).
 // Default assumes lower is better (e.g. falls, infections, hospitalizations).
 const getCmprColor = (cmpr, higherIsBetter = false) => {
-  if (!cmpr) return 'gray';
+  if (!cmpr) return 'zinc';
   const lower = cmpr.toLowerCase();
   if (lower.includes('above')) return higherIsBetter ? 'green' : 'red';
   if (lower.includes('below')) return higherIsBetter ? 'red' : 'green';
@@ -136,12 +124,12 @@ const buildNationalComparison = (
     rawBenchmark == null ||
     rawBenchmark === ''
   ) {
-    return { comparison: null, comparisonColor: 'gray' };
+    return { comparison: null, comparisonColor: 'zinc' };
   }
   const value = Number(rawValue);
   const benchmark = Number(rawBenchmark);
   if (!Number.isFinite(value) || !Number.isFinite(benchmark)) {
-    return { comparison: null, comparisonColor: 'gray' };
+    return { comparison: null, comparisonColor: 'zinc' };
   }
   if (value === benchmark) {
     return {
