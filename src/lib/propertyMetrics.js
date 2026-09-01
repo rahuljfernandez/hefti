@@ -143,12 +143,6 @@ const facilityRealEstateHighlightsConfig = [
     valueKey: 'realie_ownership_start',
     format: 'date',
   },
-  {
-    label: 'Official Description',
-    valueKey: 'realie_use_desc',
-    format: 'title',
-  },
-  { label: 'Use Code', valueKey: 'realie_use_code' },
 ];
 
 const keyFinancialsMetaConfig = [
@@ -254,6 +248,12 @@ const locationFieldsConfig = [
     valueKey: 'realie_building_area',
     format: 'number',
   },
+  {
+    label: 'Official Description',
+    valueKey: 'realie_use_desc',
+    format: 'title',
+  },
+  { label: 'Use Code', valueKey: 'realie_use_code' },
   { label: 'Facility Latitude', valueKey: 'latitude' },
   { label: 'Facility Longitude', valueKey: 'longitude' },
 ];
