@@ -68,6 +68,7 @@ export default function ProviderHighlights({
   facilitiesFinancial,
   facilitiesLoading,
   facilitiesError,
+  year,
 }) {
   if (!items) return <div>No data available.</div>;
 
@@ -161,6 +162,7 @@ export default function ProviderHighlights({
             stateName={expandStateAbbreviation(items.state)}
             facilities={facilities}
             financial={facilitiesFinancial}
+            year={year}
             loading={facilitiesLoading}
             error={facilitiesError}
           />
@@ -180,4 +182,5 @@ ProviderHighlights.propTypes = {
   facilitiesFinancial: PropTypes.object,
   facilitiesLoading: PropTypes.bool,
   facilitiesError: PropTypes.string,
+  year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

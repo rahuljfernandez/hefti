@@ -264,6 +264,7 @@ export default function StatesProfile() {
                         facilitiesFinancial={stateFinancial}
                         facilitiesLoading={stateFacilitiesLoading}
                         facilitiesError={stateFacilitiesError}
+                        year={selectedYear}
                       />
                     );
                   //As of 3/16/26 we are holding off on deficiencies
