@@ -125,10 +125,7 @@ export default function StateRankingsHiLowViz() {
                 </Select>
                 <BestWorstToggle value={order} onChange={handleOrder} />
               </div>
-              <DataYearChip
-                year={metricMeta?.year}
-                isFallback={metricMeta?.isFallback}
-              />
+              <DataYearChip year={metricMeta?.year} />
             </div>
 
             <ChoroplethLegend />

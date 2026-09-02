@@ -10,22 +10,20 @@ import clsx from 'clsx';
  * metric can change the year behind the numbers with nothing on screen saying
  * so. This keeps that year beside the control that changes it.
  *
- * Reads `meta.year` / `meta.isFallback` off a /api/state-metrics metric; renders
- * nothing when the year is unknown.
+ * Reads `meta.year` off a /api/state-metrics metric; renders nothing when the
+ * year is unknown.
  */
-export default function DataYearChip({ year, isFallback = false, className }) {
+export default function DataYearChip({ year, className }) {
   if (year == null) return null;
 
   return (
     <span className={clsx('text-label-xs text-content-secondary', className)}>
-      (<span>{year}</span> data
-      {isFallback && '  latest available'})
+      ({year} data)
     </span>
   );
 }
 
 DataYearChip.propTypes = {
   year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  isFallback: PropTypes.bool,
   className: PropTypes.string,
 };

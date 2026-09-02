@@ -182,6 +182,7 @@ export default function FacilitiesMap({
   stateName = 'Virginia',
   facilities = [],
   financial = null,
+  year = null,
   loading = false,
   error = null,
 }) {
@@ -203,11 +204,23 @@ export default function FacilitiesMap({
 
   const isFinancialTab = colorBy.name === 'Financial';
   const starDimension = starDimensionFor(colorBy.name);
-  const narrowOptions = useMemo(
-    () =>
-      isFinancialTab ? MARGIN_OPTIONS : starRatingOptions(starDimension.label),
-    [isFinancialTab, starDimension.label],
-  );
+
+  /* Switching Color by to Financial moves the year back several years without
+     touching either Narrow-by control, so the year rides in the option labels.
+     It goes on every option, not just the "all" default: a native select shows
+     the selected option's text, so labelling only the default would blank the
+     year the moment anyone narrows to a star level or margin band. */
+  const activeYear = isFinancialTab ? (financial?.year ?? null) : year;
+  const narrowOptions = useMemo(() => {
+    const options = isFinancialTab
+      ? MARGIN_OPTIONS
+      : starRatingOptions(starDimension.label);
+    if (activeYear == null) return options;
+    return options.map((option) => ({
+      ...option,
+      label: `${option.label} · ${activeYear} data`,
+    }));
+  }, [isFinancialTab, starDimension.label, activeYear]);
 
   const {
     markers,
@@ -344,6 +357,8 @@ FacilitiesMap.propTypes = {
     year: PropTypes.number,
     isFallback: PropTypes.bool,
   }),
+  // The page's selected data year — what the star tabs are colored by.
+  year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   loading: PropTypes.bool,
   error: PropTypes.string,
 };

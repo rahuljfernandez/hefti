@@ -88,10 +88,7 @@ export default function ExploreByState() {
 
       {/* Legend + the active tab's data year */}
       <div className="mb-6 flex flex-row flex-wrap items-center justify-center gap-x-6 gap-y-2">
-        <DataYearChip
-          year={metric?.meta?.year}
-          isFallback={metric?.meta?.isFallback}
-        />
+        <DataYearChip year={metric?.meta?.year} />
         <ChoroplethLegend />
       </div>
 
