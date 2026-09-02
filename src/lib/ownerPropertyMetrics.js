@@ -96,16 +96,20 @@ export function buildPortfolioSummary(properties) {
     .map((p) => p.titleholder_name?.trim().toUpperCase())
     .filter(Boolean);
 
+  const portfolioValue = valued.length
+    ? valued.reduce((sum, p) => sum + p.market_value, 0)
+    : null;
+
   return {
     total_properties: properties.length,
     related_party_count: relatedParty.length,
     related_party_percentage: Math.round(
       (relatedParty.length / properties.length) * 100,
     ),
-    portfolio_value:
-      valued.length === 0
-        ? null
-        : valued.reduce((sum, p) => sum + p.market_value, 0),
+    portfolio_value: portfolioValue,
+    average_property_value: valued.length
+      ? portfolioValue / valued.length
+      : null,
     valued_properties: valued.length,
     states: [...new Set(properties.map((p) => p.state).filter(Boolean))].sort(),
     distinct_owners:
@@ -114,26 +118,22 @@ export function buildPortfolioSummary(properties) {
 }
 
 /* Display-ready cards for the Real Estate Highlights row, split by importance:
-   two `primary` headline figures (total value, geographic spread) over three
-   `supporting` counts. Formatting (USD, "%", "n of m") lives here; `icon` is a
-   string token the organism maps to a component so this module stays free of JSX.
+   two `primary` headline figures (total, average) over three `supporting`
+   counts. Formatting (USD, "n of m") lives here; `icon` is a string token the
+   organism maps to a component so this module stays free of JSX.
 
-   Related party is last rather than first: the shipped flag reads 0% on most
-   owners, so leading with it gives the loudest position to the emptiest figure. */
+   No related-party card: the shipped flag is too unreliable to publish. The
+   row-level `related_party` flag still drives the map and the list filters;
+   this summary's aggregate of it is currently read by nothing. */
 export function buildOwnerRealEstateHighlights(summary) {
   const {
-    related_party_percentage,
-    related_party_count,
     total_properties,
     portfolio_value,
+    average_property_value,
     valued_properties,
     distinct_owners,
   } = summary;
   const states = summary.states ?? [];
-
-  /* The amber treatment is a warning, so it only appears when there is something
-     to warn about — most portfolios flag no related party at all. */
-  const flagged = related_party_count > 0;
 
   const primary = [
     /* Not "Portfolio Value": the CMS owner holds title to ~2% of these parcels,
@@ -152,10 +152,16 @@ export function buildOwnerRealEstateHighlights(summary) {
             : 'Total market value',
     },
     {
-      id: 'states',
-      label: 'States',
-      value: states.length,
-      caption: states.join(', '),
+      id: 'average-property-value',
+      label: 'Average Real Estate Value',
+      value:
+        average_property_value === null
+          ? 'Not reported'
+          : formatUSD(average_property_value),
+      caption:
+        average_property_value === null
+          ? 'No market values reported'
+          : `Average market value of the ${valued_properties} valued`,
     },
   ];
 
@@ -176,13 +182,10 @@ export function buildOwnerRealEstateHighlights(summary) {
           : 'Distinct landlord entities',
     },
     {
-      id: 'related-party',
-      label: 'Related Party',
-      value: `${related_party_percentage}%`,
-      aside: `${related_party_count} of ${total_properties}`,
-      caption: 'Possible related party owned',
-      accent: flagged ? 'amber' : undefined,
-      icon: flagged ? 'warning' : undefined,
+      id: 'states',
+      label: 'States',
+      value: states.length,
+      caption: states.join(', '),
     },
   ];
 
