@@ -8,8 +8,9 @@ import { Heading } from '../atom/heading';
 /**
  * Real Estate Highlights — the first section of the facility Real Estate tab.
  *
- * Two blocks inside one card: owner/parcel fields followed by transfer,
- * assessment, tax, and lending metadata plus three dated valuation cards.
+ * Two titled blocks inside one card: Owner Details, then Key Financials —
+ * transfer, assessment, tax, and lending metadata plus three dated valuation
+ * cards.
  *
  * Takes display-ready rows, not a record — the tab runs the builders so every
  * section on it reads one source. See lib/propertyMetrics.js.
@@ -29,6 +30,10 @@ export default function FacilityRealEstateHighlights({
         {/* TEMPORARY — revisit once global card padding is settled. This div
             should disappear, not grow more breakpoints. */}
         <div className="py-5 sm:py-4">
+          <Heading level={4} className="text-heading-xs mb-6">
+            Owner Details
+          </Heading>
+
           <FieldGrid fields={highlights} />
 
           {/* Key Financials shares the card because the transfer figures only
@@ -40,7 +45,10 @@ export default function FacilityRealEstateHighlights({
 
             <FieldGrid fields={keyFinancialsMeta} />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <dl
+              aria-label="Key financials"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+            >
               {keyFinancialStats.map(({ label, value, caption }) => (
                 <StatFigureCard
                   key={label}
@@ -49,7 +57,7 @@ export default function FacilityRealEstateHighlights({
                   caption={caption}
                 />
               ))}
-            </div>
+            </dl>
           </div>
         </div>
       </LayoutCard>

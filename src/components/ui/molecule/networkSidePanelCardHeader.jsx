@@ -28,6 +28,7 @@ export default function NetworkSidePanelCardHeader({
               color={getBadgeColorOwnerProfile(
                 selectedNode.meta.cms_ownership_type,
               )}
+              className="uppercase"
             >
               {selectedNode.meta.cms_ownership_type}
             </Badge>

@@ -71,8 +71,12 @@ describe('state real estate parcel aggregation', () => {
     expect(summary.total_real_estate_value).toBeNull();
     expect(summary.average_property_value).toBeNull();
     expect(highlights.primary.map((item) => item.value)).toEqual([
-      'N/A',
-      'N/A',
+      'Not reported',
+      'Not reported',
+    ]);
+    expect(highlights.primary.map((item) => item.caption)).toEqual([
+      'No assessed value reported for 1 properties',
+      'No assessed value reported',
     ]);
     expect(holdings[0].re_value_display).toBe('N/A');
   });

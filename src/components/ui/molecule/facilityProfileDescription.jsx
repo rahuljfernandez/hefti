@@ -52,7 +52,10 @@ export default function FacilityProfileDescription({ items }) {
             OWNERSHIP AFFILIATION
           </dt>
           <dd className="text-paragraph-base text-content-primary mt-1">
-            <Badge color={getBadgeColorOwnershipType(ownership)}>
+            <Badge
+              color={getBadgeColorOwnershipType(ownership)}
+              className="uppercase"
+            >
               {ownership ?? 'N/A'}
             </Badge>
           </dd>

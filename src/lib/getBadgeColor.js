@@ -41,50 +41,54 @@ const getBadgeColorOwnershipType = (type) => {
   }
 };
 
+/* Keys match raw CMS role strings and stay all-caps; labels are display text and
+   stay in natural case, with the caps applied via CSS at the badge. Same rule as
+   FieldGrid: an all-caps DOM value follows the text into copy/paste, and some
+   screen readers spell it out letter by letter. */
 const badgeConfig = {
   '5% OR GREATER DIRECT OWNERSHIP INTEREST': {
     color: 'blue',
-    label: 'DIRECT OWNERSHIP',
+    label: 'Direct ownership',
   },
   '5% OR GREATER INDIRECT OWNERSHIP INTEREST': {
     color: 'purple',
-    label: 'INDIRECT OWNERSHIP',
+    label: 'Indirect ownership',
   },
   '5% OR GREATER MORTGAGE INTEREST': {
     color: 'orange',
-    label: 'MORTGAGE INTEREST',
+    label: 'Mortgage interest',
   },
   '5% OR GREATER SECURITY INTEREST': {
     color: 'orange',
-    label: 'SECURITY INTEREST',
+    label: 'Security interest',
   },
   'PARTNERSHIP INTEREST': {
     color: 'orange',
-    label: 'PARTNERSHIP INTEREST',
+    label: 'Partnership interest',
   },
   'CORPORATE OFFICER': {
     color: 'red',
-    label: 'CORPORATE OFFICER',
+    label: 'Corporate officer',
   },
   'CORPORATE DIRECTOR': {
     color: 'red',
-    label: 'CORPORATE DIRECTOR',
+    label: 'Corporate director',
   },
   'MANAGING EMPLOYEE': {
     color: 'red',
-    label: 'MANAGING EMPLOYEE',
+    label: 'Managing employee',
   },
   'W-2 MANAGING EMPLOYEE': {
     color: 'red',
-    label: 'W-2 MANAGING EMPLOYEE',
+    label: 'W-2 managing employee',
   },
   'OPERATIONAL/MANAGERIAL CONTROL': {
     color: 'yellow',
-    label: 'OPERATIONAL/MANAGERIAL CONTROL',
+    label: 'Operational/managerial control',
   },
   'PROPERTY TITLEHOLDER (REALIE)': {
     color: 'teal',
-    label: 'REAL ESTATE TITLEHOLDER',
+    label: 'Real estate titleholder',
   },
 
   'N/A': { color: '', label: 'None' },

@@ -407,9 +407,9 @@ export function buildStateRealEstateSummary(properties, valuation) {
    counts. Formatting (USD, "%", "n of m") lives here; `icon` is a string token
    the grid maps to a component so this module stays free of JSX.
 
-   Related party is last rather than first, matching the owner tab: the shipped
-   flag reads about 3% of parcels in the largest states, so leading with it gives
-   the loudest position to the emptiest figure. */
+   No related-party card: the shipped flag is too unreliable to publish. The
+   row-level `related_party` flag still drives the map and the holdings table;
+   this summary's aggregate of it is currently read by nothing. */
 export function buildRealEstateHighlights(summary) {
   const {
     value_label,
@@ -420,8 +420,6 @@ export function buildRealEstateHighlights(summary) {
     estimated_properties,
     total_real_estate_value,
     average_property_value,
-    related_party_count,
-    related_party_percentage,
     operators_involved,
     property_owners,
   } = summary;
@@ -446,22 +444,26 @@ export function buildRealEstateHighlights(summary) {
       ? `, ${estimated_properties} estimated from assessed value`
       : '';
 
-  /* The amber treatment is a warning, so it only appears when there is something
-     to warn about. */
-  const flagged = related_party_count > 0;
+  /* Nothing valued means both figures are null; the basis note is about
+     comparing totals, so it has nothing to qualify here. */
+  const noValues = valued_properties === 0;
 
   const primary = [
     {
       id: 'total-real-estate-value',
       label: 'Total Real Estate Value',
-      value: formatUSD(total_real_estate_value),
-      caption: `Total ${value_label} of ${valued_properties} of ${total_properties} properties${estimatedNote}${basisNote}`,
+      value: noValues ? 'Not reported' : formatUSD(total_real_estate_value),
+      caption: noValues
+        ? `No ${value_label} reported for ${total_properties} properties`
+        : `Total ${value_label} of ${valued_properties} of ${total_properties} properties${estimatedNote}${basisNote}`,
     },
     {
       id: 'average-property-value',
       label: 'Average Real Estate Value',
-      value: formatUSD(average_property_value),
-      caption: `Average ${value_label} of the ${valued_properties} valued`,
+      value: noValues ? 'Not reported' : formatUSD(average_property_value),
+      caption: noValues
+        ? `No ${value_label} reported`
+        : `Average ${value_label} of the ${valued_properties} valued`,
     },
   ];
 
@@ -479,13 +481,10 @@ export function buildRealEstateHighlights(summary) {
       caption: 'Distinct landlord entities',
     },
     {
-      id: 'related-party',
-      label: 'Related Party',
-      value: `${related_party_percentage}%`,
-      aside: `${related_party_count} of ${total_properties}`,
-      caption: 'Possible related party owned',
-      accent: flagged ? 'amber' : undefined,
-      icon: flagged ? 'warning' : undefined,
+      id: 'properties',
+      label: 'Real Estate Holdings',
+      value: total_properties,
+      caption: 'Real estate parcels',
     },
   ];
 

@@ -9,6 +9,8 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
+import { gridColsClass } from '../../../lib/gridColumns';
+
 /**
  * Shared list wrapper for pairing data items with a layout component and a content renderer.
  *
@@ -127,12 +129,6 @@ export function ListContainerSeparate({ items = [], renderItem }) {
 ListContainerSeparate.propTypes = {
   items: PropTypes.array,
   renderItem: PropTypes.func.isRequired,
-};
-
-const gridColsClass = {
-  1: 'sm:grid-cols-1',
-  2: 'sm:grid-cols-2',
-  3: 'sm:grid-cols-3',
 };
 
 /**

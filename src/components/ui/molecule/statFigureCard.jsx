@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
 /**
- * A single headline figure: label, value, and an optional caption line, plus an
- * optional inline `aside` after the value, a leading `icon`, and an `accent`
- * tint.
+ * A single headline figure: label, value, and an optional caption line.
+ *
+ * Renders a dt/dd pair inside its card box, so it must sit in a `<dl>` — the
+ * caller owns that wrapper, which is also what lays the cards out in a grid.
+ * Without it the value reaches a screen reader with no name attached.
  *
  * Purely presentational — no domain knowledge. Captions arrive fully formed
  * (e.g. "As of 2025"), so the caller owns any prefixing and the card stays
@@ -13,17 +15,7 @@ import clsx from 'clsx';
  *
  * Values arrive pre-formatted — this renders, it does not format.
  */
-export default function StatFigureCard({
-  label,
-  value,
-  caption,
-  aside,
-  icon: Icon,
-  accent,
-  className,
-}) {
-  const isAmber = accent === 'amber';
-
+export default function StatFigureCard({ label, value, caption, className }) {
   return (
     <div
       className={clsx(
@@ -31,33 +23,17 @@ export default function StatFigureCard({
         className,
       )}
     >
-      <div className="flex items-center gap-1.5">
-        {Icon && (
-          <Icon
-            aria-hidden="true"
-            className={clsx(
-              'size-5 shrink-0',
-              isAmber ? 'text-amber-500' : 'text-content-secondary',
-            )}
-          />
-        )}
-        <p className="text-label-lg text-content-secondary">{label}</p>
-      </div>
+      <dt className="text-label-lg text-content-secondary">{label}</dt>
 
-      <div className="mt-2 flex items-baseline gap-2">
+      <dd className="mt-2">
         <p className="text-heading-md text-core-black">{value}</p>
-        {aside && (
-          <span className="text-paragraph-base text-content-secondary">
-            {aside}
-          </span>
-        )}
-      </div>
 
-      {caption && (
-        <p className="text-paragraph-base text-content-secondary mt-1">
-          {caption}
-        </p>
-      )}
+        {caption && (
+          <p className="text-paragraph-base text-content-secondary mt-1">
+            {caption}
+          </p>
+        )}
+      </dd>
     </div>
   );
 }
@@ -66,8 +42,5 @@ StatFigureCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   caption: PropTypes.node,
-  aside: PropTypes.string,
-  icon: PropTypes.elementType,
-  accent: PropTypes.oneOf(['amber']),
   className: PropTypes.string,
 };
