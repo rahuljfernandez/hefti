@@ -18,8 +18,8 @@ export default function DataYearChip({ year, isFallback = false, className }) {
 
   return (
     <span className={clsx('text-label-xs text-content-secondary', className)}>
-      (<span className="text-content-primary font-medium">{year}</span> data
-      {isFallback && ' · latest available'})
+      (<span>{year}</span> data
+      {isFallback && '  latest available'})
     </span>
   );
 }
