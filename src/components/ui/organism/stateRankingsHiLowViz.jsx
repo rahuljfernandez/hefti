@@ -6,6 +6,7 @@ import ChoroplethLegend from '../molecule/choroplethLegend';
 import BestWorstToggle from '../molecule/bestWorstToggle';
 import SimplePagination from '../molecule/simplePagination';
 import StateShapeCard from '../molecule/stateShapeCard';
+import DataYearChip from '../atom/dataYearChip';
 import { StateRankingsSkeleton } from '../atom/skeletons';
 import { useStateMetrics } from '../../../hooks/useStateMetrics';
 import {
@@ -43,6 +44,8 @@ export default function StateRankingsHiLowViz() {
     () => STATE_RANKING_DIMENSIONS.find((d) => d.id === dimId),
     [dimId],
   );
+
+  const metricMeta = payload?.metrics?.[dim.id]?.meta;
 
   const cards = useMemo(() => {
     const metric = payload?.metrics?.[dim.id];
@@ -99,27 +102,33 @@ export default function StateRankingsHiLowViz() {
         <>
           {/* Controls: Rank by + Best/Worst on the left, legend on the right */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="rank-by"
-                className="text-label-sm text-core-black shrink-0 font-medium"
-              >
-                Rank by
-              </label>
-              <Select
-                id="rank-by"
-                aria-label="Rank by"
-                value={dimId}
-                onChange={handleDimChange}
-                className="w-full sm:w-52"
-              >
-                {STATE_RANKING_DIMENSIONS.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </Select>
-              <BestWorstToggle value={order} onChange={handleOrder} />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="rank-by"
+                  className="text-label-sm text-core-black shrink-0 font-medium"
+                >
+                  Rank by
+                </label>
+                <Select
+                  id="rank-by"
+                  aria-label="Rank by"
+                  value={dimId}
+                  onChange={handleDimChange}
+                  className="w-full sm:w-52"
+                >
+                  {STATE_RANKING_DIMENSIONS.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </Select>
+                <BestWorstToggle value={order} onChange={handleOrder} />
+              </div>
+              <DataYearChip
+                year={metricMeta?.year}
+                isFallback={metricMeta?.isFallback}
+              />
             </div>
 
             <ChoroplethLegend />
