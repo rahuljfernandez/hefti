@@ -4,6 +4,7 @@ import { Heading } from '../atom/heading';
 import TabsSelector from '../molecule/tabsSelector';
 import ChoroplethLegend from '../molecule/choroplethLegend';
 import UsStatesMap from '../molecule/usStatesMap';
+import DataYearChip from '../atom/dataYearChip';
 import { StateMapSkeleton } from '../atom/skeletons';
 import { useStateMetrics } from '../../../hooks/useStateMetrics';
 import {
@@ -85,8 +86,12 @@ export default function ExploreByState() {
         />
       </div>
 
-      {/* Legend */}
-      <div className="mb-6 flex justify-center">
+      {/* Legend + the active tab's data year */}
+      <div className="mb-6 flex flex-row flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <DataYearChip
+          year={metric?.meta?.year}
+          isFallback={metric?.meta?.isFallback}
+        />
         <ChoroplethLegend />
       </div>
 
