@@ -115,10 +115,15 @@ svg.graph.panning {
   user-select: none;
 }
 
-/* Dense graphs hide their labels until a node is highlighted, the way the live
-   graph only labels what you're looking at. Sparse ones show every label. */
-.graph.dense .node:not(.hub) text {
+/* Labels the exporter could not place without overlapping one already drawn.
+   They stay in the markup so hovering still reveals them, the way the live
+   graph labels whatever you point at. */
+.node.label-crowded text {
   opacity: 0;
+}
+
+.node:hover text {
+  opacity: 1;
 }
 
 /* Mirrors the live graph's reducer: the active node and its direct neighbors
@@ -135,6 +140,12 @@ svg.graph.panning {
 
 .graph.focus .node.hl text {
   opacity: 1;
+}
+
+/* A crowded label still loses to the dimming above when it is not in the
+   highlighted set — otherwise hidden nodes would shout their names. */
+.graph.focus .node.label-crowded:not(.hl) text {
+  opacity: 0;
 }
 
 .node.pinned circle {

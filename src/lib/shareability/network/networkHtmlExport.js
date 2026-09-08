@@ -21,9 +21,12 @@ import viewerJs from './networkViewer.runtime.js?raw';
  * vector rather than screenshotted or recomputed.
  */
 
-const PADDING = 40;
 const LABEL_OFFSET = 11;
-const DENSE_NODE_COUNT = 60;
+const LABEL_FONT_SIZE = 11;
+/* Rough advance width per character at LABEL_FONT_SIZE — only needs to be good
+   enough to decide which labels collide. */
+const LABEL_CHAR_WIDTH = 0.55 * LABEL_FONT_SIZE;
+const FALLBACK_CANVAS = { width: 1600, height: 900 };
 
 const OWNER_PROFILE_PATH = '/nursing-homes/owners/';
 
@@ -38,14 +41,20 @@ const escAttr = (value) =>
   escapeHtml(String(value ?? '')).replace(/"/g, '&quot;');
 
 /**
- * Reads the rendered graph out of Sigma into plain data.
+ * Reads the rendered graph out of Sigma into plain data, in pixel space.
  *
- * Positions come from the display cache rather than the raw graph so the export
- * honors what is actually on screen: the active node-size metric, and the
- * pin/hover neighborhood filter that hides non-neighbors. The container sets
- * autoRescale false, so display coordinates are raw graph units and sizes are
- * pixels — one graph unit is one pixel at a neutral camera, which is what lets
- * the viewBox be derived without a fudge factor.
+ * Display data mixes two coordinate systems: x/y come back normalized to
+ * roughly [0,1] (autoRescale:false only widens the extent, it does not skip
+ * normalizationFunction), while size stays in pixels. Emitting them together
+ * collapses every node onto one point under circles many times the width of the
+ * whole layout. So positions are rescaled here to fill the graph canvas, and
+ * radii are left alone — after which one SVG user unit is one pixel and the
+ * label font size means what it says.
+ *
+ * Sizes and colors are still read post-reducer so the export reflects the
+ * active node-size metric. `hidden` is deliberately ignored: a pinned node
+ * prunes the on-screen view to its neighborhood, and a file opened a week later
+ * should not be silently cropped to whatever happened to be selected.
  */
 export function buildNetworkSnapshot(sigma, data) {
   sigma.refresh();
@@ -56,20 +65,21 @@ export function buildNetworkSnapshot(sigma, data) {
     (data?.nodes ?? []).map((node) => [String(node.id), node.meta ?? {}]),
   );
 
-  const nodes = [];
+  const raw = [];
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
+  let maxRadius = 0;
 
   graph.forEachNode((id) => {
     const display = sigma.getNodeDisplayData(id);
-    if (!display || display.hidden) return;
+    if (!display) return;
 
     const key = String(id);
     const radius = display.size ?? 8;
 
-    nodes.push({
+    raw.push({
       id: key,
       label: display.label || key,
       x: display.x,
@@ -81,38 +91,101 @@ export function buildNetworkSnapshot(sigma, data) {
       meta: metaById.get(key) ?? {},
     });
 
-    minX = Math.min(minX, display.x - radius);
-    minY = Math.min(minY, display.y - radius);
-    maxX = Math.max(maxX, display.x + radius);
-    maxY = Math.max(maxY, display.y + radius);
+    minX = Math.min(minX, display.x);
+    minY = Math.min(minY, display.y);
+    maxX = Math.max(maxX, display.x);
+    maxY = Math.max(maxY, display.y);
+    maxRadius = Math.max(maxRadius, radius);
   });
 
-  if (!nodes.length) return null;
+  if (!raw.length) return null;
 
-  const visible = new Set(nodes.map((node) => node.id));
+  const canvas = sigma.getDimensions?.() ?? FALLBACK_CANVAS;
+  const width = canvas.width || FALLBACK_CANVAS.width;
+  const height = canvas.height || FALLBACK_CANVAS.height;
+
+  /* Room for a node's own radius plus the label sitting under it. */
+  const margin = maxRadius + LABEL_OFFSET + LABEL_FONT_SIZE * 2;
+  const usableWidth = Math.max(1, width - margin * 2);
+  const usableHeight = Math.max(1, height - margin * 2);
+
+  /* A single node, or a layout that collapsed to a line, has no span on one
+     axis — fall back to scale 1 rather than dividing by zero. */
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+  const scale =
+    spanX > 0 || spanY > 0
+      ? Math.min(
+          spanX > 0 ? usableWidth / spanX : Infinity,
+          spanY > 0 ? usableHeight / spanY : Infinity,
+        )
+      : 1;
+
+  const offsetX = margin + (usableWidth - spanX * scale) / 2;
+  const offsetY = margin + (usableHeight - spanY * scale) / 2;
+
+  const nodes = raw.map((node) => ({
+    ...node,
+    x: offsetX + (node.x - minX) * scale,
+    y: offsetY + (node.y - minY) * scale,
+  }));
+
+  const present = new Set(nodes.map((node) => node.id));
   const links = [];
 
   graph.forEachEdge((edge) => {
-    const display = sigma.getEdgeDisplayData(edge);
-    if (display?.hidden) return;
-
     const source = String(graph.source(edge));
     const target = String(graph.target(edge));
-    if (!visible.has(source) || !visible.has(target)) return;
+    if (!present.has(source) || !present.has(target)) return;
 
-    links.push({ source, target, width: display?.size ?? 1 });
+    links.push({
+      source,
+      target,
+      width: sigma.getEdgeDisplayData(edge)?.size ?? 1,
+    });
   });
 
-  return {
-    nodes,
-    links,
-    viewBox: [
-      minX - PADDING,
-      minY - PADDING,
-      maxX - minX + PADDING * 2,
-      maxY - minY + PADDING * 2,
-    ],
-  };
+  return { nodes, links, viewBox: [0, 0, width, height] };
+}
+
+/**
+ * Chooses which labels to draw so the picture stays readable.
+ *
+ * A force layout puts nodes close enough that drawing every label produces a
+ * pile of overlapping text. Sigma solves this on screen with its label grid;
+ * here the equivalent is one greedy pass — biggest nodes claim their space
+ * first, and a label that would collide is left for hover to reveal.
+ */
+function placeLabels(nodes) {
+  const placed = [];
+  const keep = new Set();
+
+  [...nodes]
+    .sort((a, b) => (b.isHub ? 1 : 0) - (a.isHub ? 1 : 0) || b.r - a.r)
+    .forEach((node) => {
+      const halfWidth = (node.label.length * LABEL_CHAR_WIDTH) / 2;
+      const top = node.y + node.r + LABEL_OFFSET - LABEL_FONT_SIZE;
+      const box = {
+        left: node.x - halfWidth,
+        right: node.x + halfWidth,
+        top,
+        bottom: top + LABEL_FONT_SIZE * 1.4,
+      };
+
+      const collides = placed.some(
+        (other) =>
+          box.left < other.right &&
+          box.right > other.left &&
+          box.top < other.bottom &&
+          box.bottom > other.top,
+      );
+
+      if (collides) return;
+      placed.push(box);
+      keep.add(node.id);
+    });
+
+  return keep;
 }
 
 function renderSvg(snapshot) {
@@ -130,20 +203,29 @@ function renderSvg(snapshot) {
     })
     .join('');
 
+  const labelled = placeLabels(snapshot.nodes);
+
   const nodes = snapshot.nodes
-    .map(
-      (node) =>
-        `<g class="node${node.isHub ? ' hub' : ''}" data-id="${escAttr(node.id)}">` +
+    .map((node) => {
+      const classes = [
+        'node',
+        node.isHub ? 'hub' : '',
+        labelled.has(node.id) ? '' : 'label-crowded',
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      return (
+        `<g class="${classes}" data-id="${escAttr(node.id)}">` +
         `<circle cx="${node.x}" cy="${node.y}" r="${node.r}" fill="${escAttr(node.color)}"/>` +
         `<text x="${node.x}" y="${node.y + node.r + LABEL_OFFSET}" text-anchor="middle">` +
-        `${escapeHtml(node.label)}</text></g>`,
-    )
+        `${escapeHtml(node.label)}</text></g>`
+      );
+    })
     .join('');
 
-  const dense = snapshot.nodes.length > DENSE_NODE_COUNT ? ' dense' : '';
-
   return (
-    `<svg class="graph${dense}" viewBox="${snapshot.viewBox.join(' ')}" ` +
+    `<svg class="graph" viewBox="${snapshot.viewBox.join(' ')}" ` +
     `xmlns="http://www.w3.org/2000/svg" role="img" ` +
     `aria-label="Owner network graph">` +
     `<g>${edges}</g><g>${nodes}</g></svg>`

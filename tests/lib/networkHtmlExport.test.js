@@ -4,12 +4,16 @@ import {
   buildNetworkSnapshot,
 } from '../../src/lib/shareability/network/networkHtmlExport';
 
+const CANVAS = { width: 1000, height: 600 };
+
 /* Stands in for the Sigma instance: buildNetworkSnapshot only reads the graph
-   iterators and the post-reducer display caches, so the export can be exercised
-   without a canvas or a WebGL context. */
-function fakeSigma(nodes, edges) {
+   iterators, the post-reducer display caches and the canvas size, so the export
+   can be exercised without a canvas or a WebGL context. Display x/y are in the
+   normalized ~[0,1] space Sigma actually returns. */
+function fakeSigma(nodes, edges, canvas = CANVAS) {
   return {
     refresh: () => {},
+    getDimensions: () => canvas,
     getGraph: () => ({
       forEachNode: (fn) => nodes.forEach((n) => fn(n.id)),
       forEachEdge: (fn) => edges.forEach((e) => fn(e.key)),
@@ -24,20 +28,20 @@ function fakeSigma(nodes, edges) {
 const nodes = [
   {
     id: 'oe:1',
-    display: { x: 0, y: 0, size: 14, color: '#F59E0B', label: 'Hub Holdings' },
+    display: { x: 0.4, y: 0.4, size: 14, color: '#F59E0B', label: 'Hub Co' },
   },
   {
     id: 'oe:2',
-    display: { x: 100, y: 50, size: 8, color: '#0F766E', label: 'Jane Doe' },
+    display: { x: 0.6, y: 0.5, size: 8, color: '#0F766E', label: 'Jane Doe' },
   },
   {
     id: 'oe:3',
     display: {
-      x: 999,
-      y: 999,
+      x: 0.5,
+      y: 0.6,
       size: 8,
       color: '#C2410C',
-      label: 'Hidden Co',
+      label: 'Pruned Co',
       hidden: true,
     },
   },
@@ -48,8 +52,6 @@ const edges = [
   { key: 'e2', source: 'oe:1', target: 'oe:3', display: { size: 1 } },
 ];
 
-/* Shared counts come from link weights, so the payload needs its links even
-   though the geometry is read from the stub Sigma. */
 const data = {
   hubId: 'oe:1',
   nodes: [
@@ -63,61 +65,112 @@ const data = {
   ],
 };
 
+const snapshot = (n = nodes, e = edges, canvas) =>
+  buildNetworkSnapshot(fakeSigma(n, e, canvas), data);
+
 describe('buildNetworkSnapshot', () => {
-  it('drops hidden nodes and any edge that touches one', () => {
-    const snapshot = buildNetworkSnapshot(fakeSigma(nodes, edges), data);
+  /* A pinned node prunes the live view to its neighborhood; a downloaded file
+     should still hold the whole network at that depth. */
+  it('keeps nodes and edges the live view has pruned away', () => {
+    const result = snapshot();
 
-    expect(snapshot.nodes.map((n) => n.id)).toEqual(['oe:1', 'oe:2']);
-    expect(snapshot.links).toEqual([
-      { source: 'oe:1', target: 'oe:2', width: 2 },
-    ]);
+    expect(result.nodes.map((n) => n.id)).toEqual(['oe:1', 'oe:2', 'oe:3']);
+    expect(result.links).toHaveLength(2);
   });
 
-  it('flags the hub and carries the shared count and meta through', () => {
-    const snapshot = buildNetworkSnapshot(fakeSigma(nodes, edges), data);
-
-    expect(snapshot.nodes[0].isHub).toBe(true);
-    expect(snapshot.nodes[1].isHub).toBe(false);
-    expect(snapshot.nodes[1].sharedCount).toBe(4);
-    expect(snapshot.nodes[1].meta.slug).toBe('jane');
+  it('frames the drawing to the graph canvas', () => {
+    expect(snapshot().viewBox).toEqual([0, 0, 1000, 600]);
   });
 
-  it('frames every visible node, radius and padding included', () => {
-    const [x, y, width, height] = buildNetworkSnapshot(
-      fakeSigma(nodes, edges),
-      data,
-    ).viewBox;
+  /* The bug this guards: display x/y come back normalized to ~[0,1] while size
+     stays in pixels, so emitting them together buried every node under a circle
+     wider than the entire layout. */
+  it('rescales normalized positions into pixel space', () => {
+    const result = snapshot();
 
-    // hub spans -14..14, Jane spans 92..108 / 42..58, padding is 40
-    expect([x, y]).toEqual([-54, -54]);
-    expect(x + width).toBe(148);
-    expect(y + height).toBe(98);
+    result.nodes.forEach((node) => {
+      expect(node.x).toBeGreaterThan(node.r);
+      expect(node.x).toBeLessThan(CANVAS.width - node.r);
+      expect(node.y).toBeGreaterThan(node.r);
+      expect(node.y).toBeLessThan(CANVAS.height - node.r);
+    });
+
+    const spread = Math.max(...result.nodes.map((n) => n.x)) -
+      Math.min(...result.nodes.map((n) => n.x));
+    const biggest = Math.max(...result.nodes.map((n) => n.r));
+    expect(spread).toBeGreaterThan(biggest * 4);
   });
 
-  it('returns null when nothing is visible', () => {
-    const allHidden = nodes.map((n) => ({
-      ...n,
-      display: { ...n.display, hidden: true },
-    }));
+  it('leaves radii in pixels so the label font size stays honest', () => {
+    expect(snapshot().nodes.map((n) => n.r)).toEqual([14, 8, 8]);
+  });
 
-    expect(buildNetworkSnapshot(fakeSigma(allHidden, []), data)).toBeNull();
+  it('preserves the layout proportions while rescaling', () => {
+    const [a, b, c] = snapshot().nodes;
+    const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+
+    // in source coords: |ab| = hypot(.2,.1), |ac| = hypot(.1,.2) — equal
+    expect(dist(a, b)).toBeCloseTo(dist(a, c), 6);
+  });
+
+  it('does not divide by zero when the layout has no span', () => {
+    const single = [
+      { id: 'oe:1', display: { x: 0.5, y: 0.5, size: 10, label: 'Only' } },
+    ];
+    const result = buildNetworkSnapshot(fakeSigma(single, []), data);
+
+    expect(Number.isFinite(result.nodes[0].x)).toBe(true);
+    expect(Number.isFinite(result.nodes[0].y)).toBe(true);
+  });
+
+  it('returns null when the graph is empty', () => {
+    expect(buildNetworkSnapshot(fakeSigma([], []), data)).toBeNull();
+  });
+
+  it('carries the hub flag, shared count and meta through', () => {
+    const result = snapshot();
+
+    expect(result.nodes[0].isHub).toBe(true);
+    expect(result.nodes[1].isHub).toBe(false);
+    expect(result.nodes[1].sharedCount).toBe(4);
+    expect(result.nodes[1].meta.slug).toBe('jane');
   });
 });
 
 describe('buildNetworkHtml', () => {
   const render = (overrideNodes = nodes) =>
     buildNetworkHtml({
-      snapshot: buildNetworkSnapshot(fakeSigma(overrideNodes, edges), data),
+      snapshot: snapshot(overrideNodes),
       depth: 2,
       origin: 'https://example.test',
     });
 
-  it('emits one group per visible node and one line per visible edge', () => {
+  it('emits one group per node and one line per edge', () => {
     const html = render();
 
-    expect(html.match(/class="node/g)).toHaveLength(2);
-    expect(html.match(/class="edge"/g)).toHaveLength(1);
+    expect(html.match(/class="node/g)).toHaveLength(3);
+    expect(html.match(/class="edge"/g)).toHaveLength(2);
     expect(html).toContain('data-source="oe:1"');
+  });
+
+  /* Overlapping labels are left in the markup but flagged, so hover reveals
+     them instead of the picture drowning in text. */
+  it('flags labels it could not place without collision', () => {
+    const crowded = nodes.map((n) => ({
+      ...n,
+      display: {
+        ...n.display,
+        x: 0.5,
+        y: 0.5,
+        label: 'A VERY LONG OWNER NAME OPERATING HOLDCO LLC',
+      },
+    }));
+
+    expect(render(crowded).match(/label-crowded/g)).toHaveLength(2);
+  });
+
+  it('leaves well-separated labels alone', () => {
+    expect(render()).not.toContain('label-crowded');
   });
 
   /* The file has to open with no network access, so nothing may reference an
@@ -137,9 +190,9 @@ describe('buildNetworkHtml', () => {
   it('titles the file after the hub and the depth', () => {
     const html = render();
 
-    expect(html).toContain('<title>Hub Holdings — network (depth 2)</title>');
-    expect(html).toContain('2 owners');
-    expect(html).toContain('1 connections');
+    expect(html).toContain('<title>Hub Co — network (depth 2)</title>');
+    expect(html).toContain('3 owners');
+    expect(html).toContain('2 connections');
   });
 
   it('escapes owner names so a label cannot break out of the markup', () => {
