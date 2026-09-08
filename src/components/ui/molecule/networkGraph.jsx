@@ -397,6 +397,33 @@ InteractionLayer.propTypes = {
 };
 
 /**
+ * Publishes the Sigma instance to a ref owned outside the container.
+ *
+ * The export controls live in the modal nav, where useSigma() is unavailable.
+ * A ref rather than a callback prop so the caller needs no memoization and the
+ * instance arriving causes no re-render — export handlers read it on click.
+ *
+ * Props:
+ * - sigmaRef: Ref object that receives the live Sigma instance
+ */
+function SigmaBridge({ sigmaRef }) {
+  const sigma = useSigma();
+
+  useEffect(() => {
+    sigmaRef.current = sigma;
+    return () => {
+      sigmaRef.current = null;
+    };
+  }, [sigma, sigmaRef]);
+
+  return null;
+}
+
+SigmaBridge.propTypes = {
+  sigmaRef: PropTypes.shape({ current: PropTypes.any }).isRequired,
+};
+
+/**
  * Builds and filters the graph search index used by the modal nav dropdown.
  *
  * Reads labels and shared-facility counts from the Sigma graph, then returns
@@ -527,6 +554,7 @@ GraphSearchController.propTypes = {
  * - onPinRequestConsumed: Clears the pin request after it has been handled
  * - nodeSizeMetric: Controls the node sizing mode
  * - isSearchOpen: Whether the search dropdown is open
+ * - sigmaRef: Optional ref that receives the Sigma instance for graph export
  */
 export default function NetworkGraph({
   data,
@@ -538,6 +566,7 @@ export default function NetworkGraph({
   nodeSizeMetric,
   isSearchOpen,
   showFullScreenControl = true,
+  sigmaRef,
 }) {
   const graphRegionId = useId();
   const titleId = `${graphRegionId}-title`;
@@ -545,7 +574,8 @@ export default function NetworkGraph({
   //fallback for setting node size mode
   const effectiveNodeSizeMetric = nodeSizeMetric ?? 'default';
   const hubNode =
-    data?.nodes?.find((node) => String(node.id) === String(data?.hubId)) ?? null;
+    data?.nodes?.find((node) => String(node.id) === String(data?.hubId)) ??
+    null;
   const nodeCount = Array.isArray(data?.nodes) ? data.nodes.length : 0;
   const linkCount = Array.isArray(data?.links) ? data.links.length : 0;
   //if you need to set the background color of the graph it is done in tailwind.css
@@ -586,6 +616,7 @@ export default function NetworkGraph({
           onSearchResults={onSearchResults}
           isSearchOpen={isSearchOpen}
         />
+        {sigmaRef && <SigmaBridge sigmaRef={sigmaRef} />}
         <ControlsContainer position="top-right">
           <ZoomControl />
           {showFullScreenControl && <FullScreenControl />}
@@ -610,4 +641,5 @@ NetworkGraph.propTypes = {
   ]),
   isSearchOpen: PropTypes.bool,
   showFullScreenControl: PropTypes.bool,
+  sigmaRef: PropTypes.shape({ current: PropTypes.any }),
 };

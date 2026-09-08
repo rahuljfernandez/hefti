@@ -174,7 +174,7 @@ export default function OwnerNetworkGraphModal({
         )}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 

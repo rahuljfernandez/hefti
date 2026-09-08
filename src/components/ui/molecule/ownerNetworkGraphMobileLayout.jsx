@@ -55,7 +55,7 @@ export default function OwnerNetworkGraphMobileLayout({
 
         {status === 'error' && (
           <>
-            <div className="pointer-events-none absolute inset-0 select-none opacity-60">
+            <div className="pointer-events-none absolute inset-0 opacity-60 select-none">
               <NetworkGraphSkeleton error />
             </div>
             <div className="absolute inset-0 z-10 grid place-items-center px-6">

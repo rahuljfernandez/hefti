@@ -1,0 +1,251 @@
+/*
+ * networkViewer.runtime.css
+ *
+ * Stylesheet inlined verbatim into the exported network HTML file (see
+ * networkHtmlExport.js). Standalone: no Tailwind, no design tokens, no
+ * external fonts — the export has to render offline, on any machine, years
+ * from now. Keep it that way.
+ */
+
+:root {
+  --bg: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --panel: #f9fafb;
+  --hub: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font:
+    14px/1.5 ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+header .meta,
+header .legend {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+header .legend {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+header .legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+header .legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+main {
+  position: relative;
+  height: calc(100vh - 58px);
+}
+
+svg.graph {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+  background: var(--bg);
+}
+
+svg.graph.panning {
+  cursor: grabbing;
+}
+
+.edge {
+  stroke: #a0a0a0;
+  stroke-opacity: 0.55;
+}
+
+.node circle {
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.node text {
+  font-size: 11px;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Dense graphs hide their labels until a node is highlighted, the way the live
+   graph only labels what you're looking at. Sparse ones show every label. */
+.graph.dense .node:not(.hub) text {
+  opacity: 0;
+}
+
+/* Mirrors the live graph's reducer: the active node and its direct neighbors
+   stay lit, everything else recedes rather than disappearing. */
+.graph.focus .node,
+.graph.focus .edge {
+  opacity: 0.08;
+}
+
+.graph.focus .node.hl,
+.graph.focus .edge.hl {
+  opacity: 1;
+}
+
+.graph.focus .node.hl text {
+  opacity: 1;
+}
+
+.node.pinned circle {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+aside {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 300px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  padding: 14px 16px;
+}
+
+aside[hidden] {
+  display: none;
+}
+
+aside .name {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  padding-right: 20px;
+}
+
+aside .type {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+aside dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+
+aside dt {
+  color: var(--muted);
+}
+
+aside dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+aside h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 14px 0 6px;
+}
+
+aside ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+aside li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  border-top: 1px solid var(--line);
+}
+
+aside li span:last-child {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+aside .profile {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+aside .close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.hint {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  background: rgb(255 255 255 / 85%);
+  padding: 4px 8px;
+  border-radius: 6px;
+}

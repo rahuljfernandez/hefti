@@ -2,12 +2,13 @@ import React from 'react';
 import Logo from '../../../assets/logo';
 import PropTypes from 'prop-types';
 import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
+import { ShareWidget } from './shareability';
 
 /**
  * Simple toolbar fixed atop the Owner Network modal.
  *
  * Purpose:
- * - Displays the HEFTI logo, graph-node search bar, and close button
+ * - Displays the HEFTI logo, graph-node search bar, export widget, and close button
  *
  * Props:
  * - onClose: used in the close button to dismiss the modal
@@ -17,6 +18,7 @@ import OwnerNetworkSearchBar from './ownerNetworkSearchBar';
  * - onSelectSearchResult: selects a node from the search dropdown
  * - isSearchOpen: tracks whether the dropdown is open or closed
  * - onSetIsSearchOpen: toggles the search dropdown
+ * - shareCategories: export actions for the ShareWidget; empty until the graph loads
  */
 
 export default function OwnerNetworkGraphNav({
@@ -27,6 +29,7 @@ export default function OwnerNetworkGraphNav({
   onSelectSearchResult,
   isSearchOpen,
   onSetIsSearchOpen,
+  shareCategories = [],
 }) {
   return (
     <div
@@ -51,7 +54,13 @@ export default function OwnerNetworkGraphNav({
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
+            {shareCategories.length > 0 && (
+              <ShareWidget
+                categories={shareCategories}
+                minimizedLabel="Export"
+              />
+            )}
             <button
               type="button"
               onClick={onClose}
@@ -80,4 +89,5 @@ OwnerNetworkGraphNav.propTypes = {
   onSelectSearchResult: PropTypes.func.isRequired,
   isSearchOpen: PropTypes.bool.isRequired,
   onSetIsSearchOpen: PropTypes.func.isRequired,
+  shareCategories: PropTypes.array,
 };
