@@ -92,8 +92,11 @@ export default function OwnerNetworkSearchBar({
   return (
     <div
       className={clsx(
+        /* The icon is positioned against this wrapper, so the input has to
+           start at the wrapper's left edge — centering a wider input here
+           slid it out from under its own left padding. */
         'relative flex flex-1 items-center',
-        isMobile ? 'w-full' : 'w-[240px] justify-center gap-6',
+        isMobile ? 'w-full' : 'w-[280px]',
       )}
       onBlur={() => {
         setTimeout(() => {
@@ -129,15 +132,19 @@ export default function OwnerNetworkSearchBar({
         onKeyDown={handleKeyDown}
         placeholder="Search nodes..."
         className={clsx(
-          'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary rounded-full border px-3 py-1.5',
-          'placeholder:text-content-tertiary border-border-inverse-primary pl-9',
+          'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary rounded-full border py-1.5 pr-3 pl-9',
+          'placeholder:text-content-tertiary border-border-inverse-primary',
           isMobile ? 'w-full' : 'w-[280px]',
         )}
       />
       {/* Dropdown */}
       {isSearchOpen && searchResults.length > 0 && (
         <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
-          <ul id={listboxId} role="listbox" className="max-h-64 overflow-auto py-1">
+          <ul
+            id={listboxId}
+            role="listbox"
+            className="max-h-64 overflow-auto py-1"
+          >
             {searchResults.map((result, index) => (
               <li
                 ref={(element) => {
