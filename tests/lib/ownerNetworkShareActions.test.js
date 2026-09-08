@@ -1,153 +1,174 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildNetworkExportRows,
-  networkConnectionsExportConfig,
+  buildNetworkIndex,
   networkFilenameBase,
   networkOwnersExportConfig,
 } from '../../src/lib/shareability/network/ownerNetworkShareActions';
 
+/* o1 is the subject; o2 and o3 sit one hop out; o4 is reachable only through
+   them; o5 is in the payload but connected to nothing. */
 const data = {
   hubId: 'o1',
   nodes: [
     {
       id: 'o1',
-      label: 'Hub Holdings',
+      label: 'Bethesda Operating LLC',
       meta: {
-        slug: 'hub-holdings',
+        slug: 'bethesda-operating',
         cms_ownership_type: 'Organization',
-        total_facilities: 12,
-        star_rating: 3.4,
-        cms_owner_avg_operating_margin: 4.1,
-        cms_owner_avg_related_to_total_exp: 18.2,
-        sharedFacilities: [
-          { ownerId: 'o2', ownerName: 'Jane Doe', count: 3 },
-          { ownerId: 'o3', ownerName: 'Third Co', count: 1 },
-        ],
+        total_facilities: 1,
+        star_rating: 3,
+        cms_owner_avg_operating_margin: -10.9,
+        cms_owner_avg_related_to_total_exp: 10.8,
       },
     },
     {
       id: 'o2',
-      label: 'Jane Doe',
-      meta: { slug: 'jane-doe', cms_ownership_type: 'Individual' },
+      label: 'Rubin, Jeffrey',
+      meta: { cms_ownership_type: 'Individual', total_facilities: 18 },
     },
-    { id: 'o3', label: 'Third Co', meta: {} },
+    {
+      id: 'o3',
+      label: 'Cole, Warren',
+      meta: { cms_ownership_type: 'Individual', total_facilities: 17 },
+    },
+    { id: 'o4', label: 'Straus, Daniel', meta: { total_facilities: 38 } },
+    { id: 'o5', label: 'Orphan Co', meta: {} },
   ],
   links: [
-    { source: 'o1', target: 'o2', relType: 'shared facilities', weight: 3 },
+    { source: 'o1', target: 'o2', weight: 2 },
     { source: 'o1', target: 'o3', weight: 1 },
+    { source: 'o2', target: 'o4', weight: 5 },
+    { source: 'o3', target: 'o4', weight: 3 },
   ],
 };
 
+const byId = (rows) => Object.fromEntries(rows.map((row) => [row.id, row]));
+
+describe('buildNetworkIndex', () => {
+  it('walks hop distance outward from the subject', () => {
+    const { hops } = buildNetworkIndex(data);
+
+    expect([...hops.entries()].sort()).toEqual([
+      ['o1', 0],
+      ['o2', 1],
+      ['o3', 1],
+      ['o4', 2],
+    ]);
+  });
+
+  it('leaves an unconnected owner out of the hop map entirely', () => {
+    expect(buildNetworkIndex(data).hops.has('o5')).toBe(false);
+  });
+
+  it('counts facilities shared with the subject from link weights', () => {
+    const { sharedWithSubject } = buildNetworkIndex(data);
+
+    expect(sharedWithSubject.get('o2')).toBe(2);
+    expect(sharedWithSubject.get('o3')).toBe(1);
+    expect(sharedWithSubject.get('o4')).toBeUndefined();
+  });
+
+  it('survives a payload with no links or no hub', () => {
+    expect(buildNetworkIndex({}).hops.size).toBe(0);
+    expect(buildNetworkIndex({ hubId: 'missing', nodes: [] }).hops.size).toBe(
+      0,
+    );
+  });
+});
+
 describe('buildNetworkExportRows', () => {
-  it('flags the hub and resolves each owner shared-facility count', () => {
-    const { ownerRows } = buildNetworkExportRows(data);
+  it('derives connection count and total shared facilities per owner', () => {
+    const rows = byId(buildNetworkExportRows(data));
 
-    expect(
-      ownerRows.map((row) => [row.id, row.isHub, row.sharedCount]),
-    ).toEqual([
-      ['o1', true, null],
-      ['o2', false, 3],
-      ['o3', false, 1],
+    expect([rows.o2.connections, rows.o2.sharedTotal]).toEqual([2, 7]);
+    expect([rows.o4.connections, rows.o4.sharedTotal]).toEqual([2, 8]);
+    expect([rows.o5.connections, rows.o5.sharedTotal]).toEqual([0, 0]);
+  });
+
+  it('orders outward from the subject, most entangled first within a ring', () => {
+    expect(buildNetworkExportRows(data).map((row) => row.id)).toEqual([
+      'o1',
+      'o2',
+      'o3',
+      'o4',
+      'o5',
     ]);
   });
 
-  it('resolves link endpoint ids to owner labels', () => {
-    const { connectionRows } = buildNetworkExportRows(data);
-
-    expect(
-      connectionRows.map((row) => [row.sourceLabel, row.targetLabel]),
-    ).toEqual([
-      ['Hub Holdings', 'Jane Doe'],
-      ['Hub Holdings', 'Third Co'],
-    ]);
-  });
-
-  it('falls back to the raw id when a link points at a missing node', () => {
-    const { connectionRows } = buildNetworkExportRows({
-      ...data,
-      links: [{ source: 'o1', target: 'gone', weight: 2 }],
-    });
-
-    expect(connectionRows[0].targetLabel).toBe('gone');
-  });
-
-  it('handles a payload with no nodes or links', () => {
-    expect(buildNetworkExportRows({})).toEqual({
-      ownerRows: [],
-      connectionRows: [],
-    });
+  it('returns nothing for an empty payload', () => {
+    expect(buildNetworkExportRows({})).toEqual([]);
   });
 });
 
 describe('networkOwnersExportConfig.toRow', () => {
-  it('emits raw values with N/A for anything missing', () => {
-    const { ownerRows } = buildNetworkExportRows(data);
+  it('labels the subject, a direct tie, and an indirect one', () => {
+    const rows = byId(buildNetworkExportRows(data));
 
-    expect(networkOwnersExportConfig.toRow(ownerRows[0])).toEqual([
-      'o1',
-      'Hub Holdings',
-      'Hub',
+    expect(networkOwnersExportConfig.toRow(rows.o1)[1]).toBe('Subject');
+    expect(networkOwnersExportConfig.toRow(rows.o2)[1]).toBe(
+      'Direct (depth 1)',
+    );
+    expect(networkOwnersExportConfig.toRow(rows.o4)[1]).toBe(
+      'Indirect (depth 2)',
+    );
+    expect(networkOwnersExportConfig.toRow(rows.o5)[1]).toBe('Not connected');
+  });
+
+  it('emits the subject row with raw values and its id last', () => {
+    const rows = byId(buildNetworkExportRows(data));
+
+    expect(networkOwnersExportConfig.toRow(rows.o1)).toEqual([
+      'Bethesda Operating LLC',
+      'Subject',
       'Organization',
-      '12',
-      'N/A',
-      '3.4',
-      '4.1',
-      '18.2',
-      'hub-holdings',
-    ]);
-
-    expect(networkOwnersExportConfig.toRow(ownerRows[2])).toEqual([
-      'o3',
-      'Third Co',
-      'Connected',
-      'N/A',
-      'N/A',
       '1',
-      'N/A',
-      'N/A',
-      'N/A',
-      'N/A',
-    ]);
-  });
-
-  it('keeps a row aligned with its headers', () => {
-    const { ownerRows } = buildNetworkExportRows(data);
-
-    expect(networkOwnersExportConfig.toRow(ownerRows[0])).toHaveLength(
-      networkOwnersExportConfig.headers.length,
-    );
-  });
-});
-
-describe('networkConnectionsExportConfig.toRow', () => {
-  it('emits both endpoints, the relationship, and the weight', () => {
-    const { connectionRows } = buildNetworkExportRows(data);
-
-    expect(networkConnectionsExportConfig.toRow(connectionRows[0])).toEqual([
-      'o1',
-      'Hub Holdings',
-      'o2',
-      'Jane Doe',
-      'shared facilities',
+      0,
+      2,
+      3,
       '3',
+      '-10.9',
+      '10.8',
+      'o1',
     ]);
   });
 
-  it('marks a link with no relationship type as N/A', () => {
-    const { connectionRows } = buildNetworkExportRows(data);
+  it('marks missing owner attributes N/A without dropping the derived counts', () => {
+    const rows = byId(buildNetworkExportRows(data));
 
-    expect(networkConnectionsExportConfig.toRow(connectionRows[1])[4]).toBe(
+    expect(networkOwnersExportConfig.toRow(rows.o4)).toEqual([
+      'Straus, Daniel',
+      'Indirect (depth 2)',
       'N/A',
-    );
+      '38',
+      0,
+      2,
+      8,
+      'N/A',
+      'N/A',
+      'N/A',
+      'o4',
+    ]);
+  });
+
+  it('keeps every row aligned with the headers', () => {
+    buildNetworkExportRows(data).forEach((row) => {
+      expect(networkOwnersExportConfig.toRow(row)).toHaveLength(
+        networkOwnersExportConfig.headers.length,
+      );
+    });
   });
 });
 
 describe('networkFilenameBase', () => {
-  it('names the file after the hub slug and the current depth', () => {
-    expect(networkFilenameBase(data, 2)).toBe('hub-holdings-network-depth-2');
+  it('names the file after the subject slug and the current depth', () => {
+    expect(networkFilenameBase(data, 2)).toBe(
+      'bethesda-operating-network-depth-2',
+    );
   });
 
-  it('falls back to the hub id when the hub carries no slug', () => {
+  it('falls back to the hub id when the subject carries no slug', () => {
     const noSlug = { hubId: 'o9', nodes: [{ id: 'o9', meta: {} }] };
 
     expect(networkFilenameBase(noSlug, 1)).toBe('o9-network-depth-1');

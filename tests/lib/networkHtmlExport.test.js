@@ -48,15 +48,18 @@ const edges = [
   { key: 'e2', source: 'oe:1', target: 'oe:3', display: { size: 1 } },
 ];
 
+/* Shared counts come from link weights, so the payload needs its links even
+   though the geometry is read from the stub Sigma. */
 const data = {
   hubId: 'oe:1',
   nodes: [
-    {
-      id: 'oe:1',
-      meta: { slug: 'hub', sharedFacilities: [{ ownerId: 'oe:2', count: 4 }] },
-    },
+    { id: 'oe:1', meta: { slug: 'hub' } },
     { id: 'oe:2', meta: { slug: 'jane' } },
     { id: 'oe:3', meta: {} },
+  ],
+  links: [
+    { source: 'oe:1', target: 'oe:2', weight: 4 },
+    { source: 'oe:1', target: 'oe:3', weight: 1 },
   ],
 };
 

@@ -1,7 +1,7 @@
 import { downloadBlob, escapeHtml } from '../primitives/shareActions';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import {
-  buildSharedCountMap,
+  buildNetworkIndex,
   networkFilenameBase,
 } from './ownerNetworkShareActions';
 import viewerCss from './networkViewer.runtime.css?raw';
@@ -51,8 +51,7 @@ export function buildNetworkSnapshot(sigma, data) {
   sigma.refresh();
 
   const graph = sigma.getGraph();
-  const sharedCounts = buildSharedCountMap(data?.nodes);
-  const hubId = data?.hubId == null ? null : String(data.hubId);
+  const { sharedWithSubject, hubId } = buildNetworkIndex(data);
   const metaById = new Map(
     (data?.nodes ?? []).map((node) => [String(node.id), node.meta ?? {}]),
   );
@@ -78,7 +77,7 @@ export function buildNetworkSnapshot(sigma, data) {
       r: radius,
       color: display.color || '#C2410C',
       isHub: hubId !== null && key === hubId,
-      sharedCount: sharedCounts.get(key) ?? null,
+      sharedCount: sharedWithSubject.get(key) ?? 0,
       meta: metaById.get(key) ?? {},
     });
 
