@@ -6,6 +6,7 @@ import {
 } from './ownerNetworkShareActions';
 import viewerCss from './networkViewer.runtime.css?raw';
 import viewerJs from './networkViewer.runtime.js?raw';
+import interWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?inline';
 
 /**
  * networkHtmlExport
@@ -29,6 +30,11 @@ const LABEL_CHAR_WIDTH = 0.55 * LABEL_FONT_SIZE;
 const FALLBACK_CANVAS = { width: 1600, height: 900 };
 
 const OWNER_PROFILE_PATH = '/nursing-homes/owners/';
+
+/* The app's typeface, embedded rather than fetched so the export still opens
+   offline. Descriptors and unicode-range are @fontsource-variable/inter's own —
+   names outside latin fall through to the stack in the viewer stylesheet. */
+const FONT_FACE = `@font-face{font-family:'Inter Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(${interWoff2}) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}`;
 
 /* buildGraph's node palette, repeated for the legend. */
 const LEGEND = [
@@ -264,7 +270,7 @@ export function buildNetworkHtml({ snapshot, depth, origin }) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(hubLabel)} — network (depth ${depth})</title>
-<style>${viewerCss}</style>
+<style>${FONT_FACE}${viewerCss}</style>
 </head>
 <body>
 <header>

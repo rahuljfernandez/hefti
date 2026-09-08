@@ -2,9 +2,11 @@
  * networkViewer.runtime.css
  *
  * Stylesheet inlined verbatim into the exported network HTML file (see
- * networkHtmlExport.js). Standalone: no Tailwind, no design tokens, no
- * external fonts — the export has to render offline, on any machine, years
- * from now. Keep it that way.
+ * networkHtmlExport.js). Standalone: no Tailwind, no design tokens, nothing
+ * fetched — the export has to render offline, on any machine, years from now.
+ * Keep it that way. Inter Variable is the app's typeface and arrives as an
+ * embedded @font-face prepended by the exporter, so the stack below is what
+ * renders for glyphs that face does not cover.
  */
 
 :root {
@@ -23,7 +25,8 @@
 body {
   margin: 0;
   font:
-    14px/1.5 ui-sans-serif,
+    14px/1.5 'Inter Variable',
+    ui-sans-serif,
     system-ui,
     -apple-system,
     'Segoe UI',

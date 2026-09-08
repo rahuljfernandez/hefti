@@ -95,7 +95,8 @@ describe('buildNetworkSnapshot', () => {
       expect(node.y).toBeLessThan(CANVAS.height - node.r);
     });
 
-    const spread = Math.max(...result.nodes.map((n) => n.x)) -
+    const spread =
+      Math.max(...result.nodes.map((n) => n.x)) -
       Math.min(...result.nodes.map((n) => n.x));
     const biggest = Math.max(...result.nodes.map((n) => n.r));
     expect(spread).toBeGreaterThan(biggest * 4);
@@ -185,6 +186,14 @@ describe('buildNetworkHtml', () => {
     expect(html).not.toMatch(/<script[^>]*\bsrc=/);
     expect(html).not.toMatch(/@import/);
     expect(html).not.toMatch(/url\(\s*['"]?https?:/);
+  });
+
+  /* The export should look like the app, and still open with no network. */
+  it('embeds the app typeface rather than fetching it', () => {
+    const html = render();
+
+    expect(html).toContain("font-family:'Inter Variable'");
+    expect(html).toContain('src:url(data:font/woff2;base64,');
   });
 
   it('titles the file after the hub and the depth', () => {
