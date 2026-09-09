@@ -28,6 +28,8 @@ const LABEL_FONT_SIZE = 11;
    enough to decide which labels collide. */
 const LABEL_CHAR_WIDTH = 0.55 * LABEL_FONT_SIZE;
 const FALLBACK_CANVAS = { width: 1600, height: 900 };
+/* Matches the nodeReducer's bump for the active node in networkGraph.jsx. */
+const ACTIVE_SCALE = 1.15;
 
 const OWNER_PROFILE_PATH = '/nursing-homes/owners/';
 
@@ -35,6 +37,23 @@ const OWNER_PROFILE_PATH = '/nursing-homes/owners/';
    offline. Descriptors and unicode-range are @fontsource-variable/inter's own —
    names outside latin fall through to the stack in the viewer stylesheet. */
 const FONT_FACE = `@font-face{font-family:'Inter Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(${interWoff2}) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}`;
+
+/* assets/logo.jsx transcribed to markup. Pure geometry, so the mark costs no
+   asset request — fill inherits from the root so CSS can color it. */
+const WORDMARK =
+  `<svg class="mark" width="100" height="24" viewBox="0 0 100 24" fill="currentColor" role="img" aria-label="HEFTI">` +
+  `<rect x="4.17188" width="6.26087" height="23.9999"/>` +
+  `<rect x="20.3438" width="6.26087" height="23.9999"/>` +
+  `<rect x="99.1289" y="8.86914" width="6.26085" height="99.1304" transform="rotate(90 99.1289 8.86914)"/>` +
+  `<rect x="30.2578" width="16.6957" height="5.21737"/>` +
+  `<rect x="30.2578" y="18.7822" width="16.6957" height="5.21737"/>` +
+  `<rect x="29.7344" y="24" width="23.9999" height="5.21739" transform="rotate(-90 29.7344 24)"/>` +
+  `<rect x="50.0859" y="24" width="23.9999" height="6.26087" transform="rotate(-90 50.0859 24)"/>` +
+  `<rect x="50.0859" width="17.2174" height="5.21737"/>` +
+  `<rect x="68.8633" width="20.8696" height="5.21737"/>` +
+  `<rect x="82.4297" y="3.13086" width="20.8695" height="6.26087" transform="rotate(90 82.4297 3.13086)"/>` +
+  `<rect x="99.1289" width="23.9999" height="6.26087" transform="rotate(90 99.1289 0)"/>` +
+  `</svg>`;
 
 /* buildGraph's node palette, repeated for the legend. */
 const LEGEND = [
@@ -45,6 +64,25 @@ const LEGEND = [
 
 const escAttr = (value) =>
   escapeHtml(String(value ?? '')).replace(/"/g, '&quot;');
+
+/**
+ * Recovers which node the reducer scaled up, so the export can undo it.
+ *
+ * There is an active node only when something has been hidden; it is then the
+ * one visible node every other visible node connects to. A visible pair, or a
+ * clique, answers to more than one node — those are left alone rather than
+ * shrinking the wrong owner on a guess.
+ */
+function activeNodeId(raw, visible, adjacency) {
+  if (visible.length === raw.length || visible.length < 3) return null;
+
+  const candidates = visible.filter((id) => {
+    const near = new Set((adjacency.get(id) ?? []).map((edge) => edge.id));
+    return visible.every((other) => other === id || near.has(other));
+  });
+
+  return candidates.length === 1 ? candidates[0] : null;
+}
 
 /**
  * Reads the rendered graph out of Sigma into plain data, in pixel space.
@@ -58,53 +96,64 @@ const escAttr = (value) =>
  * label font size means what it says.
  *
  * Sizes and colors are still read post-reducer so the export reflects the
- * active node-size metric. `hidden` is deliberately ignored: a pinned node
- * prunes the on-screen view to its neighborhood, and a file opened a week later
- * should not be silently cropped to whatever happened to be selected.
+ * active node-size metric. What the reducer does for the hovered or pinned node
+ * is undone, though: it hides non-neighbors, blanks their labels and scales the
+ * active node by ACTIVE_SCALE, all of which is transient view state. A file
+ * opened a week later should not be cropped to whatever happened to be
+ * selected, captioned with raw graphology ids, or size one owner dishonestly.
  */
 export function buildNetworkSnapshot(sigma, data) {
   sigma.refresh();
 
   const graph = sigma.getGraph();
-  const { sharedWithSubject, hubId } = buildNetworkIndex(data);
-  const metaById = new Map(
-    (data?.nodes ?? []).map((node) => [String(node.id), node.meta ?? {}]),
+  const { adjacency, sharedWithSubject, hubId } = buildNetworkIndex(data);
+  const byId = new Map(
+    (data?.nodes ?? []).map((node) => [String(node.id), node]),
   );
 
   const raw = [];
+  const visible = [];
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
-  let maxRadius = 0;
 
   graph.forEachNode((id) => {
     const display = sigma.getNodeDisplayData(id);
     if (!display) return;
 
     const key = String(id);
-    const radius = display.size ?? 8;
+    const source = byId.get(key);
+    if (!display.hidden) visible.push(key);
 
     raw.push({
       id: key,
-      label: display.label || key,
+      /* Labels come from the payload, not display data: the reducer empties
+         them for everything outside the active neighborhood. */
+      label: source?.label || display.label || key,
       x: display.x,
       y: display.y,
-      r: radius,
+      r: display.size ?? 8,
       color: display.color || '#C2410C',
       isHub: hubId !== null && key === hubId,
       sharedCount: sharedWithSubject.get(key) ?? 0,
-      meta: metaById.get(key) ?? {},
+      meta: source?.meta ?? {},
     });
 
     minX = Math.min(minX, display.x);
     minY = Math.min(minY, display.y);
     maxX = Math.max(maxX, display.x);
     maxY = Math.max(maxY, display.y);
-    maxRadius = Math.max(maxRadius, radius);
   });
 
   if (!raw.length) return null;
+
+  const inflated = activeNodeId(raw, visible, adjacency);
+  raw.forEach((node) => {
+    if (node.id === inflated) node.r /= ACTIVE_SCALE;
+  });
+
+  const maxRadius = raw.reduce((most, node) => Math.max(most, node.r), 0);
 
   const canvas = sigma.getDimensions?.() ?? FALLBACK_CANVAS;
   const width = canvas.width || FALLBACK_CANVAS.width;
@@ -274,15 +323,21 @@ export function buildNetworkHtml({ snapshot, depth, origin }) {
 </head>
 <body>
 <header>
+${WORDMARK}
+<div class="title">
 <h1>${escapeHtml(hubLabel)}</h1>
-<p class="meta">Ownership network · depth ${depth} · ${snapshot.nodes.length} owners · ${snapshot.links.length} connections · exported ${new Date().toLocaleDateString()}</p>
-<p class="legend">${legend}</p>
+<p class="meta">Ownership network · depth ${depth} · ${snapshot.nodes.length} owners · ${snapshot.links.length} connections</p>
+</div>
 </header>
 <main>
 ${renderSvg(snapshot)}
 <aside hidden></aside>
+<div class="overlay">
+<p class="legend">${legend}</p>
 <p class="hint">Hover to highlight · click to pin · drag to pan · scroll to zoom</p>
+</div>
 </main>
+<footer>Generated by HEFTI from CMS ownership data · Exported ${new Date().toLocaleDateString()}</footer>
 <script type="application/json" id="network-payload">${json}</script>
 <script>${viewerJs}</script>
 </body>

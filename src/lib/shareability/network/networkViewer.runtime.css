@@ -22,8 +22,14 @@
   box-sizing: border-box;
 }
 
+/* Column flex rather than a height calc on main: the header wraps to two lines
+   on a narrow window, and any hardcoded offset overflows the viewport when it
+   does. */
 body {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   font:
     14px/1.5 'Inter Variable',
     ui-sans-serif,
@@ -38,13 +44,32 @@ body {
   background: var(--bg);
 }
 
+/* Centered rather than baseline-aligned: the mark is a graphic, and a baseline
+   sits it on its bottom edge instead of level with the text beside it. */
 header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px 16px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
+}
+
+header .mark {
+  height: 15px;
+  width: auto;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+/* One flex child so space-between has something to push the mark away from. */
+header .title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 16px;
 }
 
 header h1 {
@@ -53,34 +78,25 @@ header h1 {
   font-weight: 600;
 }
 
-header .meta,
-header .legend {
+header .meta {
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
 }
 
-header .legend {
-  display: flex;
-  gap: 12px;
-  margin-left: auto;
-}
-
-header .legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-header .legend i {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
+/* min-height lets the graph shrink when the header wraps instead of pushing the
+   footer off screen. */
 main {
   position: relative;
-  height: calc(100vh - 58px);
+  flex: 1;
+  min-height: 0;
+}
+
+footer {
+  padding: 8px 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
 }
 
 svg.graph {
@@ -253,13 +269,42 @@ aside .close {
   cursor: pointer;
 }
 
-.hint {
+/* Legend and directions ride on the drawing rather than in the header — the
+   graph is what the space is for. */
+.overlay {
   position: absolute;
   left: 16px;
   bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.legend,
+.hint {
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
   background: rgb(255 255 255 / 85%);
   padding: 4px 8px;
   border-radius: 6px;
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
 }

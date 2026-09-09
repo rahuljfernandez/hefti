@@ -11,6 +11,7 @@
  */
 
 (function () {
+  var DRAG_THRESHOLD = 3;
   var payload = JSON.parse(
     document.getElementById('network-payload').textContent,
   );
@@ -247,10 +248,15 @@
   );
 
   svg.addEventListener('pointerdown', function (event) {
-    drag = { x: event.clientX, y: event.clientY };
+    drag = {
+      x: event.clientX,
+      y: event.clientY,
+      fromX: event.clientX,
+      fromY: event.clientY,
+      id: event.pointerId,
+    };
     panned = false;
     svg.classList.add('panning');
-    svg.setPointerCapture(event.pointerId);
   });
 
   svg.addEventListener('pointermove', function (event) {
@@ -258,12 +264,27 @@
 
     var dx = event.clientX - drag.x;
     var dy = event.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) panned = true;
+
+    /* Capture only once this is really a drag. Taking the pointer on every
+       pointerdown retargets the click that follows to the svg itself, so
+       clicking a node would read as a background click and clear the pin.
+       Distance is measured from where the press started — per-move deltas stay
+       under the threshold through a slow drag and never trip it. */
+    if (
+      !panned &&
+      Math.abs(event.clientX - drag.fromX) +
+        Math.abs(event.clientY - drag.fromY) >
+        DRAG_THRESHOLD
+    ) {
+      panned = true;
+      svg.setPointerCapture(drag.id);
+    }
 
     var rect = svg.getBoundingClientRect();
     view[0] -= (dx * view[2]) / rect.width;
     view[1] -= (dy * view[3]) / rect.height;
-    drag = { x: event.clientX, y: event.clientY };
+    drag.x = event.clientX;
+    drag.y = event.clientY;
 
     applyView();
   });
