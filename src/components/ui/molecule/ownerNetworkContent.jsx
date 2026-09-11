@@ -44,12 +44,16 @@ export default function OwnerNetworkContent({
   onSelectNode,
   variant,
   meta,
+  year,
 }) {
   const isHub = mode === 'hub';
   const [activeTab, setActiveTab] = useState('long');
   const [activeStaffingTab, setActiveStaffingTab] = useState('levels');
   const [activeFinancialTab, setActiveFinancialTab] = useState('profit');
-  const { benchmarks: ownerBenchmarks } = useOwnerClinicalBenchmarks(true);
+  /* Year-scoped like the profile's clinical tab. The hook caches on a single
+     module-level year, so omitting it here evicted that tab's cache on every
+     open and served the panel an unspecified year's benchmarks. */
+  const { benchmarks: ownerBenchmarks } = useOwnerClinicalBenchmarks(true, year);
 
   // Memoized by `meta` so builders don't re-run on unrelated re-renders.
   const allMetrics = useMemo(() => ({
@@ -220,6 +224,7 @@ TabbedMetricList.propTypes = {
 OwnerNetworkContent.propTypes = {
   mode: PropTypes.oneOf(['hub', 'non-hub']).isRequired,
   meta: PropTypes.object,
+  year: PropTypes.number,
   shared: PropTypes.arrayOf(
     PropTypes.shape({
       ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])

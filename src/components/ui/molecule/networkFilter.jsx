@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import InfoTooltip from '../atom/infoTooltip';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import NetworkFilterControl from '../atom/networkFilterControl';
+import DataYearChip from '../atom/dataYearChip';
 
 /**
  * Overlay filter panel for the network graph modal.
@@ -24,12 +25,25 @@ import NetworkFilterControl from '../atom/networkFilterControl';
  * - Reuses `NetworkSidePanelAccordion` to stay visually consistent with the side panel
  */
 
+const FINANCIAL_METRIC_COLUMNS = {
+  operatingMargin: 'cms_owner_avg_operating_margin',
+  relatedPartyExpenseRatio: 'cms_owner_avg_related_to_total_exp',
+};
+
 export default function NetworkFilter({
   onSetDepth,
   depth,
   onSetNodeSizeMetric,
   nodeSizeMetric,
+  financials,
 }) {
+  /* Cost reports lag the panel, so the two money metrics can be sized on an
+     older year than the graph itself. Say which, and how many owners filed. */
+  const financialColumn = FINANCIAL_METRIC_COLUMNS[nodeSizeMetric];
+  const coverage = financialColumn
+    ? financials?.coverage?.[financialColumn]
+    : null;
+
   return (
     <div className="lg:w-[300px] xl:w-[375px]">
       <NetworkSidePanelAccordion
@@ -64,6 +78,7 @@ export default function NetworkFilter({
             <div className="text-label-sm text-core-black flex items-center gap-2">
               <span>Node Size</span>
               <InfoTooltip text="Determines how node size is scaled. Choose between uniform sizing or scaling by Star Rating, Operating Margin, or Related Party to Total Operating Expenses." />
+              {financialColumn && <DataYearChip year={financials?.year} />}
             </div>
           </div>
 
@@ -93,6 +108,14 @@ export default function NetworkFilter({
               ariaLabel="Related Party to Total Operating Expenses"
             />
           </div>
+
+          {coverage && (
+            <p className="text-paragraph-xs text-content-tertiary">
+              Reported by {coverage.reported} of {coverage.of} owners
+              {financials?.isFallback &&
+                ' · most recent year with cost-report data'}
+            </p>
+          )}
         </div>
       </NetworkSidePanelAccordion>
     </div>
@@ -109,4 +132,9 @@ NetworkFilter.propTypes = {
     'operatingMargin',
     'relatedPartyExpenseRatio',
   ]).isRequired,
+  financials: PropTypes.shape({
+    year: PropTypes.number,
+    isFallback: PropTypes.bool,
+    coverage: PropTypes.object,
+  }),
 };

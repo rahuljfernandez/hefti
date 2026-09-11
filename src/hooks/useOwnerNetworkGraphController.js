@@ -9,7 +9,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  * - search query / search results state
  * - graph filter controls (depth, node size metric)
  */
-export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
+export default function useOwnerNetworkGraphController({
+  isOpen,
+  ownerId,
+  year,
+}) {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     'http://hefti-data-api.ddev.site:3000/api';
@@ -30,10 +34,13 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [defaultNodeId, setDefaultNodeId] = useState(null);
 
-  // Endpoint changes whenever the owner scope or depth filter changes.
+  /* Endpoint changes whenever the owner scope, year or depth filter changes.
+     ownerId is only a seed: the API re-resolves the owner from the year, since
+     ownership rows carry a different id in every year. */
   const endpoint = useMemo(() => {
-    return `${API_BASE_URL}/owners/id/${ownerId}/network?depth=${depth}`;
-  }, [API_BASE_URL, ownerId, depth]);
+    const yearParam = year == null ? '' : `&year=${year}`;
+    return `${API_BASE_URL}/owners/id/${ownerId}/network?depth=${depth}${yearParam}`;
+  }, [API_BASE_URL, ownerId, depth, year]);
 
   // Fetch graph payload for current owner/depth while modal is open.
   useEffect(() => {
@@ -105,7 +112,8 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
 
   const handleRetry = useCallback(() => setRetryCount((c) => c + 1), []);
 
-  // Reset graph UI when modal context changes.
+  /* Reset graph UI when modal context changes. Year belongs here too: node ids
+     are per-year surrogates, so a year change invalidates every selection. */
   useEffect(() => {
     if (!isOpen) return;
     setSelectedNodeId(null);
@@ -113,7 +121,7 @@ export default function useOwnerNetworkGraphController({ isOpen, ownerId }) {
     setPinRequestNodeId(null);
     setSearchQuery('');
     setSearchResults([]);
-  }, [isOpen, ownerId, depth]);
+  }, [isOpen, ownerId, depth, year]);
 
   return {
     data,

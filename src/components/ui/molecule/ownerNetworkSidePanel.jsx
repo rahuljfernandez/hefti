@@ -21,6 +21,8 @@ export default function OwnerNetworkSidePanel({
   onSelectNode,
   variant = 'desktop',
 }) {
+  const year = data?.meta?.topology?.year ?? null;
+
   const selectedNode = useMemo(() => {
     if (!data?.nodes?.length || !selectedNodeId) return null;
     return (
@@ -41,9 +43,14 @@ export default function OwnerNetworkSidePanel({
           selectedNode={selectedNode}
           onSelectNode={onSelectNode}
           variant={variant}
+          year={year}
         />
       ) : (
-        <OwnerPanel selectedNode={selectedNode} variant={variant} />
+        <OwnerPanel
+          selectedNode={selectedNode}
+          variant={variant}
+          year={year}
+        />
       )}
     </div>
   );
@@ -55,7 +62,7 @@ export default function OwnerNetworkSidePanel({
  * Props:
  * selectedNode: The resolved non-hub node to display in the panel header
  */
-function OwnerPanel({ selectedNode, variant }) {
+function OwnerPanel({ selectedNode, variant, year }) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <NetworkSidePanelCardHeader
@@ -67,6 +74,7 @@ function OwnerPanel({ selectedNode, variant }) {
         mode={'non-hub'}
         meta={selectedNode.meta}
         variant={variant}
+        year={year}
       />
     </div>
   );
@@ -79,7 +87,7 @@ function OwnerPanel({ selectedNode, variant }) {
  * - selectedNode: The hub node, including shared-facility metadata
  * - onSelectNode: Selects a related owner from the hub relationship list
  */
-function HubPanel({ selectedNode, onSelectNode, variant }) {
+function HubPanel({ selectedNode, onSelectNode, variant, year }) {
   const shared = selectedNode?.meta?.sharedFacilities ?? [];
 
   return (
@@ -94,6 +102,7 @@ function HubPanel({ selectedNode, onSelectNode, variant }) {
         mode={'hub'}
         meta={selectedNode.meta}
         variant={variant}
+        year={year}
       />
     </div>
   );
@@ -123,6 +132,9 @@ const selectedNodeShape = PropTypes.shape({
 OwnerNetworkSidePanel.propTypes = {
   data: PropTypes.shape({
     nodes: PropTypes.arrayOf(selectedNodeShape),
+    meta: PropTypes.shape({
+      topology: PropTypes.shape({ year: PropTypes.number }),
+    }),
   }),
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onSelectNode: PropTypes.func,
@@ -132,10 +144,12 @@ OwnerNetworkSidePanel.propTypes = {
 OwnerPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+  year: PropTypes.number,
 };
 
 HubPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+  year: PropTypes.number,
 };

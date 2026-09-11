@@ -119,7 +119,10 @@ export function buildNetworkExportRows(data) {
 export const networkOwnersExportConfig = {
   filename: 'owner-network.csv',
   tooltip: 'Download this network as CSV',
-  headers: [
+  /* The money columns can come from an older year than the rest of the row —
+     cost reports lag the ownership panel — so the header names the year rather
+     than repeating it down a column. */
+  headers: (financialYear) => [
     'Owner Name',
     'Relationship',
     'Ownership Type',
@@ -128,8 +131,8 @@ export const networkOwnersExportConfig = {
     'Connections In Network',
     'Total Shared Facilities',
     'Star Rating',
-    'Operating Margin (%)',
-    'Related Party Expense Ratio (%)',
+    yearScoped('Operating Margin (%)', financialYear),
+    yearScoped('Related Party Expense Ratio (%)', financialYear),
     'Owner ID',
   ],
   toRow: (row) => [
@@ -149,16 +152,22 @@ export const networkOwnersExportConfig = {
   ],
 };
 
+function yearScoped(label, year) {
+  return year == null ? label : `${label} — ${year}`;
+}
+
 /* Filename stem for every network export. The subject's slug keeps files
-   recognizable in a downloads folder; depth is part of the name because the
-   export is a snapshot of the current filter, so two depths of the same owner
-   must not collide. */
+   recognizable in a downloads folder; depth and year are part of the name
+   because the export is a snapshot of the current filter, so two depths or two
+   years of the same owner must not collide. */
 export function networkFilenameBase(data, depth) {
   const hub = data?.nodes?.find(
     (node) => String(node.id) === String(data?.hubId),
   );
   const stem = hub?.meta?.slug || hub?.id || data?.hubId || 'owner';
-  return `${stem}-network-depth-${depth}`;
+  const year = data?.meta?.topology?.year;
+  const yearPart = year == null ? '' : `-${year}`;
+  return `${stem}-network${yearPart}-depth-${depth}`;
 }
 
 export function downloadOwnerNetworkCsv({ data, depth }) {
@@ -169,7 +178,7 @@ export function downloadOwnerNetworkCsv({ data, depth }) {
     return downloadCsv(
       rows.map(networkOwnersExportConfig.toRow),
       `${networkFilenameBase(data, depth)}.csv`,
-      networkOwnersExportConfig.headers,
+      networkOwnersExportConfig.headers(data?.meta?.financials?.year),
     );
   } catch {
     return false;

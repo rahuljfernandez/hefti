@@ -40,6 +40,9 @@ export default function OwnerNetworkGraphModal({
   isOpen,
   onClose,
   ownerId,
+  year,
+  years,
+  onYearChange,
   restoreFocusRef,
 }) {
   const isDesktop = useIsDesktop();
@@ -80,6 +83,7 @@ export default function OwnerNetworkGraphModal({
   } = useOwnerNetworkGraphController({
     isOpen,
     ownerId,
+    year,
   });
 
   // Encapsulated mobile bottom-sheet drag/snap behavior.
@@ -143,6 +147,9 @@ export default function OwnerNetworkGraphModal({
             onClearSelection={handleClearSelection}
             onSelectSidePanelNode={handleSelectNode}
             onRetry={handleRetry}
+            year={year}
+            years={years}
+            onYearChange={onYearChange}
           />
         ) : (
           <OwnerNetworkGraphMobileLayout
@@ -182,5 +189,8 @@ OwnerNetworkGraphModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  year: PropTypes.number,
+  years: PropTypes.arrayOf(PropTypes.number),
+  onYearChange: PropTypes.func,
   restoreFocusRef: PropTypes.shape({ current: PropTypes.any }),
 };

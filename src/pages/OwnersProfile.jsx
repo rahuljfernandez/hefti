@@ -4,7 +4,7 @@ import {
   useLocation,
   useSearchParams,
 } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -63,10 +63,11 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// TODO: replace with years returned from the API once the endpoint supports year filtering.
-const AVAILABLE_YEARS = [
-  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
-];
+/* Owner rows only exist for 2020-2026 — the ownership panel starts a decade
+   later than the facility one, so earlier years resolve to a year the picker did
+   not ask for. This is the range `?year=` is validated against; the picker itself
+   narrows to the years the owner in front of you actually has. */
+const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export default function OwnersProfile() {
   const { slug } = useParams();
@@ -82,6 +83,13 @@ export default function OwnersProfile() {
   const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
     ? requestedYear
     : AVAILABLE_YEARS[0];
+  const loadedSlug = useRef(null);
+
+  /* Most owners are absent from most years — only 16% span the whole panel — so
+     the full range would offer years that silently resolve to a different one. */
+  const ownerYears = owner?.meta?.availableYears?.length
+    ? owner.meta.availableYears
+    : AVAILABLE_YEARS;
 
   const navigate = useNavigate();
 
@@ -103,7 +111,11 @@ export default function OwnersProfile() {
     const controller = new AbortController();
 
     setLoading(true);
-    setOwner(null);
+    /* Blank the page for a different owner, but not for a year change on the
+       same one: the network graph modal renders inside the loaded branch below,
+       so clearing here would unmount the graph the user is working in. */
+    if (loadedSlug.current !== slug) setOwner(null);
+    loadedSlug.current = slug;
     setError(null);
     setNotFound(false);
 
@@ -219,7 +231,7 @@ export default function OwnersProfile() {
     <div className="bg-background-secondary">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
-        {loading ? (
+        {loading && !owner ? (
           <ProfilePageSkeleton />
         ) : error ? (
           <>
@@ -250,13 +262,18 @@ export default function OwnersProfile() {
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
               subjectType="owner"
-              years={AVAILABLE_YEARS}
+              years={ownerYears}
               selectedYear={selectedYear}
               onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             <div className="pb-4">
-              <OwnersNetworkGraphLauncher ownerId={owner.id} />
+              <OwnersNetworkGraphLauncher
+                ownerId={owner.id}
+                year={selectedYear}
+                years={ownerYears}
+                onYearChange={handleYearChange}
+              />
             </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell

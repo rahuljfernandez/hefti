@@ -47,6 +47,9 @@ export default function OwnerNetworkGraphDesktopLayout({
   onClearSelection,
   onSelectSidePanelNode,
   onRetry,
+  year,
+  years,
+  onYearChange,
 }) {
   const sigmaRef = useRef(null);
 
@@ -72,6 +75,10 @@ export default function OwnerNetworkGraphDesktopLayout({
         isSearchOpen={isSearchOpen}
         onSetIsSearchOpen={onSetIsSearchOpen}
         onSelectSearchResult={onSelectSearchResult}
+        year={year}
+        years={years}
+        onYearChange={onYearChange}
+        topology={data?.meta?.topology}
       />
 
       <div className="relative min-h-0 flex-1">
@@ -81,6 +88,7 @@ export default function OwnerNetworkGraphDesktopLayout({
             depth={depth}
             onSetNodeSizeMetric={onSetNodeSizeMetric}
             nodeSizeMetric={nodeSizeMetric}
+            financials={data?.meta?.financials}
           />
         </div>
 
@@ -165,4 +173,7 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   onClearSelection: PropTypes.func.isRequired,
   onSelectSidePanelNode: PropTypes.func.isRequired,
   onRetry: PropTypes.func.isRequired,
+  year: PropTypes.number,
+  years: PropTypes.arrayOf(PropTypes.number),
+  onYearChange: PropTypes.func,
 };
