@@ -22,7 +22,8 @@ import {
 } from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
-import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
+import OwnerNetworkCtaBanner from '../components/ui/molecule/ownerNetworkGraphCTA';
+import OwnerNetworkGraphModal from '../components/ui/molecule/ownerNetworkGraphModal';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { ownerTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
@@ -75,14 +76,20 @@ export default function OwnersProfile() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [settledProfileKey, setSettledProfileKey] = useState(null);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [graphOpen, setGraphOpen] = useState(false);
+  const [graphSeedOwnerId, setGraphSeedOwnerId] = useState(null);
+  const [graphOwnerSlug, setGraphOwnerSlug] = useState(null);
+  const graphTriggerRef = useRef(null);
   const requestedYear = Number(searchParams.get('year'));
   const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
     ? requestedYear
     : AVAILABLE_YEARS[0];
+  const profileKey = `${slug}:${selectedYear}`;
   const loadedSlug = useRef(null);
 
   /* Most owners are absent from most years — only 16% span the whole panel — so
@@ -107,13 +114,17 @@ export default function OwnersProfile() {
     );
   };
 
+  const handleGraphOpen = () => {
+    setGraphSeedOwnerId(owner.id);
+    setGraphOwnerSlug(slug);
+    setGraphOpen(true);
+  };
+
   useEffect(() => {
     const controller = new AbortController();
 
     setLoading(true);
-    /* Blank the page for a different owner, but not for a year change on the
-       same one: the network graph modal renders inside the loaded branch below,
-       so clearing here would unmount the graph the user is working in. */
+    // A year change keeps the loaded owner available only for the graph modal.
     if (loadedSlug.current !== slug) setOwner(null);
     loadedSlug.current = slug;
     setError(null);
@@ -142,11 +153,24 @@ export default function OwnersProfile() {
         }
       })
       .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) {
+          setSettledProfileKey(profileKey);
+          setLoading(false);
+        }
       });
 
     return () => controller.abort();
-  }, [slug, selectedYear]);
+  }, [profileKey, slug, selectedYear]);
+
+  /* Route changes used to unmount the launcher and close its modal implicitly.
+     The modal now lives at page scope, so close it explicitly before discarding
+     the seed owner from the previous route. */
+  useEffect(() => {
+    if (!graphOwnerSlug || graphOwnerSlug === slug) return;
+    setGraphOpen(false);
+    setGraphSeedOwnerId(null);
+    setGraphOwnerSlug(null);
+  }, [graphOwnerSlug, slug]);
 
   useEffect(() => {
     if (!owner?.slug || owner.slug === slug) return;
@@ -161,7 +185,15 @@ export default function OwnersProfile() {
       },
       { replace: true, state },
     );
-  }, [owner?.slug, owner?.year, slug, selectedYear, navigate, state, searchParams]);
+  }, [
+    owner?.slug,
+    owner?.year,
+    slug,
+    selectedYear,
+    navigate,
+    state,
+    searchParams,
+  ]);
 
   useEffect(() => {
     /* National averages power the highlights comparison badges; the owner
@@ -226,12 +258,13 @@ export default function OwnersProfile() {
     ],
     [ownerStatsRows, relatedFacilities, slug],
   );
+  const profileLoading = loading || settledProfileKey !== profileKey;
 
   return (
     <div className="bg-background-secondary">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
-        {loading && !owner ? (
+        {profileLoading ? (
           <ProfilePageSkeleton />
         ) : error ? (
           <>
@@ -268,11 +301,9 @@ export default function OwnersProfile() {
               shareCategories={shareCategories}
             />
             <div className="pb-4">
-              <OwnersNetworkGraphLauncher
-                ownerId={owner.id}
-                year={selectedYear}
-                years={ownerYears}
-                onYearChange={handleYearChange}
+              <OwnerNetworkCtaBanner
+                triggerRef={graphTriggerRef}
+                onOpen={handleGraphOpen}
               />
             </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
@@ -392,6 +423,18 @@ export default function OwnersProfile() {
               )}
             </div>
           </>
+        )}
+
+        {graphSeedOwnerId != null && (
+          <OwnerNetworkGraphModal
+            isOpen={graphOpen && graphOwnerSlug === slug}
+            onClose={() => setGraphOpen(false)}
+            ownerId={graphSeedOwnerId}
+            year={selectedYear}
+            years={ownerYears}
+            onYearChange={handleYearChange}
+            restoreFocusRef={graphTriggerRef}
+          />
         )}
       </LayoutPage>
     </div>
