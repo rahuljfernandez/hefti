@@ -981,16 +981,17 @@ MetricCardLong.propTypes = {
 export function MetricCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
   return (
+    /* Title floors at 40% so a long currency value or benchmark line can't collapse it. */
     <div
       className={clsx(
-        'grid grid-cols-3 px-4 py-2',
+        'grid grid-cols-[minmax(40%,1fr)_auto] gap-3 px-4 py-2',
         isMobile
           ? 'bg-zinc-900 hover:bg-zinc-800'
           : 'bg-core-white hover:bg-gray-50',
       )}
     >
       {/** Title */}
-      <div className="col-span-2 self-center">
+      <div className="self-center">
         <p
           className={clsx(
             'text-label-sm font-medium',

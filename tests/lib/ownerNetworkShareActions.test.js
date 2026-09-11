@@ -155,7 +155,7 @@ describe('networkOwnersExportConfig.toRow', () => {
   it('keeps every row aligned with the headers', () => {
     buildNetworkExportRows(data).forEach((row) => {
       expect(networkOwnersExportConfig.toRow(row)).toHaveLength(
-        networkOwnersExportConfig.headers.length,
+        networkOwnersExportConfig.headers(2024).length,
       );
     });
   });
