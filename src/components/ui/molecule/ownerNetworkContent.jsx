@@ -45,6 +45,7 @@ export default function OwnerNetworkContent({
   variant,
   meta,
   year,
+  financials,
 }) {
   const isHub = mode === 'hub';
   const [activeTab, setActiveTab] = useState('long');
@@ -65,6 +66,13 @@ export default function OwnerNetworkContent({
     levels: buildOwnerStaffingLevels(meta),
     turnover: buildOwnerStaffingTurnover(meta),
   }), [meta]);
+
+  /* Only the financial block is re-sourced from an older year, so this section
+     is the one whose numbers can disagree with the year in the nav. */
+  const financialNote =
+    financials?.isFallback && financials?.year != null
+      ? `Showing ${financials.year} — most recent year with cost-report data`
+      : null;
 
   const allFinancialMetrics = useMemo(() => ({
     profit: buildOwnerProfitStats(meta),
@@ -144,6 +152,7 @@ export default function OwnerNetworkContent({
           items={allFinancialMetrics[activeFinancialTab]}
           CardComponent={MetricCardShort}
           variant={variant}
+          note={financialNote}
         />
       </NetworkSidePanelAccordion>
     </div>
@@ -157,6 +166,7 @@ export default function OwnerNetworkContent({
  * - Renders a grouped set of metric-category buttons
  * - Swaps the visible card list when the active button changes
  * - Accepts a `CardComponent` prop so callers control the card layout
+ * - Shows an optional `note` caption that applies to every tab in the section
  */
 function TabbedMetricList({
   tabs,
@@ -165,6 +175,7 @@ function TabbedMetricList({
   items,
   CardComponent,
   variant,
+  note,
 }) {
   return (
     <div className={variant === 'mobile' ? 'bg-zinc-900' : 'bg-white'}>
@@ -191,6 +202,19 @@ function TabbedMetricList({
           </button>
         ))}
       </div>
+      {/* Outside the scroller below so it stays visible while the list scrolls. */}
+      {note && (
+        <p
+          className={clsx(
+            'text-label-xs border-border-primary border-b px-4 py-1.5',
+            variant === 'mobile'
+              ? 'text-content-tertiary'
+              : 'text-content-secondary',
+          )}
+        >
+          {note}
+        </p>
+      )}
       <div
         aria-label={tabs.find((t) => t.value === activeTab)?.label}
         className="max-h-64 overflow-y-auto"
@@ -219,12 +243,17 @@ TabbedMetricList.propTypes = {
   items: PropTypes.array.isRequired,
   CardComponent: PropTypes.elementType.isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+  note: PropTypes.string,
 };
 
 OwnerNetworkContent.propTypes = {
   mode: PropTypes.oneOf(['hub', 'non-hub']).isRequired,
   meta: PropTypes.object,
   year: PropTypes.number,
+  financials: PropTypes.shape({
+    year: PropTypes.number,
+    isFallback: PropTypes.bool,
+  }),
   shared: PropTypes.arrayOf(
     PropTypes.shape({
       ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])

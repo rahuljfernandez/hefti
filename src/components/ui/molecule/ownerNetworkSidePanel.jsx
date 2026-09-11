@@ -22,6 +22,7 @@ export default function OwnerNetworkSidePanel({
   variant = 'desktop',
 }) {
   const year = data?.meta?.topology?.year ?? null;
+  const financials = data?.meta?.financials ?? null;
 
   const selectedNode = useMemo(() => {
     if (!data?.nodes?.length || !selectedNodeId) return null;
@@ -44,12 +45,14 @@ export default function OwnerNetworkSidePanel({
           onSelectNode={onSelectNode}
           variant={variant}
           year={year}
+          financials={financials}
         />
       ) : (
         <OwnerPanel
           selectedNode={selectedNode}
           variant={variant}
           year={year}
+          financials={financials}
         />
       )}
     </div>
@@ -62,7 +65,7 @@ export default function OwnerNetworkSidePanel({
  * Props:
  * selectedNode: The resolved non-hub node to display in the panel header
  */
-function OwnerPanel({ selectedNode, variant, year }) {
+function OwnerPanel({ selectedNode, variant, year, financials }) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <NetworkSidePanelCardHeader
@@ -75,6 +78,7 @@ function OwnerPanel({ selectedNode, variant, year }) {
         meta={selectedNode.meta}
         variant={variant}
         year={year}
+        financials={financials}
       />
     </div>
   );
@@ -87,7 +91,7 @@ function OwnerPanel({ selectedNode, variant, year }) {
  * - selectedNode: The hub node, including shared-facility metadata
  * - onSelectNode: Selects a related owner from the hub relationship list
  */
-function HubPanel({ selectedNode, onSelectNode, variant, year }) {
+function HubPanel({ selectedNode, onSelectNode, variant, year, financials }) {
   const shared = selectedNode?.meta?.sharedFacilities ?? [];
 
   return (
@@ -103,6 +107,7 @@ function HubPanel({ selectedNode, onSelectNode, variant, year }) {
         meta={selectedNode.meta}
         variant={variant}
         year={year}
+        financials={financials}
       />
     </div>
   );
@@ -114,6 +119,13 @@ const sharedFacilityShape = PropTypes.shape({
   ownerName: PropTypes.string,
   count: PropTypes.number,
   cms_ownership_type: PropTypes.string,
+});
+
+/* The money block is re-sourced from the newest year that has cost reports, so
+   it can trail the topology year the rest of the panel reads. */
+const financialsShape = PropTypes.shape({
+  year: PropTypes.number,
+  isFallback: PropTypes.bool,
 });
 
 // Shared node shape used by the side panel and its child panel variants.
@@ -134,6 +146,7 @@ OwnerNetworkSidePanel.propTypes = {
     nodes: PropTypes.arrayOf(selectedNodeShape),
     meta: PropTypes.shape({
       topology: PropTypes.shape({ year: PropTypes.number }),
+      financials: financialsShape,
     }),
   }),
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -145,6 +158,7 @@ OwnerPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
   year: PropTypes.number,
+  financials: financialsShape,
 };
 
 HubPanel.propTypes = {
@@ -152,4 +166,5 @@ HubPanel.propTypes = {
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
   year: PropTypes.number,
+  financials: financialsShape,
 };

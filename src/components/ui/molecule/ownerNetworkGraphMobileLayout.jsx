@@ -140,6 +140,7 @@ export default function OwnerNetworkGraphMobileLayout({
                   onSelectNode={onSelectContentNode}
                   variant="mobile"
                   year={data?.meta?.topology?.year ?? null}
+                  financials={data?.meta?.financials ?? null}
                 />
               )}
             </div>
