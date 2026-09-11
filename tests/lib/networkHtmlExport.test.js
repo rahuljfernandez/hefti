@@ -339,8 +339,24 @@ describe('buildNetworkHtml', () => {
       .split('id="network-payload">')[1]
       .split('</script>')[0];
 
-    expect(JSON.parse(payload).profileBase).toBe(
-      'https://example.test/nursing-homes/owners/',
+    expect(JSON.parse(payload).nodes[1].profileHref).toBe(
+      'https://example.test/nursing-homes/owners/jane',
+    );
+  });
+
+  it('keeps the topology year in exported owner profile links', () => {
+    const html = buildNetworkHtml({
+      snapshot: snapshot(),
+      depth: 2,
+      origin: 'https://example.test',
+      meta: { topology: { year: 2024 } },
+    });
+    const payload = html
+      .split('id="network-payload">')[1]
+      .split('</script>')[0];
+
+    expect(JSON.parse(payload).nodes[1].profileHref).toBe(
+      'https://example.test/nursing-homes/owners/jane?year=2024',
     );
   });
 });

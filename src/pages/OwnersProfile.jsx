@@ -75,6 +75,7 @@ export default function OwnersProfile() {
   const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [owner, setOwner] = useState(null);
+  const [ownerProfileKey, setOwnerProfileKey] = useState(null);
   const [loading, setLoading] = useState(true);
   const [settledProfileKey, setSettledProfileKey] = useState(null);
   const [error, setError] = useState(null);
@@ -85,11 +86,22 @@ export default function OwnersProfile() {
   const [graphSeedOwnerId, setGraphSeedOwnerId] = useState(null);
   const [graphOwnerSlug, setGraphOwnerSlug] = useState(null);
   const graphTriggerRef = useRef(null);
+  const canonicalProfileKeyRef = useRef(null);
   const requestedYear = Number(searchParams.get('year'));
   const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
     ? requestedYear
     : AVAILABLE_YEARS[0];
   const profileKey = `${slug}:${selectedYear}`;
+  const resolvedOwnerYear = Number(owner?.year);
+  const canonicalOwnerYear = AVAILABLE_YEARS.includes(resolvedOwnerYear)
+    ? resolvedOwnerYear
+    : null;
+  const needsCanonicalYear =
+    !loading &&
+    settledProfileKey === profileKey &&
+    ownerProfileKey === profileKey &&
+    canonicalOwnerYear != null &&
+    canonicalOwnerYear !== selectedYear;
   const loadedSlug = useRef(null);
 
   /* Most owners are absent from most years — only 16% span the whole panel — so
@@ -121,11 +133,20 @@ export default function OwnersProfile() {
   };
 
   useEffect(() => {
+    if (canonicalProfileKeyRef.current === profileKey) {
+      canonicalProfileKeyRef.current = null;
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
 
     setLoading(true);
     // A year change keeps the loaded owner available only for the graph modal.
-    if (loadedSlug.current !== slug) setOwner(null);
+    if (loadedSlug.current !== slug) {
+      setOwner(null);
+      setOwnerProfileKey(null);
+    }
     loadedSlug.current = slug;
     setError(null);
     setNotFound(false);
@@ -146,6 +167,7 @@ export default function OwnersProfile() {
           return;
         }
         setOwner(data);
+        setOwnerProfileKey(profileKey);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -161,6 +183,25 @@ export default function OwnersProfile() {
 
     return () => controller.abort();
   }, [profileKey, slug, selectedYear]);
+
+  /* Keep fallback data and the URL on the same year. Marking the canonical key
+     as already settled avoids fetching the owner response a second time. */
+  useEffect(() => {
+    if (!needsCanonicalYear) return;
+
+    const canonicalKey = `${slug}:${canonicalOwnerYear}`;
+    canonicalProfileKeyRef.current = canonicalKey;
+    setSettledProfileKey(canonicalKey);
+    setOwnerProfileKey(canonicalKey);
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(canonicalOwnerYear));
+        return next;
+      },
+      { replace: true, state },
+    );
+  }, [canonicalOwnerYear, needsCanonicalYear, setSearchParams, slug, state]);
 
   /* Route changes used to unmount the launcher and close its modal implicitly.
      The modal now lives at page scope, so close it explicitly before discarding
@@ -258,7 +299,8 @@ export default function OwnersProfile() {
     ],
     [ownerStatsRows, relatedFacilities, slug],
   );
-  const profileLoading = loading || settledProfileKey !== profileKey;
+  const profileLoading =
+    loading || settledProfileKey !== profileKey || needsCanonicalYear;
 
   return (
     <div className="bg-background-secondary">

@@ -158,10 +158,10 @@
       panel.appendChild(list);
     }
 
-    if (meta.slug && payload.profileBase) {
+    if (node.profileHref) {
       var link = document.createElement('a');
       link.className = 'profile';
-      link.href = payload.profileBase + meta.slug;
+      link.href = node.profileHref;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       link.textContent = 'Open owner profile ↗';

@@ -290,17 +290,25 @@ function renderSvg(snapshot) {
 export function buildNetworkHtml({ snapshot, depth, origin, meta }) {
   const hubLabel =
     snapshot.nodes.find((node) => node.isHub)?.label ?? 'Owner network';
+  const topologyYear = meta?.topology?.year ?? null;
+  const financialYear = meta?.financials?.year ?? null;
+  const yearQuery =
+    topologyYear == null ? '' : `?year=${encodeURIComponent(topologyYear)}`;
 
   const payload = {
-    profileBase: `${origin}${OWNER_PROFILE_PATH}`,
     viewBox: snapshot.viewBox,
-    nodes: snapshot.nodes.map(({ id, label, isHub, sharedCount, meta }) => ({
-      id,
-      label,
-      isHub,
-      sharedCount,
-      meta,
-    })),
+    nodes: snapshot.nodes.map(
+      ({ id, label, isHub, sharedCount, meta: nodeMeta }) => ({
+        id,
+        label,
+        isHub,
+        sharedCount,
+        meta: nodeMeta,
+        profileHref: nodeMeta?.slug
+          ? `${origin}${OWNER_PROFILE_PATH}${encodeURIComponent(nodeMeta.slug)}${yearQuery}`
+          : null,
+      }),
+    ),
     links: snapshot.links.map((link) => [link.source, link.target]),
   };
 
@@ -310,8 +318,6 @@ export function buildNetworkHtml({ snapshot, depth, origin, meta }) {
 
   /* Ownership and money can be different years, so the file names both rather
      than implying one date for everything in it. */
-  const topologyYear = meta?.topology?.year ?? null;
-  const financialYear = meta?.financials?.year ?? null;
   const sourceYears = topologyYear
     ? ` · ownership ${topologyYear}${
         financialYear && financialYear !== topologyYear
