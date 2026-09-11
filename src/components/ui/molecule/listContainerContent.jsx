@@ -965,26 +965,34 @@ MetricCardLong.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/* Shared row shell for the network side panel's compact cards. The title column
+   floors at 40% so a long currency value or benchmark line can't collapse it,
+   and the value column takes only the width it needs. */
+const SHORT_CARD_ROW = 'grid grid-cols-[minmax(40%,1fr)_auto] gap-3 px-4 py-2';
+
 /**
  * Compact metric row for the network graph side panel.
  *
  * Responsibilities:
- * - Renders a single clinical quality or financial metric in a 3-column grid
- * - Title spans 2 columns; value + detail stats are right-aligned in the third
+ * - Renders a single clinical quality or financial metric in a two-column row
+ * - Title wraps in the flexible column; value + detail stats are right-aligned
  * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
  *
  * Notes:
  * - Prefers `displayValue` over `value` — builders attach the formatted suffix there.
- * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" to fit the
- *   narrow column; the full strings are preserved in the aria-label for screen readers.
+ * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" and stack one
+ *   per line; the full strings are preserved in the aria-label for screen readers.
  */
 export function MetricCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
+  const detailClass = clsx(
+    'text-label-xs',
+    isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+  );
   return (
-    /* Title floors at 40% so a long currency value or benchmark line can't collapse it. */
     <div
       className={clsx(
-        'grid grid-cols-[minmax(40%,1fr)_auto] gap-3 px-4 py-2',
+        SHORT_CARD_ROW,
         isMobile
           ? 'bg-zinc-900 hover:bg-zinc-800'
           : 'bg-core-white hover:bg-gray-50',
@@ -1011,14 +1019,12 @@ export function MetricCardShort({ item, variant }) {
         >
           {item.displayValue ?? item.value}
         </p>
-        <p
-          aria-label={`${item.detail1}, ${item.detail2}`}
-          className={clsx(
-            'text-label-xs',
-            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
-          )}
-        >
-          {item.detail1?.replace('Median:', 'Med')} ·{' '}
+        {/* One per line: benchmarks are currency figures wide enough that a
+            shared row would set the column width from the sum of both. */}
+        <p aria-label={item.detail1} className={detailClass}>
+          {item.detail1?.replace('Median:', 'Med')}
+        </p>
+        <p aria-label={item.detail2} className={detailClass}>
           {item.detail2?.replace('Std Dev:', 'SD')}
         </p>
       </div>
@@ -1041,8 +1047,8 @@ MetricCardShort.propTypes = {
  * Compact staffing row for the network graph side panel.
  *
  * Responsibilities:
- * - Renders a single staffing metric (levels or turnover) in a 3-column grid
- * - Title spans 2 columns; stat + median detail are right-aligned in the third
+ * - Renders a single staffing metric (levels or turnover) in a two-column row
+ * - Title wraps in the flexible column; stat + median detail are right-aligned
  * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
  *
  * Notes:
@@ -1055,13 +1061,13 @@ export function StaffingCardShort({ item, variant }) {
   return (
     <div
       className={clsx(
-        'grid grid-cols-3 px-4 py-2',
+        SHORT_CARD_ROW,
         isMobile
           ? 'bg-zinc-900 hover:bg-zinc-800'
           : 'bg-core-white hover:bg-gray-50',
       )}
     >
-      <div className="col-span-2 self-center">
+      <div className="self-center">
         <p
           className={clsx(
             'text-label-sm font-medium',
