@@ -4,6 +4,7 @@ import BrowseListView from './browseListView';
 import PropTypes from 'prop-types';
 import { BrowseListSkeleton } from '../atom/skeletons.jsx';
 import { ErrorBanner, NoResultsBanner } from '../atom/errorBanner.jsx';
+import { apiFetch } from '../../../lib/apiClient';
 
 /**
  * This component controls fetching data and search suggestions
@@ -90,7 +91,7 @@ export default function BrowsePage({
     // sortBy is only set when a field-based sort option is selected (e.g. overall_rating)
     if (sortBy) params.set('sortBy', sortBy);
 
-    fetch(`${apiEndpoint}?${params}`)
+    apiFetch(`${apiEndpoint}?${params}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch data');
         return res.json();
@@ -111,7 +112,7 @@ export default function BrowsePage({
       return;
     }
 
-    fetch(
+    apiFetch(
       `${suggestionsEndpoint ?? `${apiEndpoint}/suggestions`}?search=${search}`,
     )
       .then((res) => res.json())

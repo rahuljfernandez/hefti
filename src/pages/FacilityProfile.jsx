@@ -18,6 +18,7 @@ import {
 import { getBadgeColorOwnershipType } from '../lib/getBadgeColor';
 
 import { facilityTabsDescriptions } from '../lib/tabDescriptions';
+import { apiFetch } from '../lib/apiClient';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import ProviderHighlights from '../components/ui/organism/providerHighlights';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
@@ -125,7 +126,7 @@ export default function FacilityProfile() {
     setError(null);
     setNotFound(false);
 
-    fetch(`${API_BASE_URL}/facilities/${slug}?year=${selectedYear}`, {
+    apiFetch(`${API_BASE_URL}/facilities/${slug}?year=${selectedYear}`, {
       signal: controller.signal,
     })
       .then((res) => {

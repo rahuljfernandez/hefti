@@ -6,6 +6,7 @@ import { Heading } from '../components/ui/atom/heading';
 import LayoutCard from '../components/ui/atom/layout-card';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import { US_STATES } from '../lib/stringFormatters';
+import { apiFetch } from '../lib/apiClient';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -174,7 +175,7 @@ export default function Acquisitions() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE_URL}/ownership-changes?${queryString}`, {
+        const res = await apiFetch(`${API_BASE_URL}/ownership-changes?${queryString}`, {
           signal,
         });
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);

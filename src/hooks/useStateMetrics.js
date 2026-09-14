@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/apiClient';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -11,7 +12,7 @@ let cachedPromise = null;
 
 function fetchStateMetrics() {
   if (!cachedPromise) {
-    cachedPromise = fetch(`${API_BASE_URL}/state-metrics`)
+    cachedPromise = apiFetch(`${API_BASE_URL}/state-metrics`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load state metrics');
         return res.json();

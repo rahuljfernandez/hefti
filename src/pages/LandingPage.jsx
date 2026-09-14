@@ -43,7 +43,7 @@ export default function LandingPage() {
         }}
         className="relative overflow-hidden bg-white py-28 text-center"
       >
-        <div className="relative z-10 mx-auto max-w-[1160px]">
+        <div className="relative mx-auto max-w-[1160px]">
           {/* Eyebrow — zinc-600 ensures 4.5:1 contrast on white */}
           <p className="text-label-sm text-content-secondary mb-6 uppercase">
             Health Economics Financing &amp; Transparency Initiative

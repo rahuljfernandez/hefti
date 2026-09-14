@@ -12,6 +12,7 @@ import { ChartSkeleton } from '../atom/skeletons';
 import { ErrorBanner } from '../atom/errorBanner';
 import SimplePagination from '../molecule/simplePagination';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { apiFetch } from '../../../lib/apiClient';
 
 /**
  * @fileoverview Monthly SNF Ownership Change Volume chart.
@@ -338,7 +339,7 @@ export default function MonthlyOwnershipChangeChart() {
       setError(null);
 
       try {
-        const res = await fetch(`${API_BASE_URL}/ownership-change-volume`, {
+        const res = await apiFetch(`${API_BASE_URL}/ownership-change-volume`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);

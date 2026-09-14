@@ -1,3 +1,5 @@
+import { apiFetch } from './apiClient';
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
@@ -13,7 +15,7 @@ export function fetchNationalBenchmarks(year) {
   if (!inFlight.has(key)) {
     inFlight.set(
       key,
-      fetch(`${API_BASE_URL}/national?year=${year}`)
+      apiFetch(`${API_BASE_URL}/national?year=${year}`)
         .then((res) => {
           if (!res.ok) throw new Error('Failed to load national averages');
           return res.json();
