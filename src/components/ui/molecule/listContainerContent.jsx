@@ -979,7 +979,10 @@ function ShortCardDetail({ text, className }) {
     <p className={className}>
       <span className="sr-only">{text}</span>
       <span aria-hidden="true">
-        {text?.replace('Median:', 'Med').replace('Std Dev:', 'SD')}
+        {text
+          ?.replace('Median:', 'Med')
+          .replace('Std Dev:', 'SD')
+          .replace('National average:', 'Nat avg')}
       </span>
     </p>
   );
@@ -1014,7 +1017,7 @@ export function MetricCardShort({ item, variant }) {
       className={clsx(
         SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-background-inverse-secondary'
+          ? 'hover:bg-background-inverse-secondary bg-zinc-900'
           : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
@@ -1069,17 +1072,22 @@ MetricCardShort.propTypes = {
  *
  * Notes:
  * - Prefers `displayStat` over `stat` — builders attach the formatted suffix there.
- * - "Median:" is abbreviated to "Med" at render time; ShortCardDetail keeps the
- *   unabbreviated wording for screen readers.
+ * - Shows the median and the national average stacked, matching the long-form
+ *   card on the owner profile's staffing tab. ShortCardDetail abbreviates both
+ *   on screen and keeps the full wording for screen readers.
  */
 export function StaffingCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
+  const detailClass = clsx(
+    'text-label-xs',
+    isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+  );
   return (
     <div
       className={clsx(
         SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-background-inverse-secondary'
+          ? 'hover:bg-background-inverse-secondary bg-zinc-900'
           : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
@@ -1102,13 +1110,8 @@ export function StaffingCardShort({ item, variant }) {
         >
           {item.displayStat ?? item.stat}
         </p>
-        <ShortCardDetail
-          text={item.detail1}
-          className={clsx(
-            'text-label-xs',
-            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
-          )}
-        />
+        <ShortCardDetail text={item.detail1} className={detailClass} />
+        <ShortCardDetail text={item.detail2} className={detailClass} />
       </div>
     </div>
   );
@@ -1120,6 +1123,7 @@ StaffingCardShort.propTypes = {
     stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     displayStat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     detail1: PropTypes.string,
+    detail2: PropTypes.string,
   }).isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };

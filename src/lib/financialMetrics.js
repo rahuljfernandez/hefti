@@ -195,9 +195,10 @@ export function buildFacilityLiquidityStats(metricsSource, nationalBenchmarks) {
   return buildStats(facilityLiquidityConfig, metricsSource, nationalBenchmarks);
 }
 
-// Owner configs map owner aggregate fields to the same long-form financial card shape.
-// NOTE: owner median/std-dev values are placeholders for now. 'N/A' is used until
-// benchmark data is available or the metric is not yet supplied by the backend.
+/* Owner configs map owner aggregate fields to the same long-form financial card
+   shape. `median` and `stdDev` hold literal values, not column names — they stay
+   'N/A' until owner benchmark data exists, and a real number can be dropped in
+   without touching the builder. */
 
 const ownerProfitConfig = [
   {
@@ -208,8 +209,8 @@ const ownerProfitConfig = [
     valueKey: 'cms_owner_avg_operating_margin',
     nationalAvgKey: 'national_operating_margin',
     higherIsBetter: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     suffix: '%',
   },
   {
@@ -220,8 +221,8 @@ const ownerProfitConfig = [
     valueKey: 'cms_owner_avg_total_margin',
     nationalAvgKey: 'national_total_margin',
     higherIsBetter: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     suffix: '%',
   },
   {
@@ -232,8 +233,8 @@ const ownerProfitConfig = [
     valueKey: 'cms_owner_total_income',
     nationalAvgKey: 'national_net_income',
     higherIsBetter: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     isCurrency: true,
   },
 ];
@@ -247,8 +248,8 @@ const ownerRevenueConfig = [
     valueKey: 'cms_owner_total_revenue',
     nationalAvgKey: 'national_net_patient_services_revenue',
     higherIsBetter: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     isCurrency: true,
   },
 ];
@@ -260,8 +261,8 @@ const ownerExpensesConfig = [
     subtitle:
       'Total costs incurred in running day-to-day facility operations. Higher values relative to revenue may indicate financial strain.',
     valueKey: null,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     isCurrency: true,
   },
   {
@@ -272,8 +273,8 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_total_salaries',
     nationalAvgKey: 'national_total_salaries',
     higherIsBetter: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     isCurrency: true,
   },
   {
@@ -284,8 +285,8 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_total_expenses',
     nationalAvgKey: 'national_total_expenses',
     higherIsBetter: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     isCurrency: true,
   },
   {
@@ -296,8 +297,8 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_avg_related_to_total_exp',
     nationalAvgKey: 'national_related_party_to_total_op_expenses',
     higherIsBetter: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     suffix: '%',
   },
   {
@@ -308,8 +309,8 @@ const ownerExpensesConfig = [
     valueKey: 'cms_owner_avg_related_to_net_exp',
     nationalAvgKey: 'national_related_party_to_net_op_expenses',
     higherIsBetter: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
     suffix: '%',
   },
 ];
@@ -323,8 +324,8 @@ const ownerLiquidityConfig = [
     valueKey: 'cms_owner_avg_current_ratio',
     nationalAvgKey: 'national_current_ratio',
     higherIsBetter: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
   },
   {
     id: 2,
@@ -334,8 +335,8 @@ const ownerLiquidityConfig = [
     valueKey: 'cms_owner_avg_ltdtc',
     nationalAvgKey: 'national_long_term_debt_to_capital_ratio',
     higherIsBetter: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
   },
 ];
 
@@ -350,6 +351,7 @@ function buildOwnerStats(config, metricsSource, nationalBenchmarks) {
   return config.map((metric) => {
     const rawValue = metric.valueKey ? metricsSource?.[metric.valueKey] : null;
     const value = metric.valueKey ? format(metric, rawValue) : 'N/A';
+    const benchmark = (raw) => appendSuffix(format(metric, raw), metric.suffix);
     const { comparison, comparisonColor } = metric.nationalAvgKey
       ? buildNationalComparison(
           rawValue,
@@ -366,8 +368,8 @@ function buildOwnerStats(config, metricsSource, nationalBenchmarks) {
       displayValue: appendSuffix(value, metric.suffix),
       comparison,
       comparisonColor,
-      detail1: `Median: ${metric.medianKey}`,
-      detail2: `Std Dev: ${metric.stdDevKey}`,
+      detail1: `Median: ${benchmark(metric.median)}`,
+      detail2: `Std Dev: ${benchmark(metric.stdDev)}`,
     };
   });
 }

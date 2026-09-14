@@ -475,6 +475,7 @@ export default function OwnersProfile() {
             year={selectedYear}
             years={ownerYears}
             onYearChange={handleYearChange}
+            nationalBenchmarks={nationalBenchmarks}
             restoreFocusRef={graphTriggerRef}
           />
         )}

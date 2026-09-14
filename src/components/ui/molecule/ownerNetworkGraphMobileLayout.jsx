@@ -48,6 +48,7 @@ export default function OwnerNetworkGraphMobileLayout({
   sheetScrollRef,
   selectedNode,
   onSelectContentNode,
+  nationalBenchmarks,
   onClose,
   onRetry,
 }) {
@@ -162,6 +163,7 @@ export default function OwnerNetworkGraphMobileLayout({
                   variant="mobile"
                   year={data?.meta?.topology?.year ?? null}
                   financials={data?.meta?.financials ?? null}
+                  nationalBenchmarks={nationalBenchmarks}
                 />
               )}
             </div>
@@ -203,6 +205,7 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   sheetScrollRef: PropTypes.shape({ current: PropTypes.any }),
   selectedNode: PropTypes.object,
   onSelectContentNode: PropTypes.func.isRequired,
+  nationalBenchmarks: PropTypes.object,
   onClose: PropTypes.func.isRequired,
   onRetry: PropTypes.func.isRequired,
 };

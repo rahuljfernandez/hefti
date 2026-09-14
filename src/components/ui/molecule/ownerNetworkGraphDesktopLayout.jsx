@@ -50,6 +50,7 @@ export default function OwnerNetworkGraphDesktopLayout({
   year,
   years,
   onYearChange,
+  nationalBenchmarks,
 }) {
   const sigmaRef = useRef(null);
 
@@ -134,6 +135,7 @@ export default function OwnerNetworkGraphDesktopLayout({
             </div>
 
             <OwnerNetworkSidePanel
+              nationalBenchmarks={nationalBenchmarks}
               data={data}
               selectedNodeId={selectedNodeId}
               onClear={onClearSelection}
@@ -176,4 +178,5 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   year: PropTypes.number,
   years: PropTypes.arrayOf(PropTypes.number),
   onYearChange: PropTypes.func,
+  nationalBenchmarks: PropTypes.object,
 };

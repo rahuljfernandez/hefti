@@ -47,6 +47,7 @@ export default function OwnerNetworkContent({
   meta,
   year,
   financials,
+  nationalBenchmarks,
 }) {
   const isHub = mode === 'hub';
   const [activeTab, setActiveTab] = useState('long');
@@ -59,28 +60,39 @@ export default function OwnerNetworkContent({
 
   // Memoized by `meta` so builders don't re-run on unrelated re-renders.
   const allMetrics = useMemo(() => ({
-    long: buildOwnerLongStayStats(meta, ownerBenchmarks),
-    short: buildOwnerShortStayStats(meta, ownerBenchmarks),
-  }), [meta, ownerBenchmarks]);
+    long: buildOwnerLongStayStats(meta, ownerBenchmarks, nationalBenchmarks),
+    short: buildOwnerShortStayStats(meta, ownerBenchmarks, nationalBenchmarks),
+  }), [meta, ownerBenchmarks, nationalBenchmarks]);
 
   const allStaffingMetrics = useMemo(() => ({
-    levels: buildOwnerStaffingLevels(meta),
-    turnover: buildOwnerStaffingTurnover(meta),
-  }), [meta]);
+    levels: buildOwnerStaffingLevels(meta, nationalBenchmarks),
+    turnover: buildOwnerStaffingTurnover(meta, nationalBenchmarks),
+  }), [meta, nationalBenchmarks]);
 
-  /* Only the financial block is re-sourced from an older year, so this section
-     is the one whose numbers can disagree with the year in the nav. */
-  const financialNote =
-    financials?.isFallback && financials?.year != null
-      ? `Showing ${financials.year} — most recent year with cost-report data`
-      : null;
-
+  /* No benchmarks passed here on purpose: these are the only cards read from a
+     different year, so the topology-year national averages would be the wrong
+     comparison. */
   const allFinancialMetrics = useMemo(() => ({
     profit: buildOwnerProfitStats(meta),
     revenue: buildOwnerRevenueStats(meta),
     expenses: buildOwnerExpensesStats(meta),
     liquidity: buildOwnerLiquidityStats(meta),
   }), [meta]);
+
+  /* Owners absent from the financial year keep no cost-report block at all, so
+     claiming that year over a section of N/A would name a source that isn't
+     there. */
+  const hasFinancialData = Object.values(allFinancialMetrics).some((group) =>
+    group.some((item) => item.value !== 'N/A'),
+  );
+
+  const financialYear = financials?.year ?? null;
+  let financialNote = null;
+  if (financialYear != null && !hasFinancialData) {
+    financialNote = `No cost-report data filed for this owner in ${financialYear}`;
+  } else if (financialYear != null && financials?.isFallback) {
+    financialNote = `Showing ${financialYear} — most recent year with cost-report data`;
+  }
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -144,9 +156,9 @@ export default function OwnerNetworkContent({
         title="Financial Overview"
         variant={variant}
         trailing={
-          financialNote ? (
+          hasFinancialData && financials?.isFallback ? (
             <DataYearChip
-              year={financials.year}
+              year={financialYear}
               variant={variant === 'mobile' ? 'inverse' : 'default'}
             />
           ) : null
@@ -270,6 +282,7 @@ OwnerNetworkContent.propTypes = {
     year: PropTypes.number,
     isFallback: PropTypes.bool,
   }),
+  nationalBenchmarks: PropTypes.object,
   shared: PropTypes.arrayOf(
     PropTypes.shape({
       ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])

@@ -43,6 +43,7 @@ export default function OwnerNetworkGraphModal({
   year,
   years,
   onYearChange,
+  nationalBenchmarks,
   restoreFocusRef,
 }) {
   const isDesktop = useIsDesktop();
@@ -153,6 +154,7 @@ export default function OwnerNetworkGraphModal({
             year={year}
             years={years}
             onYearChange={onYearChange}
+            nationalBenchmarks={nationalBenchmarks}
           />
         ) : (
           <OwnerNetworkGraphMobileLayout
@@ -181,6 +183,7 @@ export default function OwnerNetworkGraphModal({
             sheetScrollRef={sheetScrollRef}
             selectedNode={effectiveSelectedNode}
             onSelectContentNode={handleSelectNode}
+            nationalBenchmarks={nationalBenchmarks}
             onClose={onClose}
             onRetry={handleRetry}
           />
@@ -198,5 +201,6 @@ OwnerNetworkGraphModal.propTypes = {
   year: PropTypes.number,
   years: PropTypes.arrayOf(PropTypes.number),
   onYearChange: PropTypes.func,
+  nationalBenchmarks: PropTypes.object,
   restoreFocusRef: PropTypes.shape({ current: PropTypes.any }),
 };
