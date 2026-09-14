@@ -13,11 +13,21 @@ import clsx from 'clsx';
  * Reads `meta.year` off a /api/state-metrics metric; renders nothing when the
  * year is unknown.
  */
-export default function DataYearChip({ year, className }) {
+export default function DataYearChip({ year, variant = 'default', className }) {
   if (year == null) return null;
 
   return (
-    <span className={clsx('text-label-xs text-content-secondary', className)}>
+    <span
+      className={clsx(
+        'text-label-xs',
+        /* zinc-500 disappears against the dark side panel, so that surface gets
+           the lighter step the accordion chevron already uses there. */
+        variant === 'inverse'
+          ? 'text-content-tertiary'
+          : 'text-content-secondary',
+        className,
+      )}
+    >
       ({year} data)
     </span>
   );
@@ -25,5 +35,6 @@ export default function DataYearChip({ year, className }) {
 
 DataYearChip.propTypes = {
   year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  variant: PropTypes.oneOf(['default', 'inverse']),
   className: PropTypes.string,
 };

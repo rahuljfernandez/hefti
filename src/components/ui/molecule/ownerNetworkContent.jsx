@@ -20,6 +20,7 @@ import {
   buildOwnerExpensesStats,
   buildOwnerLiquidityStats,
 } from '../../../lib/financialMetrics';
+import DataYearChip from '../atom/dataYearChip';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
@@ -139,7 +140,18 @@ export default function OwnerNetworkContent({
         />
       </NetworkSidePanelAccordion>
 
-      <NetworkSidePanelAccordion title="Financial Overview" variant={variant}>
+      <NetworkSidePanelAccordion
+        title="Financial Overview"
+        variant={variant}
+        trailing={
+          financialNote ? (
+            <DataYearChip
+              year={financials.year}
+              variant={variant === 'mobile' ? 'inverse' : 'default'}
+            />
+          ) : null
+        }
+      >
         <TabbedMetricList
           tabs={[
             { value: 'profit', label: 'Profit' },
@@ -177,11 +189,17 @@ function TabbedMetricList({
   variant,
   note,
 }) {
+  const isMobile = variant === 'mobile';
+  // zinc-200 reads as a near-white rule against the dark sheet.
+  const dividerClass = isMobile
+    ? 'border-border-inverse-primary'
+    : 'border-border-primary';
+
   return (
-    <div className={variant === 'mobile' ? 'bg-zinc-900' : 'bg-white'}>
+    <div className={isMobile ? 'bg-zinc-900' : 'bg-white'}>
       <div
         aria-label="Metric category"
-        className="border-border-primary flex gap-2 border-b px-4 py-2"
+        className={clsx('flex gap-2 border-b px-4 py-2', dividerClass)}
       >
         {tabs.map((tab) => (
           <button
@@ -191,7 +209,7 @@ function TabbedMetricList({
             tabIndex={0}
             onClick={() => setActiveTab(tab.value)}
             className={clsx(
-              variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
+              isMobile ? 'focus-panel-dark' : 'focus-panel-light',
               'text-label-xs border-border-primary text-core-black flex-1 rounded-md border py-1 transition hover:cursor-pointer',
               activeTab === tab.value
                 ? 'bg-zinc-200'
@@ -206,10 +224,9 @@ function TabbedMetricList({
       {note && (
         <p
           className={clsx(
-            'text-label-xs border-border-primary border-b px-4 py-1.5',
-            variant === 'mobile'
-              ? 'text-content-tertiary'
-              : 'text-content-secondary',
+            'text-label-xs border-b px-4 py-1.5',
+            dividerClass,
+            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
           )}
         >
           {note}
