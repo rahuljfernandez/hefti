@@ -344,6 +344,37 @@ describe('buildNetworkHtml', () => {
     );
   });
 
+  /* The SVG hides crowded labels and only responds to a pointer, so the index
+     is the one place every owner in the file is findable and reachable. */
+  it('lists every node in the owner index, linked where a slug exists', () => {
+    const index = render().split('<details class="owner-index">')[1];
+
+    expect(index.match(/<li>/g)).toHaveLength(3);
+    expect(index).toContain('All owners (3)');
+    expect(index).toContain(
+      '<a href="https://example.test/nursing-homes/owners/jane">Jane Doe</a>',
+    );
+    // No slug, so the name is still listed — just not as a link.
+    expect(index).toContain('<li>Pruned Co <span>');
+  });
+
+  it('labels the hub as the subject and others by shared facilities', () => {
+    const index = render().split('<details class="owner-index">')[1];
+
+    expect(index).toContain('Hub Co</a> <span>subject of this network</span>');
+    expect(index).toContain('<span>4 shared facilities</span>');
+    expect(index).toContain('<span>1 shared facility</span>');
+  });
+
+  it('escapes owner names in the index', () => {
+    const index = renderNamed('oe:2', '<img src=x onerror=alert(1)>').split(
+      '<details class="owner-index">',
+    )[1];
+
+    expect(index).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(index).not.toContain('<img src=x');
+  });
+
   it('keeps the topology year in exported owner profile links', () => {
     const html = buildNetworkHtml({
       snapshot: snapshot(),

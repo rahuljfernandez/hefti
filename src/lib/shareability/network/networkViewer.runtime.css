@@ -308,3 +308,43 @@ aside .close {
   border-radius: 50%;
   display: inline-block;
 }
+
+.owner-index {
+  border-top: 1px solid var(--line);
+  padding: 8px 20px;
+  font-size: 12px;
+}
+
+.owner-index summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.owner-index ul {
+  margin: 8px 0 4px;
+  padding: 0;
+  list-style: none;
+  columns: 3;
+  column-gap: 24px;
+}
+
+.owner-index li {
+  break-inside: avoid;
+  padding: 2px 0;
+}
+
+.owner-index a {
+  color: var(--ink);
+}
+
+.owner-index span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .owner-index ul {
+    columns: 1;
+  }
+}
