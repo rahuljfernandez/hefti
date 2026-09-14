@@ -30,10 +30,13 @@ export default function OwnerNetworkSearchBar({
   const listboxId = useId();
   const optionRefs = useRef([]);
   const hasResults = searchResults.length > 0;
+
+  const isPopupOpen = isSearchOpen && hasResults;
   const activeResult =
     activeIndex >= 0 && activeIndex < searchResults.length
       ? searchResults[activeIndex]
       : null;
+  const blurTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (activeIndex < 0) return;
@@ -88,16 +91,19 @@ export default function OwnerNetworkSearchBar({
 
     if (event.key === 'Escape') {
       event.preventDefault();
+      event.stopPropagation();
       onSetIsSearchOpen(false);
       resetSearchNavigation();
     }
   }
 
+  useEffect(() => () => clearTimeout(blurTimeoutRef.current), []);
+
   return (
     <div
       className={clsx('relative flex flex-1 items-center', widthClass)}
       onBlur={() => {
-        setTimeout(() => {
+        blurTimeoutRef.current = setTimeout(() => {
           onSetIsSearchOpen(false);
           resetSearchNavigation();
         }, 100);
@@ -108,8 +114,8 @@ export default function OwnerNetworkSearchBar({
         type="text"
         role="combobox"
         aria-autocomplete="list"
-        aria-expanded={isSearchOpen}
-        aria-controls={isSearchOpen ? listboxId : undefined}
+        aria-expanded={isPopupOpen}
+        aria-controls={isPopupOpen ? listboxId : undefined}
         aria-activedescendant={
           activeResult ? `${listboxId}-option-${activeResult.id}` : undefined
         }
@@ -121,6 +127,7 @@ export default function OwnerNetworkSearchBar({
           resetSearchNavigation();
         }}
         onFocus={() => {
+          clearTimeout(blurTimeoutRef.current);
           onSetIsSearchOpen(true);
           resetSearchNavigation();
         }}
@@ -141,6 +148,7 @@ export default function OwnerNetworkSearchBar({
           <ul
             id={listboxId}
             role="listbox"
+            aria-label="Node search results"
             className="max-h-64 overflow-auto py-1"
           >
             {searchResults.map((result, index) => (
@@ -156,10 +164,8 @@ export default function OwnerNetworkSearchBar({
                 <button
                   type="button"
                   tabIndex={-1}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handlePick(result);
-                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handlePick(result)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={clsx(
                     'hover:bg-background-tertiary flex w-full items-center justify-between px-3 py-2 text-left hover:cursor-pointer',
@@ -190,6 +196,11 @@ export default function OwnerNetworkSearchBar({
             </div>
           </div>
         )}
+      <span role="status" className="sr-only">
+        {isSearchOpen && searchQuery.trim().length > 0
+          ? `${searchResults.length} ${searchResults.length === 1 ? 'result' : 'results'}`
+          : ''}
+      </span>
     </div>
   );
 }

@@ -111,7 +111,10 @@ export default function NetworkFilter({
           </div>
 
           {coverage && (
-            <p className="text-paragraph-xs text-content-secondary">
+            <p
+              role="status"
+              className="text-paragraph-xs text-content-secondary"
+            >
               Reported by {coverage.reported} of {coverage.of} owners
               {financials?.isFallback &&
                 ' · most recent year with cost-report data'}

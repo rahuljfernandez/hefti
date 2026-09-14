@@ -89,6 +89,9 @@ export default function OwnerNetworkGraphModal({
   // Encapsulated mobile bottom-sheet drag/snap behavior.
   const {
     setSheetSnap,
+    sheetSnap,
+    cycleSheetSnap,
+    nudgeSheetSnap,
     renderedSheetHeightPx,
     isDraggingSheet,
     sheetScrollRef,
@@ -172,6 +175,9 @@ export default function OwnerNetworkGraphModal({
             onSheetPointerDown={handleSheetPointerDown}
             onSheetPointerMove={handleSheetPointerMove}
             onSheetPointerEnd={handleSheetPointerEnd}
+            sheetSnap={sheetSnap}
+            onCycleSheetSnap={cycleSheetSnap}
+            onNudgeSheetSnap={nudgeSheetSnap}
             sheetScrollRef={sheetScrollRef}
             selectedNode={effectiveSelectedNode}
             onSelectContentNode={handleSelectNode}

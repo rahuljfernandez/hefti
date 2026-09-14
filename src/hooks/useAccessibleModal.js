@@ -107,7 +107,8 @@ export default function useAccessibleModal({
         (element) =>
           element instanceof HTMLElement &&
           !element.hasAttribute('disabled') &&
-          element.getAttribute('aria-hidden') !== 'true',
+          element.getAttribute('aria-hidden') !== 'true' &&
+          element.offsetParent !== null,
       );
 
       if (focusableElements.length === 0) {

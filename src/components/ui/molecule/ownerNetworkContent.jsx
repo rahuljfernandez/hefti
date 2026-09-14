@@ -198,6 +198,7 @@ function TabbedMetricList({
   return (
     <div className={isMobile ? 'bg-zinc-900' : 'bg-white'}>
       <div
+        role="group"
         aria-label="Metric category"
         className={clsx('flex gap-2 border-b px-4 py-2', dividerClass)}
       >
@@ -206,7 +207,6 @@ function TabbedMetricList({
             type="button"
             key={tab.value}
             aria-pressed={activeTab === tab.value}
-            tabIndex={0}
             onClick={() => setActiveTab(tab.value)}
             className={clsx(
               isMobile ? 'focus-panel-dark' : 'focus-panel-light',
@@ -232,11 +232,10 @@ function TabbedMetricList({
           {note}
         </p>
       )}
-      <div
-        aria-label={tabs.find((t) => t.value === activeTab)?.label}
-        className="max-h-64 overflow-y-auto"
-      >
-        <ul aria-label="Metrics">
+      <div className="max-h-64 overflow-y-auto">
+        <ul
+          aria-label={`${tabs.find((t) => t.value === activeTab)?.label ?? ''} metrics`.trim()}
+        >
           {items.map((item) => (
             <li key={item.id}>
               <CardComponent item={item} variant={variant} />

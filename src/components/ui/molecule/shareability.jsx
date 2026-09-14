@@ -285,6 +285,9 @@ function TelescopeSegment({
         />
         <span>{display.text}</span>
       </button>
+      <span role="status" className="sr-only">
+        {status === 'idle' ? '' : display.text}
+      </span>
     </div>
   );
 }
@@ -371,6 +374,11 @@ export function ShareWidget({
     <div
       className="text-core-white flex items-center divide-x divide-white/20 rounded-md bg-blue-600 shadow-md"
       onMouseLeave={clearCategoryHover}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !isExpanded) return;
+        event.stopPropagation();
+        handleToggle(false);
+      }}
     >
       <AnimatePresence initial={false}>
         {isExpanded && isIntro && (
@@ -407,6 +415,7 @@ export function ShareWidget({
         <button
           type="button"
           onClick={() => handleToggle(!isExpanded)}
+          aria-expanded={isExpanded}
           aria-label={isExpanded ? 'Close' : minimizedLabel}
           className="inline-flex cursor-pointer items-center justify-center p-2.5 transition-colors hover:bg-white/10"
         >

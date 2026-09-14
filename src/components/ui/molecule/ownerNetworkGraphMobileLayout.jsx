@@ -42,6 +42,9 @@ export default function OwnerNetworkGraphMobileLayout({
   onSheetPointerDown,
   onSheetPointerMove,
   onSheetPointerEnd,
+  sheetSnap,
+  onCycleSheetSnap,
+  onNudgeSheetSnap,
   sheetScrollRef,
   selectedNode,
   onSelectContentNode,
@@ -94,7 +97,25 @@ export default function OwnerNetworkGraphMobileLayout({
             onPointerCancel={onSheetPointerEnd}
           >
             <div className="relative flex shrink-0 touch-none justify-center py-4">
-              <div className="bg-content-inverse-primary h-1 w-10 rounded-full" />
+              <button
+                type="button"
+                data-sheet-drag
+                onClick={onCycleSheetSnap}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    onNudgeSheetSnap(1);
+                  } else if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    onNudgeSheetSnap(-1);
+                  }
+                }}
+                aria-label="Resize details panel"
+                aria-expanded={sheetSnap !== 'peek'}
+                className="focus-ring-dark rounded-full px-6 py-2"
+              >
+                <span className="bg-content-inverse-primary block h-1 w-10 rounded-full" />
+              </button>
               <button
                 type="button"
                 onClick={onClose}
@@ -176,6 +197,9 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   onSheetPointerDown: PropTypes.func.isRequired,
   onSheetPointerMove: PropTypes.func.isRequired,
   onSheetPointerEnd: PropTypes.func.isRequired,
+  sheetSnap: PropTypes.oneOf(['peek', 'mid', 'full']).isRequired,
+  onCycleSheetSnap: PropTypes.func.isRequired,
+  onNudgeSheetSnap: PropTypes.func.isRequired,
   sheetScrollRef: PropTypes.shape({ current: PropTypes.any }),
   selectedNode: PropTypes.object,
   onSelectContentNode: PropTypes.func.isRequired,
