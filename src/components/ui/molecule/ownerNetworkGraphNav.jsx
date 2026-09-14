@@ -66,7 +66,7 @@ export default function OwnerNetworkGraphNav({
                 {/* The graph is one year throughout, so a fallback is about the
                     whole picture rather than any single control. */}
                 {topology?.isFallback && (
-                  <span className="text-label-xs text-core-white/70 hidden xl:inline">
+                  <span className="text-label-xs text-core-white/70 sr-only xl:not-sr-only xl:inline">
                     showing {topology.year} — most recent year for this owner
                   </span>
                 )}
@@ -74,6 +74,7 @@ export default function OwnerNetworkGraphNav({
                   years={years}
                   value={year}
                   onChange={(next) => onYearChange(Number(next))}
+                  variant="dark"
                 />
               </>
             )}

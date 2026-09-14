@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { CheckIcon } from '@heroicons/react/20/solid';
@@ -20,6 +21,8 @@ import { Heading } from '../atom/heading';
  *  - years:    array of year values to display
  *  - value:    currently selected year (controlled)
  *  - onChange: called with the selected year when the user picks one
+ *  - variant:  'light' for the profile header, 'dark' for the network modal's
+ *              black toolbar — the axis is the surface behind it, not viewport
  *
  * Renders just the select — no visible label. `label` below is an internal
  * constant used only for accessible names (aria-label) and the mobile dialog
@@ -27,7 +30,18 @@ import { Heading } from '../atom/heading';
  */
 const label = 'Data year';
 
-export default function YearSelector({ years = [], value, onChange }) {
+export default function YearSelector({
+  years = [],
+  value,
+  onChange,
+  variant = 'light',
+}) {
+  const isDark = variant === 'dark';
+  /* Tone only — each trigger keeps its own geometry, which differs by viewport. */
+  const controlToneClass = isDark
+    ? 'focus-ring-dark text-core-white bg-background-inverse-secondary outline-border-inverse-primary'
+    : 'focus-ring-light text-content-secondary bg-white outline-gray-300';
+  const chevronClass = isDark ? 'text-content-tertiary' : 'text-gray-500';
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [pendingYear, setPendingYear] = useState(value);
   const headingId = useId();
@@ -97,7 +111,10 @@ export default function YearSelector({ years = [], value, onChange }) {
             value={value ?? ''}
             onChange={handleDesktopChange}
             aria-label={label}
-            className="focus-ring-light text-label-sm text-content-secondary h-10 appearance-none rounded-lg bg-white pr-8 pl-3 outline-1 -outline-offset-1 outline-gray-300"
+            className={clsx(
+              'text-label-sm h-10 appearance-none rounded-lg pr-8 pl-3 outline-1 -outline-offset-1',
+              controlToneClass,
+            )}
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -107,7 +124,10 @@ export default function YearSelector({ years = [], value, onChange }) {
           </select>
           <ChevronDownIcon
             aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-gray-500 sm:size-4"
+            className={clsx(
+              'pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 sm:size-4',
+              chevronClass,
+            )}
           />
         </div>
       </div>
@@ -118,16 +138,27 @@ export default function YearSelector({ years = [], value, onChange }) {
           ref={mobileTriggerRef}
           type="button"
           onClick={handleMobileTrigger}
-          className="focus-ring-light text-label-sm text-content-secondary col-start-1 row-start-1 flex h-10 items-center gap-2 rounded-md bg-white pr-8 pl-3 text-left outline-1 -outline-offset-1 outline-gray-300"
+          className={clsx(
+            'text-label-sm col-start-1 row-start-1 flex h-10 items-center gap-2 rounded-md pr-8 pl-3 text-left outline-1 -outline-offset-1',
+            controlToneClass,
+          )}
           aria-label={`${label}: ${value}. Activate to change.`}
         >
-          <span className="text-paragraph-base text-content-secondary">
+          <span
+            className={clsx(
+              'text-paragraph-base',
+              isDark ? 'text-core-white' : 'text-content-secondary',
+            )}
+          >
             {value}
           </span>
         </button>
         <ChevronDownIcon
           aria-hidden="true"
-          className="pointer-events-none col-start-1 row-start-1 mr-2 size-4 self-center justify-self-end text-gray-500"
+          className={clsx(
+            'pointer-events-none col-start-1 row-start-1 mr-2 size-4 self-center justify-self-end',
+            chevronClass,
+          )}
         />
       </div>
 
@@ -208,4 +239,5 @@ YearSelector.propTypes = {
   ).isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['light', 'dark']),
 };

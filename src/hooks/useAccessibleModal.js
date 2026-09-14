@@ -5,7 +5,8 @@ import { useEffect, useRef } from 'react';
  *
  * Responsibilities:
  * - moves focus into the dialog when it opens
- * - restores focus to the trigger when it closes
+ * - restores focus to the trigger when it closes, falling back to the main
+ *   landmark when the trigger no longer exists
  * - closes on Escape
  * - locks body scroll while open
  * - traps keyboard focus inside the dialog
@@ -30,9 +31,19 @@ export default function useAccessibleModal({
     dialogRef.current?.focus();
   }, [isOpen, dialogRef]);
 
+  /* The trigger can unmount while the dialog is still open — changing the year
+     from inside the owner network modal swaps the page for a skeleton — and
+     focusing a detached node is a silent no-op that strands focus on <body>.
+     The skip-link target is the nearest thing that always survives. */
   useEffect(() => {
     if (!wasOpenRef.current || isOpen) return;
-    restoreFocusRef?.current?.focus?.();
+
+    const trigger = restoreFocusRef?.current;
+    if (trigger?.isConnected) {
+      trigger.focus();
+      return;
+    }
+    document.getElementById('main-content')?.focus();
   }, [isOpen, restoreFocusRef]);
 
   useEffect(() => {
