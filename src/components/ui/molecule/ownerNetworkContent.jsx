@@ -224,7 +224,7 @@ function TabbedMetricList({
       {note && (
         <p
           className={clsx(
-            'text-label-xs border-b px-4 py-1.5',
+            'text-paragraph-xs border-b px-4 py-1.5',
             dividerClass,
             isMobile ? 'text-content-tertiary' : 'text-content-secondary',
           )}

@@ -22,6 +22,10 @@ export default function OwnerNetworkSearchBar({
   variant = 'desktop',
 }) {
   const isMobile = variant === 'mobile';
+  /* Wrapper and input share one width: the search icon is positioned against
+     the wrapper but cleared by the input's own left padding, so a mismatch
+     leaves the icon outside the field. */
+  const widthClass = isMobile ? 'w-full' : 'w-[280px]';
   const [activeIndex, setActiveIndex] = useState(-1);
   const listboxId = useId();
   const optionRefs = useRef([]);
@@ -91,13 +95,7 @@ export default function OwnerNetworkSearchBar({
 
   return (
     <div
-      className={clsx(
-        /* The icon is positioned against this wrapper, so the input has to
-           start at the wrapper's left edge — centering a wider input here
-           slid it out from under its own left padding. */
-        'relative flex flex-1 items-center',
-        isMobile ? 'w-full' : 'w-[280px]',
-      )}
+      className={clsx('relative flex flex-1 items-center', widthClass)}
       onBlur={() => {
         setTimeout(() => {
           onSetIsSearchOpen(false);
@@ -134,12 +132,12 @@ export default function OwnerNetworkSearchBar({
         className={clsx(
           'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary h-10 rounded-full border pr-3 pl-9',
           'placeholder:text-content-tertiary border-border-inverse-primary',
-          isMobile ? 'w-full' : 'w-[280px]',
+          widthClass,
         )}
       />
       {/* Dropdown */}
       {isSearchOpen && searchResults.length > 0 && (
-        <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
+        <div className="bg-core-white border-border-primary absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border shadow-lg">
           <ul
             id={listboxId}
             role="listbox"
@@ -164,8 +162,8 @@ export default function OwnerNetworkSearchBar({
                   }}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={clsx(
-                    'flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:cursor-pointer hover:bg-gray-50',
-                    activeIndex === index && 'bg-gray-50',
+                    'hover:bg-background-tertiary flex w-full items-center justify-between px-3 py-2 text-left hover:cursor-pointer',
+                    activeIndex === index && 'bg-background-tertiary',
                   )}
                 >
                   <span className="text-label-sm text-core-black truncate">
@@ -173,7 +171,7 @@ export default function OwnerNetworkSearchBar({
                   </span>
 
                   {result.count != null && (
-                    <span className="ml-3 shrink-0 text-xs text-gray-500">
+                    <span className="text-label-xs text-content-secondary ml-3 shrink-0">
                       {result.count} {result.count === 1 ? 'Link' : 'Links'}
                     </span>
                   )}
@@ -186,7 +184,7 @@ export default function OwnerNetworkSearchBar({
       {isSearchOpen &&
         searchQuery.trim().length > 0 &&
         searchResults.length === 0 && (
-          <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full rounded-lg border border-gray-200 shadow-lg">
+          <div className="bg-core-white border-border-primary absolute top-full left-0 z-500 mt-3 w-full rounded-lg border shadow-lg">
             <div className="text-label-sm text-core-black px-4 py-3">
               No results found
             </div>

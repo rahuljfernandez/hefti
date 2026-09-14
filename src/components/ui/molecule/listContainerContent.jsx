@@ -1014,8 +1014,8 @@ export function MetricCardShort({ item, variant }) {
       className={clsx(
         SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-zinc-800'
-          : 'bg-core-white hover:bg-gray-50',
+          ? 'bg-zinc-900 hover:bg-background-inverse-secondary'
+          : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
       {/** Title */}
@@ -1079,8 +1079,8 @@ export function StaffingCardShort({ item, variant }) {
       className={clsx(
         SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-zinc-800'
-          : 'bg-core-white hover:bg-gray-50',
+          ? 'bg-zinc-900 hover:bg-background-inverse-secondary'
+          : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
       <div className="self-center">
@@ -1134,7 +1134,7 @@ export function NetworkSidePanelList({ item, onSelectNode, variant }) {
       className={clsx(
         variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
         'flex w-full items-center gap-4 rounded-md px-4 py-2 text-left text-sm hover:cursor-pointer',
-        isMobile ? 'bg-zinc-900' : 'bg-white hover:bg-gray-50',
+        isMobile ? 'bg-zinc-900' : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
       {/* Icon */}

@@ -5,6 +5,7 @@ import InfoTooltip from '../atom/infoTooltip';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import NetworkFilterControl from '../atom/networkFilterControl';
 import DataYearChip from '../atom/dataYearChip';
+import { networkPanelWidthClass } from '../../../lib/networkPanelWidth';
 
 /**
  * Overlay filter panel for the network graph modal.
@@ -45,7 +46,7 @@ export default function NetworkFilter({
     : null;
 
   return (
-    <div className="lg:w-[300px] xl:w-[375px]">
+    <div className={networkPanelWidthClass}>
       <NetworkSidePanelAccordion
         title={'Graph Filters'}
         icon={<Cog6ToothIcon className="h-5 w-5" />}
@@ -110,7 +111,7 @@ export default function NetworkFilter({
           </div>
 
           {coverage && (
-            <p className="text-paragraph-xs text-content-tertiary">
+            <p className="text-paragraph-xs text-content-secondary">
               Reported by {coverage.reported} of {coverage.of} owners
               {financials?.isFallback &&
                 ' · most recent year with cost-report data'}

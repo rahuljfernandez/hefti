@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
 import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import OwnerNetworkContent from './ownerNetworkContent';
+import { networkPanelWidthClass } from '../../../lib/networkPanelWidth';
 
 /**
  * Side panel shown beside the owner network graph.
@@ -37,7 +39,10 @@ export default function OwnerNetworkSidePanel({
     <div
       role="complementary"
       aria-label="Owner details"
-      className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]"
+      className={clsx(
+        'border-border-primary flex h-full min-h-0 shrink-0 flex-col overflow-hidden border',
+        networkPanelWidthClass,
+      )}
     >
       {selectedNode.type === 'hub' ? (
         <HubPanel
