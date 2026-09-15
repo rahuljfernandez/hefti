@@ -965,32 +965,64 @@ MetricCardLong.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
+/* Shared row shell for the network side panel's compact cards. The title column
+   floors at 40% so a long currency value or benchmark line can't collapse it,
+   and the value column takes only the width it needs. */
+const SHORT_CARD_ROW = 'grid grid-cols-[minmax(40%,1fr)_auto] gap-3 px-4 py-2';
+
+/* Benchmark line for the compact cards, abbreviated on screen and spelled out
+   for screen readers. An aria-label won't do it: <p> is naming-prohibited, so
+   the label is dropped and the abbreviation gets announced instead — "SD" reads
+   as the letters "S D". Renders even when empty to keep row heights aligned. */
+function ShortCardDetail({ text, className }) {
+  return (
+    <p className={className}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {text
+          ?.replace('Median:', 'Med')
+          .replace('Std Dev:', 'SD')
+          .replace('National average:', 'Nat avg')}
+      </span>
+    </p>
+  );
+}
+
+ShortCardDetail.propTypes = {
+  text: PropTypes.string,
+  className: PropTypes.string,
+};
+
 /**
  * Compact metric row for the network graph side panel.
  *
  * Responsibilities:
- * - Renders a single clinical quality or financial metric in a 3-column grid
- * - Title spans 2 columns; value + detail stats are right-aligned in the third
+ * - Renders a single clinical quality or financial metric in a two-column row
+ * - Title wraps in the flexible column; value + detail stats are right-aligned
  * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
  *
  * Notes:
  * - Prefers `displayValue` over `value` — builders attach the formatted suffix there.
- * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" to fit the
- *   narrow column; the full strings are preserved in the aria-label for screen readers.
+ * - Detail labels abbreviate "Median:" → "Med" and "Std Dev:" → "SD" and stack one
+ *   per line; ShortCardDetail keeps the unabbreviated wording for screen readers.
  */
 export function MetricCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
+  const detailClass = clsx(
+    'text-label-xs',
+    isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+  );
   return (
     <div
       className={clsx(
-        'grid grid-cols-3 px-4 py-2',
+        SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-zinc-800'
-          : 'bg-core-white hover:bg-gray-50',
+          ? 'hover:bg-background-inverse-secondary bg-zinc-900'
+          : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
       {/** Title */}
-      <div className="col-span-2 self-center">
+      <div className="self-center">
         <p
           className={clsx(
             'text-label-sm font-medium',
@@ -1010,16 +1042,10 @@ export function MetricCardShort({ item, variant }) {
         >
           {item.displayValue ?? item.value}
         </p>
-        <p
-          aria-label={`${item.detail1}, ${item.detail2}`}
-          className={clsx(
-            'text-label-xs',
-            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
-          )}
-        >
-          {item.detail1?.replace('Median:', 'Med')} ·{' '}
-          {item.detail2?.replace('Std Dev:', 'SD')}
-        </p>
+        {/* One per line: benchmarks are currency figures wide enough that a
+            shared row would set the column width from the sum of both. */}
+        <ShortCardDetail text={item.detail1} className={detailClass} />
+        <ShortCardDetail text={item.detail2} className={detailClass} />
       </div>
     </div>
   );
@@ -1040,27 +1066,32 @@ MetricCardShort.propTypes = {
  * Compact staffing row for the network graph side panel.
  *
  * Responsibilities:
- * - Renders a single staffing metric (levels or turnover) in a 3-column grid
- * - Title spans 2 columns; stat + median detail are right-aligned in the third
+ * - Renders a single staffing metric (levels or turnover) in a two-column row
+ * - Title wraps in the flexible column; stat + median detail are right-aligned
  * - Adapts colors between desktop (light) and mobile (dark sheet) via `variant`
  *
  * Notes:
  * - Prefers `displayStat` over `stat` — builders attach the formatted suffix there.
- * - "Median:" is abbreviated to "Med" at render time; the full string is kept in
- *   aria-label so screen readers get the unabbreviated label.
+ * - Shows the median and the national average stacked, matching the long-form
+ *   card on the owner profile's staffing tab. ShortCardDetail abbreviates both
+ *   on screen and keeps the full wording for screen readers.
  */
 export function StaffingCardShort({ item, variant }) {
   const isMobile = variant === 'mobile';
+  const detailClass = clsx(
+    'text-label-xs',
+    isMobile ? 'text-content-tertiary' : 'text-content-secondary',
+  );
   return (
     <div
       className={clsx(
-        'grid grid-cols-3 px-4 py-2',
+        SHORT_CARD_ROW,
         isMobile
-          ? 'bg-zinc-900 hover:bg-zinc-800'
-          : 'bg-core-white hover:bg-gray-50',
+          ? 'hover:bg-background-inverse-secondary bg-zinc-900'
+          : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
-      <div className="col-span-2 self-center">
+      <div className="self-center">
         <p
           className={clsx(
             'text-label-sm font-medium',
@@ -1079,15 +1110,8 @@ export function StaffingCardShort({ item, variant }) {
         >
           {item.displayStat ?? item.stat}
         </p>
-        <p
-          aria-label={item.detail1}
-          className={clsx(
-            'text-label-xs',
-            isMobile ? 'text-content-tertiary' : 'text-content-secondary',
-          )}
-        >
-          {item.detail1?.replace('Median:', 'Med')}
-        </p>
+        <ShortCardDetail text={item.detail1} className={detailClass} />
+        <ShortCardDetail text={item.detail2} className={detailClass} />
       </div>
     </div>
   );
@@ -1099,6 +1123,7 @@ StaffingCardShort.propTypes = {
     stat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     displayStat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     detail1: PropTypes.string,
+    detail2: PropTypes.string,
   }).isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
 };
@@ -1113,7 +1138,7 @@ export function NetworkSidePanelList({ item, onSelectNode, variant }) {
       className={clsx(
         variant === 'mobile' ? 'focus-panel-dark' : 'focus-panel-light',
         'flex w-full items-center gap-4 rounded-md px-4 py-2 text-left text-sm hover:cursor-pointer',
-        isMobile ? 'bg-zinc-900' : 'bg-white hover:bg-gray-50',
+        isMobile ? 'bg-zinc-900' : 'bg-core-white hover:bg-background-tertiary',
       )}
     >
       {/* Icon */}

@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
 import NetworkSidePanelCardHeader from '../molecule/networkSidePanelCardHeader';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import OwnerNetworkContent from './ownerNetworkContent';
+import { networkPanelWidthClass } from '../../../lib/networkPanelWidth';
 
 /**
  * Side panel shown beside the owner network graph.
@@ -20,7 +22,11 @@ export default function OwnerNetworkSidePanel({
   selectedNodeId,
   onSelectNode,
   variant = 'desktop',
+  nationalBenchmarks,
 }) {
+  const year = data?.meta?.topology?.year ?? null;
+  const financials = data?.meta?.financials ?? null;
+
   const selectedNode = useMemo(() => {
     if (!data?.nodes?.length || !selectedNodeId) return null;
     return (
@@ -34,16 +40,28 @@ export default function OwnerNetworkSidePanel({
     <div
       role="complementary"
       aria-label="Owner details"
-      className="border-border-primary flex h-full min-h-0 w-[300px] shrink-0 flex-col overflow-hidden border xl:w-[375px]"
+      className={clsx(
+        'border-border-primary flex h-full min-h-0 shrink-0 flex-col overflow-hidden border',
+        networkPanelWidthClass,
+      )}
     >
       {selectedNode.type === 'hub' ? (
         <HubPanel
           selectedNode={selectedNode}
           onSelectNode={onSelectNode}
           variant={variant}
+          year={year}
+          financials={financials}
+          nationalBenchmarks={nationalBenchmarks}
         />
       ) : (
-        <OwnerPanel selectedNode={selectedNode} variant={variant} />
+        <OwnerPanel
+          selectedNode={selectedNode}
+          variant={variant}
+          year={year}
+          financials={financials}
+          nationalBenchmarks={nationalBenchmarks}
+        />
       )}
     </div>
   );
@@ -55,7 +73,13 @@ export default function OwnerNetworkSidePanel({
  * Props:
  * selectedNode: The resolved non-hub node to display in the panel header
  */
-function OwnerPanel({ selectedNode, variant }) {
+function OwnerPanel({
+  selectedNode,
+  variant,
+  year,
+  financials,
+  nationalBenchmarks,
+}) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <NetworkSidePanelCardHeader
@@ -67,6 +91,9 @@ function OwnerPanel({ selectedNode, variant }) {
         mode={'non-hub'}
         meta={selectedNode.meta}
         variant={variant}
+        year={year}
+        financials={financials}
+        nationalBenchmarks={nationalBenchmarks}
       />
     </div>
   );
@@ -79,7 +106,14 @@ function OwnerPanel({ selectedNode, variant }) {
  * - selectedNode: The hub node, including shared-facility metadata
  * - onSelectNode: Selects a related owner from the hub relationship list
  */
-function HubPanel({ selectedNode, onSelectNode, variant }) {
+function HubPanel({
+  selectedNode,
+  onSelectNode,
+  variant,
+  year,
+  financials,
+  nationalBenchmarks,
+}) {
   const shared = selectedNode?.meta?.sharedFacilities ?? [];
 
   return (
@@ -94,6 +128,9 @@ function HubPanel({ selectedNode, onSelectNode, variant }) {
         mode={'hub'}
         meta={selectedNode.meta}
         variant={variant}
+        year={year}
+        financials={financials}
+        nationalBenchmarks={nationalBenchmarks}
       />
     </div>
   );
@@ -105,6 +142,13 @@ const sharedFacilityShape = PropTypes.shape({
   ownerName: PropTypes.string,
   count: PropTypes.number,
   cms_ownership_type: PropTypes.string,
+});
+
+/* The money block is re-sourced from the newest year that has cost reports, so
+   it can trail the topology year the rest of the panel reads. */
+const financialsShape = PropTypes.shape({
+  year: PropTypes.number,
+  isFallback: PropTypes.bool,
 });
 
 // Shared node shape used by the side panel and its child panel variants.
@@ -123,7 +167,12 @@ const selectedNodeShape = PropTypes.shape({
 OwnerNetworkSidePanel.propTypes = {
   data: PropTypes.shape({
     nodes: PropTypes.arrayOf(selectedNodeShape),
+    meta: PropTypes.shape({
+      topology: PropTypes.shape({ year: PropTypes.number }),
+      financials: financialsShape,
+    }),
   }),
+  nationalBenchmarks: PropTypes.object,
   selectedNodeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
@@ -132,10 +181,16 @@ OwnerNetworkSidePanel.propTypes = {
 OwnerPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+  year: PropTypes.number,
+  financials: financialsShape,
+  nationalBenchmarks: PropTypes.object,
 };
 
 HubPanel.propTypes = {
   selectedNode: selectedNodeShape.isRequired,
   onSelectNode: PropTypes.func,
   variant: PropTypes.oneOf(['desktop', 'mobile']),
+  year: PropTypes.number,
+  financials: financialsShape,
+  nationalBenchmarks: PropTypes.object,
 };

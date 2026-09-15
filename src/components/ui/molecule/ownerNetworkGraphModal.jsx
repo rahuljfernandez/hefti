@@ -40,6 +40,10 @@ export default function OwnerNetworkGraphModal({
   isOpen,
   onClose,
   ownerId,
+  year,
+  years,
+  onYearChange,
+  nationalBenchmarks,
   restoreFocusRef,
 }) {
   const isDesktop = useIsDesktop();
@@ -80,11 +84,15 @@ export default function OwnerNetworkGraphModal({
   } = useOwnerNetworkGraphController({
     isOpen,
     ownerId,
+    year,
   });
 
   // Encapsulated mobile bottom-sheet drag/snap behavior.
   const {
     setSheetSnap,
+    sheetSnap,
+    cycleSheetSnap,
+    nudgeSheetSnap,
     renderedSheetHeightPx,
     isDraggingSheet,
     sheetScrollRef,
@@ -143,6 +151,10 @@ export default function OwnerNetworkGraphModal({
             onClearSelection={handleClearSelection}
             onSelectSidePanelNode={handleSelectNode}
             onRetry={handleRetry}
+            year={year}
+            years={years}
+            onYearChange={onYearChange}
+            nationalBenchmarks={nationalBenchmarks}
           />
         ) : (
           <OwnerNetworkGraphMobileLayout
@@ -165,16 +177,20 @@ export default function OwnerNetworkGraphModal({
             onSheetPointerDown={handleSheetPointerDown}
             onSheetPointerMove={handleSheetPointerMove}
             onSheetPointerEnd={handleSheetPointerEnd}
+            sheetSnap={sheetSnap}
+            onCycleSheetSnap={cycleSheetSnap}
+            onNudgeSheetSnap={nudgeSheetSnap}
             sheetScrollRef={sheetScrollRef}
             selectedNode={effectiveSelectedNode}
             onSelectContentNode={handleSelectNode}
+            nationalBenchmarks={nationalBenchmarks}
             onClose={onClose}
             onRetry={handleRetry}
           />
         )}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -182,5 +198,9 @@ OwnerNetworkGraphModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   ownerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  year: PropTypes.number,
+  years: PropTypes.arrayOf(PropTypes.number),
+  onYearChange: PropTypes.func,
+  nationalBenchmarks: PropTypes.object,
   restoreFocusRef: PropTypes.shape({ current: PropTypes.any }),
 };

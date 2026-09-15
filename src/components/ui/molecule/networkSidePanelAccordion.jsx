@@ -25,6 +25,7 @@ import clsx from 'clsx';
 export default function NetworkSidePanelAccordion({
   title,
   icon,
+  trailing,
   defaultOpen = false,
   children,
   variant = 'desktop',
@@ -55,6 +56,9 @@ export default function NetworkSidePanelAccordion({
             >
               {icon}
               <span>{title}</span>
+              {/* After the title so the button's accessible name reads
+                  "Financial Overview (2023 data)" rather than the reverse. */}
+              {trailing}
             </span>
             <ChevronDownIcon
               className={clsx(
@@ -74,6 +78,7 @@ export default function NetworkSidePanelAccordion({
 NetworkSidePanelAccordion.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.node,
+  trailing: PropTypes.node,
   defaultOpen: PropTypes.bool,
   children: PropTypes.node,
   variant: PropTypes.oneOf(['desktop', 'mobile']),

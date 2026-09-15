@@ -31,8 +31,8 @@ import {
  */
 
 /* Metric builders per subject type — each status maps its four financial groups
-   to the matching lib builder. Owner builders take only `items` and harmlessly
-   ignore the benchmarks argument, so every builder can be called uniformly. */
+   to the matching lib builder. All three take (items, nationalBenchmarks), so
+   every builder can be called uniformly. */
 const STATS_BUILDERS = {
   facility: {
     profit: buildFacilityProfitStats,

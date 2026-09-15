@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import OwnerNetworkGraphNav from './ownerNetworkGraphNav';
 import NetworkFilter from './networkFilter';
@@ -9,12 +9,15 @@ import {
   NetworkSidePanelSkeleton,
 } from '../atom/skeletons.jsx';
 import NetworkErrorCard from '../atom/networkErrorCard';
+import { networkDataShareCategory } from '../../../lib/shareability/network/ownerNetworkShareActions';
+import { networkGraphShareCategory } from '../../../lib/shareability/network/networkHtmlExport';
 
 /**
  * Desktop presentation shell for the Owner Network Graph modal.
  *
  * Responsibilities:
  * - Renders top nav + floating graph filter controls
+ * - Owns the Sigma ref and the export categories the nav's ShareWidget renders
  * - Renders the Sigma graph canvas and right-side owner panel
  * - Displays loading/error states for desktop layout
  *
@@ -44,10 +47,28 @@ export default function OwnerNetworkGraphDesktopLayout({
   onClearSelection,
   onSelectSidePanelNode,
   onRetry,
+  year,
+  years,
+  onYearChange,
+  nationalBenchmarks,
 }) {
+  const sigmaRef = useRef(null);
+
+  /* Exports describe the graph as currently filtered, so they only exist once
+     there is data on screen — depth lives in the filenames because switching it
+     refetches, making each download a snapshot of one depth. */
+  const shareCategories = useMemo(() => {
+    if (status !== 'ready' || !data) return [];
+    return [
+      networkDataShareCategory({ data, depth }),
+      networkGraphShareCategory({ sigmaRef, data, depth }),
+    ];
+  }, [status, data, depth]);
+
   return (
     <div className="bg-core-white absolute inset-0 flex flex-col overflow-hidden shadow-xl">
       <OwnerNetworkGraphNav
+        shareCategories={shareCategories}
         onClose={onClose}
         searchQuery={searchQuery}
         onSetSearchQuery={onSetSearchQuery}
@@ -55,6 +76,10 @@ export default function OwnerNetworkGraphDesktopLayout({
         isSearchOpen={isSearchOpen}
         onSetIsSearchOpen={onSetIsSearchOpen}
         onSelectSearchResult={onSelectSearchResult}
+        year={year}
+        years={years}
+        onYearChange={onYearChange}
+        topology={data?.meta?.topology}
       />
 
       <div className="relative min-h-0 flex-1">
@@ -64,6 +89,7 @@ export default function OwnerNetworkGraphDesktopLayout({
             depth={depth}
             onSetNodeSizeMetric={onSetNodeSizeMetric}
             nodeSizeMetric={nodeSizeMetric}
+            financials={data?.meta?.financials}
           />
         </div>
 
@@ -104,10 +130,12 @@ export default function OwnerNetworkGraphDesktopLayout({
                 onSearchResults={onSearchResults}
                 nodeSizeMetric={nodeSizeMetric}
                 isSearchOpen={isSearchOpen}
+                sigmaRef={sigmaRef}
               />
             </div>
 
             <OwnerNetworkSidePanel
+              nationalBenchmarks={nationalBenchmarks}
               data={data}
               selectedNodeId={selectedNodeId}
               onClear={onClearSelection}
@@ -147,4 +175,8 @@ OwnerNetworkGraphDesktopLayout.propTypes = {
   onClearSelection: PropTypes.func.isRequired,
   onSelectSidePanelNode: PropTypes.func.isRequired,
   onRetry: PropTypes.func.isRequired,
+  year: PropTypes.number,
+  years: PropTypes.arrayOf(PropTypes.number),
+  onYearChange: PropTypes.func,
+  nationalBenchmarks: PropTypes.object,
 };

@@ -71,8 +71,8 @@ const ownerDeficienciesConfig = [
     valueKey: 'cms_owner_average_deficiencies',
     nationalAvgKey: 'national_health_deficiencies',
     isCurrency: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
   },
 ];
 
@@ -83,8 +83,8 @@ const ownerPenaltiesConfig = [
     valueKey: 'cms_owner_average_penalties',
     nationalAvgKey: 'national_total_penalties',
     isCurrency: false,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
   },
   {
     key: 'Average Fine Amount',
@@ -92,8 +92,8 @@ const ownerPenaltiesConfig = [
     valueKey: 'cms_owner_average_fines',
     nationalAvgKey: 'national_total_amount_of_fines_in_usd',
     isCurrency: true,
-    medianKey: 'N/A',
-    stdDevKey: 'N/A',
+    median: 'N/A',
+    stdDev: 'N/A',
   },
 ];
 
@@ -160,8 +160,8 @@ function buildOwnerStats(config, metricsSource, nationalBenchmarks) {
       isCurrency: metric.isCurrency,
       rating: comparison,
       ratingColor: comparisonColor,
-      detail1: `Median: ${metric.medianKey}`,
-      detail2: `Std Dev: ${metric.stdDevKey}`,
+      detail1: `Median: ${format(metric, metric.median)}`,
+      detail2: `Std Dev: ${format(metric, metric.stdDev)}`,
     };
   });
 }

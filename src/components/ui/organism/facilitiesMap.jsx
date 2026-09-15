@@ -338,7 +338,7 @@ export default function FacilitiesMap({
             reported by only some facilities. Say both rather than letting the
             markers imply the margins are current and the grey ones look broken. */}
         {isFinancial && financialYear && (
-          <p className="text-paragraph-xs text-content-tertiary mt-2">
+          <p className="text-paragraph-xs text-content-secondary mt-2">
             Operating margin: {financialYear}
             {isFallback && ' (most recent year with broad reporting)'}
             {marginCoverage < totalCount &&

@@ -8,6 +8,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
  * - `isDesktop`: disables mobile auto-snap behavior
  * - `hasSelection`: promotes sheet to `mid` when a node is selected
  */
+const SNAP_ORDER = ['peek', 'mid', 'full'];
+
 export default function useOwnerNetworkSheet({
   isOpen,
   ownerId,
@@ -69,11 +71,13 @@ export default function useOwnerNetworkSheet({
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     if (!(e.target instanceof Element)) return;
 
-    // Don't start drag from interactive controls.
+    /* Don't start drag from interactive controls, except the grab handle,
+       which is a button so it has a keyboard path but still drags. */
     const interactiveTarget = e.target.closest(
       'input,button,a,textarea,select,[data-no-sheet-drag]',
     );
-    if (interactiveTarget) return;
+    if (interactiveTarget && !interactiveTarget.hasAttribute('data-sheet-drag'))
+      return;
 
     // If content is scrolled, let users keep scrolling content first.
     const scroller = sheetScrollRef.current;
@@ -113,6 +117,17 @@ export default function useOwnerNetworkSheet({
     dragStateRef.current = { startY: 0, startHeight: 0, pointerId: null };
   };
 
+  const cycleSheetSnap = () =>
+    setSheetSnap(
+      (prev) => SNAP_ORDER[(SNAP_ORDER.indexOf(prev) + 1) % SNAP_ORDER.length],
+    );
+
+  const nudgeSheetSnap = (direction) =>
+    setSheetSnap((prev) => {
+      const next = SNAP_ORDER.indexOf(prev) + direction;
+      return SNAP_ORDER[Math.max(0, Math.min(SNAP_ORDER.length - 1, next))];
+    });
+
   // Reset sheet whenever modal context changes.
   useEffect(() => {
     if (!isOpen) return;
@@ -143,6 +158,9 @@ export default function useOwnerNetworkSheet({
   // Expose imperative handlers + derived values needed by the mobile layout.
   return {
     setSheetSnap,
+    sheetSnap,
+    cycleSheetSnap,
+    nudgeSheetSnap,
     renderedSheetHeightPx,
     isDraggingSheet,
     sheetScrollRef,

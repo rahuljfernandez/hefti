@@ -22,14 +22,21 @@ export default function OwnerNetworkSearchBar({
   variant = 'desktop',
 }) {
   const isMobile = variant === 'mobile';
+  /* Wrapper and input share one width: the search icon is positioned against
+     the wrapper but cleared by the input's own left padding, so a mismatch
+     leaves the icon outside the field. */
+  const widthClass = isMobile ? 'w-full' : 'w-[280px]';
   const [activeIndex, setActiveIndex] = useState(-1);
   const listboxId = useId();
   const optionRefs = useRef([]);
   const hasResults = searchResults.length > 0;
+
+  const isPopupOpen = isSearchOpen && hasResults;
   const activeResult =
     activeIndex >= 0 && activeIndex < searchResults.length
       ? searchResults[activeIndex]
       : null;
+  const blurTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (activeIndex < 0) return;
@@ -84,19 +91,19 @@ export default function OwnerNetworkSearchBar({
 
     if (event.key === 'Escape') {
       event.preventDefault();
+      event.stopPropagation();
       onSetIsSearchOpen(false);
       resetSearchNavigation();
     }
   }
 
+  useEffect(() => () => clearTimeout(blurTimeoutRef.current), []);
+
   return (
     <div
-      className={clsx(
-        'relative flex flex-1 items-center',
-        isMobile ? 'w-full' : 'w-[240px] justify-center gap-6',
-      )}
+      className={clsx('relative flex flex-1 items-center', widthClass)}
       onBlur={() => {
-        setTimeout(() => {
+        blurTimeoutRef.current = setTimeout(() => {
           onSetIsSearchOpen(false);
           resetSearchNavigation();
         }, 100);
@@ -107,8 +114,8 @@ export default function OwnerNetworkSearchBar({
         type="text"
         role="combobox"
         aria-autocomplete="list"
-        aria-expanded={isSearchOpen}
-        aria-controls={isSearchOpen ? listboxId : undefined}
+        aria-expanded={isPopupOpen}
+        aria-controls={isPopupOpen ? listboxId : undefined}
         aria-activedescendant={
           activeResult ? `${listboxId}-option-${activeResult.id}` : undefined
         }
@@ -120,6 +127,7 @@ export default function OwnerNetworkSearchBar({
           resetSearchNavigation();
         }}
         onFocus={() => {
+          clearTimeout(blurTimeoutRef.current);
           onSetIsSearchOpen(true);
           resetSearchNavigation();
         }}
@@ -129,15 +137,20 @@ export default function OwnerNetworkSearchBar({
         onKeyDown={handleKeyDown}
         placeholder="Search nodes..."
         className={clsx(
-          'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary rounded-full border px-3 py-1.5',
-          'placeholder:text-content-tertiary border-border-inverse-primary pl-9',
-          isMobile ? 'w-full' : 'w-[280px]',
+          'focus-ring-dark text-label-base text-content-tertiary bg-background-inverse-secondary h-10 rounded-full border pr-3 pl-9',
+          'placeholder:text-content-tertiary border-border-inverse-primary',
+          widthClass,
         )}
       />
       {/* Dropdown */}
       {isSearchOpen && searchResults.length > 0 && (
-        <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border border-gray-200 shadow-lg">
-          <ul id={listboxId} role="listbox" className="max-h-64 overflow-auto py-1">
+        <div className="bg-core-white border-border-primary absolute top-full left-0 z-500 mt-3 w-full overflow-hidden rounded-lg border shadow-lg">
+          <ul
+            id={listboxId}
+            role="listbox"
+            aria-label="Node search results"
+            className="max-h-64 overflow-auto py-1"
+          >
             {searchResults.map((result, index) => (
               <li
                 ref={(element) => {
@@ -151,14 +164,12 @@ export default function OwnerNetworkSearchBar({
                 <button
                   type="button"
                   tabIndex={-1}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handlePick(result);
-                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handlePick(result)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={clsx(
-                    'flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:cursor-pointer hover:bg-gray-50',
-                    activeIndex === index && 'bg-gray-50',
+                    'hover:bg-background-tertiary flex w-full items-center justify-between px-3 py-2 text-left hover:cursor-pointer',
+                    activeIndex === index && 'bg-background-tertiary',
                   )}
                 >
                   <span className="text-label-sm text-core-black truncate">
@@ -166,7 +177,7 @@ export default function OwnerNetworkSearchBar({
                   </span>
 
                   {result.count != null && (
-                    <span className="ml-3 shrink-0 text-xs text-gray-500">
+                    <span className="text-label-xs text-content-secondary ml-3 shrink-0">
                       {result.count} {result.count === 1 ? 'Link' : 'Links'}
                     </span>
                   )}
@@ -179,12 +190,17 @@ export default function OwnerNetworkSearchBar({
       {isSearchOpen &&
         searchQuery.trim().length > 0 &&
         searchResults.length === 0 && (
-          <div className="bg-core-white absolute top-full left-0 z-500 mt-3 w-full rounded-lg border border-gray-200 shadow-lg">
+          <div className="bg-core-white border-border-primary absolute top-full left-0 z-500 mt-3 w-full rounded-lg border shadow-lg">
             <div className="text-label-sm text-core-black px-4 py-3">
               No results found
             </div>
           </div>
         )}
+      <span role="status" className="sr-only">
+        {isSearchOpen && searchQuery.trim().length > 0
+          ? `${searchResults.length} ${searchResults.length === 1 ? 'result' : 'results'}`
+          : ''}
+      </span>
     </div>
   );
 }

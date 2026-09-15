@@ -1,0 +1,350 @@
+/*
+ * networkViewer.runtime.css
+ *
+ * Stylesheet inlined verbatim into the exported network HTML file (see
+ * networkHtmlExport.js). Standalone: no Tailwind, no design tokens, nothing
+ * fetched — the export has to render offline, on any machine, years from now.
+ * Keep it that way. Inter Variable is the app's typeface and arrives as an
+ * embedded @font-face prepended by the exporter, so the stack below is what
+ * renders for glyphs that face does not cover.
+ */
+
+:root {
+  --bg: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --panel: #f9fafb;
+  --hub: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Column flex rather than a height calc on main: the header wraps to two lines
+   on a narrow window, and any hardcoded offset overflows the viewport when it
+   does. */
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font:
+    14px/1.5 'Inter Variable',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* Centered rather than baseline-aligned: the mark is a graphic, and a baseline
+   sits it on its bottom edge instead of level with the text beside it. */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+header .mark {
+  height: 15px;
+  width: auto;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+/* One flex child so space-between has something to push the mark away from. */
+header .title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 16px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+header .meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* min-height lets the graph shrink when the header wraps instead of pushing the
+   footer off screen. */
+main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+footer {
+  padding: 8px 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+svg.graph {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+  background: var(--bg);
+}
+
+svg.graph.panning {
+  cursor: grabbing;
+}
+
+.edge {
+  stroke: #a0a0a0;
+  stroke-opacity: 0.55;
+}
+
+.node circle {
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.node text {
+  font-size: 11px;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Labels the exporter could not place without overlapping one already drawn.
+   They stay in the markup so hovering still reveals them, the way the live
+   graph labels whatever you point at. */
+.node.label-crowded text {
+  opacity: 0;
+}
+
+.node:hover text {
+  opacity: 1;
+}
+
+/* Mirrors the live graph's reducer: the active node and its direct neighbors
+   stay lit, everything else recedes rather than disappearing. */
+.graph.focus .node,
+.graph.focus .edge {
+  opacity: 0.08;
+}
+
+.graph.focus .node.hl,
+.graph.focus .edge.hl {
+  opacity: 1;
+}
+
+.graph.focus .node.hl text {
+  opacity: 1;
+}
+
+/* A crowded label still loses to the dimming above when it is not in the
+   highlighted set — otherwise hidden nodes would shout their names. */
+.graph.focus .node.label-crowded:not(.hl) text {
+  opacity: 0;
+}
+
+.node.pinned circle {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+aside {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 300px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  padding: 14px 16px;
+}
+
+aside[hidden] {
+  display: none;
+}
+
+aside .name {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  padding-right: 20px;
+}
+
+aside .type {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+aside dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+
+aside dt {
+  color: var(--muted);
+}
+
+aside dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+aside h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 14px 0 6px;
+}
+
+aside ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+aside li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  border-top: 1px solid var(--line);
+}
+
+aside li span:last-child {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+aside .profile {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+aside .close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* Legend and directions ride on the drawing rather than in the header — the
+   graph is what the space is for. */
+.overlay {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.legend,
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  background: rgb(255 255 255 / 85%);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.owner-index {
+  border-top: 1px solid var(--line);
+  padding: 8px 20px;
+  font-size: 12px;
+}
+
+.owner-index summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.owner-index ul {
+  margin: 8px 0 4px;
+  padding: 0;
+  list-style: none;
+  columns: 3;
+  column-gap: 24px;
+}
+
+.owner-index li {
+  break-inside: avoid;
+  padding: 2px 0;
+}
+
+.owner-index a {
+  color: var(--ink);
+}
+
+.owner-index span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .owner-index ul {
+    columns: 1;
+  }
+}

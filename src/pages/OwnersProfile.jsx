@@ -4,7 +4,7 @@ import {
   useLocation,
   useSearchParams,
 } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
@@ -22,7 +22,8 @@ import {
 } from '../lib/breadcrumbPages';
 import { ProfilePageSkeleton } from '../components/ui/atom/skeletons.jsx';
 import { ErrorBanner } from '../components/ui/atom/errorBanner.jsx';
-import OwnersNetworkGraphLauncher from '../components/ui/molecule/ownerNetworkGraphLauncher';
+import OwnerNetworkCtaBanner from '../components/ui/molecule/ownerNetworkGraphCTA';
+import OwnerNetworkGraphModal from '../components/ui/molecule/ownerNetworkGraphModal';
 import TabsShell from '../components/ui/molecule/tabsShell';
 import { ownerTabsDescriptions } from '../lib/tabDescriptions';
 import DeficienciesTab from '../components/ui/molecule/tabs/deficienciesTab';
@@ -63,25 +64,51 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://hefti-data-api.ddev.site:3000/api';
 
-// TODO: replace with years returned from the API once the endpoint supports year filtering.
-const AVAILABLE_YEARS = [
-  2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017,
-];
+/* Owner rows only exist for 2020-2026 — the ownership panel starts a decade
+   later than the facility one, so earlier years resolve to a year the picker did
+   not ask for. This is the range `?year=` is validated against; the picker itself
+   narrows to the years the owner in front of you actually has. */
+const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export default function OwnersProfile() {
   const { slug } = useParams();
   const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [owner, setOwner] = useState(null);
+  const [ownerProfileKey, setOwnerProfileKey] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [settledProfileKey, setSettledProfileKey] = useState(null);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [nationalBenchmarks, setNationalBenchmarks] = useState(null);
+  const [graphOpen, setGraphOpen] = useState(false);
+  const [graphSeedOwnerId, setGraphSeedOwnerId] = useState(null);
+  const [graphOwnerSlug, setGraphOwnerSlug] = useState(null);
+  const graphTriggerRef = useRef(null);
+  const canonicalProfileKeyRef = useRef(null);
   const requestedYear = Number(searchParams.get('year'));
   const selectedYear = AVAILABLE_YEARS.includes(requestedYear)
     ? requestedYear
     : AVAILABLE_YEARS[0];
+  const profileKey = `${slug}:${selectedYear}`;
+  const resolvedOwnerYear = Number(owner?.year);
+  const canonicalOwnerYear = AVAILABLE_YEARS.includes(resolvedOwnerYear)
+    ? resolvedOwnerYear
+    : null;
+  const needsCanonicalYear =
+    !loading &&
+    settledProfileKey === profileKey &&
+    ownerProfileKey === profileKey &&
+    canonicalOwnerYear != null &&
+    canonicalOwnerYear !== selectedYear;
+  const loadedSlug = useRef(null);
+
+  /* Most owners are absent from most years — only 16% span the whole panel — so
+     the full range would offer years that silently resolve to a different one. */
+  const ownerYears = owner?.meta?.availableYears?.length
+    ? owner.meta.availableYears
+    : AVAILABLE_YEARS;
 
   const navigate = useNavigate();
 
@@ -99,11 +126,28 @@ export default function OwnersProfile() {
     );
   };
 
+  const handleGraphOpen = () => {
+    setGraphSeedOwnerId(owner.id);
+    setGraphOwnerSlug(slug);
+    setGraphOpen(true);
+  };
+
   useEffect(() => {
+    if (canonicalProfileKeyRef.current === profileKey) {
+      canonicalProfileKeyRef.current = null;
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
 
     setLoading(true);
-    setOwner(null);
+    // A year change keeps the loaded owner available only for the graph modal.
+    if (loadedSlug.current !== slug) {
+      setOwner(null);
+      setOwnerProfileKey(null);
+    }
+    loadedSlug.current = slug;
     setError(null);
     setNotFound(false);
 
@@ -123,6 +167,7 @@ export default function OwnersProfile() {
           return;
         }
         setOwner(data);
+        setOwnerProfileKey(profileKey);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -130,11 +175,43 @@ export default function OwnersProfile() {
         }
       })
       .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) {
+          setSettledProfileKey(profileKey);
+          setLoading(false);
+        }
       });
 
     return () => controller.abort();
-  }, [slug, selectedYear]);
+  }, [profileKey, slug, selectedYear]);
+
+  /* Keep fallback data and the URL on the same year. Marking the canonical key
+     as already settled avoids fetching the owner response a second time. */
+  useEffect(() => {
+    if (!needsCanonicalYear) return;
+
+    const canonicalKey = `${slug}:${canonicalOwnerYear}`;
+    canonicalProfileKeyRef.current = canonicalKey;
+    setSettledProfileKey(canonicalKey);
+    setOwnerProfileKey(canonicalKey);
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set('year', String(canonicalOwnerYear));
+        return next;
+      },
+      { replace: true, state },
+    );
+  }, [canonicalOwnerYear, needsCanonicalYear, setSearchParams, slug, state]);
+
+  /* Route changes used to unmount the launcher and close its modal implicitly.
+     The modal now lives at page scope, so close it explicitly before discarding
+     the seed owner from the previous route. */
+  useEffect(() => {
+    if (!graphOwnerSlug || graphOwnerSlug === slug) return;
+    setGraphOpen(false);
+    setGraphSeedOwnerId(null);
+    setGraphOwnerSlug(null);
+  }, [graphOwnerSlug, slug]);
 
   useEffect(() => {
     if (!owner?.slug || owner.slug === slug) return;
@@ -149,7 +226,15 @@ export default function OwnersProfile() {
       },
       { replace: true, state },
     );
-  }, [owner?.slug, owner?.year, slug, selectedYear, navigate, state, searchParams]);
+  }, [
+    owner?.slug,
+    owner?.year,
+    slug,
+    selectedYear,
+    navigate,
+    state,
+    searchParams,
+  ]);
 
   useEffect(() => {
     /* National averages power the highlights comparison badges; the owner
@@ -214,12 +299,14 @@ export default function OwnersProfile() {
     ],
     [ownerStatsRows, relatedFacilities, slug],
   );
+  const profileLoading =
+    loading || settledProfileKey !== profileKey || needsCanonicalYear;
 
   return (
     <div className="bg-background-secondary">
       <Breadcrumb pages={breadcrumbPages} />
       <LayoutPage>
-        {loading ? (
+        {profileLoading ? (
           <ProfilePageSkeleton />
         ) : error ? (
           <>
@@ -250,13 +337,16 @@ export default function OwnersProfile() {
               func={getBadgeColorOwnerProfile}
               onClick={handleResearchClick}
               subjectType="owner"
-              years={AVAILABLE_YEARS}
+              years={ownerYears}
               selectedYear={selectedYear}
               onYearChange={handleYearChange}
               shareCategories={shareCategories}
             />
             <div className="pb-4">
-              <OwnersNetworkGraphLauncher ownerId={owner.id} />
+              <OwnerNetworkCtaBanner
+                triggerRef={graphTriggerRef}
+                onOpen={handleGraphOpen}
+              />
             </div>
             {/* Shared tab shell; active tab content is chosen in the render function below. */}
             <TabsShell
@@ -375,6 +465,19 @@ export default function OwnersProfile() {
               )}
             </div>
           </>
+        )}
+
+        {graphSeedOwnerId != null && (
+          <OwnerNetworkGraphModal
+            isOpen={graphOpen && graphOwnerSlug === slug}
+            onClose={() => setGraphOpen(false)}
+            ownerId={graphSeedOwnerId}
+            year={selectedYear}
+            years={ownerYears}
+            onYearChange={handleYearChange}
+            nationalBenchmarks={nationalBenchmarks}
+            restoreFocusRef={graphTriggerRef}
+          />
         )}
       </LayoutPage>
     </div>

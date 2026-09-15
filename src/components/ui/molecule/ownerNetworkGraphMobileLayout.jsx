@@ -42,9 +42,13 @@ export default function OwnerNetworkGraphMobileLayout({
   onSheetPointerDown,
   onSheetPointerMove,
   onSheetPointerEnd,
+  sheetSnap,
+  onCycleSheetSnap,
+  onNudgeSheetSnap,
   sheetScrollRef,
   selectedNode,
   onSelectContentNode,
+  nationalBenchmarks,
   onClose,
   onRetry,
 }) {
@@ -55,7 +59,7 @@ export default function OwnerNetworkGraphMobileLayout({
 
         {status === 'error' && (
           <>
-            <div className="pointer-events-none absolute inset-0 select-none opacity-60">
+            <div className="pointer-events-none absolute inset-0 opacity-60 select-none">
               <NetworkGraphSkeleton error />
             </div>
             <div className="absolute inset-0 z-10 grid place-items-center px-6">
@@ -94,7 +98,25 @@ export default function OwnerNetworkGraphMobileLayout({
             onPointerCancel={onSheetPointerEnd}
           >
             <div className="relative flex shrink-0 touch-none justify-center py-4">
-              <div className="bg-content-inverse-primary h-1 w-10 rounded-full" />
+              <button
+                type="button"
+                data-sheet-drag
+                onClick={onCycleSheetSnap}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    onNudgeSheetSnap(1);
+                  } else if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    onNudgeSheetSnap(-1);
+                  }
+                }}
+                aria-label="Resize details panel"
+                aria-expanded={sheetSnap !== 'peek'}
+                className="focus-ring-dark rounded-full px-6 py-2"
+              >
+                <span className="bg-content-inverse-primary block h-1 w-10 rounded-full" />
+              </button>
               <button
                 type="button"
                 onClick={onClose}
@@ -139,6 +161,9 @@ export default function OwnerNetworkGraphMobileLayout({
                   meta={selectedNode.meta}
                   onSelectNode={onSelectContentNode}
                   variant="mobile"
+                  year={data?.meta?.topology?.year ?? null}
+                  financials={data?.meta?.financials ?? null}
+                  nationalBenchmarks={nationalBenchmarks}
                 />
               )}
             </div>
@@ -174,9 +199,13 @@ OwnerNetworkGraphMobileLayout.propTypes = {
   onSheetPointerDown: PropTypes.func.isRequired,
   onSheetPointerMove: PropTypes.func.isRequired,
   onSheetPointerEnd: PropTypes.func.isRequired,
+  sheetSnap: PropTypes.oneOf(['peek', 'mid', 'full']).isRequired,
+  onCycleSheetSnap: PropTypes.func.isRequired,
+  onNudgeSheetSnap: PropTypes.func.isRequired,
   sheetScrollRef: PropTypes.shape({ current: PropTypes.any }),
   selectedNode: PropTypes.object,
   onSelectContentNode: PropTypes.func.isRequired,
+  nationalBenchmarks: PropTypes.object,
   onClose: PropTypes.func.isRequired,
   onRetry: PropTypes.func.isRequired,
 };
