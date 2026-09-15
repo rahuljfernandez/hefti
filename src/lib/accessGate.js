@@ -41,7 +41,12 @@ export function setAccessToken(token, exp) {
 }
 
 export function clearAccessToken() {
-  document.cookie = `${ACCESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+  const host = typeof window === 'undefined' ? '' : window.location.hostname;
+  const domain =
+    host === 'heftiresearch.com' || host.endsWith('.heftiresearch.com')
+      ? '; Domain=.heftiresearch.com'
+      : '';
+  document.cookie = `${ACCESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${domain}`;
 }
 
 export function hasAccessSession() {
