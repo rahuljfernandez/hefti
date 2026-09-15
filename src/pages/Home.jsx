@@ -22,6 +22,7 @@ import StateRankingsHiLowViz from '../components/ui/organism/stateRankingsHiLowV
 import ExploreByState from '../components/ui/organism/exploreByState.jsx';
 import HomeAcquisitionsCta from '../components/ui/organism/homeAcquisitionsCta.jsx';
 import CtaLinkButton from '../components/ui/atom/ctaLinkButton';
+import { apiFetch } from '../lib/apiClient';
 
 /**
  * Home page
@@ -46,11 +47,11 @@ export default function Home() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${API_BASE_URL}/top-chains`).then((res) => {
+      apiFetch(`${API_BASE_URL}/top-chains`).then((res) => {
         if (!res.ok) throw new Error('Failed to load top chains');
         return res.json();
       }),
-      fetch(`${API_BASE_URL}/top-owners`).then((res) => {
+      apiFetch(`${API_BASE_URL}/top-owners`).then((res) => {
         if (!res.ok) throw new Error('Failed to load top owners');
         return res.json();
       }),

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { buildContextCharts } from '../lib/contextChart';
 import { toTitleCase } from '../lib/toTitleCase';
+import { apiFetch } from '../lib/apiClient';
 
 /* The on-load context chart pulls subject + national data from the regular data
    API (the same endpoints the profile pages use), which is a separate env var
@@ -46,10 +47,10 @@ export default function useResearchContextCharts({
         : `facilities/${slug}`;
 
     Promise.all([
-      fetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
+      apiFetch(`${DATA_API_BASE_URL}/${subjectPath}`).then((response) =>
         response.ok ? response.json() : null,
       ),
-      fetch(`${DATA_API_BASE_URL}/national`)
+      apiFetch(`${DATA_API_BASE_URL}/national`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
     ])

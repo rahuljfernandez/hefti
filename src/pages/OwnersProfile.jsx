@@ -10,6 +10,7 @@ import Breadcrumb from '../components/ui/molecule/breadcrumb';
 import LayoutPage from '../components/ui/atom/layout-page';
 import ProfileHeader from '../components/ui/molecule/profileHeader';
 import { Heading } from '../components/ui/atom/heading';
+import { apiFetch } from '../lib/apiClient';
 import ProviderHighlights from '../components/ui/organism/providerHighlights';
 import ListContainer from '../components/ui/organism/ListContainer';
 import { ListContainerDivider } from '../components/ui/organism/ListContainer';
@@ -151,7 +152,7 @@ export default function OwnersProfile() {
     setError(null);
     setNotFound(false);
 
-    fetch(
+    apiFetch(
       `${API_BASE_URL}/owners/${encodeURIComponent(slug)}?year=${selectedYear}`,
       { signal: controller.signal },
     )
