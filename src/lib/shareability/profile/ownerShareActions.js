@@ -1,7 +1,7 @@
 import { rowsToCsv, downloadZip } from '../primitives/shareActions';
 import { ArchiveBoxArrowDownIcon } from '@heroicons/react/24/outline';
 import { toTitleCase } from '../../toTitleCase';
-import { ownerRoleMap } from '../../ownerRoleHelper';
+import { ownerRoleLabels } from '../../ownerRoleHelper';
 import { formatMetricValue, formatUSD } from '../../stringFormatters';
 import { buildOwnerCardStats } from '../../providerHighlightsMetrics';
 import {
@@ -34,10 +34,9 @@ import {
  * composes these into its header export set.
  */
 
-/* Owner profile CSV: one row per associated facility. Rows are the
-   relatedFacilities the page already derives (facility fields spread with the
-   owner's role on that facility). Owner Role uses the same ownerRoleMap label
-   as the on-page RelatedFacilities card. */
+/* Owner profile CSV: one row per associated facility, with every role the owner
+   holds there. Owner Role uses the same labels as the on-page RelatedFacilities
+   card. */
 export const ownerFacilitiesExportConfig = {
   filename: 'related-facilities.csv',
   tooltip: 'Download associated facilities as CSV',
@@ -48,8 +47,7 @@ export const ownerFacilitiesExportConfig = {
     toTitleCase(facility.city || ''),
     facility.state || '',
     facility.overall_rating ?? '',
-    ownerRoleMap[facility.cms_ownership_role]?.label ??
-      toTitleCase(facility.cms_ownership_role || ''),
+    ownerRoleLabels(facility.cms_ownership_roles).join('; '),
   ],
 };
 
