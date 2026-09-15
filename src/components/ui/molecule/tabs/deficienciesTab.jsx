@@ -81,9 +81,7 @@ export default function DeficienciesTab({
      facilities fetched for it and passed in as `facilities`. */
   let burdenFacilities = [];
   if (status === 'owner') {
-    burdenFacilities =
-      metricsSource?.facility_ownership_links?.map((link) => link.facility) ??
-      [];
+    burdenFacilities = metricsSource?.facilities ?? [];
   } else if (status === 'state') {
     burdenFacilities = facilities ?? [];
   }

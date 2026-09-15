@@ -49,21 +49,10 @@ function titleholderName(facility) {
 }
 
 /* One row per facility the owner is linked to that matched a Realie parcel.
-   Links repeat a facility once per ownership role, so they are deduped by
-   facility id before anything counts them.
    Addresses come from the facility's own columns, not realie_address: they are
    fully populated and are the address the rest of the profile already shows. */
 export function buildOwnerProperties(owner) {
-  const seen = new Map();
-
-  for (const link of owner?.facility_ownership_links ?? []) {
-    const facility = link?.facility;
-    if (!facility || seen.has(facility.id)) continue;
-    if (!hasPropertyData(facility)) continue;
-    seen.set(facility.id, facility);
-  }
-
-  return [...seen.values()].map((facility) => {
+  return (owner?.facilities ?? []).filter(hasPropertyData).map((facility) => {
     const market = marketValue(facility);
     return {
       id: String(facility.id),
