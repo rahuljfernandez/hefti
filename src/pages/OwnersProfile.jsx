@@ -254,15 +254,7 @@ export default function OwnersProfile() {
     };
   }, [selectedYear]);
 
-  // Use related facilities from API if available
-  const relatedFacilities = useMemo(
-    () =>
-      owner?.facility_ownership_links?.map((link) => ({
-        ...link.facility,
-        cms_ownership_role: link.cms_ownership_role,
-      })) || [],
-    [owner],
-  );
+  const relatedFacilities = useMemo(() => owner?.facilities ?? [], [owner]);
 
   //click handler to open the AI chat
   const handleResearchClick = () => {

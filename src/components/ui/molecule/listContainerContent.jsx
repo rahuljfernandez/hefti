@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Divider } from '../atom/divider';
 import { toTitleCase } from '../../../lib/toTitleCase';
 import { badgeConfig, getCmprColor } from '../../../lib/getBadgeColor';
-import { ownerRoleMap } from '../../../lib/ownerRoleHelper';
+import { ownerRoleMap, ownerRoleLabels } from '../../../lib/ownerRoleHelper';
 import LayoutCard from '../atom/layout-card';
 import OutlineButton from '../atom/outlineButton';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
@@ -298,8 +298,9 @@ Penalties.propTypes = {
  * - Uses one outer link so keyboard users tab through the list one card at a time
  */
 export function RelatedFacilities({ item }) {
-  const roleKey = item.cms_ownership_role || 'N/A';
-  const roleLabel = ownerRoleMap[roleKey]?.label;
+  const roleLabel =
+    ownerRoleLabels(item.cms_ownership_roles).join(', ') ||
+    ownerRoleMap['N/A'].label;
   const facilityHref = `/nursing-homes/facilities/${item.slug}`;
   const facilityName = toTitleCase(item.provider_name);
   return (
