@@ -69,7 +69,7 @@ export const contactCard = {
     '3rd Floor, New York, NY 10022',
   ],
   phone: { display: '(646) 962-8001', href: 'tel:+16469628001' },
-  email: 'hefti@med.cornell.edu',
+  email: 'heftiresearch@gmail.com',
   funder: { name: 'Arnold Ventures', href: 'https://arnoldventures.org' },
 };
 

@@ -46,6 +46,12 @@ const people = [
     photo: '/bios/yuting-fan.jpg',
     bio: 'Yuting Fan is a software engineer with a background in data science, focused on building intelligence systems from complex public data.\n\nFor this project, Yuting designed and implemented core components of a multi-source acquisition intelligence platform, developing data integration pipelines, entity resolution workflows, and automated validation processes that transform fragmented regulatory signals into reliable transaction intelligence.\n\nYutings interests lie in building data-intensive systems that bridge software engineering, large-scale information integration, and real-world decision making.',
   },
+  {
+    name: 'Dr Jiebing Wen',
+    role: 'Associate',
+    photo: '/bios/dr-wen.jpg',
+    bio: 'Dr. Jiebing Wen is a research assistant professor in the Health Outcomes Division of the College of Pharmacy at The University of Texas at Austin. Her research applies health economics methods, including quasi-experimental designs and machine-learning techniques, to examine program integrity and care quality in nursing homes and hospices. Her work integrates ownership, financial, real estate, staffing, quality, and enforcement data. She has been a member of the HEFTI team since 2023, when she was a research associate at Weill Cornell Medicine.',
+  },
 ];
 
 function PersonCard({ name, role, photo, bio }) {
