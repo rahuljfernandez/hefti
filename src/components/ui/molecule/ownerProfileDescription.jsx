@@ -6,8 +6,20 @@ import { formatUSD } from '../../../lib/stringFormatters';
  * Component for the owner profile
  */
 
+/* An owner can hold several roles at one facility (e.g. direct owner and
+   corporate officer), so total roles and total facilities differ. Counted from
+   the facility list, which carries each facility's roles. */
+function countOwnershipRoles(facilities) {
+  return (facilities ?? []).reduce(
+    (total, facility) =>
+      total + new Set(facility.cms_ownership_roles ?? []).size,
+    0,
+  );
+}
+
 export default function OwnerProfileDescription({ items }) {
   if (!items) return <div>No owner data available.</div>;
+  const totalRoles = countOwnershipRoles(items.facilities);
   return (
     <div className="mt-6">
       <div className="text-paragraph-base grid grid-cols-1 gap-x-8 gap-y-6 font-sans md:grid-cols-2">
@@ -15,9 +27,18 @@ export default function OwnerProfileDescription({ items }) {
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-content-secondary text-label-sm tracking-wider">
-              OWNERSHIP ROLES
+              TOTAL FACILITIES
             </p>
-            <p className="">{items.cms_owner_total_facilities || '—'}</p>
+            <p className="">
+              {items.cms_owner_total_facilities?.toLocaleString() || '—'}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-content-secondary text-label-sm tracking-wider">
+              TOTAL ROLES
+            </p>
+            <p className="">{totalRoles ? totalRoles.toLocaleString() : '—'}</p>
           </div>
 
           <div>
@@ -90,7 +111,7 @@ export default function OwnerProfileDescription({ items }) {
 
           <div>
             <p className="text-content-secondary text-label-sm tracking-wider">
-              OWNERSHIP ROLES
+              ROLE BREAKDOWN
             </p>
             <p className="text-content-secondary">
               {' '}
@@ -109,7 +130,7 @@ export default function OwnerProfileDescription({ items }) {
             <p className="text-content-secondary">
               {' '}
               <span className="text-core-black font-bold">
-                {items.cms_indirect_ownership_role_n}
+                {items.cms_operational_role_n}
               </span>{' '}
               Operational
             </p>
@@ -136,5 +157,11 @@ OwnerProfileDescription.propTypes = {
     cms_direct_ownership_role_n: PropTypes.number,
     cms_indirect_ownership_role_n: PropTypes.number,
     cms_operational_role_n: PropTypes.number,
+
+    facilities: PropTypes.arrayOf(
+      PropTypes.shape({
+        cms_ownership_roles: PropTypes.arrayOf(PropTypes.string),
+      }),
+    ),
   }),
 };

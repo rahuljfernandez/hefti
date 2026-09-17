@@ -54,6 +54,16 @@ const badgeConfig = {
     color: 'purple',
     label: 'Indirect ownership',
   },
+  /* 2026 data also lists ownership without the "5% OR GREATER" prefix (and with
+     no percentage). Same relationship, so same badge. */
+  'DIRECT OWNERSHIP INTEREST': {
+    color: 'blue',
+    label: 'Direct ownership',
+  },
+  'INDIRECT OWNERSHIP INTEREST': {
+    color: 'purple',
+    label: 'Indirect ownership',
+  },
   '5% OR GREATER MORTGAGE INTEREST': {
     color: 'orange',
     label: 'Mortgage interest',

@@ -7,6 +7,13 @@ export const ownerRoleMap = {
   '5% OR GREATER INDIRECT OWNERSHIP INTEREST': {
     label: 'Indirect Ownership',
   },
+  // 2026 names for the same roles, without the "5% OR GREATER" prefix.
+  'DIRECT OWNERSHIP INTEREST': {
+    label: 'Direct Ownership',
+  },
+  'INDIRECT OWNERSHIP INTEREST': {
+    label: 'Indirect Ownership',
+  },
   '5% OR GREATER MORTGAGE INTEREST': {
     label: 'Mortgage Interest',
   },
