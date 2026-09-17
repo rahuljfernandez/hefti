@@ -14,8 +14,13 @@ import HeftiResearch from './pages/HeftiResearch';
 import LandingPage from './pages/LandingPage';
 import Rankings from './pages/Rankings';
 import Acquisitions from './pages/Acquisitions';
+import AdminAccess from './pages/AdminAccess';
 import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ui/molecule/scrollToTop';
+import {
+  AccessGateProvider,
+  RequireAccess,
+} from './components/ui/organism/accessGateProvider';
 
 class RouteCrashFallback extends React.Component {
   constructor(props) {
@@ -70,38 +75,43 @@ function App() {
     <>
       <ScrollToTop />
       <RouteCrashFallback>
+      <AccessGateProvider>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<LandingPage />} />
-          <Route path="about" element={<About />} />
-          <Route path="contact-us" element={<ContactUs />} />
-          <Route path="sandbox" element={<Sandbox />} />
-          <Route path="nursing-homes" element={<Outlet />}>
-            <Route index element={<Home />} />
-            <Route path="facilities" element={<Facilities />} />
-            <Route path="facilities/:slug" element={<FacilityProfile />} />
-            <Route
-              path="facilities/:slug/research"
-              element={<HeftiResearch />}
-            />
-            <Route path="owners" element={<Owners />} />
-            <Route path="owners/:slug" element={<OwnersProfile />} />
-            <Route path="owners/:slug/research" element={<HeftiResearch />} />
-            <Route path="acquisitions" element={<Acquisitions />} />
-            <Route path="states/:state" element={<StatesProfile />} />
-            <Route path="rankings/:type" element={<Rankings />} />
+          <Route element={<RequireAccess />}>
+            <Route path="about" element={<About />} />
+            <Route path="contact-us" element={<ContactUs />} />
+            <Route path="sandbox" element={<Sandbox />} />
+            <Route path="admin/access" element={<AdminAccess />} />
+            <Route path="nursing-homes" element={<Outlet />}>
+              <Route index element={<Home />} />
+              <Route path="facilities" element={<Facilities />} />
+              <Route path="facilities/:slug" element={<FacilityProfile />} />
+              <Route
+                path="facilities/:slug/research"
+                element={<HeftiResearch />}
+              />
+              <Route path="owners" element={<Owners />} />
+              <Route path="owners/:slug" element={<OwnersProfile />} />
+              <Route path="owners/:slug/research" element={<HeftiResearch />} />
+              <Route path="acquisitions" element={<Acquisitions />} />
+              <Route path="states/:state" element={<StatesProfile />} />
+              <Route path="rankings/:type" element={<Rankings />} />
+            </Route>
+            <Route path="landing" element={<Navigate to="/" replace />} />
+            {LEGACY_PRODUCT_PATHS.map((path) => (
+              <Route
+                key={path}
+                path={`${path}/*`}
+                element={<LegacyProductRedirect />}
+              />
+            ))}
+            <Route path="*" element={<NotFound />} />
           </Route>
-          <Route path="landing" element={<Navigate to="/" replace />} />
-          {LEGACY_PRODUCT_PATHS.map((path) => (
-            <Route
-              key={path}
-              path={`${path}/*`}
-              element={<LegacyProductRedirect />}
-            />
-          ))}
-          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </AccessGateProvider>
       </RouteCrashFallback>
     </>
   );

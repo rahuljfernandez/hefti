@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
+import { apiFetch } from '../lib/apiClient';
 
 const API_BASE_URL =
   import.meta.env.VITE_RESEARCHER_FUNCTION_URL ||
@@ -97,7 +98,7 @@ export default function useResearchStream({
 
     setIsStreaming(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/researcher`, {
+      const res = await apiFetch(`${API_BASE_URL}/researcher`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: outgoingMessages, contextType, slug }),

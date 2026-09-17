@@ -6,6 +6,7 @@ import LayoutCard from '../atom/layout-card';
 import AcquisitionsCtaBanner, {
   LIVE_FEED_DEMO_URL,
 } from '../molecule/acquisitionsCtaBanner';
+import { apiFetch } from '../../../lib/apiClient';
 
 const WINDOW_DAYS = 90;
 const FEED_LIMIT = 5;
@@ -144,10 +145,10 @@ export default function HomeAcquisitionsCta({ to = LIVE_FEED_DEMO_URL }) {
 
       try {
         const [feedRes, statsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/ownership-changes?limit=${FEED_LIMIT}`, {
+          apiFetch(`${API_BASE_URL}/ownership-changes?limit=${FEED_LIMIT}`, {
             signal: controller.signal,
           }),
-          fetch(`${API_BASE_URL}/ownership-changes/stats`, {
+          apiFetch(`${API_BASE_URL}/ownership-changes/stats`, {
             signal: controller.signal,
           }),
         ]);

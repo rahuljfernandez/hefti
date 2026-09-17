@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiFetch } from '../lib/apiClient';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -17,7 +18,7 @@ function fetchOwnerClinicalBenchmarks(year) {
   if (!inflightRequest || cachedYear !== yearKey) {
     const qs = year != null ? `?year=${encodeURIComponent(year)}` : '';
     cachedYear = yearKey;
-    inflightRequest = fetch(
+    inflightRequest = apiFetch(
       `${API_BASE_URL}/owners/benchmarks/clinical-quality${qs}`,
     )
       .then((res) => {
