@@ -32,13 +32,17 @@ export default function OwnershipFlowDiagram({ items, facility }) {
   const hasOperator = items.some(
     (owner) => owner.cms_ownership_role === 'OPERATIONAL/MANAGERIAL CONTROL',
   );
+  // 2026 data also uses these names without the "5% OR GREATER" prefix.
   const indirectOwners = items.filter(
     (owner) =>
-      owner.cms_ownership_role === '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
+      owner.cms_ownership_role ===
+        '5% OR GREATER INDIRECT OWNERSHIP INTEREST' ||
+      owner.cms_ownership_role === 'INDIRECT OWNERSHIP INTEREST',
   );
   const directOwners = items.filter(
     (owner) =>
-      owner.cms_ownership_role === '5% OR GREATER DIRECT OWNERSHIP INTEREST',
+      owner.cms_ownership_role === '5% OR GREATER DIRECT OWNERSHIP INTEREST' ||
+      owner.cms_ownership_role === 'DIRECT OWNERSHIP INTEREST',
   );
   const corporateOfficers = items.filter(
     (owner) => owner.cms_ownership_role === 'CORPORATE OFFICER',

@@ -25,9 +25,12 @@ function ownerName(owner) {
 
 export function IndirectOwnersFlowSection({ items }) {
   const [showAll, setShowAll] = useState(false);
+  // 2026 data also uses the name without the "5% OR GREATER" prefix.
   const indirectOwner = items.filter(
     (owner) =>
-      owner.cms_ownership_role === '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
+      owner.cms_ownership_role ===
+        '5% OR GREATER INDIRECT OWNERSHIP INTEREST' ||
+      owner.cms_ownership_role === 'INDIRECT OWNERSHIP INTEREST',
   );
   if (!indirectOwner.length) return null;
 
@@ -85,9 +88,11 @@ IndirectOwnersFlowSection.propTypes = {
 
 export function DirectOwnersFlowSection({ items, facility }) {
   const { pe_name } = facility;
+  // 2026 data also uses the name without the "5% OR GREATER" prefix.
   const directOwner = items.filter(
     (owner) =>
-      owner.cms_ownership_role === '5% OR GREATER DIRECT OWNERSHIP INTEREST',
+      owner.cms_ownership_role === '5% OR GREATER DIRECT OWNERSHIP INTEREST' ||
+      owner.cms_ownership_role === 'DIRECT OWNERSHIP INTEREST',
   );
   if (!directOwner.length) return null;
   return (
