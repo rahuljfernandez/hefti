@@ -124,7 +124,7 @@ export default function LandingPage() {
                   {stat}
                   <span className="align-super text-3xl text-blue-400">+</span>
                 </dd>
-                <dt className="mt-2 text-paragraph-base text-content-tertiary">
+                <dt className="text-paragraph-base text-content-tertiary mt-2">
                   {label}
                 </dt>
               </div>
@@ -215,7 +215,10 @@ export default function LandingPage() {
           {/* Cards grid */}
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 md:grid-cols-3">
             {landingFeatures.map(({ num, title, body }) => (
-              <div key={num} className="bg-white px-8 py-8 transition-colors hover:bg-background-secondary">
+              <div
+                key={num}
+                className="hover:bg-background-secondary bg-white px-8 py-8 transition-colors"
+              >
                 <p className="text-label-xs text-content-tertiary mb-3">
                   {num}
                 </p>
@@ -338,7 +341,7 @@ export default function LandingPage() {
                 <div className="space-y-5">
                   <div>
                     <p className="text-label-sm text-content-secondary mb-3 uppercase">
-                      Initiative Lead
+                      Initiative Lead By
                     </p>
                     <p className="text-label-base font-semibold text-zinc-900">
                       {contactCard.lead.name}
