@@ -8,6 +8,15 @@ on:
       # github-actions-hefti-deployer -> Trust relationships
       # https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/roles/details/github-actions-hefti-deployer?section=trust_relationships
 
+# cancel-in-progress stays false: aborting mid-upload leaves prod incoherent.
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+env:
+  S3_BUCKET: hefti-app
+  CLOUDFRONT_DISTRIBUTION_ID: EHV0XK8BGXTWE
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,9 +28,62 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::330552994757:role/github-actions-hefti-deployer
           aws-region: us-east-2
-      # Same as npm run deploy (no --profile; OIDC).
-      - run: npm install && npm run build && aws s3 sync dist s3://hefti-app --delete
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # cp, not sync: sync skips unchanged files, so the fonts would never get
+      # Cache-Control rewritten. Assets go first so index.html can never be
+      # servable before the files it names.
+      - name: Upload hashed assets
+        run: |
+          aws s3 cp dist/assets "s3://$S3_BUCKET/assets" \
+            --recursive \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Upload unhashed static files
+        run: |
+          aws s3 cp dist/bios "s3://$S3_BUCKET/bios" \
+            --recursive \
+            --cache-control "public, max-age=3600"
+          aws s3 cp dist/hefti.svg "s3://$S3_BUCKET/hefti.svg" \
+            --cache-control "public, max-age=3600"
+
+      # no-cache makes edges revalidate every request, so no viewer can be
+      # handed HTML that points at assets a later deploy removed.
+      - name: Upload index.html
+        run: |
+          aws s3 cp dist/index.html "s3://$S3_BUCKET/index.html" \
+            --cache-control "no-cache" \
+            --content-type "text/html; charset=utf-8"
+
+      # --size-only guarantees this uploads nothing, so it cannot clobber the
+      # headers set above. Its only job is removing objects the build dropped.
+      - name: Prune objects from previous builds
+        run: |
+          aws s3 sync dist "s3://$S3_BUCKET" --delete --size-only
+
+      - name: Invalidate CloudFront
+        run: |
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          echo "Created invalidation $INVALIDATION_ID"
+          echo "INVALIDATION_ID=$INVALIDATION_ID" >> "$GITHUB_ENV"
+
+      - name: Wait for invalidation to complete
+        timeout-minutes: 12
+        run: |
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --id "$INVALIDATION_ID"
