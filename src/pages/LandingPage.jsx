@@ -341,7 +341,7 @@ export default function LandingPage() {
                 <div className="space-y-5">
                   <div>
                     <p className="text-label-sm text-content-secondary mb-3 uppercase">
-                      Initiative Lead By
+                      Initiative Lead
                     </p>
                     <p className="text-label-base font-semibold text-zinc-900">
                       {contactCard.lead.name}
