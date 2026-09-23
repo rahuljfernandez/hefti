@@ -150,7 +150,7 @@ export default function AccessGateModal({
         <form onSubmit={verifyCode}>
           <DialogTitle>Check your email</DialogTitle>
           <DialogDescription>
-            We sent a 6-digit code to <strong>{email}</strong>. It expires in 10
+            We sent a 6-digit code to <strong>{email}</strong>. It expires in 30
             minutes.
           </DialogDescription>
           <DialogBody>
