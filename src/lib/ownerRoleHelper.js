@@ -44,6 +44,9 @@ export const ownerRoleMap = {
 };
 
 const ROLE_ORDER = Object.keys(ownerRoleMap);
+const LABEL_ORDER = [
+  ...new Set(Object.values(ownerRoleMap).map(({ label }) => label)),
+];
 const NO_ROLE_LABEL = ownerRoleMap['N/A'].label;
 
 /* Sorted by ownerRoleMap order so a facility's roles read the same way on every
@@ -67,4 +70,24 @@ export function ownerRoleLabels(roles) {
   return labels.length > 1
     ? labels.filter((label) => label !== NO_ROLE_LABEL)
     : labels;
+}
+
+// Number of facilities where the owner holds each role, in ownerRoleMap order.
+export function countOwnerRoles(facilities) {
+  const counts = new Map();
+  for (const facility of facilities ?? []) {
+    for (const label of ownerRoleLabels(facility.cms_ownership_roles)) {
+      if (label === NO_ROLE_LABEL) continue;
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
+  }
+
+  const rank = (label) => {
+    const index = LABEL_ORDER.indexOf(label);
+    return index === -1 ? LABEL_ORDER.length : index;
+  };
+
+  return [...counts]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => rank(a.label) - rank(b.label));
 }
