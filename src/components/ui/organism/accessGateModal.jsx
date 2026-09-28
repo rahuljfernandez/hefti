@@ -11,7 +11,7 @@ import { Button } from '../atom/button';
 import { Field, Label, ErrorMessage } from '../molecule/fieldset';
 import { Input } from '../atom/input';
 import { API_BASE_URL, apiFetch } from '../../../lib/apiClient';
-import { isEduGovEmail } from '../../../lib/accessGate';
+import { isAllowedAccessEmail } from '../../../lib/accessGate';
 
 function messageFromResponse(payload, fallback) {
   if (payload && typeof payload.error === 'string' && payload.error) {
@@ -50,8 +50,8 @@ export default function AccessGateModal({
 
   async function sendCode() {
     setError('');
-    if (!isEduGovEmail(email)) {
-      setError('Only .edu and .gov email addresses are currently allowed.');
+    if (!isAllowedAccessEmail(email)) {
+      setError('Gmail addresses are not accepted. Use a work or school email.');
       return false;
     }
     setSubmitting(true);
@@ -118,9 +118,8 @@ export default function AccessGateModal({
         <form onSubmit={requestCode}>
           <DialogTitle>Request access</DialogTitle>
           <DialogDescription>
-            HEFTI is currently limited to <strong>.edu</strong> and{' '}
-            <strong>.gov</strong> email addresses. Enter yours and we will send
-            a one-time code.
+            Enter your email and we will send a one-time code. Personal{' '}
+            <strong>Gmail</strong> addresses are not accepted.
           </DialogDescription>
           <DialogBody>
             <Field>
@@ -132,7 +131,7 @@ export default function AccessGateModal({
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="name@agency.gov"
+                placeholder="name@organization.org"
               />
               {error ? <ErrorMessage>{error}</ErrorMessage> : null}
             </Field>
@@ -150,7 +149,7 @@ export default function AccessGateModal({
         <form onSubmit={verifyCode}>
           <DialogTitle>Check your email</DialogTitle>
           <DialogDescription>
-            We sent a 6-digit code to <strong>{email}</strong>. It expires in 10
+            We sent a 6-digit code to <strong>{email}</strong>. It expires in 30
             minutes.
           </DialogDescription>
           <DialogBody>

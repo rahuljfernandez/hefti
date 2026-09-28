@@ -1,20 +1,39 @@
 export const ACCESS_COOKIE = 'hefti_access';
 
-const EDU_GOV = /^[^\s@]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:edu|gov)$/i;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function emailDomain(email) {
+  const at = email.lastIndexOf('@');
+  return at >= 0 ? email.slice(at + 1) : '';
+}
+
+function isGmailAddress(email) {
+  const domain = emailDomain(email);
+  return (
+    domain === 'gmail.com' ||
+    domain === 'googlemail.com' ||
+    domain.endsWith('.gmail.com') ||
+    domain.endsWith('.googlemail.com')
+  );
+}
 
 export function isAccessGateEnabled() {
   return import.meta.env.VITE_ACCESS_GATE !== 'false';
 }
 
-export function isEduGovEmail(email) {
+export function isAllowedAccessEmail(email) {
   const normalized = String(email || '').trim().toLowerCase();
-  if (!normalized) return false;
+  if (!normalized || !EMAIL.test(normalized)) return false;
   const allowlist = String(import.meta.env.VITE_AUTH_EMAIL_ALLOWLIST || '')
     .split(',')
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
   if (allowlist.includes(normalized)) return true;
-  return EDU_GOV.test(normalized);
+  return !isGmailAddress(normalized);
+}
+
+export function isEduGovEmail(email) {
+  return isAllowedAccessEmail(email);
 }
 
 export function isPublicPath(pathname) {

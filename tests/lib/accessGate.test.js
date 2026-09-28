@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isEduGovEmail, isPublicPath } from '../../src/lib/accessGate';
+import { isAllowedAccessEmail, isPublicPath } from '../../src/lib/accessGate';
 
 describe('isPublicPath', () => {
   it('treats the landing page as public', () => {
@@ -15,14 +15,17 @@ describe('isPublicPath', () => {
   });
 });
 
-describe('isEduGovEmail', () => {
-  it('allows .edu and .gov addresses', () => {
-    expect(isEduGovEmail('name@cornell.edu')).toBe(true);
-    expect(isEduGovEmail('Name@CMS.HHS.GOV')).toBe(true);
+describe('isAllowedAccessEmail', () => {
+  it('allows non-Gmail addresses', () => {
+    expect(isAllowedAccessEmail('name@cornell.edu')).toBe(true);
+    expect(isAllowedAccessEmail('Name@CMS.HHS.GOV')).toBe(true);
+    expect(isAllowedAccessEmail('name@outlook.com')).toBe(true);
+    expect(isAllowedAccessEmail('name@vanderbilt.edu')).toBe(true);
   });
 
-  it('rejects other domains', () => {
-    expect(isEduGovEmail('name@gmail.com')).toBe(false);
-    expect(isEduGovEmail('name@school.edu.com')).toBe(false);
+  it('rejects Gmail unless allowlisted', () => {
+    expect(isAllowedAccessEmail('name@gmail.com')).toBe(false);
+    expect(isAllowedAccessEmail('name@googlemail.com')).toBe(false);
+    expect(isAllowedAccessEmail('')).toBe(false);
   });
 });
